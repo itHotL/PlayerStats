@@ -6,6 +6,8 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
+        ConfigHandler config = new ConfigHandler(this);
         this.getLogger().info("enabled PlayerStats!");
     }
 
