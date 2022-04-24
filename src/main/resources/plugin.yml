@@ -1,0 +1,10 @@
+main: com.gmail.artemis.the.gr8.playerstats.Main
+name: PlayerStats
+version: 1.0
+api-version: 1.18
+description: adds commands to view player statistics in chat
+author: Artemis_the_gr8
+commands:
+  //general statistic command that will show the possibilities with auto-tab-complete 
+  //player's individual statistics
+  //top 10 of the statistic
