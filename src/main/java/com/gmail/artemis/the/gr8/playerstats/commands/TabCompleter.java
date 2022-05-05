@@ -1,16 +1,14 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,7 +21,6 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
     private final List<String> itemNames;
     private final List<String> statNames;
     private final List<String> subStatNames;
-    private final List<String> playerNames;
 
     public TabCompleter(Main p) {
         plugin = p;
@@ -33,17 +30,11 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
         commandOptions.add("player");
         commandOptions.add("me");
 
-        blockNames = Arrays.stream(Material.values()).filter(Material::isBlock).map(Material::toString).map(String::toLowerCase).toList();
-        entityNames = Arrays.stream(EntityType.values()).map(EntityType::toString).map(String::toLowerCase).toList();
-        itemNames = Arrays.stream(Material.values()).filter(Material::isItem).map(Material::toString).map(String::toLowerCase).toList();
-        statNames = Arrays.stream(Statistic.values()).map(Statistic::toString).map(String::toLowerCase).toList();
-
-        subStatNames = new ArrayList<>();
-        subStatNames.addAll(blockNames);
-        subStatNames.addAll(entityNames);
-        subStatNames.addAll(itemNames);
-
-        playerNames = OfflinePlayerHandler.getAllOfflinePlayerNames();
+        blockNames = EnumHandler.getBlockNames();
+        entityNames = EnumHandler.getEntityNames();
+        itemNames = EnumHandler.getItemNames();
+        statNames = EnumHandler.getStatNames();
+        subStatNames = EnumHandler.getSubStatNames();
     }
 
     //args[0] = statistic                                                                        (length = 1)
@@ -52,12 +43,11 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
     //args[3] =                                    playerName                                    (length = 4)
 
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, String label, String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         List<String> tabSuggestions = new ArrayList<>();
 
         //after typing "stat", suggest a list of viable statistics
-        if ((label.equalsIgnoreCase("statistic") || command.getAliases().contains(label)) && args.length >= 1) {
-
+        if (args.length >= 1) {
             if (args.length == 1) {
                 tabSuggestions = statNames.stream().filter(stat -> stat.contains(args[0].toLowerCase())).collect(Collectors.toList());
             }
@@ -92,7 +82,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
 
                 //if previous arg = "player", suggest playerNames
                 else if (args[args.length-2].equalsIgnoreCase("player")) {
-                    tabSuggestions = playerNames.stream().filter(player -> player.toLowerCase().contains(args[args.length-1].toLowerCase())).collect(Collectors.toList());
+                    tabSuggestions = OfflinePlayerHandler.getAllOfflinePlayerNames().stream().filter(player -> player.toLowerCase().contains(args[args.length-1].toLowerCase())).collect(Collectors.toList());
                 }
 
                 //after a substatistic, suggest commandOptions

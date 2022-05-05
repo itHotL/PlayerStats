@@ -3,12 +3,11 @@ package com.gmail.artemis.the.gr8.playerstats.utils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class OfflinePlayerHandler {
+public class OfflinePlayerHandler {
 
     private OfflinePlayerHandler() {
     }
