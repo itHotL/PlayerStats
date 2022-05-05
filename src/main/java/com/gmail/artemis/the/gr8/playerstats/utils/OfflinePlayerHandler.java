@@ -1,13 +1,13 @@
-package com.gmail.artemis.the.gr8.statcount.utils;
+package com.gmail.artemis.the.gr8.playerstats.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.util.Arrays;
 
-public final class OfflinePlayerGetter {
+public final class OfflinePlayerHandler {
 
-    private OfflinePlayerGetter() {
+    private OfflinePlayerHandler() {
     }
 
     public static boolean isOfflinePlayer(String playerName) {

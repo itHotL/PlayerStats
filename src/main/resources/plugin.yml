@@ -4,4 +4,21 @@ version: 1.0
 api-version: 1.18
 description: adds commands to view player statistics in chat
 author: Artemis_the_gr8
-
+commands:
+  statistic:
+    aliases:
+      - stat
+    description: general statistic command
+    permission: playerstats.stat
+  statisticreload:
+    aliases:
+      - statreload
+    description: reloads the config
+    permission: playerstats.admin
+permissions:
+  playerstats.stat:
+    description: lowest permission level
+    default: op
+  playerstats.admin:
+    description: allows config and scoreboard related things
+    default: op

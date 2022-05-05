@@ -1,4 +1,4 @@
-package com.gmail.artemis.the.gr8.statcount;
+package com.gmail.artemis.the.gr8.playerstats;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -17,7 +17,7 @@ public class ConfigHandler {
     }
 
     //create a config file if none exists yet (from the config.yml in the plugin's resources)
-    public void saveDefaultConfig() {
+    private void saveDefaultConfig() {
         config = plugin.getConfig();
         plugin.saveDefaultConfig();
         configFile = new File(plugin.getDataFolder(), "config.yml");
