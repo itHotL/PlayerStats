@@ -8,6 +8,7 @@ commands:
   statistic:
     aliases:
       - stat
+      - stats
     description: general statistic command
     permission: playerstats.stat
   statisticreload:

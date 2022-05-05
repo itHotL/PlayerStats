@@ -44,24 +44,6 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
         subStatNames.addAll(itemNames);
 
         playerNames = OfflinePlayerHandler.getAllOfflinePlayerNames();
-
-        int no = 1;
-        for (String item : itemNames) {
-            plugin.getLogger().info("Item " + no + ". " + item);
-            no++;
-        }
-
-        no = 1;
-        for (String block : blockNames) {
-            plugin.getLogger().info("Block " + no + ". " + block);
-            no++;
-        }
-
-        no = 1;
-        for (String entity : entityNames) {
-            plugin.getLogger().info("Entity: " + no + ". " + entity);
-            no++;
-        }
     }
 
     //args[0] = statistic                                                                        (length = 1)
@@ -77,7 +59,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
         if ((label.equalsIgnoreCase("statistic") || command.getAliases().contains(label)) && args.length >= 1) {
 
             if (args.length == 1) {
-                tabSuggestions = statNames.stream().filter(stat -> stat.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
+                tabSuggestions = statNames.stream().filter(stat -> stat.contains(args[0].toLowerCase())).collect(Collectors.toList());
             }
 
             //after checking if args[0] is a viable statistic, suggest substatistic OR commandOptions
@@ -96,26 +78,26 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                             tabSuggestions = commandOptions;
                         }
                         else if (stat.getType() == Statistic.Type.BLOCK) {
-                            tabSuggestions = blockNames.stream().filter(block -> block.startsWith(args[args.length-1])).collect(Collectors.toList());
+                            tabSuggestions = blockNames.stream().filter(block -> block.contains(args[args.length-1])).collect(Collectors.toList());
                         }
                         else if (stat.getType() == Statistic.Type.ITEM) {
-                            tabSuggestions = itemNames.stream().filter(item -> item.startsWith(args[args.length-1])).collect(Collectors.toList());
+                            tabSuggestions = itemNames.stream().filter(item -> item.contains(args[args.length-1])).collect(Collectors.toList());
 
                         }
                         else if (stat.getType() == Statistic.Type.ENTITY) {
-                            tabSuggestions = entityNames.stream().filter(entity -> entity.startsWith(args[args.length-1])).collect(Collectors.toList());
+                            tabSuggestions = entityNames.stream().filter(entity -> entity.contains(args[args.length-1])).collect(Collectors.toList());
                         }
                     }
+                }
+
+                //if previous arg = "player", suggest playerNames
+                else if (args[args.length-2].equalsIgnoreCase("player")) {
+                    tabSuggestions = playerNames.stream().filter(player -> player.toLowerCase().contains(args[args.length-1].toLowerCase())).collect(Collectors.toList());
                 }
 
                 //after a substatistic, suggest commandOptions
                 else if (subStatNames.contains(args[args.length-2].toLowerCase())) {
                     tabSuggestions = commandOptions;
-                }
-
-                //if previous arg = "player", suggest playerNames
-                else if (args[args.length-2].equalsIgnoreCase("player")) {
-                    tabSuggestions = playerNames.stream().filter(player -> player.toLowerCase().startsWith(args[args.length-1].toLowerCase())).collect(Collectors.toList());
                 }
             }
         }

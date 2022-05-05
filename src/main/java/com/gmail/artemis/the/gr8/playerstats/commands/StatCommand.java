@@ -1,6 +1,5 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
-import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
