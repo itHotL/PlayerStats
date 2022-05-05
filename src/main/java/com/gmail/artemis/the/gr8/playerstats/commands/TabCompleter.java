@@ -64,19 +64,12 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                     }
 
                     if (stat != null) {
-                        if (stat.getType() == Statistic.Type.UNTYPED) {
-                            tabSuggestions = commandOptions;
-                        }
-                        else if (stat.getType() == Statistic.Type.BLOCK) {
-                            tabSuggestions = blockNames.stream().filter(block -> block.contains(args[args.length-1])).collect(Collectors.toList());
-                        }
-                        else if (stat.getType() == Statistic.Type.ITEM) {
-                            tabSuggestions = itemNames.stream().filter(item -> item.contains(args[args.length-1])).collect(Collectors.toList());
-
-                        }
-                        else if (stat.getType() == Statistic.Type.ENTITY) {
-                            tabSuggestions = entityNames.stream().filter(entity -> entity.contains(args[args.length-1])).collect(Collectors.toList());
-                        }
+                        tabSuggestions = switch (stat.getType()) {
+                            case UNTYPED -> commandOptions;
+                            case BLOCK -> blockNames.stream().filter(block -> block.contains(args[args.length - 1])).collect(Collectors.toList());
+                            case ITEM -> itemNames.stream().filter(item -> item.contains(args[args.length - 1])).collect(Collectors.toList());
+                            case ENTITY -> entityNames.stream().filter(entity -> entity.contains(args[args.length - 1])).collect(Collectors.toList());
+                        };
                     }
                 }
 

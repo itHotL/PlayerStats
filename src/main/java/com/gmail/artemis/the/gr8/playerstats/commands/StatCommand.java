@@ -36,23 +36,49 @@ public class StatCommand implements CommandExecutor {
                     item = EnumHandler.getItem(arg);
                 }
                 else if (EnumHandler.getEntityNames().contains(arg)) {
-                    entity = EnumHandler.getEntityType(arg);
+                    if (arg.equalsIgnoreCase("player")) {
+                        if (!playerFlag) {
+                            entity = (entity == null) ? EnumHandler.getEntityType(arg.toUpperCase()) : entity;
+                            playerFlag = true;
+                        }
+                        else {
+                            entity = EnumHandler.getEntityType(arg.toUpperCase());
+                            doublePlayerFlag = true;
+                        }
+                    }
+                    else {
+                        entity = EnumHandler.getEntityType(arg.toUpperCase());
+                    }
                 }
+
                 else if (arg.equalsIgnoreCase("me") && sender instanceof Player) {
                     playerName = sender.getName();
-                }
-                else if (arg.equalsIgnoreCase("player")) {
-                    if (!playerFlag) playerFlag = true;
-                    else doublePlayerFlag = true;
                 }
                 else if (OfflinePlayerHandler.getAllOfflinePlayerNames().stream().anyMatch(arg::equalsIgnoreCase)) {
                     playerName = arg;
                 }
             }
             if (playerName != null && stat != null) {
-                if (stat.getType() == Statistic.Type.UNTYPED) {
-                    sender.sendMessage(stat + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat));
+                switch (stat.getType()) {
+                    case UNTYPED:
+                        sender.sendMessage(stat + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat));
+                        break;
+                    case BLOCK:
+                        if (block != null) {
+                            sender.sendMessage(stat + " " + block + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat, block));
+                        }
+                        break;
+                    case ITEM:
+                        if (item != null) {
+                            sender.sendMessage(stat + " " + item + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat, item));
+                        }
+                    case ENTITY:
+                        if (entity != null) {
+                            sender.sendMessage(stat + " " + entity + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat, entity));
+                        }
                 }
+
+
             }
 
         }
