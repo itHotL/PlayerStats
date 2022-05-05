@@ -18,6 +18,12 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
 
     private final Main plugin;
     private final List<String> commandOptions;
+    private final List<String> blockNames;
+    private final List<String> entityNames;
+    private final List<String> itemNames;
+    private final List<String> statNames;
+    private final List<String> subStatNames;
+    private final List<String> playerNames;
 
     public TabCompleter(Main p) {
         plugin = p;
@@ -26,6 +32,36 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
         commandOptions.add("top");
         commandOptions.add("player");
         commandOptions.add("me");
+
+        blockNames = Arrays.stream(Material.values()).filter(Material::isBlock).map(Material::toString).map(String::toLowerCase).toList();
+        entityNames = Arrays.stream(EntityType.values()).map(EntityType::toString).map(String::toLowerCase).toList();
+        itemNames = Arrays.stream(Material.values()).filter(Material::isItem).map(Material::toString).map(String::toLowerCase).toList();
+        statNames = Arrays.stream(Statistic.values()).map(Statistic::toString).map(String::toLowerCase).toList();
+
+        subStatNames = new ArrayList<>();
+        subStatNames.addAll(blockNames);
+        subStatNames.addAll(entityNames);
+        subStatNames.addAll(itemNames);
+
+        playerNames = OfflinePlayerHandler.getAllOfflinePlayerNames();
+
+        int no = 1;
+        for (String item : itemNames) {
+            plugin.getLogger().info("Item " + no + ". " + item);
+            no++;
+        }
+
+        no = 1;
+        for (String block : blockNames) {
+            plugin.getLogger().info("Block " + no + ". " + block);
+            no++;
+        }
+
+        no = 1;
+        for (String entity : entityNames) {
+            plugin.getLogger().info("Entity: " + no + ". " + entity);
+            no++;
+        }
     }
 
     //args[0] = statistic                                                                        (length = 1)
@@ -35,76 +71,51 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, String label, String[] args) {
-
         List<String> tabSuggestions = new ArrayList<>();
 
         //after typing "stat", suggest a list of viable statistics
-        if (label.equalsIgnoreCase("statistic") || command.getAliases().contains(label)) {
+        if ((label.equalsIgnoreCase("statistic") || command.getAliases().contains(label)) && args.length >= 1) {
+
             if (args.length == 1) {
-                for (Statistic stat : Statistic.values()) {
-                    if (stat.name().toLowerCase().startsWith(args[0])) {
-                        tabSuggestions.add(stat.name().toLowerCase());
-                    }
-                }
+                tabSuggestions = statNames.stream().filter(stat -> stat.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
             }
 
-            //after checking if args[0] is a viable statistic, suggest substatistic OR commandOption
-            if (args.length >= 2) {
-                try {
-                    Statistic stat = Statistic.valueOf(args[args.length-2].toUpperCase());
-                    if (stat.getType() == Statistic.Type.UNTYPED) {
-                        tabSuggestions = commandOptions;
+            //after checking if args[0] is a viable statistic, suggest substatistic OR commandOptions
+            else {
+                if (statNames.contains(args[args.length-2].toLowerCase())) {
+                    Statistic stat = null;
+                    try {
+                        stat = Statistic.valueOf(args[args.length-2].toUpperCase());
                     }
-                    else if (stat.getType() == Statistic.Type.BLOCK) {
-                        tabSuggestions = Arrays.stream(Material.values()).filter(material ->
-                                material.isBlock() && material.toString().startsWith(args[1])).map(Material::toString).collect(Collectors.toList());
-                    }
-                    else if (stat.getType() == Statistic.Type.ITEM) {
-                        tabSuggestions = Arrays.stream(Material.values()).filter(material ->
-                                material.isItem() && material.toString().startsWith(args[1])).map(Material::toString).collect(Collectors.toList());
-                    }
-                    else if (stat.getType() == Statistic.Type.ENTITY) {
-                        tabSuggestions = Arrays.stream(EntityType.values()).map(EntityType::toString).filter(entityType ->
-                                entityType.startsWith(args[1])).collect(Collectors.toList());
+                    catch (IllegalArgumentException | NullPointerException e) {
+                        e.printStackTrace();
                     }
 
-
-                    if (args.length >= 3) {
-                        //if previous arg = "player", suggest playerNames
-                        if (args[args.length-2].equalsIgnoreCase("player")) {
-                            List<String> playerNames = OfflinePlayerHandler.getAllOfflinePlayerNames();
-                            for (String name : playerNames) {
-                                if (name.toLowerCase().startsWith(args[args.length-1].toLowerCase())) {
-                                    tabSuggestions.add(name);
-                                }
-                            }
+                    if (stat != null) {
+                        if (stat.getType() == Statistic.Type.UNTYPED) {
+                            tabSuggestions = commandOptions;
                         }
+                        else if (stat.getType() == Statistic.Type.BLOCK) {
+                            tabSuggestions = blockNames.stream().filter(block -> block.startsWith(args[args.length-1])).collect(Collectors.toList());
+                        }
+                        else if (stat.getType() == Statistic.Type.ITEM) {
+                            tabSuggestions = itemNames.stream().filter(item -> item.startsWith(args[args.length-1])).collect(Collectors.toList());
 
-                        //after typing a valid substatistic entry, suggest commandOptions
-                        else {
-                            Material material = Material.matchMaterial(args[1]) == null ? null : Material.matchMaterial(args[1]);
-                            if (material != null && (material.isBlock() || material.isItem())) {
-                                return commandOptions;
-                            }
-
-                            EntityType entity = null;
-                            try {
-                                entity = EntityType.valueOf(args[1].toUpperCase());
-                            }
-
-                            catch (IllegalArgumentException | NullPointerException e) {
-                                e.printStackTrace();
-                            }
-
-                            if (entity != null) {
-                                return commandOptions;
-                            }
+                        }
+                        else if (stat.getType() == Statistic.Type.ENTITY) {
+                            tabSuggestions = entityNames.stream().filter(entity -> entity.startsWith(args[args.length-1])).collect(Collectors.toList());
                         }
                     }
                 }
 
-                catch (IllegalArgumentException | NullPointerException e) {
-                    e.printStackTrace();
+                //after a substatistic, suggest commandOptions
+                else if (subStatNames.contains(args[args.length-2].toLowerCase())) {
+                    tabSuggestions = commandOptions;
+                }
+
+                //if previous arg = "player", suggest playerNames
+                else if (args[args.length-2].equalsIgnoreCase("player")) {
+                    tabSuggestions = playerNames.stream().filter(player -> player.toLowerCase().startsWith(args[args.length-1].toLowerCase())).collect(Collectors.toList());
                 }
             }
         }
