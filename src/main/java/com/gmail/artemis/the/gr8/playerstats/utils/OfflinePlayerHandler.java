@@ -3,7 +3,10 @@ package com.gmail.artemis.the.gr8.playerstats.utils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public final class OfflinePlayerHandler {
 
@@ -12,10 +15,6 @@ public final class OfflinePlayerHandler {
 
     public static boolean isOfflinePlayer(String playerName) {
         return Arrays.stream(Bukkit.getOfflinePlayers()).anyMatch(offlinePlayer -> offlinePlayer.getName() != null && offlinePlayer.getName().equalsIgnoreCase(playerName));
-    }
-
-    public static OfflinePlayer[] getAllOfflinePlayers() {
-        return Bukkit.getOfflinePlayers();
     }
 
     public static OfflinePlayer getOfflinePlayer(String playerName) {
@@ -29,5 +28,14 @@ public final class OfflinePlayerHandler {
             }
         }
         return offlinePlayer;
+    }
+
+    public static List<OfflinePlayer> getAllOfflinePlayers() {
+        return Arrays.stream(Bukkit.getOfflinePlayers()).filter(offlinePlayer ->
+            offlinePlayer.getName() != null && offlinePlayer.hasPlayedBefore()).collect(Collectors.toList());
+    }
+
+    public static List<String> getAllOfflinePlayerNames() {
+        return getAllOfflinePlayers().stream().map(OfflinePlayer::getName).collect(Collectors.toList());
     }
 }
