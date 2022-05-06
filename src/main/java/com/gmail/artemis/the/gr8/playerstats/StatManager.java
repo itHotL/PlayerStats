@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
+import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import org.bukkit.Statistic;
 
 import java.util.ArrayList;
@@ -10,36 +11,65 @@ import java.util.stream.Collectors;
 
 public class StatManager {
 
+    private final EnumHandler enumHandler;
+    private final List<String> statNames;
+    private final List<String> entityStatNames;
+    private final List<String> subStatEntryNames;
+
+    public StatManager(EnumHandler e) {
+        enumHandler = e;
+
+        statNames = Arrays.stream(Statistic.values()).map(
+                Statistic::toString).map(String::toLowerCase).toList();
+        entityStatNames = Arrays.stream(Statistic.values()).filter(statistic ->
+                statistic.getType().equals(Statistic.Type.ENTITY)).map(
+                Statistic::toString).map(String::toLowerCase).collect(Collectors.toList());
+
+        subStatEntryNames = new ArrayList<>();
+        subStatEntryNames.addAll(enumHandler.getBlockNames());
+        subStatEntryNames.addAll(enumHandler.getEntityTypeNames());
+        subStatEntryNames.addAll(enumHandler.getItemNames());
+    }
+
     //returns Statistic enum constant (uppercase) if the input name is valid, otherwise null (param: statName in uppercase)
-    public static Statistic getStatistic(String statName) {
-        Statistic stat = null;
+    public int getStatistic(Statistic stat, String playerName) {
+        return OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat);
+    }
+
+    public Statistic.Type getStatType(String statName) {
         try {
-            stat = Statistic.valueOf(statName);
+            return Statistic.valueOf(statName).getType();
         }
         catch (IllegalArgumentException | NullPointerException exception) {
             exception.printStackTrace();
+            return null;
         }
-        return stat;
+    }
+
+    //checks if string is a valid statistic (param: statName, not case sensitive)
+    public boolean isStatistic(String statName) {
+        return statNames.contains(statName.toLowerCase());
+    }
+
+    public boolean isEntityStatistic(String statName) {
+        return entityStatNames.contains(statName.toLowerCase());
+    }
+
+    public boolean isSubStatistic(String statName) {
+        return subStatEntryNames.contains(statName.toLowerCase());
     }
 
     //returns the names of all general statistics in lowercase
-    public static List<String> getStatNames() {
-        return Arrays.stream(Statistic.values()).map(
-                Statistic::toString).map(String::toLowerCase).toList();
+    public List<String> getStatNames() {
+        return statNames;
     }
 
-    public static List<String> getEntityStatNames() {
-        return Arrays.stream(Statistic.values()).filter(statistic ->
-                statistic.getType().equals(Statistic.Type.ENTITY)).map(
-                Statistic::toString).map(String::toLowerCase).collect(Collectors.toList());
+    public List<String> getEntityStatNames() {
+        return entityStatNames;
     }
 
     //returns all substatnames in lowercase
-    public static List<String> getValidSubStatEntries() {
-        List<String> subStatNames = new ArrayList<>();
-        subStatNames.addAll(EnumHandler.getBlockNames());
-        subStatNames.addAll(EnumHandler.getEntityNames());
-        subStatNames.addAll(EnumHandler.getItemNames());
-        return subStatNames;
+    public List<String> getSubStatEntryNames() {
+        return subStatEntryNames;
     }
 }

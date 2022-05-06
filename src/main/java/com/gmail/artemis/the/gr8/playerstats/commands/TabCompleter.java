@@ -4,7 +4,6 @@ import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -15,27 +14,21 @@ import java.util.stream.Collectors;
 
 public class TabCompleter implements org.bukkit.command.TabCompleter {
 
+    private final EnumHandler enumHandler;
+    private final StatManager statManager;
     private final Main plugin;
     private final List<String> commandOptions;
-    private final List<String> blockNames;
-    private final List<String> entityNames;
-    private final List<String> itemNames;
-    private final List<String> statNames;
-    private final List<String> subStatNames;
 
-    public TabCompleter(Main p) {
+
+    public TabCompleter(EnumHandler e, StatManager s, Main p) {
+        enumHandler = e;
+        statManager = s;
         plugin = p;
 
         commandOptions = new ArrayList<>();
         commandOptions.add("top");
         commandOptions.add("player");
         commandOptions.add("me");
-
-        blockNames = EnumHandler.getBlockNames();
-        entityNames = EnumHandler.getEntityNames();
-        itemNames = EnumHandler.getItemNames();
-        statNames = StatManager.getStatNames();
-        subStatNames = StatManager.getValidSubStatEntries();
     }
 
     //args[0] = statistic                                                                        (length = 1)
@@ -50,30 +43,28 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
         //after typing "stat", suggest a list of viable statistics
         if (args.length >= 1) {
             if (args.length == 1) {
-                tabSuggestions = statNames.stream().filter(stat ->
+                tabSuggestions = statManager.getStatNames().stream().filter(stat ->
                         stat.contains(args[0].toLowerCase())).collect(Collectors.toList());
             }
 
             //after checking if args[0] is a viable statistic, suggest substatistic OR commandOptions
             else {
-                if (statNames.contains(args[args.length-2].toLowerCase())) {
-                    Statistic stat = StatManager.getStatistic(args[args.length-2].toUpperCase());
-                    if (stat != null) {
-                        tabSuggestions = switch (stat.getType()) {
+                if (statManager.isStatistic(args[args.length-2])) {
+                        tabSuggestions = switch (statManager.getStatType(args[args.length-2])) {
                             case UNTYPED -> commandOptions;
-                            case BLOCK -> blockNames.stream().filter(block ->
+                            case BLOCK -> enumHandler.getBlockNames().stream().filter(block ->
                                     block.contains(args[args.length - 1])).collect(Collectors.toList());
-                            case ITEM -> itemNames.stream().filter(item ->
+                            case ITEM -> enumHandler.getItemNames().stream().filter(item ->
                                     item.contains(args[args.length - 1])).collect(Collectors.toList());
-                            case ENTITY -> entityNames.stream().filter(entity ->
+                            case ENTITY -> enumHandler.getEntityTypeNames().stream().filter(entity ->
                                     entity.contains(args[args.length - 1])).collect(Collectors.toList());
                         };
-                    }
+
                 }
 
                 //if previous arg = "player", suggest playerNames
                 else if (args[args.length-2].equalsIgnoreCase("player")) {
-                    if (args.length >= 3 && StatManager.getEntityStatNames().contains(args[args.length-3].toLowerCase())) {
+                    if (args.length >= 3 && statManager.getEntityStatNames().contains(args[args.length-3].toLowerCase())) {
                         tabSuggestions = commandOptions;
 
                     }
@@ -84,7 +75,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                 }
 
                 //after a substatistic, suggest commandOptions
-                else if (subStatNames.contains(args[args.length-2].toLowerCase())) {
+                else if (statManager.isSubStatistic(args[args.length-2])) {
                     tabSuggestions = commandOptions;
                 }
             }

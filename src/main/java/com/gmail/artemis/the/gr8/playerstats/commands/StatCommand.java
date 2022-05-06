@@ -5,7 +5,6 @@ import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OutputFormatter;
 import org.bukkit.Material;
-import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,66 +14,79 @@ import org.jetbrains.annotations.NotNull;
 
 public class StatCommand implements CommandExecutor {
 
+    private final EnumHandler enumHandler;
+    private final StatManager statManager;
+
+    public StatCommand(EnumHandler e, StatManager s) {
+        enumHandler = e;
+        statManager = s;
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length >= 2) {
 
-            Statistic stat = null;
+            String statName = null;
+            String blockName = null;
+            String itemName = null;
+            String entityName = null;
             Material block = null;
             Material item = null;
             EntityType entity = null;
             String playerName = null;
             boolean playerFlag = false;
 
+            //all args are in lowercase
             for (String arg : args) {
-                if (StatManager.getStatNames().contains(arg)) {
-                    stat = StatManager.getStatistic(arg.toUpperCase());
+                if (statManager.isStatistic(arg)) {
+                    statName = arg;
                 }
-                else if (EnumHandler.getBlockNames().contains(arg)) {
-                    block = EnumHandler.getBlock(arg);
+                else if (enumHandler.isBlock(arg)) {
+                    blockName = arg;
                 }
-                else if (EnumHandler.getItemNames().contains(arg)) {
-                    item = EnumHandler.getItem(arg);
+                else if (enumHandler.isItem(arg)) {
+                    itemName = arg;
                 }
-                else if (EnumHandler.getEntityNames().contains(arg)) {
+
+                else if (enumHandler.isEntityType(arg)) {
                     if (arg.equalsIgnoreCase("player")) {
                         if (!playerFlag) {
-                            entity = (entity == null) ? EnumHandler.getEntityType(arg.toUpperCase()) : entity;
+                            entityName = (entityName == null) ? arg : entityName;
                             playerFlag = true;
                         }
                         else {
-                            entity = EnumHandler.getEntityType(arg.toUpperCase());
+                            entityName = arg;
                         }
                     }
                     else {
-                        entity = EnumHandler.getEntityType(arg.toUpperCase());
+                        entityName = arg;
                     }
                 }
 
                 else if (arg.equalsIgnoreCase("me") && sender instanceof Player) {
                     playerName = sender.getName();
                 }
-                else if (OfflinePlayerHandler.getAllOfflinePlayerNames().stream().anyMatch(arg::equalsIgnoreCase)) {
+                else if (OfflinePlayerHandler.isOfflinePlayer(arg)) {
                     playerName = arg;
                 }
             }
-            if (playerName != null && stat != null) {
-                switch (stat.getType()) {
+            if (playerName != null && statName != null) {
+                switch (statManager.getStatType(statName)) {
                     case UNTYPED:
-                        sender.sendMessage(OutputFormatter.formatPlayerStat(playerName, stat.toString(), OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat)));
+                        sender.sendMessage(OutputFormatter.formatPlayerStat(playerName, statName, OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat)));
                         break;
                     case BLOCK:
                         if (block != null) {
-                            sender.sendMessage(stat + " " + block + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat, block));
+                            sender.sendMessage(statName + " " + block + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat, block));
                         }
                         break;
                     case ITEM:
                         if (item != null) {
-                            sender.sendMessage(stat + " " + item + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat, item));
+                            sender.sendMessage(statName + " " + item + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat, item));
                         }
                     case ENTITY:
                         if (entity != null) {
-                            sender.sendMessage(stat + " " + entity + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat, entity));
+                            sender.sendMessage(statName + " " + entity + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat, entity));
                         }
 
                 }

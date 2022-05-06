@@ -12,6 +12,10 @@ public class OfflinePlayerHandler {
     private OfflinePlayerHandler() {
     }
 
+    public static boolean isOfflinePlayer(String playerName) {
+        return OfflinePlayerHandler.getAllOfflinePlayerNames().stream().anyMatch(playerName::equalsIgnoreCase);
+    }
+
     public static OfflinePlayer getOfflinePlayer(String playerName) {
         OfflinePlayer[] playerList = Bukkit.getOfflinePlayers();
         OfflinePlayer offlinePlayer = null;
