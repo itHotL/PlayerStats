@@ -1,7 +1,9 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
+import com.gmail.artemis.the.gr8.playerstats.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
+import com.gmail.artemis.the.gr8.playerstats.utils.OutputFormatter;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
@@ -23,11 +25,10 @@ public class StatCommand implements CommandExecutor {
             EntityType entity = null;
             String playerName = null;
             boolean playerFlag = false;
-            boolean doublePlayerFlag = false;
 
             for (String arg : args) {
-                if (EnumHandler.getStatNames().contains(arg)) {
-                    stat = EnumHandler.getStatistic(arg.toUpperCase());
+                if (StatManager.getStatNames().contains(arg)) {
+                    stat = StatManager.getStatistic(arg.toUpperCase());
                 }
                 else if (EnumHandler.getBlockNames().contains(arg)) {
                     block = EnumHandler.getBlock(arg);
@@ -43,7 +44,6 @@ public class StatCommand implements CommandExecutor {
                         }
                         else {
                             entity = EnumHandler.getEntityType(arg.toUpperCase());
-                            doublePlayerFlag = true;
                         }
                     }
                     else {
@@ -61,7 +61,7 @@ public class StatCommand implements CommandExecutor {
             if (playerName != null && stat != null) {
                 switch (stat.getType()) {
                     case UNTYPED:
-                        sender.sendMessage(stat + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat));
+                        sender.sendMessage(OutputFormatter.formatPlayerStat(playerName, stat.toString(), OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat)));
                         break;
                     case BLOCK:
                         if (block != null) {
@@ -76,11 +76,9 @@ public class StatCommand implements CommandExecutor {
                         if (entity != null) {
                             sender.sendMessage(stat + " " + entity + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat, entity));
                         }
+
                 }
-
-
             }
-
         }
         return true;
     }

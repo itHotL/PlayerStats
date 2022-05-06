@@ -15,11 +15,11 @@ commands:
     aliases:
       - statreload
     description: reloads the config
-    permission: playerstats.admin
+    permission: playerstats.reload
 permissions:
   playerstats.stat:
     description: lowest permission level
     default: op
   playerstats.admin:
-    description: allows config and scoreboard related things
+    description: allows config and scoreboard related things?
     default: op

@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import org.bukkit.Statistic;
@@ -33,8 +34,8 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
         blockNames = EnumHandler.getBlockNames();
         entityNames = EnumHandler.getEntityNames();
         itemNames = EnumHandler.getItemNames();
-        statNames = EnumHandler.getStatNames();
-        subStatNames = EnumHandler.getSubStatNames();
+        statNames = StatManager.getStatNames();
+        subStatNames = StatManager.getValidSubStatEntries();
     }
 
     //args[0] = statistic                                                                        (length = 1)
@@ -49,33 +50,37 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
         //after typing "stat", suggest a list of viable statistics
         if (args.length >= 1) {
             if (args.length == 1) {
-                tabSuggestions = statNames.stream().filter(stat -> stat.contains(args[0].toLowerCase())).collect(Collectors.toList());
+                tabSuggestions = statNames.stream().filter(stat ->
+                        stat.contains(args[0].toLowerCase())).collect(Collectors.toList());
             }
 
             //after checking if args[0] is a viable statistic, suggest substatistic OR commandOptions
             else {
                 if (statNames.contains(args[args.length-2].toLowerCase())) {
-                    Statistic stat = null;
-                    try {
-                        stat = Statistic.valueOf(args[args.length-2].toUpperCase());
-                    }
-                    catch (IllegalArgumentException | NullPointerException e) {
-                        e.printStackTrace();
-                    }
-
+                    Statistic stat = StatManager.getStatistic(args[args.length-2].toUpperCase());
                     if (stat != null) {
                         tabSuggestions = switch (stat.getType()) {
                             case UNTYPED -> commandOptions;
-                            case BLOCK -> blockNames.stream().filter(block -> block.contains(args[args.length - 1])).collect(Collectors.toList());
-                            case ITEM -> itemNames.stream().filter(item -> item.contains(args[args.length - 1])).collect(Collectors.toList());
-                            case ENTITY -> entityNames.stream().filter(entity -> entity.contains(args[args.length - 1])).collect(Collectors.toList());
+                            case BLOCK -> blockNames.stream().filter(block ->
+                                    block.contains(args[args.length - 1])).collect(Collectors.toList());
+                            case ITEM -> itemNames.stream().filter(item ->
+                                    item.contains(args[args.length - 1])).collect(Collectors.toList());
+                            case ENTITY -> entityNames.stream().filter(entity ->
+                                    entity.contains(args[args.length - 1])).collect(Collectors.toList());
                         };
                     }
                 }
 
                 //if previous arg = "player", suggest playerNames
                 else if (args[args.length-2].equalsIgnoreCase("player")) {
-                    tabSuggestions = OfflinePlayerHandler.getAllOfflinePlayerNames().stream().filter(player -> player.toLowerCase().contains(args[args.length-1].toLowerCase())).collect(Collectors.toList());
+                    if (args.length >= 3 && StatManager.getEntityStatNames().contains(args[args.length-3].toLowerCase())) {
+                        tabSuggestions = commandOptions;
+
+                    }
+                    else {
+                        tabSuggestions = OfflinePlayerHandler.getAllOfflinePlayerNames().stream().filter(player ->
+                                player.toLowerCase().contains(args[args.length-1].toLowerCase())).collect(Collectors.toList());
+                    }
                 }
 
                 //after a substatistic, suggest commandOptions
