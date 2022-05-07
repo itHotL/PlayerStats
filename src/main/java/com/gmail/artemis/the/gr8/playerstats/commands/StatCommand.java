@@ -27,39 +27,24 @@ public class StatCommand implements CommandExecutor {
         if (args.length >= 2) {
 
             String statName = null;
-            String blockName = null;
-            String itemName = null;
-            String entityName = null;
-            Material block = null;
-            Material item = null;
-            EntityType entity = null;
+            String subStatEntry = null;
             String playerName = null;
             boolean playerFlag = false;
 
             //all args are in lowercase
             for (String arg : args) {
                 if (statManager.isStatistic(arg)) {
-                    statName = arg;
+                    statName = (statName == null) ? arg : statName;
                 }
-                else if (enumHandler.isBlock(arg)) {
-                    blockName = arg;
-                }
-                else if (enumHandler.isItem(arg)) {
-                    itemName = arg;
-                }
-
-                else if (enumHandler.isEntityType(arg)) {
+                else if (statManager.isSubStatistic(arg)) {
                     if (arg.equalsIgnoreCase("player")) {
                         if (!playerFlag) {
-                            entityName = (entityName == null) ? arg : entityName;
+                            subStatEntry = (subStatEntry == null) ? arg : subStatEntry;
                             playerFlag = true;
-                        }
-                        else {
-                            entityName = arg;
                         }
                     }
                     else {
-                        entityName = arg;
+                        subStatEntry = (subStatEntry == null || playerFlag) ? arg : subStatEntry;
                     }
                 }
 
@@ -67,29 +52,18 @@ public class StatCommand implements CommandExecutor {
                     playerName = sender.getName();
                 }
                 else if (OfflinePlayerHandler.isOfflinePlayer(arg)) {
-                    playerName = arg;
+                    playerName = (playerName == null) ? arg : playerName;
                 }
             }
             if (playerName != null && statName != null) {
-                switch (statManager.getStatType(statName)) {
-                    case UNTYPED:
-                        sender.sendMessage(OutputFormatter.formatPlayerStat(playerName, statName, OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat)));
-                        break;
-                    case BLOCK:
-                        if (block != null) {
-                            sender.sendMessage(statName + " " + block + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat, block));
-                        }
-                        break;
-                    case ITEM:
-                        if (item != null) {
-                            sender.sendMessage(statName + " " + item + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat, item));
-                        }
-                    case ENTITY:
-                        if (entity != null) {
-                            sender.sendMessage(statName + " " + entity + " for " + playerName + ": " + OfflinePlayerHandler.getOfflinePlayer(playerName).getStatistic(stat, entity));
-                        }
-
+                try {
+                    sender.sendMessage(OutputFormatter.formatPlayerStat(playerName, statName, subStatEntry,
+                            statManager.getStatistic(statName, subStatEntry, playerName)));
                 }
+                catch (Exception e) {
+                    sender.sendMessage(e.toString());
+                }
+
             }
         }
         return true;

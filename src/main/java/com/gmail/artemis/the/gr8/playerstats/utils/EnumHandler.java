@@ -40,11 +40,11 @@ public class EnumHandler {
         return entityTypeNames.contains(entityName.toLowerCase());
     }
 
-    //returns EntityType enum constant (uppercase) if the input name is valid, otherwise null (param: entityName in uppercase)
+    //returns EntityType enum constant (uppercase) if the input name is valid, otherwise null (param: entityName, not case sensitive)
     public EntityType getEntityType(String entityName) {
         EntityType entityType = null;
         try {
-            entityType = EntityType.valueOf(entityName);
+            entityType = EntityType.valueOf(entityName.toUpperCase());
         }
         catch (IllegalArgumentException | NullPointerException exception) {
             exception.printStackTrace();
@@ -70,4 +70,5 @@ public class EnumHandler {
     public List<String> getBlockNames() {
         return blockNames;
     }
+
 }

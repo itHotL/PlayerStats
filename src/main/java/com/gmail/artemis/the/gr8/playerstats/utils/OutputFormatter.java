@@ -11,14 +11,13 @@ public class OutputFormatter {
     }
 
     public static String formatPlayerStat(String playerName, String statName, int stat) {
-        return ChatColor.GOLD + playerName + ChatColor.WHITE + ": " + stat + " " +
-                ChatColor.AQUA + statName.toLowerCase().replace("_", " ");
+        return formatPlayerStat(playerName, statName, null, stat);
     }
 
     public static String formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
+        String subStat = subStatEntryName != null ? ChatColor.BLUE + " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
 
         return ChatColor.GOLD + playerName + ChatColor.WHITE + ": " + stat + " " +
-                ChatColor.AQUA + statName.toLowerCase().replace("_", " ") +
-                ChatColor.BLUE + " (" + subStatEntryName + ")";
+                ChatColor.AQUA + statName.toLowerCase().replace("_", " ") + subStat;
     }
 }

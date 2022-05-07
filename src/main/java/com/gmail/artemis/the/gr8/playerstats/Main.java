@@ -12,7 +12,7 @@ public class Main extends JavaPlugin {
 
         ConfigHandler config = new ConfigHandler(this);
         EnumHandler enumHandler = new EnumHandler();
-        StatManager statManager = new StatManager(enumHandler);
+        StatManager statManager = new StatManager(enumHandler, this);
         this.getCommand("statistic").setExecutor(new StatCommand(enumHandler, statManager));
         this.getCommand("statistic").setTabCompleter(new TabCompleter(enumHandler, statManager,this));
         this.getLogger().info("Enabled PlayerStats!");
