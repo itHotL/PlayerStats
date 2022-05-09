@@ -4,11 +4,9 @@ import com.gmail.artemis.the.gr8.playerstats.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OutputFormatter;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +34,7 @@ public class StatCommand implements CommandExecutor {
                 if (statManager.isStatistic(arg)) {
                     statName = (statName == null) ? arg : statName;
                 }
-                else if (statManager.isSubStatistic(arg)) {
+                else if (statManager.isSubStatEntry(arg)) {
                     if (arg.equalsIgnoreCase("player")) {
                         if (!playerFlag) {
                             subStatEntry = (subStatEntry == null) ? arg : subStatEntry;
@@ -56,6 +54,7 @@ public class StatCommand implements CommandExecutor {
                 }
             }
             if (playerName != null && statName != null) {
+                subStatEntry = statManager.isMatchingSubStatEntry(statName, subStatEntry) ? subStatEntry : null;
                 try {
                     sender.sendMessage(OutputFormatter.formatPlayerStat(playerName, statName, subStatEntry,
                             statManager.getStatistic(statName, subStatEntry, playerName)));

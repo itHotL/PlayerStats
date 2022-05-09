@@ -9,11 +9,14 @@ import java.util.stream.Collectors;
 
 public class OfflinePlayerHandler {
 
-    private OfflinePlayerHandler() {
+    private List<OfflinePlayer> allOfflinePlayers;
+
+    public OfflinePlayerHandler() {
+        updateOfflinePlayers();
     }
 
     public static boolean isOfflinePlayer(String playerName) {
-        return OfflinePlayerHandler.getAllOfflinePlayerNames().stream().anyMatch(playerName::equalsIgnoreCase);
+        return (getOfflinePlayer(playerName) != null);
     }
 
     public static OfflinePlayer getOfflinePlayer(String playerName) {
@@ -29,12 +32,16 @@ public class OfflinePlayerHandler {
         return offlinePlayer;
     }
 
-    public static List<OfflinePlayer> getAllOfflinePlayers() {
-        return Arrays.stream(Bukkit.getOfflinePlayers()).filter(offlinePlayer ->
-            offlinePlayer.getName() != null && offlinePlayer.hasPlayedBefore()).collect(Collectors.toList());
+    public List<OfflinePlayer> getAllOfflinePlayers() {
+        return allOfflinePlayers;
     }
 
-    public static List<String> getAllOfflinePlayerNames() {
-        return getAllOfflinePlayers().stream().map(OfflinePlayer::getName).collect(Collectors.toList());
+    public List<String> getAllOfflinePlayerNames() {
+        return allOfflinePlayers.stream().map(OfflinePlayer::getName).collect(Collectors.toList());
+    }
+
+    public void updateOfflinePlayers() {
+        allOfflinePlayers = Arrays.stream(Bukkit.getOfflinePlayers()).filter(offlinePlayer ->
+                offlinePlayer.getName() != null && offlinePlayer.hasPlayedBefore()).collect(Collectors.toList());
     }
 }

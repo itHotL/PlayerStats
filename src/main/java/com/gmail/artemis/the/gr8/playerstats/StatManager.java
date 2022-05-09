@@ -36,11 +36,11 @@ public class StatManager {
         subStatEntryNames.addAll(enumHandler.getItemNames());
     }
 
-    //returns Statistic enum constant (uppercase) if the input name is valid, otherwise null (param: statName in uppercase)
     public int getStatistic(String statName, String playerName) throws IllegalArgumentException, NullPointerException {
         return getStatistic(statName, null, playerName);
     }
 
+    //returns the integer associated with a certain statistic for a player
     public int getStatistic(String statName, String subStatEntryName, String playerName) throws IllegalArgumentException, NullPointerException {
         OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
         if (player == null) throw new NullPointerException("No player called " + playerName + " was found!");
@@ -71,6 +71,7 @@ public class StatManager {
         throw new NullPointerException(statName + " is not a valid statistic name!");
     }
 
+    //returns the statistic enum constant, or null if non-existent (param: statName, not case sensitive)
     private Statistic getStatistic(String statName) {
         try {
             return Statistic.valueOf(statName.toUpperCase());
@@ -81,6 +82,7 @@ public class StatManager {
         }
     }
 
+    //gets the type of the statistic from the string, otherwise returns null (param: statName, not case sensitive)
     public Statistic.Type getStatType(String statName) {
         try {
             return Statistic.valueOf(statName.toUpperCase()).getType();
@@ -96,12 +98,36 @@ public class StatManager {
         return statNames.contains(statName.toLowerCase());
     }
 
-    public boolean isEntityStatistic(String statName) {
+    //checks if string is a valid substatistic dealing with entities (param: statName, not case sensitive)
+    public boolean isStatEntityType(String statName) {
         return entityStatNames.contains(statName.toLowerCase());
     }
 
-    public boolean isSubStatistic(String statName) {
+    //checks in the most general sense if this statistic is a substatistic (param: statName, not case sensitive)
+    public boolean isSubStatEntry(String statName) {
         return subStatEntryNames.contains(statName.toLowerCase());
+    }
+
+    //checks whether a subStatEntry is of the type that the statistic requires
+    public boolean isMatchingSubStatEntry(String statName, String subStatEntry) {
+        Statistic.Type type = getStatType(statName);
+        if (type != null && subStatEntry != null) {
+            switch (type) {
+                case ENTITY -> {
+                    return enumHandler.isEntityType(subStatEntry);
+                }
+                case ITEM -> {
+                    return enumHandler.isItem(subStatEntry);
+                }
+                case BLOCK -> {
+                    return enumHandler.isBlock(subStatEntry);
+                }
+                case UNTYPED -> {
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 
     //returns the names of all general statistics in lowercase
@@ -109,7 +135,8 @@ public class StatManager {
         return statNames;
     }
 
-    public List<String> getEntityStatNames() {
+    //returns all statistics that have type entities, in lowercase
+    public List<String> getEntityTypeNames() {
         return entityStatNames;
     }
 

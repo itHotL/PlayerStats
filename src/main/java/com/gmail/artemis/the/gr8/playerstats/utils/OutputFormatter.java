@@ -15,7 +15,8 @@ public class OutputFormatter {
     }
 
     public static String formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
-        String subStat = subStatEntryName != null ? ChatColor.BLUE + " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
+        String subStat = subStatEntryName != null ?
+                ChatColor.BLUE + " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
 
         return ChatColor.GOLD + playerName + ChatColor.WHITE + ": " + stat + " " +
                 ChatColor.AQUA + statName.toLowerCase().replace("_", " ") + subStat;

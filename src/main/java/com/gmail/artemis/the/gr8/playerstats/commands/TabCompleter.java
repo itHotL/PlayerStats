@@ -15,13 +15,15 @@ import java.util.stream.Collectors;
 public class TabCompleter implements org.bukkit.command.TabCompleter {
 
     private final EnumHandler enumHandler;
+    private final OfflinePlayerHandler offlinePlayerHandler;
     private final StatManager statManager;
     private final Main plugin;
     private final List<String> commandOptions;
 
 
-    public TabCompleter(EnumHandler e, StatManager s, Main p) {
+    public TabCompleter(EnumHandler e, OfflinePlayerHandler o, StatManager s, Main p) {
         enumHandler = e;
+        offlinePlayerHandler = o;
         statManager = s;
         plugin = p;
 
@@ -64,18 +66,18 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
 
                 //if previous arg = "player", suggest playerNames
                 else if (args[args.length-2].equalsIgnoreCase("player")) {
-                    if (args.length >= 3 && statManager.getEntityStatNames().contains(args[args.length-3].toLowerCase())) {
+                    if (args.length >= 3 && statManager.getEntityTypeNames().contains(args[args.length-3].toLowerCase())) {
                         tabSuggestions = commandOptions;
 
                     }
                     else {
-                        tabSuggestions = OfflinePlayerHandler.getAllOfflinePlayerNames().stream().filter(player ->
+                        tabSuggestions = offlinePlayerHandler.getAllOfflinePlayerNames().stream().filter(player ->
                                 player.toLowerCase().contains(args[args.length-1].toLowerCase())).collect(Collectors.toList());
                     }
                 }
 
                 //after a substatistic, suggest commandOptions
-                else if (statManager.isSubStatistic(args[args.length-2])) {
+                else if (statManager.isSubStatEntry(args[args.length-2])) {
                     tabSuggestions = commandOptions;
                 }
             }
