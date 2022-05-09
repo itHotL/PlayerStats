@@ -77,7 +77,7 @@ public class StatManager {
             return Statistic.valueOf(statName.toUpperCase());
         }
         catch (IllegalArgumentException | NullPointerException exception) {
-            logWarnings(exception);
+            plugin.logStatRelatedExceptions(exception);
             return null;
         }
     }
@@ -88,7 +88,7 @@ public class StatManager {
             return Statistic.valueOf(statName.toUpperCase()).getType();
         }
         catch (IllegalArgumentException | NullPointerException exception) {
-            logWarnings(exception);
+            plugin.logStatRelatedExceptions(exception);
             return null;
         }
     }
@@ -143,14 +143,5 @@ public class StatManager {
     //returns all substatnames in lowercase
     public List<String> getSubStatEntryNames() {
         return subStatEntryNames;
-    }
-
-    public void logWarnings(Exception exception) {
-        if (exception instanceof IllegalArgumentException) {
-            plugin.getLogger().warning("IllegalArgumentException - this is probably not a valid statistic name!");
-        }
-        else if (exception instanceof NullPointerException) {
-            plugin.getLogger().warning("NullPointerException - no statistic name was provided");
-        }
     }
 }

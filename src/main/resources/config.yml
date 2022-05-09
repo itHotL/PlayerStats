@@ -1,2 +1,15 @@
 # PlayerStats Configuration
 
+# --- Color Options ---
+# supports: all default Minecraft colors
+individual-statistics:
+  player-names: gold
+  stat-names: light_purple
+  sub-stat-names: dark_purple
+  numbers: white
+
+ranked-list:
+  player-names: gold
+  stat-names: light_purple
+  sub-stat-names: dark_purple
+  numbers: white

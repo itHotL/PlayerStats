@@ -12,11 +12,11 @@ import org.jetbrains.annotations.NotNull;
 
 public class StatCommand implements CommandExecutor {
 
-    private final EnumHandler enumHandler;
+    private final OutputFormatter outputFormatter;
     private final StatManager statManager;
 
-    public StatCommand(EnumHandler e, StatManager s) {
-        enumHandler = e;
+    public StatCommand(OutputFormatter o, StatManager s) {
+        outputFormatter = o;
         statManager = s;
     }
 
@@ -56,7 +56,7 @@ public class StatCommand implements CommandExecutor {
             if (playerName != null && statName != null) {
                 subStatEntry = statManager.isMatchingSubStatEntry(statName, subStatEntry) ? subStatEntry : null;
                 try {
-                    sender.sendMessage(OutputFormatter.formatPlayerStat(playerName, statName, subStatEntry,
+                    sender.sendMessage(outputFormatter.formatPlayerStat(playerName, statName, subStatEntry,
                             statManager.getStatistic(statName, subStatEntry, playerName)));
                 }
                 catch (Exception e) {

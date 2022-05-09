@@ -1,24 +1,38 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
+import com.gmail.artemis.the.gr8.playerstats.ConfigHandler;
 import org.bukkit.ChatColor;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class OutputFormatter {
 
-    public static String formatTopStats(LinkedHashMap<String, Integer> topStats) {
+    //keys for the HashMap are:
+        //playerNames(Ranked)
+        //statNames(Ranked)
+        //subStatNames(Ranked)
+        //numbers(Ranked)
+
+    private final HashMap<String, ChatColor> chatColors;
+
+    public OutputFormatter(ConfigHandler c) {
+        chatColors = c.getChatColors();
+    }
+
+    public String formatTopStats(LinkedHashMap<String, Integer> topStats) {
         return "";
     }
 
-    public static String formatPlayerStat(String playerName, String statName, int stat) {
+    public String formatPlayerStat(String playerName, String statName, int stat) {
         return formatPlayerStat(playerName, statName, null, stat);
     }
 
-    public static String formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
+    public String formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
         String subStat = subStatEntryName != null ?
-                ChatColor.BLUE + " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
+                chatColors.get("subStatNames") + " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
 
-        return ChatColor.GOLD + playerName + ChatColor.WHITE + ": " + stat + " " +
-                ChatColor.AQUA + statName.toLowerCase().replace("_", " ") + subStat;
+        return chatColors.get("playerNames") + playerName + chatColors.get("numbers") + ": " + stat + " " +
+                chatColors.get("statNames") + statName.toLowerCase().replace("_", " ") + subStat;
     }
 }
