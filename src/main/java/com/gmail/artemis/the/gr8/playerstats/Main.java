@@ -24,7 +24,7 @@ public class Main extends JavaPlugin {
         this.getCommand("statistic").setExecutor(new StatCommand(outputFormatter, statManager, this));
         this.getCommand("statistic").setTabCompleter(new TabCompleter(
                 enumHandler, statManager,this));
-        this.getCommand("statisticreload").setExecutor(new ReloadCommand(config));
+        this.getCommand("statisticreload").setExecutor(new ReloadCommand(config, outputFormatter));
 
         Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
         this.getLogger().info("Enabled PlayerStats!");

@@ -10,7 +10,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.Instant;
 
 public class StatCommand implements CommandExecutor {
 
@@ -30,7 +29,8 @@ public class StatCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         long time = System.currentTimeMillis();
-        plugin.getLogger().info("onCommand 33: " + time);
+        long startTime = System.currentTimeMillis();
+
         if (args.length >= 2) {
 
             String statName = null;
@@ -84,9 +84,17 @@ public class StatCommand implements CommandExecutor {
                 try {
                     plugin.getLogger().info("onCommand 85: " + (System.currentTimeMillis() - time));
                     time = System.currentTimeMillis();
-                    sender.sendMessage(outputFormatter.formatPlayerStat(playerName, statName, subStatEntry,
-                            statManager.getStatistic(statName, subStatEntry, playerName)));
+
+                    int stat = statManager.getStatistic(statName, subStatEntry, playerName);
                     plugin.getLogger().info("onCommand 89: " + (System.currentTimeMillis() - time));
+                    time = System.currentTimeMillis();
+
+                    String msg = outputFormatter.formatPlayerStat(playerName, statName, subStatEntry, stat);
+                    plugin.getLogger().info("onCommand 93: " + (System.currentTimeMillis() - time));
+                    time = System.currentTimeMillis();
+
+                    sender.sendMessage(msg);
+                    plugin.getLogger().info("onCommand 97: " + (System.currentTimeMillis() - time));
                     time = System.currentTimeMillis();
                 }
                 catch (Exception e) {
@@ -95,7 +103,8 @@ public class StatCommand implements CommandExecutor {
 
             }
         }
-        plugin.getLogger().info("onCommand 98: " + (System.currentTimeMillis() - time));
+        plugin.getLogger().info("onCommand 106: " + (System.currentTimeMillis() - time));
+        plugin.getLogger().info("Total time elapsed: " + (System.currentTimeMillis() - startTime));
         return true;
     }
 }

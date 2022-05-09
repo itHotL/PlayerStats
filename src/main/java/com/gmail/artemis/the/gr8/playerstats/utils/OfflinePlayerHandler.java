@@ -11,7 +11,7 @@ public class OfflinePlayerHandler {
     private static OfflinePlayerHandler instance;
     private List<OfflinePlayer> offlinePlayers;
     private List<String> offlinePlayerNames;
-    private HashMap<String, UUID> offlinePlayerUUIDs;
+    private HashMap<String, OfflinePlayer> offlinePlayerMap;
 
     private OfflinePlayerHandler() {
         updateOfflinePlayers();
@@ -30,15 +30,10 @@ public class OfflinePlayerHandler {
 
     public OfflinePlayer getOfflinePlayer(String playerName) {
         long time = System.currentTimeMillis();
-        System.out.println(("OfflinePlayerHandler 34: " + (System.currentTimeMillis() - time)));
-        time = System.currentTimeMillis();
 
-        Optional<OfflinePlayer> player = offlinePlayers.stream().filter(offlinePlayer ->
-                offlinePlayer.getName() != null && offlinePlayer.getName().equalsIgnoreCase(playerName)).findAny();
-
-        System.out.println(("OfflinePlayerHandler 40: " + (System.currentTimeMillis() - time)));
-        time = System.currentTimeMillis();
-        return player.orElse(null);
+        OfflinePlayer player = offlinePlayerMap.get(playerName);
+        System.out.println(("OfflinePlayerHandler 35: " + (System.currentTimeMillis() - time)));
+        return player;
     }
 
     public List<OfflinePlayer> getAllOfflinePlayers() {
@@ -50,9 +45,10 @@ public class OfflinePlayerHandler {
     }
 
     public void updateOfflinePlayers() {
+        offlinePlayerMap = new HashMap<>();
         offlinePlayers = Arrays.stream(Bukkit.getOfflinePlayers()).filter(offlinePlayer ->
                 offlinePlayer.getName() != null && offlinePlayer.hasPlayedBefore()).collect(Collectors.toList());
         offlinePlayerNames = offlinePlayers.stream().map(OfflinePlayer::getName).collect(Collectors.toList());
-        offlinePlayers.forEach(offlinePlayer -> offlinePlayerUUIDs.put(offlinePlayer.getName(), offlinePlayer.getUniqueId()));
+        offlinePlayers.forEach(offlinePlayer -> offlinePlayerMap.put(offlinePlayer.getName(), offlinePlayer));
     }
 }

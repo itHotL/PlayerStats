@@ -4,12 +4,12 @@
 # supports: all default Minecraft colors
 individual-statistics:
   player-names: gold
-  stat-names: dark_aqua
-  sub-stat-names: blue
+  stat-names: yellow
+  sub-stat-names: yellow
   numbers: white
 
 ranked-list:
   player-names: gold
-  stat-names: dark_aqua
-  sub-stat-names: blue
+  stat-names: yellow
+  sub-stat-names: yellow
   numbers: white

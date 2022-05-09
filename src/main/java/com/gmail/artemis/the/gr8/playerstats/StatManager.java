@@ -45,6 +45,7 @@ public class StatManager {
     //returns the integer associated with a certain statistic for a player
     public int getStatistic(String statName, String subStatEntryName, String playerName) throws IllegalArgumentException, NullPointerException {
         long time = System.currentTimeMillis();
+
         OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(playerName);
 
         plugin.getLogger().info("StatManager 51: " + (System.currentTimeMillis() - time));

@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
 import com.gmail.artemis.the.gr8.playerstats.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.Main;
 import org.bukkit.ChatColor;
 
 import java.util.HashMap;
@@ -13,11 +14,12 @@ public class OutputFormatter {
         //statNames(Ranked)
         //subStatNames(Ranked)
         //numbers(Ranked)
-
-    private final HashMap<String, ChatColor> chatColors;
+    private final ConfigHandler config;
+    private HashMap<String, ChatColor> chatColors;
 
     public OutputFormatter(ConfigHandler c) {
-        chatColors = c.getChatColors();
+        config = c;
+        updateOutputColors();
     }
 
     public String formatTopStats(LinkedHashMap<String, Integer> topStats) {
@@ -29,10 +31,24 @@ public class OutputFormatter {
     }
 
     public String formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
+        long time = System.currentTimeMillis();
+        System.out.println("OutputFormatter 33: " + (System.currentTimeMillis() - time));
+        time = System.currentTimeMillis();
+
         String subStat = subStatEntryName != null ?
                 chatColors.get("subStatNames") + " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
 
-        return chatColors.get("playerNames") + playerName + chatColors.get("numbers") + ": " + stat + " " +
+        System.out.println("OutputFormatter 39: " + (System.currentTimeMillis() - time));
+        time = System.currentTimeMillis();
+
+        String msg = chatColors.get("playerNames") + playerName + chatColors.get("numbers") + ": " + stat + " " +
                 chatColors.get("statNames") + statName.toLowerCase().replace("_", " ") + subStat;
+
+        System.out.println("OutputFormatter 45: " + (System.currentTimeMillis() - time));
+        return msg;
+    }
+
+    public void updateOutputColors() {
+        chatColors = config.getChatColors();
     }
 }
