@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats;
 
+import com.gmail.artemis.the.gr8.playerstats.commands.ReloadCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
@@ -16,16 +17,17 @@ public class Main extends JavaPlugin {
 
         ConfigHandler config = new ConfigHandler(this);
         EnumHandler enumHandler = new EnumHandler();
-        OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler();
+
         OutputFormatter outputFormatter = new OutputFormatter(config);
         StatManager statManager = new StatManager(enumHandler, this);
 
-        this.getCommand("statistic").setExecutor(new StatCommand(outputFormatter, statManager));
+        this.getCommand("statistic").setExecutor(new StatCommand(outputFormatter, statManager, this));
         this.getCommand("statistic").setTabCompleter(new TabCompleter(
-                enumHandler, offlinePlayerHandler, statManager,this));
-        this.getLogger().info("Enabled PlayerStats!");
+                enumHandler, statManager,this));
+        this.getCommand("statisticreload").setExecutor(new ReloadCommand(config));
 
-        Bukkit.getPluginManager().registerEvents(new JoinListener(offlinePlayerHandler), this);
+        Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
+        this.getLogger().info("Enabled PlayerStats!");
     }
 
     @Override

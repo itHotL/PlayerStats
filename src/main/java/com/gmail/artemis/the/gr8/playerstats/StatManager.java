@@ -16,6 +16,7 @@ public class StatManager {
 
     private final Main plugin;
     private final EnumHandler enumHandler;
+    private final OfflinePlayerHandler offlinePlayerHandler;
     private final List<String> statNames;
     private final List<String> entityStatNames;
     private final List<String> subStatEntryNames;
@@ -23,6 +24,7 @@ public class StatManager {
     public StatManager(EnumHandler e, Main p) {
         plugin = p;
         enumHandler = e;
+        offlinePlayerHandler = OfflinePlayerHandler.getInstance();
 
         statNames = Arrays.stream(Statistic.values()).map(
                 Statistic::toString).map(String::toLowerCase).toList();
@@ -42,26 +44,41 @@ public class StatManager {
 
     //returns the integer associated with a certain statistic for a player
     public int getStatistic(String statName, String subStatEntryName, String playerName) throws IllegalArgumentException, NullPointerException {
-        OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
+        long time = System.currentTimeMillis();
+        OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(playerName);
+
+        plugin.getLogger().info("StatManager 51: " + (System.currentTimeMillis() - time));
+        time = System.currentTimeMillis();
         if (player == null) throw new NullPointerException("No player called " + playerName + " was found!");
 
         Statistic stat = getStatistic(statName);
+        plugin.getLogger().info("StatManager 56: " + (System.currentTimeMillis() - time));
+        time = System.currentTimeMillis();
+
             if (stat != null) {
                 switch (stat.getType()) {
                     case UNTYPED -> {
+                        plugin.getLogger().info("StatManager 62: " + (System.currentTimeMillis() - time));
+                        time = System.currentTimeMillis();
                         return player.getStatistic(stat);
                     }
                     case BLOCK -> {
+                        plugin.getLogger().info("StatManager 67: " + (System.currentTimeMillis() - time));
+                        time = System.currentTimeMillis();
                         Material block = enumHandler.getBlock(subStatEntryName);
                         if (block == null) throw new NullPointerException(subStatEntryName + " is not a valid block name!");
                         return player.getStatistic(stat, block);
                     }
                     case ENTITY -> {
+                        plugin.getLogger().info("StatManager 74: " + (System.currentTimeMillis() - time));
+                        time = System.currentTimeMillis();
                         EntityType entity = enumHandler.getEntityType(subStatEntryName);
                         if (entity == null) throw new NullPointerException(subStatEntryName + " is not a valid entity name!");
                         return player.getStatistic(stat, entity);
                     }
                     case ITEM -> {
+                        plugin.getLogger().info("StatManager 81: " + (System.currentTimeMillis() - time));
+                        time = System.currentTimeMillis();
                         Material item = enumHandler.getItem(subStatEntryName);
                         if (item == null) throw new NullPointerException(subStatEntryName + " is not a valid item name!");
                         return player.getStatistic(stat, item);

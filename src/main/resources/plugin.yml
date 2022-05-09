@@ -14,6 +14,7 @@ commands:
   statisticreload:
     aliases:
       - statreload
+      - statsreload
     description: reloads the config
     permission: playerstats.reload
 permissions:

@@ -21,9 +21,9 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
     private final List<String> commandOptions;
 
 
-    public TabCompleter(EnumHandler e, OfflinePlayerHandler o, StatManager s, Main p) {
+    public TabCompleter(EnumHandler e, StatManager s, Main p) {
         enumHandler = e;
-        offlinePlayerHandler = o;
+        offlinePlayerHandler = OfflinePlayerHandler.getInstance();
         statManager = s;
         plugin = p;
 

@@ -59,9 +59,13 @@ public class ConfigHandler {
     //reload the config after changes have been made to it
     public boolean reloadConfig() {
         try {
+            if (!configFile.exists()) {
+                saveDefaultConfig();
+            }
             config = YamlConfiguration.loadConfiguration(configFile);
             return true;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             e.printStackTrace();
             return false;
         }
