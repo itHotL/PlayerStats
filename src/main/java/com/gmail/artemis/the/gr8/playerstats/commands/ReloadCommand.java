@@ -30,13 +30,13 @@ public class ReloadCommand implements CommandExecutor {
             long time = System.currentTimeMillis();
 
             outputFormatter.updateOutputColors();
-            time = plugin.logTimeTaken("ReloadCommand", time, 33);
+            time = plugin.logTimeTaken("ReloadCommand", "onCommand", time, 33);
 
             offlinePlayerHandler.updateOfflinePlayers();
-            time = plugin.logTimeTaken("ReloadCommand", time, 36);
+            time = plugin.logTimeTaken("ReloadCommand", "onCommand", time, 36);
 
             sender.sendMessage(ChatColor.GREEN + "Config reloaded!");
-            time = plugin.logTimeTaken("ReloadCommand", time, 39);
+            time = plugin.logTimeTaken("ReloadCommand", "onCommand", time, 39);
             return true;
         }
         return false;

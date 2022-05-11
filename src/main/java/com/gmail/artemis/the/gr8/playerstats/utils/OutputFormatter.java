@@ -17,33 +17,39 @@ public class OutputFormatter {
     private final ConfigHandler config;
     private final Main plugin;
     private HashMap<String, ChatColor> chatColors;
+    private String pluginPrefix;
+    private String className;
 
     public OutputFormatter(ConfigHandler c, Main p) {
         config = c;
         plugin = p;
+        pluginPrefix = ChatColor.GRAY + "[" + ChatColor.GOLD + "PlayerStats" + ChatColor.GRAY + "]" + ChatColor.RESET;
+
         updateOutputColors();
+        className = "OutputFormatter";
+    }
+
+    public String formatExceptions(String exception) {
+        return pluginPrefix + " " + exception;
+    }
+
+    public String formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
+        String methodName = "formatPlayerStats";
+        long time = System.currentTimeMillis();
+        time = plugin.logTimeTaken(className, methodName, time, 39);
+
+        String subStat = subStatEntryName != null ?
+                chatColors.get("subStatNames") + " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
+        time = plugin.logTimeTaken(className, methodName, time, 43);
+
+        String msg = chatColors.get("playerNames") + playerName + chatColors.get("numbers") + ": " + stat + " " +
+                chatColors.get("statNames") + statName.toLowerCase().replace("_", " ") + subStat;
+        time = plugin.logTimeTaken(className, methodName, time, 47);
+        return msg;
     }
 
     public String formatTopStats(LinkedHashMap<String, Integer> topStats) {
         return "";
-    }
-
-    public String formatPlayerStat(String playerName, String statName, int stat) {
-        return formatPlayerStat(playerName, statName, null, stat);
-    }
-
-    public String formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
-        long time = System.currentTimeMillis();
-        time = plugin.logTimeTaken("OutputFormatter", time, 37);
-
-        String subStat = subStatEntryName != null ?
-                chatColors.get("subStatNames") + " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
-        time = plugin.logTimeTaken("OutputFormatter", time, 41);
-
-        String msg = chatColors.get("playerNames") + playerName + chatColors.get("numbers") + ": " + stat + " " +
-                chatColors.get("statNames") + statName.toLowerCase().replace("_", " ") + subStat;
-        time = plugin.logTimeTaken("OutputFormatter", time, 45);
-        return msg;
     }
 
     public void updateOutputColors() {

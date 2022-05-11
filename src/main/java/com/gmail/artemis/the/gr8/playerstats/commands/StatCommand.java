@@ -31,35 +31,28 @@ public class StatCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         long time = System.currentTimeMillis();
-        long startTime = System.currentTimeMillis();
 
+        //part 1: collecting all relevant information from the args
         if (args.length >= 2) {
-
             String statName = null;
             String subStatEntry = null;
             String playerName = null;
             boolean playerFlag = false;
             boolean topFlag = false;
 
-            time = plugin.logTimeTaken("StatCommand", time, 44);
-
-            //all args are in lowercase
             for (String arg : args) {
                 if (statManager.isStatistic(arg)) {
                     statName = (statName == null) ? arg : statName;
-                    time = plugin.logTimeTaken("StatCommand", time, 50);
                 }
                 else if (statManager.isSubStatEntry(arg)) {
                     if (arg.equalsIgnoreCase("player")) {
                         if (!playerFlag) {
                             subStatEntry = (subStatEntry == null) ? arg : subStatEntry;
                             playerFlag = true;
-                            time = plugin.logTimeTaken("StatCommand", time, 57);
                         }
                     }
                     else {
                         subStatEntry = (subStatEntry == null || playerFlag) ? arg : subStatEntry;
-                        time = plugin.logTimeTaken("StatCommand", time, 62);
                     }
                 }
 
@@ -68,45 +61,39 @@ public class StatCommand implements CommandExecutor {
                 }
                 else if (arg.equalsIgnoreCase("me") && sender instanceof Player) {
                     playerName = sender.getName();
-                    time = plugin.logTimeTaken("StatCommand", time, 71);
                 }
                 else if (offlinePlayerHandler.isOfflinePlayerName(arg)) {
                     playerName = (playerName == null) ? arg : playerName;
-                    time = plugin.logTimeTaken("StatCommand", time, 75);
                 }
             }
-            if (statName != null) {
-                time = plugin.logTimeTaken("StatCommand", time, 79);
 
+            //part 2: sending the information to the StatManager
+            if (statName != null) {
                 subStatEntry = statManager.isMatchingSubStatEntry(statName, subStatEntry) ? subStatEntry : null;
-                time = plugin.logTimeTaken("StatCommand", time, 82);
 
                 if (topFlag) {
-                    LinkedHashMap<String, Integer> topStats = statManager.getTopStatistics(statName, subStatEntry);
-                    return true;
+                    try {
+                        LinkedHashMap<String, Integer> topStats = statManager.getTopStatistics(statName, subStatEntry);
+                        return true;
+                    }
+                    catch (Exception e) {
+                        sender.sendMessage(outputFormatter.formatExceptions(e.toString()));
+                    }
+
                 }
 
                 else if (playerName != null) {
                     try {
-                        time = plugin.logTimeTaken("StatCommand", time, 91);
-
-                        int stat = statManager.getStatistic(statName, subStatEntry, playerName);
-                        time = plugin.logTimeTaken("StatCommand", time, 94);
-
-                        String msg = outputFormatter.formatPlayerStat(playerName, statName, subStatEntry, stat);
-                        time = plugin.logTimeTaken("StatCommand", time, 97);
-
-                        sender.sendMessage(msg);
-                        time = plugin.logTimeTaken("StatCommand", time, 100);
+                        sender.sendMessage(outputFormatter.formatPlayerStat(playerName, statName, subStatEntry, statManager.getStatistic
+                                        (statName, subStatEntry, playerName)));
                     }
                     catch (Exception e) {
-                        sender.sendMessage(e.toString());
+                        sender.sendMessage(outputFormatter.formatExceptions(e.toString()));
                     }
                 }
             }
         }
-        time = plugin.logTimeTaken("StatCommand", time, 108);
-        plugin.getLogger().info("Total time elapsed: " + (System.currentTimeMillis() - startTime));
+        plugin.logTimeTaken("StatCommand", "onCommand", time, 90);
         return true;
     }
 

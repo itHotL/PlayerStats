@@ -5,7 +5,6 @@ import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
-import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OutputFormatter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -35,18 +34,8 @@ public class Main extends JavaPlugin {
         this.getLogger().info("Disabled PlayerStats!");
     }
 
-
-    public void logStatRelatedExceptions(Exception exception) {
-        if (exception instanceof IllegalArgumentException) {
-            getLogger().warning("IllegalArgumentException - this is probably not a valid statistic name!");
-        }
-        else if (exception instanceof NullPointerException) {
-            getLogger().warning("NullPointerException - no statistic name was provided");
-        }
-    }
-
-    public long logTimeTaken(String className, long previousTime, int lineNumber) {
-        getLogger().info(className + " " + lineNumber + ": " + (System.currentTimeMillis() - previousTime));
+    public long logTimeTaken(String className, String methodName, long previousTime, int lineNumber) {
+        getLogger().info(className + " " + methodName + " " + lineNumber + ": " + (System.currentTimeMillis() - previousTime));
         return System.currentTimeMillis();
     }
 }

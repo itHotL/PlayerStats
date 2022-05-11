@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.utils;
 
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +28,7 @@ public class EnumHandler {
     }
 
     //returns corresponding item enum constant (uppercase), otherwise null (param: itemName, not case sensitive)
+    @Nullable
     public Material getItem(String itemName) {
         return Material.matchMaterial(itemName);
     }
@@ -41,13 +43,14 @@ public class EnumHandler {
     }
 
     //returns EntityType enum constant (uppercase) if the input name is valid, otherwise null (param: entityName, not case sensitive)
+    @Nullable
     public EntityType getEntityType(String entityName) {
-        EntityType entityType = null;
+        EntityType entityType;
         try {
             entityType = EntityType.valueOf(entityName.toUpperCase());
         }
         catch (IllegalArgumentException | NullPointerException exception) {
-            exception.printStackTrace();
+            return null;
         }
         return entityType;
     }
@@ -62,6 +65,7 @@ public class EnumHandler {
     }
 
     //returns corresponding block enum constant (uppercase), otherwise null (param: materialName, not case sensitive)
+    @Nullable
     public Material getBlock(String materialName) {
         return Material.matchMaterial(materialName);
     }
