@@ -15,10 +15,12 @@ public class OutputFormatter {
         //subStatNames(Ranked)
         //numbers(Ranked)
     private final ConfigHandler config;
+    private final Main plugin;
     private HashMap<String, ChatColor> chatColors;
 
-    public OutputFormatter(ConfigHandler c) {
+    public OutputFormatter(ConfigHandler c, Main p) {
         config = c;
+        plugin = p;
         updateOutputColors();
     }
 
@@ -32,19 +34,15 @@ public class OutputFormatter {
 
     public String formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
         long time = System.currentTimeMillis();
-        System.out.println("OutputFormatter 33: " + (System.currentTimeMillis() - time));
-        time = System.currentTimeMillis();
+        time = plugin.logTimeTaken("OutputFormatter", time, 37);
 
         String subStat = subStatEntryName != null ?
                 chatColors.get("subStatNames") + " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
-
-        System.out.println("OutputFormatter 39: " + (System.currentTimeMillis() - time));
-        time = System.currentTimeMillis();
+        time = plugin.logTimeTaken("OutputFormatter", time, 41);
 
         String msg = chatColors.get("playerNames") + playerName + chatColors.get("numbers") + ": " + stat + " " +
                 chatColors.get("statNames") + statName.toLowerCase().replace("_", " ") + subStat;
-
-        System.out.println("OutputFormatter 45: " + (System.currentTimeMillis() - time));
+        time = plugin.logTimeTaken("OutputFormatter", time, 45);
         return msg;
     }
 

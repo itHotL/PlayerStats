@@ -18,13 +18,13 @@ public class Main extends JavaPlugin {
         ConfigHandler config = new ConfigHandler(this);
         EnumHandler enumHandler = new EnumHandler();
 
-        OutputFormatter outputFormatter = new OutputFormatter(config);
+        OutputFormatter outputFormatter = new OutputFormatter(config, this);
         StatManager statManager = new StatManager(enumHandler, this);
 
         this.getCommand("statistic").setExecutor(new StatCommand(outputFormatter, statManager, this));
         this.getCommand("statistic").setTabCompleter(new TabCompleter(
                 enumHandler, statManager,this));
-        this.getCommand("statisticreload").setExecutor(new ReloadCommand(config, outputFormatter));
+        this.getCommand("statisticreload").setExecutor(new ReloadCommand(config, outputFormatter, this));
 
         Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
         this.getLogger().info("Enabled PlayerStats!");
@@ -45,4 +45,8 @@ public class Main extends JavaPlugin {
         }
     }
 
+    public long logTimeTaken(String className, long previousTime, int lineNumber) {
+        getLogger().info(className + " " + lineNumber + ": " + (System.currentTimeMillis() - previousTime));
+        return System.currentTimeMillis();
+    }
 }

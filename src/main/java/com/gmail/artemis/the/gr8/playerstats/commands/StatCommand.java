@@ -10,6 +10,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.LinkedHashMap;
+
 
 public class StatCommand implements CommandExecutor {
 
@@ -37,74 +39,75 @@ public class StatCommand implements CommandExecutor {
             String subStatEntry = null;
             String playerName = null;
             boolean playerFlag = false;
+            boolean topFlag = false;
 
-            plugin.getLogger().info("onCommand 40: " + (System.currentTimeMillis() - time));
-            time = System.currentTimeMillis();
+            time = plugin.logTimeTaken("StatCommand", time, 44);
 
             //all args are in lowercase
             for (String arg : args) {
                 if (statManager.isStatistic(arg)) {
                     statName = (statName == null) ? arg : statName;
-                    plugin.getLogger().info("onCommand 48: " + (System.currentTimeMillis() - time));
-                    time = System.currentTimeMillis();
+                    time = plugin.logTimeTaken("StatCommand", time, 50);
                 }
                 else if (statManager.isSubStatEntry(arg)) {
                     if (arg.equalsIgnoreCase("player")) {
                         if (!playerFlag) {
                             subStatEntry = (subStatEntry == null) ? arg : subStatEntry;
                             playerFlag = true;
-                            plugin.getLogger().info("onCommand 56: " + (System.currentTimeMillis() - time));
-                            time = System.currentTimeMillis();
+                            time = plugin.logTimeTaken("StatCommand", time, 57);
                         }
                     }
                     else {
                         subStatEntry = (subStatEntry == null || playerFlag) ? arg : subStatEntry;
-                        plugin.getLogger().info("onCommand 62: " + (System.currentTimeMillis() - time));
-                        time = System.currentTimeMillis();
+                        time = plugin.logTimeTaken("StatCommand", time, 62);
                     }
                 }
 
+                else if (arg.equalsIgnoreCase("top")) {
+                    topFlag = true;
+                }
                 else if (arg.equalsIgnoreCase("me") && sender instanceof Player) {
                     playerName = sender.getName();
-                    plugin.getLogger().info("onCommand 69: " + (System.currentTimeMillis() - time));
-                    time = System.currentTimeMillis();
+                    time = plugin.logTimeTaken("StatCommand", time, 71);
                 }
                 else if (offlinePlayerHandler.isOfflinePlayerName(arg)) {
                     playerName = (playerName == null) ? arg : playerName;
-                    plugin.getLogger().info("onCommand 74: " + (System.currentTimeMillis() - time));
-                    time = System.currentTimeMillis();
+                    time = plugin.logTimeTaken("StatCommand", time, 75);
                 }
             }
-            if (playerName != null && statName != null) {
-                plugin.getLogger().info("onCommand 79: " + (System.currentTimeMillis() - time));
-                time = System.currentTimeMillis();
+            if (statName != null) {
+                time = plugin.logTimeTaken("StatCommand", time, 79);
+
                 subStatEntry = statManager.isMatchingSubStatEntry(statName, subStatEntry) ? subStatEntry : null;
-                plugin.getLogger().info("onCommand 82: " + (System.currentTimeMillis() - time));
-                time = System.currentTimeMillis();
-                try {
-                    plugin.getLogger().info("onCommand 85: " + (System.currentTimeMillis() - time));
-                    time = System.currentTimeMillis();
+                time = plugin.logTimeTaken("StatCommand", time, 82);
 
-                    int stat = statManager.getStatistic(statName, subStatEntry, playerName);
-                    plugin.getLogger().info("onCommand 89: " + (System.currentTimeMillis() - time));
-                    time = System.currentTimeMillis();
-
-                    String msg = outputFormatter.formatPlayerStat(playerName, statName, subStatEntry, stat);
-                    plugin.getLogger().info("onCommand 93: " + (System.currentTimeMillis() - time));
-                    time = System.currentTimeMillis();
-
-                    sender.sendMessage(msg);
-                    plugin.getLogger().info("onCommand 97: " + (System.currentTimeMillis() - time));
-                    time = System.currentTimeMillis();
-                }
-                catch (Exception e) {
-                    sender.sendMessage(e.toString());
+                if (topFlag) {
+                    LinkedHashMap<String, Integer> topStats = statManager.getTopStatistics(statName, subStatEntry);
+                    return true;
                 }
 
+                else if (playerName != null) {
+                    try {
+                        time = plugin.logTimeTaken("StatCommand", time, 91);
+
+                        int stat = statManager.getStatistic(statName, subStatEntry, playerName);
+                        time = plugin.logTimeTaken("StatCommand", time, 94);
+
+                        String msg = outputFormatter.formatPlayerStat(playerName, statName, subStatEntry, stat);
+                        time = plugin.logTimeTaken("StatCommand", time, 97);
+
+                        sender.sendMessage(msg);
+                        time = plugin.logTimeTaken("StatCommand", time, 100);
+                    }
+                    catch (Exception e) {
+                        sender.sendMessage(e.toString());
+                    }
+                }
             }
         }
-        plugin.getLogger().info("onCommand 106: " + (System.currentTimeMillis() - time));
+        time = plugin.logTimeTaken("StatCommand", time, 108);
         plugin.getLogger().info("Total time elapsed: " + (System.currentTimeMillis() - startTime));
         return true;
     }
+
 }
