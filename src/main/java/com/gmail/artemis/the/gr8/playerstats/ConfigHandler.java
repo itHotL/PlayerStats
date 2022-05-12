@@ -24,16 +24,17 @@ public class ConfigHandler {
         HashMap<String, ChatColor> chatColors = new HashMap<>();
 
         ConfigurationSection individual = config.getConfigurationSection("individual-statistics");
-        chatColors.put("playerNames", getChatColor(individual, "player-names"));
-        chatColors.put("statNames", getChatColor(individual, "stat-names"));
-        chatColors.put("subStatNames", getChatColor(individual, "sub-stat-names"));
-        chatColors.put("numbers", getChatColor(individual, "numbers"));
+        chatColors.put("player-names", getChatColor(individual, "player-names"));
+        chatColors.put("stat-names", getChatColor(individual, "stat-names"));
+        chatColors.put("sub-stat-names", getChatColor(individual, "sub-stat-names"));
+        chatColors.put("stat-numbers", getChatColor(individual, "stat-numbers"));
 
         ConfigurationSection ranked = config.getConfigurationSection("ranked-list");
-        chatColors.put("playerNamesRanked", getChatColor(ranked, "player-names"));
-        chatColors.put("statNamesRanked", getChatColor(ranked, "stat-names"));
-        chatColors.put("subStatNamesRanked", getChatColor(ranked, "sub-stat-names"));
-        chatColors.put("numbersRanked", getChatColor(ranked, "numbers"));
+        chatColors.put("player-names-ranked", getChatColor(ranked, "player-names"));
+        chatColors.put("list-title", getChatColor(ranked, "list-title"));
+        chatColors.put("sub-stat-names-ranked", getChatColor(ranked, "sub-stat-names"));
+        chatColors.put("stat-numbers-ranked", getChatColor(ranked, "stat-numbers"));
+        chatColors.put("list-numbers", getChatColor(ranked, "list-numbers"));
         return chatColors;
     }
 

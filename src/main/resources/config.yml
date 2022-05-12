@@ -6,10 +6,12 @@ individual-statistics:
   player-names: gold
   stat-names: yellow
   sub-stat-names: yellow
-  numbers: white
+  stat-numbers: white
 
 ranked-list:
   player-names: gold
-  stat-names: yellow
+  list-title: white
   sub-stat-names: yellow
-  numbers: white
+  stat-numbers: white
+  list-numbers: white
+

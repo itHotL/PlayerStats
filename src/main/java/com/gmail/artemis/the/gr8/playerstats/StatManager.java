@@ -8,7 +8,6 @@ import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,49 +54,6 @@ public class StatManager {
         throw new IllegalArgumentException("Player object for " + playerName + " could not be retrieved!");
     }
 
-    private int getPlayerStat(@NotNull OfflinePlayer player, @NotNull Statistic stat, String subStatEntryName) throws IllegalArgumentException {
-        String methodName = "getPlayerStat";
-        long time = System.currentTimeMillis();
-
-        switch (stat.getType()) {
-            case UNTYPED -> {
-                return player.getStatistic(stat);
-            }
-            case BLOCK -> {
-                Material block = enumHandler.getBlock(subStatEntryName);
-                plugin.logTimeTaken(className, methodName, time, 68);
-                if (block != null) {
-                    return player.getStatistic(stat, block);
-                }
-                else {
-                    throw new IllegalArgumentException(subStatEntryName + " is not a valid block name!");
-                }
-            }
-            case ENTITY -> {
-                EntityType entity = enumHandler.getEntityType(subStatEntryName);
-                plugin.logTimeTaken(className, methodName, time, 78);
-                if (entity != null) {
-                    return player.getStatistic(stat, entity);
-                }
-                else {
-                    throw new IllegalArgumentException(subStatEntryName + " is not a valid entity name!");
-                }
-            }
-            case ITEM -> {
-                Material item = enumHandler.getItem(subStatEntryName);
-                plugin.logTimeTaken(className, methodName, time, 88);
-                if (item != null) {
-                    return player.getStatistic(stat, item);
-                }
-                else {
-                    throw new IllegalArgumentException(subStatEntryName + " is not a valid item name!");
-                }
-            }
-            default ->
-                throw new IllegalArgumentException("This statistic does not seem to be of type:untyped/block/entity/item, I think we should panic");
-        }
-    }
-
     public LinkedHashMap<String, Integer> getTopStatistics(String statName, String subStatEntry) throws IllegalArgumentException, NullPointerException {
         String methodName = "getTopStatistic";
         long time = System.currentTimeMillis();
@@ -114,7 +70,10 @@ public class StatManager {
                     OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(playerName);
                     if (player != null) {
                         try {
-                            playerStats.put(playerName, getPlayerStat(player, stat, subStatEntry));
+                            int statistic = getPlayerStat(player, stat, subStatEntry);
+                            if (statistic > 0) {
+                                playerStats.put(playerName, getPlayerStat(player, stat, subStatEntry));
+                            }
                         }
                         catch (IllegalArgumentException ignored) {
                         }
@@ -175,11 +134,6 @@ public class StatManager {
         throw new NullPointerException("Statistic " + statName + " could not be retrieved!");
     }
 
-    //checks if string is a valid statistic (param: statName, not case sensitive)
-    public boolean isStatistic(String statName) {
-        return statNames.contains(statName.toLowerCase());
-    }
-
     //gets the type of the statistic from the string, otherwise returns null (param: statName, not case sensitive)
     public Statistic.Type getStatType(String statName) {
         try {
@@ -203,6 +157,11 @@ public class StatManager {
     //returns all statistics that have type entities, in lowercase
     public List<String> getEntityStatNames() {
         return entityStatNames;
+    }
+
+    //checks if string is a valid statistic (param: statName, not case sensitive)
+    public boolean isStatistic(String statName) {
+        return statNames.contains(statName.toLowerCase());
     }
 
     //checks if this statistic is a subStatEntry, meaning it is a block, item or entity (param: statName, not case sensitive)
@@ -233,6 +192,44 @@ public class StatManager {
             default -> {
                 return false;
             }
+        }
+    }
+
+    private int getPlayerStat(@NotNull OfflinePlayer player, @NotNull Statistic stat, String subStatEntryName) throws IllegalArgumentException {
+
+        switch (stat.getType()) {
+            case UNTYPED -> {
+                return player.getStatistic(stat);
+            }
+            case BLOCK -> {
+                Material block = enumHandler.getBlock(subStatEntryName);
+                if (block != null) {
+                    return player.getStatistic(stat, block);
+                }
+                else {
+                    throw new IllegalArgumentException(subStatEntryName + " is not a valid block name!");
+                }
+            }
+            case ENTITY -> {
+                EntityType entity = enumHandler.getEntityType(subStatEntryName);
+                if (entity != null) {
+                    return player.getStatistic(stat, entity);
+                }
+                else {
+                    throw new IllegalArgumentException(subStatEntryName + " is not a valid entity name!");
+                }
+            }
+            case ITEM -> {
+                Material item = enumHandler.getItem(subStatEntryName);
+                if (item != null) {
+                    return player.getStatistic(stat, item);
+                }
+                else {
+                    throw new IllegalArgumentException(subStatEntryName + " is not a valid item name!");
+                }
+            }
+            default ->
+                    throw new IllegalArgumentException("This statistic does not seem to be of type:untyped/block/entity/item, I think we should panic");
         }
     }
 

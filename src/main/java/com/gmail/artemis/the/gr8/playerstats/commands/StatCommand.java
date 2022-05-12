@@ -73,7 +73,15 @@ public class StatCommand implements CommandExecutor {
 
                 if (topFlag) {
                     try {
+                        time = plugin.logTimeTaken("StatCommand", "onCommand", time, 76);
                         LinkedHashMap<String, Integer> topStats = statManager.getTopStatistics(statName, subStatEntry);
+
+                        time = plugin.logTimeTaken("StatCommand", "onCommand", time, 79);
+
+                        LinkedHashMap<String, Integer> topStats2 = statManager.getTopStatistics2(statName, subStatEntry);
+                        time = plugin.logTimeTaken("StatCommand", "onCommand", time, 82);
+
+                        sender.sendMessage(outputFormatter.formatTopStats(topStats, statName, subStatEntry));
                         return true;
                     }
                     catch (Exception e) {
