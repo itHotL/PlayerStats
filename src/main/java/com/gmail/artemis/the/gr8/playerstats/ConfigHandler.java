@@ -35,6 +35,7 @@ public class ConfigHandler {
         chatColors.put("sub-stat-names-ranked", getChatColor(ranked, "sub-stat-names"));
         chatColors.put("stat-numbers-ranked", getChatColor(ranked, "stat-numbers"));
         chatColors.put("list-numbers", getChatColor(ranked, "list-numbers"));
+        chatColors.put("underscores", getChatColor(ranked, "underscores"));
         return chatColors;
     }
 

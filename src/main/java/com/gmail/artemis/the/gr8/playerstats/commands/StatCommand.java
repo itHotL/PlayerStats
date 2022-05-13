@@ -86,6 +86,7 @@ public class StatCommand implements CommandExecutor {
                     }
                     catch (Exception e) {
                         sender.sendMessage(outputFormatter.formatExceptions(e.toString()));
+                        e.printStackTrace();
                     }
 
                 }

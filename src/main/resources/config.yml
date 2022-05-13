@@ -9,9 +9,10 @@ individual-statistics:
   stat-numbers: white
 
 ranked-list:
-  player-names: gold
-  list-title: white
+  player-names: green
+  list-title: yellow
   sub-stat-names: yellow
   stat-numbers: white
-  list-numbers: white
+  list-numbers: gold
+  underscores: gray
 

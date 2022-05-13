@@ -6,7 +6,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.map.MinecraftFont;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.lang3.StringUtils;
+
 
 public class OutputFormatter {
 
@@ -59,28 +60,42 @@ public class OutputFormatter {
                 statName.toLowerCase().replace("_", " ") + subStat;
 
         int count = 0;
-        final int[] longestName = {0};
+
         Set<String> playerNames = topStats.keySet();
         MinecraftFont font = new MinecraftFont();
-        playerNames.stream().map(font::getWidth).max(Integer::compareTo).orElseThrow();
-
-        try {
-            longestName[0] = playerNames.stream().map(String::length).max(Integer::compareTo).orElseThrow();
+        int max = 130;
+        boolean useWidth = true;
+        /*try {
+            //https://stackoverflow.com/questions/43034015/how-do-i-properly-align-using-string-format-in-java
+            max = playerNames.stream().map(font::getWidth).max(Integer::compareTo).orElseThrow();
         }
         catch (NoSuchElementException e) {
-            longestName[0] = 20;
+            useWidth = false;
         }
-
-
+        */
+        String hairSpace = "\u200A";
         StringBuilder rankList = new StringBuilder();
         for (String playerName : playerNames) {
             count = count+1;
 
-            String spaces = (longestName[0] - playerName.length() > 0) ? " ".repeat(longestName[0] - playerName.length()) : "";
             rankList.append("\n")
                     .append(chatColors.get("list-numbers")).append(count).append(". ")
-                    .append(chatColors.get("player-names-ranked")).append(playerName).append(": ")
-                    .append(spaces)
+                    .append(chatColors.get("player-names-ranked")).append(playerName).append(" ")
+                    .append(chatColors.get("underscores"));
+            StringBuilder underscores = new StringBuilder();
+
+            int i = 0;
+            while (font.getWidth(count + ". " + playerName + " " + underscores) < 124) {
+                underscores.append("_");
+                i++;
+            }
+
+            int extraSpaces = 129 - font.getWidth(count + ". " + playerName + " " + underscores);
+            hairSpace = hairSpace.repeat(extraSpaces);
+
+            plugin.getLogger().info("while loop executed [" + i + "] times");
+            rankList.append(underscores)
+                    .append(hairSpace)
                     .append(chatColors.get("stat-numbers-ranked")).append(topStats.get(playerName).toString());
         }
         return title + rankList;
