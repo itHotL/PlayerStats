@@ -1,7 +1,7 @@
 # PlayerStats Configuration
 
-# --- Color Options ---
-# supports: all default Minecraft colors
+# --- Format Options ---
+
 individual-statistics:
   player-names: gold
   stat-names: yellow
@@ -14,5 +14,8 @@ ranked-list:
   sub-stat-names: yellow
   stat-numbers: white
   list-numbers: gold
-  underscores: gray
+
+# If true, the statistics will be aligned so that they are all underneath each other
+  use-dots: true
+  dots: gray
 

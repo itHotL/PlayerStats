@@ -19,6 +19,18 @@ public class ConfigHandler {
         saveDefaultConfig();
     }
 
+    //returns the config setting for use-dots, or the default value "true" if no value can be retrieved
+    public boolean getUseDots() {
+        ConfigurationSection ranked = config.getConfigurationSection("ranked-list");
+        try {
+            return ranked == null || ranked.getBoolean("use-dots");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return true;
+        }
+    }
+
     //returns a HashMap with all the available color choices, or a ChatColor.RESET if no colors were found
     public HashMap<String, ChatColor> getChatColors() {
         HashMap<String, ChatColor> chatColors = new HashMap<>();
@@ -35,8 +47,23 @@ public class ConfigHandler {
         chatColors.put("sub-stat-names-ranked", getChatColor(ranked, "sub-stat-names"));
         chatColors.put("stat-numbers-ranked", getChatColor(ranked, "stat-numbers"));
         chatColors.put("list-numbers", getChatColor(ranked, "list-numbers"));
-        chatColors.put("underscores", getChatColor(ranked, "underscores"));
+        chatColors.put("dots", getChatColor(ranked, "dots"));
         return chatColors;
+    }
+
+    //reload the config after changes have been made to it
+    public boolean reloadConfig() {
+        try {
+            if (!configFile.exists()) {
+                saveDefaultConfig();
+            }
+            config = YamlConfiguration.loadConfiguration(configFile);
+            return true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     //returns the requested entry from the provided configuration section, null if section does not exist, and ChatColor.RESET if there is no entry
@@ -56,21 +83,6 @@ public class ConfigHandler {
             color = ChatColor.RESET;
         }
         return color;
-    }
-
-    //reload the config after changes have been made to it
-    public boolean reloadConfig() {
-        try {
-            if (!configFile.exists()) {
-                saveDefaultConfig();
-            }
-            config = YamlConfiguration.loadConfiguration(configFile);
-            return true;
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
     }
 
     //create a config file if none exists yet (from the config.yml in the plugin's resources)

@@ -4,6 +4,11 @@ import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OutputFormatter;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -81,7 +86,11 @@ public class StatCommand implements CommandExecutor {
                         LinkedHashMap<String, Integer> topStats2 = statManager.getTopStatistics2(statName, subStatEntry);
                         time = plugin.logTimeTaken("StatCommand", "onCommand", time, 82);
 
-                        sender.sendMessage(outputFormatter.formatTopStats(topStats, statName, subStatEntry));
+                        String top = outputFormatter.formatTopStats(topStats, statName, subStatEntry);
+                        String top2 = outputFormatter.formatTopStats(topStats2, statName, subStatEntry);
+                        sender.sendMessage(top);
+                        sender.sendMessage(top2);
+
                         return true;
                     }
                     catch (Exception e) {
@@ -93,6 +102,10 @@ public class StatCommand implements CommandExecutor {
 
                 else if (playerName != null) {
                     try {
+                        BaseComponent[] component = new ComponentBuilder("hi?").color(ChatColor.of("#4a32a8")).create();
+                        sender.spigot().sendMessage(component);
+                        String msg = ChatColor.of("#f27d07") + "... hi";
+                        sender.sendMessage(msg);
                         sender.sendMessage(outputFormatter.formatPlayerStat(playerName, statName, subStatEntry, statManager.getStatistic
                                         (statName, subStatEntry, playerName)));
                     }

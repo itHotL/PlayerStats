@@ -13,11 +13,10 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
         ConfigHandler config = new ConfigHandler(this);
         EnumHandler enumHandler = new EnumHandler();
 
-        OutputFormatter outputFormatter = new OutputFormatter(config, this);
+        OutputFormatter outputFormatter = new OutputFormatter(config);
         StatManager statManager = new StatManager(enumHandler, this);
 
         this.getCommand("statistic").setExecutor(new StatCommand(outputFormatter, statManager, this));

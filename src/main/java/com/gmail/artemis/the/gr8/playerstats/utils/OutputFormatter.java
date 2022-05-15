@@ -1,36 +1,23 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
 import com.gmail.artemis.the.gr8.playerstats.ConfigHandler;
-import com.gmail.artemis.the.gr8.playerstats.Main;
 import org.bukkit.ChatColor;
 import org.bukkit.map.MinecraftFont;
 
 import java.util.*;
-import org.apache.commons.lang3.StringUtils;
-
 
 public class OutputFormatter {
 
-    //keys for the HashMap are the same as the config options:
-        //player-names(-ranked)
-        //stat-names OR list-title
-        //sub-stat-names(-ranked)
-        //stat-numbers(-ranked)
-        //list-numbers
+    //keys for the HashMap are the same as the config options (so e.g. player-names/player-names-ranked)
 
     private final ConfigHandler config;
-    private final Main plugin;
     private HashMap<String, ChatColor> chatColors;
-    private String pluginPrefix;
-    private String className;
+    private final String pluginPrefix;
 
-    public OutputFormatter(ConfigHandler c, Main p) {
+    public OutputFormatter(ConfigHandler c) {
         config = c;
-        plugin = p;
         pluginPrefix = ChatColor.GRAY + "[" + ChatColor.GOLD + "PlayerStats" + ChatColor.GRAY + "] " + ChatColor.RESET;
-
         updateOutputColors();
-        className = "OutputFormatter";
     }
 
     public String formatExceptions(String exception) {
@@ -38,42 +25,25 @@ public class OutputFormatter {
     }
 
     public String formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
-        String methodName = "formatPlayerStats";
-        long time = System.currentTimeMillis();
-        time = plugin.logTimeTaken(className, methodName, time, 39);
-
         String subStat = subStatEntryName != null ?
                 chatColors.get("sub-stat-names") + " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
-        time = plugin.logTimeTaken(className, methodName, time, 43);
 
-        String msg = chatColors.get("player-names") + playerName + chatColors.get("stat-numbers") + ": " + stat + " " +
+        return chatColors.get("player-names") + playerName + chatColors.get("stat-numbers") + ": " + stat + " " +
                 chatColors.get("stat-names") + statName.toLowerCase().replace("_", " ") + subStat;
-        plugin.logTimeTaken(className, methodName, time, 47);
-        return msg;
     }
 
     public String formatTopStats(LinkedHashMap<String, Integer> topStats, String statName, String subStatEntryName) {
         String subStat = subStatEntryName != null ?
                 chatColors.get("sub-stat-names-ranked") + " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
         String topCount = chatColors.get("list-numbers") + " " + topStats.size();
-        String title = pluginPrefix + chatColors.get("list-title") + "Top" + topCount + chatColors.get("list-title") + " " +
+        String title = "\n" + pluginPrefix + chatColors.get("list-title") + "Top" + topCount + chatColors.get("list-title") + " " +
                 statName.toLowerCase().replace("_", " ") + subStat;
 
+        boolean useDots = config.getUseDots();
         int count = 0;
-
         Set<String> playerNames = topStats.keySet();
         MinecraftFont font = new MinecraftFont();
-        int max = 130;
-        boolean useWidth = true;
-        /*try {
-            //https://stackoverflow.com/questions/43034015/how-do-i-properly-align-using-string-format-in-java
-            max = playerNames.stream().map(font::getWidth).max(Integer::compareTo).orElseThrow();
-        }
-        catch (NoSuchElementException e) {
-            useWidth = false;
-        }
-        */
-        String hairSpace = "\u200A";
+
         StringBuilder rankList = new StringBuilder();
         for (String playerName : playerNames) {
             count = count+1;
@@ -81,22 +51,20 @@ public class OutputFormatter {
             rankList.append("\n")
                     .append(chatColors.get("list-numbers")).append(count).append(". ")
                     .append(chatColors.get("player-names-ranked")).append(playerName).append(" ")
-                    .append(chatColors.get("underscores"));
-            StringBuilder underscores = new StringBuilder();
+                    .append(chatColors.get("dots"));
 
-            int i = 0;
-            while (font.getWidth(count + ". " + playerName + " " + underscores) < 124) {
-                underscores.append("_");
-                i++;
+            if (useDots) {
+                rankList.append(" ");
+                int dots = (125 - font.getWidth(count + ". " + playerName + " "));
+                if (dots >= 1) {
+                    rankList.append(".".repeat(dots));
+                }
+            }
+            else {
+                rankList.append(":");
             }
 
-            int extraSpaces = 129 - font.getWidth(count + ". " + playerName + " " + underscores);
-            hairSpace = hairSpace.repeat(extraSpaces);
-
-            plugin.getLogger().info("while loop executed [" + i + "] times");
-            rankList.append(underscores)
-                    .append(hairSpace)
-                    .append(chatColors.get("stat-numbers-ranked")).append(topStats.get(playerName).toString());
+            rankList.append(" ").append(chatColors.get("stat-numbers-ranked")).append(topStats.get(playerName).toString());
         }
         return title + rankList;
     }
