@@ -1,7 +1,9 @@
 # PlayerStats Configuration
 
-# --- Format Options ---
+# --- General Options ---
 
+
+# --- Format & Color Options ---
 individual-statistics:
   player-names: gold
   stat-names: yellow
