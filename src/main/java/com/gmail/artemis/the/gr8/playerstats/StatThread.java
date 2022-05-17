@@ -57,28 +57,26 @@ public class StatThread extends Thread {
                         outputFormatter.formatPlayerStat(
                                 playerName, statName, subStatEntry, getStatistic(
                                         statName, subStatEntry, playerName)));
+                plugin.logTimeTaken(className, "run(): individual stat", time, 60);
+
             } catch (Exception e) {
                 sender.sendMessage(outputFormatter.formatExceptions(e.toString()));
             }
 
         } else if (topFlag) {
             try {
-                LinkedHashMap<String, Integer> topStats = getTopStatisticsForLoop(statName, subStatEntry);
-                time = plugin.logTimeTaken(className, "run(): for loop", time, 67);
+                LinkedHashMap<String, Integer> topStats = getTopStatistics(statName, subStatEntry);
+                plugin.logTimeTaken(className, "run(): for each loop", time, 69);
 
-                LinkedHashMap<String, Integer> topStats2 = getTopStatisticsForEach(statName, subStatEntry);
-                time = plugin.logTimeTaken(className, "run(): for each loop", time, 70);
-
-                String top2 = outputFormatter.formatTopStats(topStats2, statName, subStatEntry);
-                sender.sendMessage(top2);
-                plugin.logTimeTaken(className, "run(): format output", time, 74);
+                String top = outputFormatter.formatTopStats(topStats, statName, subStatEntry);
+                sender.sendMessage(top);
+                plugin.logTimeTaken(className, "run(): format output", time, 73);
 
             } catch (Exception e) {
                 sender.sendMessage(outputFormatter.formatExceptions(e.toString()));
                 e.printStackTrace();
             }
         }
-
     }
 
     //returns the integer associated with a certain statistic for a player
@@ -94,41 +92,7 @@ public class StatThread extends Thread {
         throw new IllegalArgumentException("Player object for " + playerName + " could not be retrieved!");
     }
 
-    private LinkedHashMap<String, Integer> getTopStatisticsForLoop(String statName, String subStatEntry) throws NullPointerException {
-        long time = System.currentTimeMillis();
-
-        Statistic stat = enumHandler.getStatEnum(statName);
-
-        if (stat != null) {
-            HashMap<String, Integer> playerStats = new HashMap<>((int) (OfflinePlayerHandler.getOfflinePlayerCount() * 1.05));
-            for (String playerName : OfflinePlayerHandler.getAllOfflinePlayerNames()) {
-                OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
-                if (player != null) {
-                    try {
-                        int statistic = getPlayerStat(player, stat, subStatEntry);
-                        if (statistic > 0) {
-                            playerStats.put(playerName, statistic);
-                        }
-                    } catch (IllegalArgumentException ignored) {
-                    }
-                }
-            }
-            time = plugin.logTimeTaken(className, "for loop", time, 116);
-
-            LinkedHashMap<String, Integer> topStats = playerStats.entrySet().stream()
-                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                    .limit(10).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-
-            plugin.logTimeTaken(className, "for loop, sorting", time, 122);
-            return topStats;
-
-        }
-        throw new NullPointerException("Statistic " + statName + " could not be retrieved!");
-    }
-
-    private LinkedHashMap<String, Integer> getTopStatisticsForEach(String statName, String subStatEntry) {
-        long time = System.currentTimeMillis();
-
+    private LinkedHashMap<String, Integer> getTopStatistics(String statName, String subStatEntry) {
         Statistic stat = enumHandler.getStatEnum(statName);
 
         if (stat != null) {
@@ -137,19 +101,16 @@ public class StatThread extends Thread {
                 OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
                 if (player != null)
                     try {
-                        playerStats.put(playerName, getPlayerStat(player, stat, subStatEntry));
+                        int statistic = getPlayerStat(player, stat, subStatEntry);
+                        if (statistic > 0) {
+                            playerStats.put(playerName, statistic);
+                        }
                     } catch (IllegalArgumentException ignored) {
                     }
             });
-
-            time = plugin.logTimeTaken(className, "for each loop", time, 145);
-
-            LinkedHashMap<String, Integer> topStats = playerStats.entrySet().stream()
+            return playerStats.entrySet().stream()
                     .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                     .limit(10).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-
-            plugin.logTimeTaken(className, "for each loop, sorting", time, 151);
-            return topStats;
         }
         throw new NullPointerException("Statistic " + statName + " could not be retrieved!");
     }

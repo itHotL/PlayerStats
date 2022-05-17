@@ -19,5 +19,5 @@ ranked-list:
 
 # If true, the statistics will be aligned so that they are all underneath each other
   use-dots: true
-  dots: gray
+  dots: dark_gray
 

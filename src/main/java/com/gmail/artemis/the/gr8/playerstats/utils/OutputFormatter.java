@@ -50,12 +50,12 @@ public class OutputFormatter {
 
             rankList.append("\n")
                     .append(chatColors.get("list-numbers")).append(count).append(". ")
-                    .append(chatColors.get("player-names-ranked")).append(playerName).append(" ")
+                    .append(chatColors.get("player-names-ranked")).append(playerName)
                     .append(chatColors.get("dots"));
 
             if (useDots) {
                 rankList.append(" ");
-                int dots = (125 - font.getWidth(count + ". " + playerName + " "));
+                int dots = (int) Math.round((125.0 - font.getWidth(count + ". " + playerName))/2);
                 if (dots >= 1) {
                     rankList.append(".".repeat(dots));
                 }
