@@ -1,6 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
-import com.gmail.artemis.the.gr8.playerstats.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.map.MinecraftFont;
 
