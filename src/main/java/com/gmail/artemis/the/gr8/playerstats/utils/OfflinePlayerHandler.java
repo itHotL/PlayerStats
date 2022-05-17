@@ -4,51 +4,60 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class OfflinePlayerHandler {
 
-    private static OfflinePlayerHandler instance;
-    private List<OfflinePlayer> offlinePlayers;
-    private List<String> offlinePlayerNames;
-    private HashMap<String, OfflinePlayer> offlinePlayerMap;
+    private static HashMap<String, OfflinePlayer> offlinePlayerMap;
+    private static List<String> offlinePlayerNames;
+    private static int totalOfflinePlayers;
 
     private OfflinePlayerHandler() {
-        updateOfflinePlayers();
     }
 
-    public static OfflinePlayerHandler getInstance() {
-        if (instance == null) {
-            instance = new OfflinePlayerHandler();
-        }
-        return instance;
-    }
-
-    public boolean isOfflinePlayerName(String playerName) {
+    public static boolean isOfflinePlayerName(String playerName) {
         return offlinePlayerNames.contains(playerName);
     }
 
-    public OfflinePlayer getOfflinePlayer(String playerName) {
-        long time = System.currentTimeMillis();
-
-        OfflinePlayer player = offlinePlayerMap.get(playerName);
-        System.out.println(("OfflinePlayerHandler 35: " + (System.currentTimeMillis() - time)));
-        return player;
+    public static OfflinePlayer getOfflinePlayer(String playerName) {
+        return offlinePlayerMap.get(playerName);
     }
 
-    public List<OfflinePlayer> getAllOfflinePlayers() {
-        return offlinePlayers;
+    public static int getOfflinePlayerCount() {
+        return totalOfflinePlayers > 0 ? totalOfflinePlayers : 1;
     }
 
-    public List<String> getAllOfflinePlayerNames() {
+    public static List<String> getAllOfflinePlayerNames() {
         return offlinePlayerNames;
     }
 
-    public void updateOfflinePlayers() {
-        offlinePlayerMap = new HashMap<>();
-        offlinePlayers = Arrays.stream(Bukkit.getOfflinePlayers()).filter(offlinePlayer ->
-                offlinePlayer.getName() != null && offlinePlayer.hasPlayedBefore()).collect(Collectors.toList());
-        offlinePlayerNames = offlinePlayers.stream().map(OfflinePlayer::getName).collect(Collectors.toList());
-        offlinePlayers.forEach(offlinePlayer -> offlinePlayerMap.put(offlinePlayer.getName(), offlinePlayer));
+    //stores a private HashMap with keys:playerName and values:OfflinePlayer, and a private list of the names for easy access
+    public static void updateOfflinePlayers() {
+        long totalTime = System.currentTimeMillis();
+        long time = System.currentTimeMillis();
+        if (offlinePlayerMap == null) offlinePlayerMap = new HashMap<>();
+        else if (!offlinePlayerMap.isEmpty()) {
+            offlinePlayerMap.clear();
+        }
+
+        if (offlinePlayerNames == null) offlinePlayerNames = new ArrayList<>();
+        else if (!offlinePlayerNames.isEmpty()) {
+            offlinePlayerNames.clear();
+        }
+
+        Arrays.stream(Bukkit.getOfflinePlayers()).filter(offlinePlayer ->
+                offlinePlayer.getName() != null && offlinePlayer.hasPlayedBefore()).forEach(offlinePlayer -> {
+                    offlinePlayerNames.add(offlinePlayer.getName());
+                    offlinePlayerMap.put(offlinePlayer.getName(), offlinePlayer);
+        });
+        System.out.println("OfflinePlayerHandler, making the HashMap and ArrayList: " + (System.currentTimeMillis() - time));
+        time = System.currentTimeMillis();
+
+        totalOfflinePlayers = offlinePlayerMap.size();
+        System.out.println("OfflinePlayerHandler, counting the HashMap: " + (System.currentTimeMillis() - time));
+        time = System.currentTimeMillis();
+
+        totalOfflinePlayers = offlinePlayerNames.size();
+        System.out.println("OfflinePlayerHandler, counting the ArrayList: " + (System.currentTimeMillis() - time));
+        System.out.println("updateOfflinePlayers total time: " + (System.currentTimeMillis() - totalTime));
     }
 }

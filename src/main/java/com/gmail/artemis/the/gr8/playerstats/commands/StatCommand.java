@@ -1,7 +1,9 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
-import com.gmail.artemis.the.gr8.playerstats.StatManager;
+import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
+import com.gmail.artemis.the.gr8.playerstats.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OutputFormatter;
 import org.bukkit.command.Command;
@@ -13,98 +15,81 @@ import org.jetbrains.annotations.NotNull;
 
 public class StatCommand implements CommandExecutor {
 
-    private final OfflinePlayerHandler offlinePlayerHandler;
     private final OutputFormatter outputFormatter;
-    private final StatManager statManager;
+    private final EnumHandler enumHandler;
     private final Main plugin;
 
-    public StatCommand(OutputFormatter o, StatManager s, Main p) {
+    public StatCommand(OutputFormatter o, EnumHandler e, Main p) {
         outputFormatter = o;
-        statManager = s;
+        enumHandler = e;
         plugin = p;
-
-        offlinePlayerHandler = OfflinePlayerHandler.getInstance();
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         long time = System.currentTimeMillis();
-        long startTime = System.currentTimeMillis();
 
+        //part 1: collecting all relevant information from the args
         if (args.length >= 2) {
+            StatRequest request = new StatRequest(sender);
 
-            String statName = null;
-            String subStatEntry = null;
-            String playerName = null;
-            boolean playerFlag = false;
-
-            plugin.getLogger().info("onCommand 40: " + (System.currentTimeMillis() - time));
-            time = System.currentTimeMillis();
-
-            //all args are in lowercase
             for (String arg : args) {
-                if (statManager.isStatistic(arg)) {
-                    statName = (statName == null) ? arg : statName;
-                    plugin.getLogger().info("onCommand 48: " + (System.currentTimeMillis() - time));
-                    time = System.currentTimeMillis();
+                if (enumHandler.isStatistic(arg) && request.getStatName() == null) {
+                    request.setStatName(arg);
                 }
-                else if (statManager.isSubStatEntry(arg)) {
+                else if (enumHandler.isSubStatEntry(arg)) {
                     if (arg.equalsIgnoreCase("player")) {
-                        if (!playerFlag) {
-                            subStatEntry = (subStatEntry == null) ? arg : subStatEntry;
-                            playerFlag = true;
-                            plugin.getLogger().info("onCommand 56: " + (System.currentTimeMillis() - time));
-                            time = System.currentTimeMillis();
+                        if (request.playerFlag()) {
+                            if (request.getSubStatEntry() == null) request.setSubStatEntry(arg);
+                        }
+                        else {
+                            request.setPlayerFlag(true);
                         }
                     }
+
                     else {
-                        subStatEntry = (subStatEntry == null || playerFlag) ? arg : subStatEntry;
-                        plugin.getLogger().info("onCommand 62: " + (System.currentTimeMillis() - time));
-                        time = System.currentTimeMillis();
+                        if (request.getSubStatEntry() == null) request.setSubStatEntry(arg);
                     }
                 }
 
-                else if (arg.equalsIgnoreCase("me") && sender instanceof Player) {
-                    playerName = sender.getName();
-                    plugin.getLogger().info("onCommand 69: " + (System.currentTimeMillis() - time));
-                    time = System.currentTimeMillis();
+                else if (arg.equalsIgnoreCase("top")) {
+                    request.setTopFlag(true);
                 }
-                else if (offlinePlayerHandler.isOfflinePlayerName(arg)) {
-                    playerName = (playerName == null) ? arg : playerName;
-                    plugin.getLogger().info("onCommand 74: " + (System.currentTimeMillis() - time));
-                    time = System.currentTimeMillis();
+                else if (arg.equalsIgnoreCase("me") && sender instanceof Player) {
+                    request.setPlayerName(sender.getName());
+                }
+                else if (OfflinePlayerHandler.isOfflinePlayerName(arg) && request.getPlayerName() == null) {
+                    request.setPlayerName(arg);
                 }
             }
-            if (playerName != null && statName != null) {
-                plugin.getLogger().info("onCommand 79: " + (System.currentTimeMillis() - time));
-                time = System.currentTimeMillis();
-                subStatEntry = statManager.isMatchingSubStatEntry(statName, subStatEntry) ? subStatEntry : null;
-                plugin.getLogger().info("onCommand 82: " + (System.currentTimeMillis() - time));
-                time = System.currentTimeMillis();
-                try {
-                    plugin.getLogger().info("onCommand 85: " + (System.currentTimeMillis() - time));
-                    time = System.currentTimeMillis();
 
-                    int stat = statManager.getStatistic(statName, subStatEntry, playerName);
-                    plugin.getLogger().info("onCommand 89: " + (System.currentTimeMillis() - time));
-                    time = System.currentTimeMillis();
+            //part 2: sending the information to the StatThread
+            if (isValidStatRequest(request)) {
+                StatThread statThread = new StatThread(request, enumHandler, outputFormatter, plugin);
+                statThread.start();
 
-                    String msg = outputFormatter.formatPlayerStat(playerName, statName, subStatEntry, stat);
-                    plugin.getLogger().info("onCommand 93: " + (System.currentTimeMillis() - time));
-                    time = System.currentTimeMillis();
-
-                    sender.sendMessage(msg);
-                    plugin.getLogger().info("onCommand 97: " + (System.currentTimeMillis() - time));
-                    time = System.currentTimeMillis();
-                }
-                catch (Exception e) {
-                    sender.sendMessage(e.toString());
-                }
-
+                plugin.logTimeTaken("StatCommand", "onCommand", time, 71);
+                return true;
             }
         }
-        plugin.getLogger().info("onCommand 106: " + (System.currentTimeMillis() - time));
-        plugin.getLogger().info("Total time elapsed: " + (System.currentTimeMillis() - startTime));
-        return true;
+        return false;
+    }
+
+    //check whether all necessary ingredients are present to proceed with a lookup
+    private boolean isValidStatRequest(StatRequest request) {
+        if (request.getStatName() != null) {
+            if (request.topFlag() || request.getPlayerName() != null) {
+                validatePlayerFlag(request);
+                return enumHandler.isValidStatEntry(request.getStatName(), request.getSubStatEntry());
+            }
+        }
+        return false;
+    }
+
+    //account for the fact that "player" could be either a subStatEntry or a flag to indicate the target for the lookup, and correct the request if necessary
+    private void validatePlayerFlag(StatRequest request) {
+        if (!enumHandler.isValidStatEntry(request.getStatName(), request.getSubStatEntry()) && request.playerFlag()) {
+            request.setSubStatEntry("player");
+        }
     }
 }
