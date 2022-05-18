@@ -31,11 +31,14 @@ public class StatThread extends Thread {
         enumHandler = e;
         outputFormatter = o;
         plugin = p;
+        plugin.getLogger().info("StatThread created!");
     }
 
     //what the thread will do once started
     @Override
     public void run() throws IllegalStateException, NullPointerException {
+        plugin.getLogger().info("Name: " + this.getName());
+        plugin.getLogger().info("ID: " + this.getId());
         long time = System.currentTimeMillis();
 
         if (outputFormatter == null || plugin == null) {

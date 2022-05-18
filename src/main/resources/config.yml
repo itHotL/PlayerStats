@@ -26,7 +26,7 @@ top-list:
   list-numbers: gold
   dots: dark_gray
 
-# This provides additional styling options such as italic/underlined/bold
+# This provides additional styling options such as italic/underline/bold
 individual-statistics-style:
   player-names: none
   stat-names: none
@@ -34,11 +34,11 @@ individual-statistics-style:
   stat-numbers: none
 
 top-list-style:
-  player-names-style: none
-  stat-names-style: none
-  sub-stat-names-style: none
-  stat-numbers-style: none
-  list-numbers-style: none
+  player-names: none
+  stat-names: none
+  sub-stat-names: none
+  stat-numbers: none
+  list-numbers: none
 
 
 

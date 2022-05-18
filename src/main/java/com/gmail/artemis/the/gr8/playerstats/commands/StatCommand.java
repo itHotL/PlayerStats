@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class StatCommand implements CommandExecutor {
 
-    private final OutputFormatter outputFormatter;
+    private static OutputFormatter outputFormatter;
     private final EnumHandler enumHandler;
     private final Main plugin;
 

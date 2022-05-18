@@ -38,9 +38,8 @@ public class ConfigHandler {
 
     //returns the config setting for use-dots, or the default value "true" if no value can be retrieved
     public boolean useDots() {
-        ConfigurationSection ranked = config.getConfigurationSection("top-list");
         try {
-            return ranked == null || ranked.getBoolean("use-dots");
+            return config.getBoolean("use-dots");
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -48,10 +47,47 @@ public class ConfigHandler {
         }
     }
 
-    public HashMap<String, ChatColor> getStylingOptions() {
+    //returns a HashMap with the available (Bukkit) style choices, null if no style was chosen, and ChatColor.RESET if the entry was not valid
+    public HashMap<String, ChatColor> getStyleOptions() {
         HashMap<String, ChatColor> styling = new HashMap<>();
 
+        ConfigurationSection individual = config.getConfigurationSection("individual-statistics-style");
+        if (individual != null) {
+            plugin.getLogger().info("individual-statistics-style: " + individual.getKeys(false));
+            individual.getKeys(false).forEach(path -> {
+               styling.put(path, getStyleOption(individual, path));
+            });
+        }
 
+        ConfigurationSection top = config.getConfigurationSection("top-list-style");
+        if (top != null) {
+            plugin.getLogger().info("top-list-style: " + top.getKeys(false));
+            top.getKeys(false).forEach(path -> {
+                styling.put(path + "-top", getStyleOption(top, path));
+            });
+        }
+        return styling;
+    }
+
+    private ChatColor getStyleOption(ConfigurationSection section, String path) {
+        ChatColor style;
+        try {
+            String entry = section.getString(path);
+            if (entry == null || entry.equalsIgnoreCase("none")) {
+                style = null;
+            }
+            else {
+                style = getChatColor(section, path);
+            }
+        }
+        catch (NullPointerException ignored) {
+            style = null;
+        }
+        catch (IllegalArgumentException e) {
+           plugin.getLogger().warning(e.toString());
+           style = null;
+        }
+        return style;
     }
 
     //returns a HashMap with all the available (Bukkit) color choices (entries contain ChatColor.RESET if no colors were found)
@@ -59,65 +95,25 @@ public class ConfigHandler {
         HashMap<String, ChatColor> chatColors = new HashMap<>();
 
         ConfigurationSection individual = config.getConfigurationSection("individual-statistics");
-        chatColors.put("player-names", getChatColor(individual, "player-names"));
-        chatColors.put("stat-names", getChatColor(individual, "stat-names"));
-        chatColors.put("sub-stat-names", getChatColor(individual, "sub-stat-names"));
-        chatColors.put("stat-numbers", getChatColor(individual, "stat-numbers"));
-
-        ConfigurationSection top = config.getConfigurationSection("top-list");
-        chatColors.put("player-names-top", getChatColor(top, "player-names"));
-        chatColors.put("stat-names-top", getChatColor(top, "stat-names"));
-        chatColors.put("sub-stat-names-top", getChatColor(top, "sub-stat-names"));
-        chatColors.put("stat-numbers-top", getChatColor(top, "stat-numbers"));
-        chatColors.put("list-numbers-top", getChatColor(top, "list-numbers"));
-        chatColors.put("dots-top", getChatColor(top, "dots"));
-        return chatColors;
-    }
-
-    //returns a HashMap with all the available (Spigot) color choices (entries contain ChatColor.RESET if no colors were found)
-    public HashMap<String, net.md_5.bungee.api.ChatColor> getHexChatColors() {
-        HashMap<String, net.md_5.bungee.api.ChatColor> chatColors = new HashMap<>();
-        fillSpigotHashMap(chatColors, config.getConfigurationSection("individual-statistics"), false);
-        /*
-        ConfigurationSection individual = config.getConfigurationSection("individual-statistics");
-        chatColors.put("player-names", getHexChatColor(individual, "player-names"));
-        chatColors.put("stat-names", getHexChatColor(individual, "stat-names"));
-        chatColors.put("sub-stat-names", getHexChatColor(individual, "sub-stat-names"));
-        chatColors.put("stat-numbers", getHexChatColor(individual, "stat-numbers"));
-
-        ConfigurationSection top = config.getConfigurationSection("top-list");
-        chatColors.put("player-names-top", getHexChatColor(top, "player-names"));
-        chatColors.put("stat-names-top", getHexChatColor(top, "stat-names"));
-        chatColors.put("sub-stat-names-top", getHexChatColor(top, "sub-stat-names"));
-        chatColors.put("stat-numbers-top", getHexChatColor(top, "stat-numbers"));
-        chatColors.put("list-numbers-top", getHexChatColor(top, "list-numbers"));
-        chatColors.put("dots-top", getHexChatColor(top, "dots"));
-         */
-        return chatColors;
-    }
-
-    //fill the provided HashMap with either Bukkit or Spigot ChatColors for the given ConfigurationSection (individual or top)
-    private void fillSpigotHashMap(HashMap<String, net.md_5.bungee.api.ChatColor> hashMap, ConfigurationSection section, boolean isTopSection) {
-        if (section != null) {
-            section.getKeys(false).forEach(path -> {
-                String hashMapKey = isTopSection ? path + "-top" : path;
-                hashMap.put(hashMapKey, getHexChatColor(section, path));
+        if (individual != null) {
+            plugin.getLogger().info("individual-statistics: " + individual.getKeys(false));
+            individual.getKeys(false).forEach(path -> {
+                chatColors.put(path, getChatColor(individual, path));
             });
         }
-    }
 
-    //fill the provided HashMap with either Bukkit or Spigot ChatColors for the given ConfigurationSection (individual or top)
-    private void fillBukkitHashMap(HashMap<String, ChatColor> hashMap, ConfigurationSection section, boolean isTopSection) {
-        if (section != null) {
-            section.getKeys(false).forEach(path -> {
-                String hashMapKey = isTopSection ? path + "-top" : path;
-                hashMap.put(hashMapKey, getChatColor(section, path));
+        ConfigurationSection top = config.getConfigurationSection("top-list");
+        if (top != null) {
+            plugin.getLogger().info("top-list: " + top.getKeys(false));
+            top.getKeys(false).forEach(path -> {
+                chatColors.put(path + "-top", getChatColor(top, path));
             });
         }
+        return chatColors;
     }
 
     //turns the requested entry from the provided configuration section into a (Bukkit) ChatColor
-    //returns null if section does not exist, and ChatColor.RESET if there is no entry
+    //returns null if section does not exist, and if there is no (or a bad) entry
     private ChatColor getChatColor(ConfigurationSection section, String path) {
         ChatColor color;
         try {
@@ -126,18 +122,40 @@ public class ConfigHandler {
                 color = ChatColor.valueOf(colorText.toUpperCase().replace(" ", "_"));
             }
             else {
-                color = ChatColor.RESET;
+                color = null;
             }
         }
         catch (IllegalArgumentException | NullPointerException exception) {
             plugin.getLogger().warning(exception.toString());
-            color = ChatColor.RESET;
+            color = null;
         }
         return color;
     }
 
+    //returns a HashMap with all the available (Spigot) color choices (entries contain ChatColor.RESET if no colors were found)
+    public HashMap<String, net.md_5.bungee.api.ChatColor> getHexChatColors() {
+        HashMap<String, net.md_5.bungee.api.ChatColor> chatColors = new HashMap<>();
+
+        ConfigurationSection individual = config.getConfigurationSection("individual-statistics");
+        if (individual != null) {
+            plugin.getLogger().info("individual-statistics: " + individual.getKeys(false));
+            individual.getKeys(false).forEach(path -> {
+                chatColors.put(path, getHexChatColor(individual, path));
+            });
+        }
+
+        ConfigurationSection top = config.getConfigurationSection("top-list");
+        if (top != null) {
+            plugin.getLogger().info("top-list: " + top.getKeys(false));
+            top.getKeys(false).forEach(path -> {
+                chatColors.put(path + "-top", getHexChatColor(top, path));
+            });
+        }
+        return chatColors;
+    }
+
     //turns the requested entry from the provided configuration section into a (Spigot) ChatColor
-    //returns null if section does not exist, and ChatColor.RESET if there is no entry
+    //returns null if section does not exist, or if there is no (or a bad) entry
     private net.md_5.bungee.api.ChatColor getHexChatColor(ConfigurationSection section, String path) {
         net.md_5.bungee.api.ChatColor color;
         try {
@@ -146,12 +164,12 @@ public class ConfigHandler {
                 color = net.md_5.bungee.api.ChatColor.of(colorText);
             }
             else {
-                color = net.md_5.bungee.api.ChatColor.RESET;
+                color = null;
             }
         }
         catch (IllegalArgumentException | NullPointerException exception) {
             plugin.getLogger().warning(exception.toString());
-            color = net.md_5.bungee.api.ChatColor.RESET;
+            color = null;
         }
         return color;
     }
