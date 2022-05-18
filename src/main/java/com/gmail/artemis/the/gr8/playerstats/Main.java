@@ -15,9 +15,19 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        boolean enableHexColors = false;
+        try {
+            Class.forName("net.md_5.bungee.api.ChatColor");
+            enableHexColors = true;
+            this.getLogger().info("Hex Color support enabled!");
+        }
+        catch (ClassNotFoundException e) {
+            this.getLogger().info("Hex Colors are not supported for this server type, proceeding with default Chat Colors...");
+        }
+
         ConfigHandler config = new ConfigHandler(this);
         EnumHandler enumHandler = new EnumHandler(this);
-        OutputFormatter outputFormatter = new OutputFormatter(config);
+        OutputFormatter outputFormatter = new OutputFormatter(config, enableHexColors);
 
         //prepare private hashMap of offline players
         OfflinePlayerHandler.updateOfflinePlayers();
@@ -27,6 +37,10 @@ public class Main extends JavaPlugin {
         this.getCommand("statisticreload").setExecutor(new ReloadCommand(config, outputFormatter, this));
 
         Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
+        this.getLogger().info("Bukkit name: " + Bukkit.getName());
+        this.getLogger().info("Bukkit getServer name: " + Bukkit.getServer().getName());
+        this.getLogger().info("Bukkit version: " + Bukkit.getVersion());
+        this.getLogger().info("Bukkit getBukkitVersion: " + Bukkit.getBukkitVersion());
         this.getLogger().info("Enabled PlayerStats!");
     }
 
