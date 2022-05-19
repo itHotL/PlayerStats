@@ -29,7 +29,7 @@ public class Main extends JavaPlugin {
         }
 
         //get instances of the classes that should be initialized
-        ConfigHandler config = new ConfigHandler(this);
+        ConfigHandler config = new ConfigHandler(enableHexColors, this);
         EnumHandler enumHandler = new EnumHandler(this);
         OutputFormatter outputFormatter = new OutputFormatter(config, enableHexColors);
 

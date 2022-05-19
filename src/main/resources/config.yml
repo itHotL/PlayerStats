@@ -23,7 +23,7 @@ top-list:
   player-names: green
   stat-names: yellow
   sub-stat-names: yellow
-  stat-numbers: white
+  stat-numbers:
   list-numbers: gold
   dots: dark_gray
 
@@ -34,6 +34,7 @@ individual-statistics-style:
   sub-stat-names: none
   stat-numbers: none
 
+# Note that making the player-names bold will cause the alignment of the stat numbers to shift slightly
 top-list-style:
   player-names: none
   stat-names: none
