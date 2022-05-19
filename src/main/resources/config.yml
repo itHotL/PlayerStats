@@ -4,13 +4,12 @@
 # The maximum number of entries displayed in the top list
 top-list-max-size: 10
 
-
 # --- Format & Color Options ---
-# --------- format -------------
+# --------- Format -------------
 # If true, the top list will be aligned with lines of dots so that the stat numbers are all underneath each other
 use-dots: true
 
-# ---------- color -------------
+# ---------- Color -------------
 # The colors below can be chat colors or hex codes if your server supports those (Bukkit does not, Spigot and further forks do)
 # Make sure to put hex codes between quotation marks! (format: '#xxxxxx')
 individual-statistics:
@@ -23,7 +22,7 @@ top-list:
   player-names: green
   stat-names: yellow
   sub-stat-names: yellow
-  stat-numbers:
+  stat-numbers: dark_aqua
   list-numbers: gold
   dots: dark_gray
 

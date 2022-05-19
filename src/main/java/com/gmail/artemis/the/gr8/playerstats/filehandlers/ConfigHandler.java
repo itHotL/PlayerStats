@@ -14,11 +14,9 @@ public class ConfigHandler {
 
     private File configFile;
     private FileConfiguration config;
-    private final boolean useHex;
     private final Main plugin;
 
-    public ConfigHandler(boolean enableHexColors, Main p) {
-        useHex = enableHexColors;
+    public ConfigHandler(Main p) {
         plugin = p;
         saveDefaultConfig();
     }
@@ -172,27 +170,7 @@ public class ConfigHandler {
     //create a config file if none exists yet (from the config.yml in the plugin's resources)
     private void saveDefaultConfig() {
         config = plugin.getConfig();
+        plugin.saveDefaultConfig();
         configFile = new File(plugin.getDataFolder(), "config.yml");
-
-        if (!configFile.exists()) {
-            ConfigurationSection top = config.getConfigurationSection("top-list");
-            try {
-                if (top != null) {
-                    String statNumbers = top.getString("stat-numbers");
-                    if (statNumbers != null && statNumbers.equalsIgnoreCase("")) {
-                        if (useHex) top.addDefault("stat-numbers", "#40b1f7");
-                        else top.addDefault("stat-numbers", "white");
-                        config.options().copyDefaults(true);
-                        plugin.saveConfig();
-                    }
-                }
-            }
-            catch (Exception e) {
-                plugin.getLogger().warning(e.toString());
-            }
-        }
-        else {
-            plugin.saveDefaultConfig();
-        }
     }
 }
