@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.StatThread;
@@ -15,13 +16,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class StatCommand implements CommandExecutor {
 
-    private static OutputFormatter outputFormatter;
+    private final ConfigHandler config;
     private final EnumHandler enumHandler;
+    private final OutputFormatter outputFormatter;
     private final Main plugin;
 
-    public StatCommand(OutputFormatter o, EnumHandler e, Main p) {
-        outputFormatter = o;
+    public StatCommand(ConfigHandler c, EnumHandler e, OutputFormatter o, Main p) {
+        config = c;
         enumHandler = e;
+        outputFormatter = o;
         plugin = p;
     }
 
@@ -65,7 +68,7 @@ public class StatCommand implements CommandExecutor {
 
             //part 2: sending the information to the StatThread
             if (isValidStatRequest(request)) {
-                StatThread statThread = new StatThread(request, enumHandler, outputFormatter, plugin);
+                StatThread statThread = new StatThread(request, config, enumHandler, outputFormatter, plugin);
                 statThread.start();
 
                 plugin.logTimeTaken("StatCommand", "onCommand", time, 71);

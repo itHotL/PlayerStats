@@ -1,6 +1,5 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
-import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import org.bukkit.command.Command;
@@ -14,13 +13,11 @@ import java.util.stream.Collectors;
 public class TabCompleter implements org.bukkit.command.TabCompleter {
 
     private final EnumHandler enumHandler;
-    private final Main plugin;
     private final List<String> commandOptions;
 
 
-    public TabCompleter(EnumHandler e, Main p) {
+    public TabCompleter(EnumHandler e) {
         enumHandler = e;
-        plugin = p;
 
         commandOptions = new ArrayList<>();
         commandOptions.add("top");

@@ -47,24 +47,29 @@ public class ConfigHandler {
         }
     }
 
+    //returns the config setting for top-list-max-size, or the default value of 10 if no value can be retrieved
+    public int getTopListMaxSize() {
+        try {
+            return config.getInt("top-list-max-size");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return 10;
+        }
+    }
+
     //returns a HashMap with the available (Bukkit) style choices, null if no style was chosen, and ChatColor.RESET if the entry was not valid
     public HashMap<String, ChatColor> getStyleOptions() {
         HashMap<String, ChatColor> styling = new HashMap<>();
 
         ConfigurationSection individual = config.getConfigurationSection("individual-statistics-style");
         if (individual != null) {
-            plugin.getLogger().info("individual-statistics-style: " + individual.getKeys(false));
-            individual.getKeys(false).forEach(path -> {
-               styling.put(path, getStyleOption(individual, path));
-            });
+            individual.getKeys(false).forEach(path -> styling.put(path, getStyleOption(individual, path)));
         }
 
         ConfigurationSection top = config.getConfigurationSection("top-list-style");
         if (top != null) {
-            plugin.getLogger().info("top-list-style: " + top.getKeys(false));
-            top.getKeys(false).forEach(path -> {
-                styling.put(path + "-top", getStyleOption(top, path));
-            });
+            top.getKeys(false).forEach(path -> styling.put(path + "-top", getStyleOption(top, path)));
         }
         return styling;
     }
@@ -96,18 +101,12 @@ public class ConfigHandler {
 
         ConfigurationSection individual = config.getConfigurationSection("individual-statistics");
         if (individual != null) {
-            plugin.getLogger().info("individual-statistics: " + individual.getKeys(false));
-            individual.getKeys(false).forEach(path -> {
-                chatColors.put(path, getChatColor(individual, path));
-            });
+            individual.getKeys(false).forEach(path -> chatColors.put(path, getChatColor(individual, path)));
         }
 
         ConfigurationSection top = config.getConfigurationSection("top-list");
         if (top != null) {
-            plugin.getLogger().info("top-list: " + top.getKeys(false));
-            top.getKeys(false).forEach(path -> {
-                chatColors.put(path + "-top", getChatColor(top, path));
-            });
+            top.getKeys(false).forEach(path -> chatColors.put(path + "-top", getChatColor(top, path)));
         }
         return chatColors;
     }
@@ -138,18 +137,12 @@ public class ConfigHandler {
 
         ConfigurationSection individual = config.getConfigurationSection("individual-statistics");
         if (individual != null) {
-            plugin.getLogger().info("individual-statistics: " + individual.getKeys(false));
-            individual.getKeys(false).forEach(path -> {
-                chatColors.put(path, getHexChatColor(individual, path));
-            });
+            individual.getKeys(false).forEach(path -> chatColors.put(path, getHexChatColor(individual, path)));
         }
 
         ConfigurationSection top = config.getConfigurationSection("top-list");
         if (top != null) {
-            plugin.getLogger().info("top-list: " + top.getKeys(false));
-            top.getKeys(false).forEach(path -> {
-                chatColors.put(path + "-top", getHexChatColor(top, path));
-            });
+            top.getKeys(false).forEach(path -> chatColors.put(path + "-top", getHexChatColor(top, path)));
         }
         return chatColors;
     }

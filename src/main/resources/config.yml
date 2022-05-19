@@ -1,12 +1,13 @@
 # PlayerStats Configuration
 
-# --- General Options ---
+# ------ General Options -------
+# The maximum number of entries displayed in the top list
+top-list-max-size: 10
 
 
 # --- Format & Color Options ---
-
 # --------- format -------------
-# If true, the top list of statistics will be aligned so that they are all underneath each other
+# If true, the top list will be aligned with lines of dots so that the stat numbers are all underneath each other
 use-dots: true
 
 # ---------- color -------------
@@ -26,7 +27,7 @@ top-list:
   list-numbers: gold
   dots: dark_gray
 
-# This provides additional styling options such as italic/underline/bold
+# This provides additional styling options (italic/underline/bold, and yes, even magic)
 individual-statistics-style:
   player-names: none
   stat-names: none

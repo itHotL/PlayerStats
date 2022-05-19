@@ -28,30 +28,34 @@ public class OutputFormatter {
         updateOutPutColors(useHex);
     }
 
+    public String getPluginPrefix() {
+        return pluginPrefix;
+    }
+
     public String formatExceptions(String exception) {
         return pluginPrefix + exception;
     }
 
     public String formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
-        StringBuilder msg = new StringBuilder();
+        StringBuilder singleStat = new StringBuilder();
         String subStat = subStatEntryName != null ?
                 " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
 
-        msg.append(getPlayerColor(false)).append(getPlayerStyle(false)).append(playerName).append(": ")
+        singleStat.append(getPlayerFormatting(false)).append(playerName).append(": ")
                 .append(getStatNumberColor(false)).append(getStatNumberStyle(false)).append(stat).append(" ")
                 .append(getStatNameColor(false)).append(getStatNameStyle(false))
                         .append(statName.toLowerCase().replace("_", " "))
                 .append(getSubStatNameColor(false)).append(getSubStatNameStyle(false)).append(subStat);
 
-        return msg.toString();
+        return singleStat.toString();
     }
 
     public String formatTopStats(LinkedHashMap<String, Integer> topStats, String statName, String subStatEntryName) {
-        StringBuilder msg = new StringBuilder();
+        StringBuilder topList = new StringBuilder();
         String subStat = subStatEntryName != null ?
                 " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
 
-        msg.append("\n").append(pluginPrefix)
+        topList.append("\n").append(pluginPrefix)
                 .append(getStatNameColor(true)).append(getStatNameStyle(true)).append("Top ")
                 .append(getListNumberColor()).append(getListNumberStyle()).append(topStats.size())
                 .append(getStatNameColor(true)).append(getStatNameStyle(true)).append(" ")
@@ -67,27 +71,31 @@ public class OutputFormatter {
         for (String playerName : playerNames) {
             count = count+1;
 
-            msg.append("\n")
+            topList.append("\n")
                     .append(getListNumberColor()).append(getListNumberStyle()).append(count).append(". ")
                     .append(getPlayerColor(true)).append(getPlayerStyle(true)).append(playerName);
 
             if (useDots) {
-                msg.append(getDotColor()).append(" ");
+                topList.append(getDotColor()).append(" ");
 
                 int dots = (int) Math.round((130.0 - font.getWidth(count + ". " + playerName))/2);
                 if (getPlayerStyle(true).equals(ChatColor.BOLD)) {
                     dots = (int) Math.round((130.0 - font.getWidth(count + ". ") - (font.getWidth(playerName) * 1.19))/2);
                 }
                 if (dots >= 1) {
-                    msg.append(".".repeat(dots));
+                    topList.append(".".repeat(dots));
                 }
             }
             else {
-                msg.append(":");
+                topList.append(":");
             }
-            msg.append(" ").append(getStatNumberColor(true)).append(getStatNumberStyle(true)).append(topStats.get(playerName).toString());
+            topList.append(" ").append(getStatNumberColor(true)).append(getStatNumberStyle(true)).append(topStats.get(playerName).toString());
         }
-        return msg.toString();
+        return topList.toString();
+    }
+
+    private String getPlayerFormatting(boolean isTopStat) {
+        return getPlayerColor(isTopStat) + "" + getPlayerStyle(isTopStat);
     }
 
     private Object getPlayerColor(boolean isTopStat) {return getColor("player-names", false, isTopStat);}

@@ -22,8 +22,9 @@ public class OfflinePlayerHandler {
         return offlinePlayerMap.get(playerName);
     }
 
-    public static int getOfflinePlayerCount() {
-        return totalOfflinePlayers > 0 ? totalOfflinePlayers : 1;
+    public static int getOfflinePlayerCount() throws NullPointerException {
+        if (totalOfflinePlayers > 0) return totalOfflinePlayers;
+        else throw new NullPointerException("No players found!");
     }
 
     public static List<String> getAllOfflinePlayerNames() {
@@ -32,8 +33,6 @@ public class OfflinePlayerHandler {
 
     //stores a private HashMap with keys:playerName and values:OfflinePlayer, and a private list of the names for easy access
     public static void updateOfflinePlayers() {
-        long totalTime = System.currentTimeMillis();
-        long time = System.currentTimeMillis();
         if (offlinePlayerMap == null) offlinePlayerMap = new HashMap<>();
         else if (!offlinePlayerMap.isEmpty()) {
             offlinePlayerMap.clear();
@@ -49,15 +48,7 @@ public class OfflinePlayerHandler {
                     offlinePlayerNames.add(offlinePlayer.getName());
                     offlinePlayerMap.put(offlinePlayer.getName(), offlinePlayer);
         });
-        System.out.println("OfflinePlayerHandler, making the HashMap and ArrayList: " + (System.currentTimeMillis() - time));
-        time = System.currentTimeMillis();
 
         totalOfflinePlayers = offlinePlayerMap.size();
-        System.out.println("OfflinePlayerHandler, counting the HashMap: " + (System.currentTimeMillis() - time));
-        time = System.currentTimeMillis();
-
-        totalOfflinePlayers = offlinePlayerNames.size();
-        System.out.println("OfflinePlayerHandler, counting the ArrayList: " + (System.currentTimeMillis() - time));
-        System.out.println("updateOfflinePlayers total time: " + (System.currentTimeMillis() - totalTime));
     }
 }

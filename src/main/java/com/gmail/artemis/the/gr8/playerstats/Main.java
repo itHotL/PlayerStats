@@ -9,12 +9,15 @@ import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OutputFormatter;
 import org.bukkit.Bukkit;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
+        //check if Spigot ChatColors can be used, and prepare accordingly
         boolean enableHexColors = false;
         try {
             Class.forName("net.md_5.bungee.api.ChatColor");
@@ -25,6 +28,7 @@ public class Main extends JavaPlugin {
             this.getLogger().info("Hex Colors are not supported for this server type, proceeding with default Chat Colors...");
         }
 
+        //get instances of the classes that should be initialized
         ConfigHandler config = new ConfigHandler(this);
         EnumHandler enumHandler = new EnumHandler(this);
         OutputFormatter outputFormatter = new OutputFormatter(config, enableHexColors);
@@ -32,15 +36,17 @@ public class Main extends JavaPlugin {
         //prepare private hashMap of offline players
         OfflinePlayerHandler.updateOfflinePlayers();
 
-        this.getCommand("statistic").setExecutor(new StatCommand(outputFormatter, enumHandler, this));
-        this.getCommand("statistic").setTabCompleter(new TabCompleter(enumHandler, this));
-        this.getCommand("statisticreload").setExecutor(new ReloadCommand(config, outputFormatter, this));
+        //register the commands
+        PluginCommand statcmd = this.getCommand("statistic");
+        if (statcmd != null) {
+            statcmd.setExecutor(new StatCommand(config, enumHandler, outputFormatter, this));
+            statcmd.setTabCompleter(new TabCompleter(enumHandler));
+        }
+        PluginCommand reloadcmd = this.getCommand("statisticreload");
+        if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(config, outputFormatter));
 
+        //register the listener
         Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
-        this.getLogger().info("Bukkit name: " + Bukkit.getName());
-        this.getLogger().info("Bukkit getServer name: " + Bukkit.getServer().getName());
-        this.getLogger().info("Bukkit version: " + Bukkit.getVersion());
-        this.getLogger().info("Bukkit getBukkitVersion: " + Bukkit.getBukkitVersion());
         this.getLogger().info("Enabled PlayerStats!");
     }
 

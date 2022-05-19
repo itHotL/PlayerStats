@@ -155,11 +155,6 @@ public class EnumHandler {
         return subStatEntryNames.contains(statName.toLowerCase());
     }
 
-    //checks if string is a valid statistic (param: statName, not case sensitive)
-    public boolean isValidStatEntry(String statName) {
-        return isValidStatEntry(statName, null);
-    }
-
     //checks whether a subStatEntry is of the type that the statistic requires
     public boolean isValidStatEntry(String statName, String subStatEntry) {
         Statistic stat = getStatEnum(statName);
