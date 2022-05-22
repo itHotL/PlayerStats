@@ -17,14 +17,12 @@ import org.jetbrains.annotations.NotNull;
 public class StatCommand implements CommandExecutor {
 
     private final ConfigHandler config;
-    private final EnumHandler enumHandler;
     private final OfflinePlayerHandler offlinePlayerHandler;
     private final OutputFormatter outputFormatter;
     private final Main plugin;
 
-    public StatCommand(ConfigHandler c, EnumHandler e, OfflinePlayerHandler of, OutputFormatter o, Main p) {
+    public StatCommand(ConfigHandler c, OfflinePlayerHandler of, OutputFormatter o, Main p) {
         config = c;
-        enumHandler = e;
         offlinePlayerHandler = of;
         outputFormatter = o;
         plugin = p;
@@ -32,17 +30,15 @@ public class StatCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        long time = System.currentTimeMillis();
-
         //part 1: collecting all relevant information from the args
         if (args.length >= 2) {
             StatRequest request = new StatRequest(sender);
 
             for (String arg : args) {
-                if (enumHandler.isStatistic(arg) && request.getStatName() == null) {
+                if (EnumHandler.isStatistic(arg) && request.getStatName() == null) {
                     request.setStatName(arg);
                 }
-                else if (enumHandler.isSubStatEntry(arg)) {
+                else if (EnumHandler.isSubStatEntry(arg)) {
                     if (arg.equalsIgnoreCase("player")) {
                         if (request.playerFlag()) {
                             if (request.getSubStatEntry() == null) request.setSubStatEntry(arg);
@@ -70,10 +66,8 @@ public class StatCommand implements CommandExecutor {
 
             //part 2: sending the information to the StatThread
             if (isValidStatRequest(request)) {
-                StatThread statThread = new StatThread(request, config, enumHandler, offlinePlayerHandler, outputFormatter, plugin);
+                StatThread statThread = new StatThread(request, config, offlinePlayerHandler, outputFormatter, plugin);
                 statThread.start();
-
-                plugin.logTimeTaken("StatCommand", "onCommand", time);
                 return true;
             }
         }
@@ -85,7 +79,7 @@ public class StatCommand implements CommandExecutor {
         if (request.getStatName() != null) {
             if (request.topFlag() || request.getPlayerName() != null) {
                 validatePlayerFlag(request);
-                return enumHandler.isValidStatEntry(request.getStatName(), request.getSubStatEntry());
+                return EnumHandler.isValidStatEntry(request.getStatName(), request.getSubStatEntry());
             }
         }
         return false;
@@ -93,7 +87,7 @@ public class StatCommand implements CommandExecutor {
 
     //account for the fact that "player" could be either a subStatEntry or a flag to indicate the target for the lookup, and correct the request if necessary
     private void validatePlayerFlag(StatRequest request) {
-        if (!enumHandler.isValidStatEntry(request.getStatName(), request.getSubStatEntry()) && request.playerFlag()) {
+        if (!EnumHandler.isValidStatEntry(request.getStatName(), request.getSubStatEntry()) && request.playerFlag()) {
             request.setSubStatEntry("player");
         }
     }

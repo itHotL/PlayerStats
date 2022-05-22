@@ -12,12 +12,12 @@ import java.util.stream.Collectors;
 
 public class TabCompleter implements org.bukkit.command.TabCompleter {
 
-    private final EnumHandler enumHandler;
+    private final OfflinePlayerHandler offlinePlayerHandler;
     private final List<String> commandOptions;
 
 
-    public TabCompleter(EnumHandler e) {
-        enumHandler = e;
+    public TabCompleter(OfflinePlayerHandler o) {
+        offlinePlayerHandler = o;
 
         commandOptions = new ArrayList<>();
         commandOptions.add("top");
@@ -37,38 +37,38 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
         //after typing "stat", suggest a list of viable statistics
         if (args.length >= 1) {
             if (args.length == 1) {
-                tabSuggestions = enumHandler.getStatNames().stream().filter(stat ->
+                tabSuggestions = EnumHandler.getStatNames().stream().filter(stat ->
                         stat.contains(args[0].toLowerCase())).collect(Collectors.toList());
             }
 
             //after checking if args[0] is a viable statistic, suggest substatistic OR commandOptions
             else {
-                if (enumHandler.isStatistic(args[args.length-2])) {
-                        tabSuggestions = switch (enumHandler.getStatType(args[args.length-2])) {
+                if (EnumHandler.isStatistic(args[args.length-2])) {
+                        tabSuggestions = switch (EnumHandler.getStatType(args[args.length-2])) {
                             case UNTYPED -> commandOptions;
-                            case BLOCK -> enumHandler.getBlockNames().stream().filter(block ->
+                            case BLOCK -> EnumHandler.getBlockNames().stream().filter(block ->
                                     block.contains(args[args.length - 1])).collect(Collectors.toList());
-                            case ITEM -> enumHandler.getItemNames().stream().filter(item ->
+                            case ITEM -> EnumHandler.getItemNames().stream().filter(item ->
                                     item.contains(args[args.length - 1])).collect(Collectors.toList());
-                            case ENTITY -> enumHandler.getEntityTypeNames().stream().filter(entity ->
+                            case ENTITY -> EnumHandler.getEntityTypeNames().stream().filter(entity ->
                                     entity.contains(args[args.length - 1])).collect(Collectors.toList());
                         };
                 }
 
                 //if previous arg = "player", suggest playerNames
                 else if (args[args.length-2].equalsIgnoreCase("player")) {
-                    if (args.length >= 3 && enumHandler.getEntityStatNames().contains(args[args.length-3].toLowerCase())) {
+                    if (args.length >= 3 && EnumHandler.getEntityStatNames().contains(args[args.length-3].toLowerCase())) {
                         tabSuggestions = commandOptions;
 
                     }
                     else {
-                        tabSuggestions = OfflinePlayerHandler.getOfflinePlayerNames().stream().filter(player ->
+                        tabSuggestions = offlinePlayerHandler.getOfflinePlayerNames().stream().filter(player ->
                                 player.toLowerCase().contains(args[args.length-1].toLowerCase())).collect(Collectors.toList());
                     }
                 }
 
                 //after a substatistic, suggest commandOptions
-                else if (enumHandler.isSubStatEntry(args[args.length-2])) {
+                else if (EnumHandler.isSubStatEntry(args[args.length-2])) {
                     tabSuggestions = commandOptions;
                 }
             }

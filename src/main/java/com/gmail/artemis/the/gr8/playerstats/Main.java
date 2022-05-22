@@ -32,17 +32,18 @@ public class Main extends JavaPlugin {
 
         //get instances of the classes that should be initialized
         ConfigHandler config = new ConfigHandler(this);
-        EnumHandler enumHandler = new EnumHandler();
         OutputFormatter outputFormatter = new OutputFormatter(config, enableHexColors);
-
         OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler(config);
         getLogger().info("Amount of offline players: " + offlinePlayerHandler.getOfflinePlayerCount());
+
+        //get private lists ready with item/material/entity/stat names
+        EnumHandler.prepareLists();
 
         //register the commands
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(config, enumHandler, offlinePlayerHandler, outputFormatter, this));
-            statcmd.setTabCompleter(new TabCompleter(enumHandler));
+            statcmd.setExecutor(new StatCommand(config, offlinePlayerHandler, outputFormatter, this));
+            statcmd.setTabCompleter(new TabCompleter(offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
         if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(config, offlinePlayerHandler, outputFormatter));

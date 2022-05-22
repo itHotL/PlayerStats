@@ -20,17 +20,15 @@ public class StatThread extends Thread {
     private final StatRequest request;
 
     private final ConfigHandler config;
-    private final EnumHandler enumHandler;
     private final OfflinePlayerHandler offlinePlayerHandler;
     private final OutputFormatter outputFormatter;
     private final Main plugin;
 
     //constructor (called on thread creation)
-    public StatThread(StatRequest s, ConfigHandler c, EnumHandler e, OfflinePlayerHandler of, OutputFormatter o, Main p) {
+    public StatThread(StatRequest s, ConfigHandler c, OfflinePlayerHandler of, OutputFormatter o, Main p) {
         request = s;
 
         config = c;
-        enumHandler = e;
         offlinePlayerHandler = of;
         outputFormatter = o;
         plugin = p;
@@ -85,7 +83,7 @@ public class StatThread extends Thread {
     //returns the integer associated with a certain statistic for a player
     private int getStatistic(String statName, String subStatEntryName, String playerName) throws IllegalArgumentException, NullPointerException {
         try {
-            Statistic stat = enumHandler.getStatEnum(statName);
+            Statistic stat = EnumHandler.getStatEnum(statName);
             OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(playerName);
             return getPlayerStat(player, stat, subStatEntryName);
         }
@@ -97,7 +95,7 @@ public class StatThread extends Thread {
 
     private LinkedHashMap<String, Integer> getTopStatistics(String statName, String subStatEntry) {
         try {
-            Statistic stat = enumHandler.getStatEnum(statName);
+            Statistic stat = EnumHandler.getStatEnum(statName);
             HashMap<String, Integer> playerStats = new HashMap<>((int) (getOfflinePlayerCount() * 1.05));
             offlinePlayerHandler.getOfflinePlayerNames().forEach(playerName -> {
                 OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(playerName);
@@ -126,7 +124,7 @@ public class StatThread extends Thread {
             }
             case BLOCK -> {
                 try {
-                    return player.getStatistic(stat, enumHandler.getBlock(subStatEntryName));
+                    return player.getStatistic(stat, EnumHandler.getBlock(subStatEntryName));
                 }
                 catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException(e.toString());
@@ -134,7 +132,7 @@ public class StatThread extends Thread {
             }
             case ENTITY -> {
                 try {
-                    return player.getStatistic(stat, enumHandler.getEntityType(subStatEntryName));
+                    return player.getStatistic(stat, EnumHandler.getEntityType(subStatEntryName));
                 }
                 catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException(e.toString());
@@ -142,7 +140,7 @@ public class StatThread extends Thread {
             }
             case ITEM -> {
                 try {
-                    return player.getStatistic(stat, enumHandler.getItem(subStatEntryName));
+                    return player.getStatistic(stat, EnumHandler.getItem(subStatEntryName));
                 }
                 catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException(e.toString());

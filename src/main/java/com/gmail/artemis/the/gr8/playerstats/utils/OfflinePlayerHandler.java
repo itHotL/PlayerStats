@@ -9,23 +9,23 @@ import java.util.*;
 public class OfflinePlayerHandler {
 
     private final ConfigHandler config;
-    private static HashMap<String, UUID> offlinePlayerUUIDs;
+    private HashMap<String, UUID> offlinePlayerUUIDs;
 
     public OfflinePlayerHandler(ConfigHandler c) {
         config = c;
         updateOfflinePlayerList();
     }
 
-    public static boolean isOfflinePlayerName(String playerName) {
+    public boolean isOfflinePlayerName(String playerName) {
         return offlinePlayerUUIDs.containsKey(playerName);
     }
 
-    public static int getOfflinePlayerCount() throws NullPointerException {
+    public int getOfflinePlayerCount() throws NullPointerException {
         if (offlinePlayerUUIDs != null && offlinePlayerUUIDs.size() > 0) return offlinePlayerUUIDs.size();
         else throw new NullPointerException("No players found!");
     }
 
-    public static Set<String> getOfflinePlayerNames() {
+    public Set<String> getOfflinePlayerNames() {
         return offlinePlayerUUIDs.keySet();
     }
 
@@ -41,12 +41,11 @@ public class OfflinePlayerHandler {
         }
 
         Arrays.stream(Bukkit.getOfflinePlayers()).filter(offlinePlayer ->
-                offlinePlayer.getName() != null && offlinePlayer.hasPlayedBefore()).forEach(offlinePlayer -> {
-            offlinePlayerUUIDs.put(offlinePlayer.getName(), offlinePlayer.getUniqueId());
-        });
+                offlinePlayer.getName() != null && offlinePlayer.hasPlayedBefore()).forEach(offlinePlayer ->
+                offlinePlayerUUIDs.put(offlinePlayer.getName(), offlinePlayer.getUniqueId()));
     }
 
-    public static OfflinePlayer getOfflinePlayer(String playerName) {
+    public OfflinePlayer getOfflinePlayer(String playerName) {
         return Bukkit.getOfflinePlayer(offlinePlayerUUIDs.get(playerName));
     }
 }
