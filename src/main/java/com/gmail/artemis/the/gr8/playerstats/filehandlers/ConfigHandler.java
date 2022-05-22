@@ -31,19 +31,41 @@ public class ConfigHandler {
             return true;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            plugin.getLogger().warning(e.toString());
             return false;
         }
     }
 
-    //returns the config setting for use-dots, or the default value "true" if no value can be retrieved
-    public boolean useDots() {
+    //returns the config setting for include-whitelist-only, or the default value "false"
+    public boolean whitelistOnly() {
         try {
-            return config.getBoolean("use-dots");
+            return config.getBoolean("include-whitelist-only");
         }
         catch (Exception e) {
-            e.printStackTrace();
-            return true;
+            plugin.getLogger().warning(e.toString());
+            return false;
+        }
+    }
+
+    //returns the config setting for exclude-banned-players, or the default value "false"
+    public boolean excludeBanned() {
+        try {
+            return config.getBoolean("exclude-banned-players");
+        }
+        catch (Exception e) {
+            plugin.getLogger().warning(e.toString());
+            return false;
+        }
+    }
+
+    //returns the number of maximum days since a player has last been online, or the default value of 0 to not use this constraint
+    public int lastPlayedLimit() {
+        try {
+            return config.getInt("number-of-days-since-last-joined");
+        }
+        catch (Exception e) {
+            plugin.getLogger().warning(e.toString());
+            return 0;
         }
     }
 
@@ -53,8 +75,19 @@ public class ConfigHandler {
             return config.getInt("top-list-max-size");
         }
         catch (Exception e) {
-            e.printStackTrace();
+            plugin.getLogger().warning(e.toString());
             return 10;
+        }
+    }
+
+    //returns the config setting for use-dots, or the default value "true" if no value can be retrieved
+    public boolean useDots() {
+        try {
+            return config.getBoolean("use-dots");
+        }
+        catch (Exception e) {
+            plugin.getLogger().warning(e.toString());
+            return true;
         }
     }
 

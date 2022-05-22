@@ -18,12 +18,14 @@ public class StatCommand implements CommandExecutor {
 
     private final ConfigHandler config;
     private final EnumHandler enumHandler;
+    private final OfflinePlayerHandler offlinePlayerHandler;
     private final OutputFormatter outputFormatter;
     private final Main plugin;
 
-    public StatCommand(ConfigHandler c, EnumHandler e, OutputFormatter o, Main p) {
+    public StatCommand(ConfigHandler c, EnumHandler e, OfflinePlayerHandler of, OutputFormatter o, Main p) {
         config = c;
         enumHandler = e;
+        offlinePlayerHandler = of;
         outputFormatter = o;
         plugin = p;
     }
@@ -61,17 +63,17 @@ public class StatCommand implements CommandExecutor {
                 else if (arg.equalsIgnoreCase("me") && sender instanceof Player) {
                     request.setPlayerName(sender.getName());
                 }
-                else if (OfflinePlayerHandler.isOfflinePlayerName(arg) && request.getPlayerName() == null) {
+                else if (offlinePlayerHandler.isOfflinePlayerName(arg) && request.getPlayerName() == null) {
                     request.setPlayerName(arg);
                 }
             }
 
             //part 2: sending the information to the StatThread
             if (isValidStatRequest(request)) {
-                StatThread statThread = new StatThread(request, config, enumHandler, outputFormatter, plugin);
+                StatThread statThread = new StatThread(request, config, enumHandler, offlinePlayerHandler, outputFormatter, plugin);
                 statThread.start();
 
-                plugin.logTimeTaken("StatCommand", "onCommand", time, 71);
+                plugin.logTimeTaken("StatCommand", "onCommand", time);
                 return true;
             }
         }

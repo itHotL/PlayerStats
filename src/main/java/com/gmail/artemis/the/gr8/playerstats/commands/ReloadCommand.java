@@ -12,10 +12,12 @@ import org.jetbrains.annotations.NotNull;
 public class ReloadCommand implements CommandExecutor {
 
     private final ConfigHandler config;
+    private final OfflinePlayerHandler offlinePlayerHandler;
     private final OutputFormatter outputFormatter;
 
 
-    public ReloadCommand(ConfigHandler c, OutputFormatter o) {
+    public ReloadCommand(ConfigHandler c, OfflinePlayerHandler of, OutputFormatter o) {
+        offlinePlayerHandler = of;
         outputFormatter = o;
         config = c;
 
@@ -25,9 +27,9 @@ public class ReloadCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (config.reloadConfig()) {
             outputFormatter.updateOutputColors();
-            OfflinePlayerHandler.updateOfflinePlayers();
+            offlinePlayerHandler.updateOfflinePlayerList();
 
-            sender.sendMessage(ChatColor.GREEN + "Config reloaded!");
+            sender.sendMessage(outputFormatter.getPluginPrefix() + ChatColor.GREEN + "Config reloaded!");
             return true;
         }
         return false;

@@ -20,12 +20,8 @@ public class EnumHandler {
     private final List<String> statNames;
     private final List<String> entityStatNames;
     private final List<String> subStatEntryNames;
-    private final Main plugin;
 
-
-    public EnumHandler(Main p) {
-        plugin = p;
-
+    public EnumHandler() {
         blockNames = Arrays.stream(Material.values()).filter(
                 Material::isBlock).map(Material::toString).map(String::toLowerCase).toList();
         entityTypeNames = Arrays.stream(EntityType.values()).map(
@@ -51,9 +47,14 @@ public class EnumHandler {
     }
 
     //returns corresponding item enum constant (uppercase), otherwise null (param: itemName, not case sensitive)
-    @Nullable
     public Material getItem(String itemName) {
-        return Material.matchMaterial(itemName);
+        Material material = Material.matchMaterial(itemName);
+        if (material != null) {
+            return material;
+        }
+        else {
+            throw new IllegalArgumentException(itemName + " is not a valid Material!");
+        }
     }
 
     //returns all item names in lowercase
@@ -66,22 +67,14 @@ public class EnumHandler {
         return entityTypeNames.contains(entityName.toLowerCase());
     }
 
-    //returns EntityType enum constant (uppercase) if the input name is valid, otherwise null (param: entityName, not case sensitive)
-    @Nullable
-    public EntityType getEntityType(String entityName) {
-        EntityType entityType;
+    //returns EntityType enum constant (uppercase) if the input name is valid
+    public EntityType getEntityType(@NotNull String entityName) {
         try {
-            entityType = EntityType.valueOf(entityName.toUpperCase());
+            return EntityType.valueOf(entityName.toUpperCase());
         }
         catch (IllegalArgumentException e) {
-            plugin.getLogger().warning("IllegalArgumentException: " + entityName + " is not a valid statistic name!");
-            return null;
+            throw new IllegalArgumentException(entityName + " is not a valid EntityType!");
         }
-        catch (NullPointerException e) {
-            plugin.getLogger().warning("NullPointerException: please provide a statistic name!");
-            return null;
-        }
-        return entityType;
     }
 
     //returns all entitytype names in lowercase
@@ -95,9 +88,14 @@ public class EnumHandler {
     }
 
     //returns corresponding block enum constant (uppercase), otherwise null (param: materialName, not case sensitive)
-    @Nullable
-    public Material getBlock(String materialName) {
-        return Material.matchMaterial(materialName);
+    public Material getBlock(String materialName) throws IllegalArgumentException {
+        Material material = Material.matchMaterial(materialName);
+        if (material != null) {
+            return material;
+        }
+        else {
+            throw new IllegalArgumentException(materialName + " is not a valid Material!");
+        }
     }
 
     //returns all block names in lowercase
@@ -106,17 +104,12 @@ public class EnumHandler {
     }
 
     //returns the statistic enum constant, or null if non-existent (param: statName, not case sensitive)
-    public Statistic getStatEnum(String statName) {
+    public Statistic getStatEnum(@NotNull String statName) throws IllegalArgumentException {
         try {
             return Statistic.valueOf(statName.toUpperCase());
         }
         catch (IllegalArgumentException e) {
-            plugin.getLogger().warning("IllegalArgumentException: " + statName + " is not a valid statistic name!");
-            return null;
-        }
-        catch (NullPointerException e) {
-            plugin.getLogger().warning("NullPointerException: please provide a statistic name!");
-            return null;
+            throw new IllegalArgumentException(statName + " is not a valid statistic!");
         }
     }
 
@@ -126,12 +119,7 @@ public class EnumHandler {
             return Statistic.valueOf(statName.toUpperCase()).getType();
         }
         catch (IllegalArgumentException e) {
-            plugin.getLogger().warning("IllegalArgumentException: " + statName + " is not a valid statistic name!");
-            return null;
-        }
-        catch (NullPointerException e) {
-            plugin.getLogger().warning("NullPointerException: please provide a statistic name!");
-            return null;
+            throw new IllegalArgumentException(statName + " is not a valid statistic name!");
         }
     }
 

@@ -62,7 +62,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
 
                     }
                     else {
-                        tabSuggestions = OfflinePlayerHandler.getAllOfflinePlayerNames().stream().filter(player ->
+                        tabSuggestions = OfflinePlayerHandler.getOfflinePlayerNames().stream().filter(player ->
                                 player.toLowerCase().contains(args[args.length-1].toLowerCase())).collect(Collectors.toList());
                     }
                 }

@@ -4,11 +4,9 @@ import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OutputFormatter;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
@@ -23,17 +21,17 @@ public class StatThread extends Thread {
 
     private final ConfigHandler config;
     private final EnumHandler enumHandler;
+    private final OfflinePlayerHandler offlinePlayerHandler;
     private final OutputFormatter outputFormatter;
     private final Main plugin;
 
-    private final String className = "StatThread";
-
     //constructor (called on thread creation)
-    public StatThread(StatRequest s, ConfigHandler c, EnumHandler e, OutputFormatter o, Main p) {
+    public StatThread(StatRequest s, ConfigHandler c, EnumHandler e, OfflinePlayerHandler of, OutputFormatter o, Main p) {
         request = s;
 
         config = c;
         enumHandler = e;
+        offlinePlayerHandler = of;
         outputFormatter = o;
         plugin = p;
         plugin.getLogger().info("StatThread created!");
@@ -63,7 +61,7 @@ public class StatThread extends Thread {
                         outputFormatter.formatPlayerStat(
                                 playerName, statName, subStatEntry, getStatistic(
                                         statName, subStatEntry, playerName)));
-                plugin.logTimeTaken(className, "run(): individual stat", time, 60);
+                plugin.logTimeTaken("StatThread", "calculated individual stat", time);
 
             } catch (Exception e) {
                 sender.sendMessage(outputFormatter.formatExceptions(e.toString()));
@@ -72,12 +70,10 @@ public class StatThread extends Thread {
 
         } else if (topFlag) {
             try {
-                LinkedHashMap<String, Integer> topStats = getTopStatistics(statName, subStatEntry);
-                plugin.logTimeTaken(className, "run(): for each loop", time, 69);
+                sender.sendMessage(outputFormatter.formatTopStats(
+                        getTopStatistics(statName, subStatEntry), statName, subStatEntry));
 
-                String top = outputFormatter.formatTopStats(topStats, statName, subStatEntry);
-                sender.sendMessage(top);
-                plugin.logTimeTaken(className, "run(): total time", time, 73);
+                plugin.logTimeTaken("StatThread", "calculated top stat", time);
 
             } catch (Exception e) {
                 sender.sendMessage(outputFormatter.formatExceptions(e.toString()));
@@ -88,70 +84,68 @@ public class StatThread extends Thread {
 
     //returns the integer associated with a certain statistic for a player
     private int getStatistic(String statName, String subStatEntryName, String playerName) throws IllegalArgumentException, NullPointerException {
-        OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
-        if (player != null) {
+        try {
             Statistic stat = enumHandler.getStatEnum(statName);
-            if (stat != null) {
-                return getPlayerStat(player, stat, subStatEntryName);
-            }
-            throw new IllegalArgumentException("Statistic " + statName + " could not be retrieved!");
+            OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(playerName);
+            return getPlayerStat(player, stat, subStatEntryName);
         }
-        throw new IllegalArgumentException("Player object for " + playerName + " could not be retrieved!");
+        catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(e.toString());
+        }
     }
 
-    private LinkedHashMap<String, Integer> getTopStatistics(String statName, String subStatEntry) {
-        Statistic stat = enumHandler.getStatEnum(statName);
 
-        if (stat != null) {
+    private LinkedHashMap<String, Integer> getTopStatistics(String statName, String subStatEntry) {
+        try {
+            Statistic stat = enumHandler.getStatEnum(statName);
             HashMap<String, Integer> playerStats = new HashMap<>((int) (getOfflinePlayerCount() * 1.05));
-            OfflinePlayerHandler.getAllOfflinePlayerNames().forEach(playerName -> {
-                OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
-                if (player != null)
-                    try {
-                        int statistic = getPlayerStat(player, stat, subStatEntry);
-                        if (statistic > 0) {
-                            playerStats.put(playerName, statistic);
-                        }
-                    } catch (IllegalArgumentException ignored) {
+            offlinePlayerHandler.getOfflinePlayerNames().forEach(playerName -> {
+                OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(playerName);
+                try {
+                    int statistic = getPlayerStat(player, stat, subStatEntry);
+                    if (statistic > 0) {
+                        playerStats.put(playerName, statistic);
                     }
+                } catch (IllegalArgumentException ignored) {
+                }
             });
             return playerStats.entrySet().stream()
                     .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                     .limit(config.getTopListMaxSize()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
         }
-        throw new NullPointerException("Statistic " + statName + " could not be retrieved!");
+        catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(e.toString());
+        }
     }
 
+    //gets the actual statistic data for a given player
     private int getPlayerStat(@NotNull OfflinePlayer player, @NotNull Statistic stat, String subStatEntryName) throws IllegalArgumentException {
         switch (stat.getType()) {
             case UNTYPED -> {
                 return player.getStatistic(stat);
             }
             case BLOCK -> {
-                Material block = enumHandler.getBlock(subStatEntryName);
-                if (block != null) {
-                    return player.getStatistic(stat, block);
+                try {
+                    return player.getStatistic(stat, enumHandler.getBlock(subStatEntryName));
                 }
-                else {
-                    throw new IllegalArgumentException(subStatEntryName + " is not a valid block name!");
+                catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException(e.toString());
                 }
             }
             case ENTITY -> {
-                EntityType entity = enumHandler.getEntityType(subStatEntryName);
-                if (entity != null) {
-                    return player.getStatistic(stat, entity);
+                try {
+                    return player.getStatistic(stat, enumHandler.getEntityType(subStatEntryName));
                 }
-                else {
-                    throw new IllegalArgumentException(subStatEntryName + " is not a valid entity name!");
+                catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException(e.toString());
                 }
             }
             case ITEM -> {
-                Material item = enumHandler.getItem(subStatEntryName);
-                if (item != null) {
-                    return player.getStatistic(stat, item);
+                try {
+                    return player.getStatistic(stat, enumHandler.getItem(subStatEntryName));
                 }
-                else {
-                    throw new IllegalArgumentException(subStatEntryName + " is not a valid item name!");
+                catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException(e.toString());
                 }
             }
             default ->
@@ -159,19 +153,13 @@ public class StatThread extends Thread {
         }
     }
 
+    //returns the amount of offline players, attempts to update the list if none are found, and otherwise throws an error
     private int getOfflinePlayerCount() {
         try {
-            return OfflinePlayerHandler.getOfflinePlayerCount();
+            return offlinePlayerHandler.getOfflinePlayerCount();
         }
         catch (NullPointerException e) {
-            OfflinePlayerHandler.updateOfflinePlayers();
-            try {
-                return OfflinePlayerHandler.getOfflinePlayerCount();
-            }
-            catch (NullPointerException ex) {
-                plugin.getLogger().warning(e.toString());
-                throw new RuntimeException();
-            }
+            throw new RuntimeException("No offline players were found to calculate statistics for!");
         }
     }
 }

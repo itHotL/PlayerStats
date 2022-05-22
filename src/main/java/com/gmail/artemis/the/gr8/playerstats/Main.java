@@ -12,10 +12,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
+
 public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        long time = System.currentTimeMillis();
 
         //check if Spigot ChatColors can be used, and prepare accordingly
         boolean enableHexColors = false;
@@ -30,23 +32,24 @@ public class Main extends JavaPlugin {
 
         //get instances of the classes that should be initialized
         ConfigHandler config = new ConfigHandler(this);
-        EnumHandler enumHandler = new EnumHandler(this);
+        EnumHandler enumHandler = new EnumHandler();
         OutputFormatter outputFormatter = new OutputFormatter(config, enableHexColors);
 
-        //prepare private hashMap of offline players
-        OfflinePlayerHandler.updateOfflinePlayers();
+        OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler(config);
+        getLogger().info("Amount of offline players: " + offlinePlayerHandler.getOfflinePlayerCount());
 
         //register the commands
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(config, enumHandler, outputFormatter, this));
+            statcmd.setExecutor(new StatCommand(config, enumHandler, offlinePlayerHandler, outputFormatter, this));
             statcmd.setTabCompleter(new TabCompleter(enumHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
-        if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(config, outputFormatter));
+        if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(config, offlinePlayerHandler, outputFormatter));
 
         //register the listener
-        Bukkit.getPluginManager().registerEvents(new JoinListener(), this);
+        Bukkit.getPluginManager().registerEvents(new JoinListener(offlinePlayerHandler), this);
+        logTimeTaken("Time", "taken", time);
         this.getLogger().info("Enabled PlayerStats!");
     }
 
@@ -55,8 +58,8 @@ public class Main extends JavaPlugin {
         this.getLogger().info("Disabled PlayerStats!");
     }
 
-    public long logTimeTaken(String className, String methodName, long previousTime, int lineNumber) {
-        getLogger().info(className + " " + methodName + " " + lineNumber + ": " + (System.currentTimeMillis() - previousTime));
+    public long logTimeTaken(String className, String methodName, long previousTime) {
+        getLogger().info(className + " " + methodName + " " + ": " + (System.currentTimeMillis() - previousTime));
         return System.currentTimeMillis();
     }
 }

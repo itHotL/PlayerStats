@@ -1,6 +1,16 @@
-# PlayerStats Configuration
+# ------------------------------
+#   PlayerStats Configuration
+# ------------------------------
 
 # ------ General Options -------
+# The following are filtering options to control which players are included in statistic results
+include-whitelist-only: false
+exclude-banned-players: false
+
+# To only show statistics from players that have been online in the last x days, specify the number of days below
+# 0 means no time-constraint will be used
+number-of-days-since-last-joined: 0
+
 # The maximum number of entries displayed in the top list
 top-list-max-size: 10
 

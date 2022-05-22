@@ -8,13 +8,15 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class JoinListener implements Listener {
 
-    public JoinListener() {
+    private final OfflinePlayerHandler offlinePlayerHandler;
+    public JoinListener(OfflinePlayerHandler o) {
+        offlinePlayerHandler = o;
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent joinEvent) {
         if (!joinEvent.getPlayer().hasPlayedBefore()) {
-            OfflinePlayerHandler.updateOfflinePlayers();
+            offlinePlayerHandler.updateOfflinePlayerList();
         }
     }
 }
