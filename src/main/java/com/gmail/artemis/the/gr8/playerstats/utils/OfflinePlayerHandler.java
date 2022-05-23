@@ -33,7 +33,7 @@ public class OfflinePlayerHandler {
         updateOfflinePlayerList(config.whitelistOnly(), config.excludeBanned(), config.lastPlayedLimit());
     }
 
-    //stores a private HashMap with keys:playerName and values:UUID, and a private list of the names for easy access
+    //stores a private HashMap of all relevant offline players with keys:playerName and values:UUID
     private void updateOfflinePlayerList(boolean whitelistOnly, boolean excludeBanned, int lastPlayedLimit) {
         if (offlinePlayerUUIDs == null) offlinePlayerUUIDs = new HashMap<>();
         else if (!offlinePlayerUUIDs.isEmpty()) {
@@ -41,8 +41,11 @@ public class OfflinePlayerHandler {
         }
 
         Arrays.stream(Bukkit.getOfflinePlayers()).filter(offlinePlayer ->
-                offlinePlayer.getName() != null && offlinePlayer.hasPlayedBefore()).forEach(offlinePlayer ->
-                offlinePlayerUUIDs.put(offlinePlayer.getName(), offlinePlayer.getUniqueId()));
+                offlinePlayer.getName() != null &&
+                    (!excludeBanned || !offlinePlayer.isBanned()) &&
+                    (!whitelistOnly || offlinePlayer.isWhitelisted()) &&
+                    (lastPlayedLimit == 0 || UnixTimeHandler.hasPlayedSince(lastPlayedLimit, offlinePlayer.getLastPlayed())))
+                .forEach(offlinePlayer -> offlinePlayerUUIDs.put(offlinePlayer.getName(), offlinePlayer.getUniqueId()));
     }
 
     public OfflinePlayer getOfflinePlayer(String playerName) {

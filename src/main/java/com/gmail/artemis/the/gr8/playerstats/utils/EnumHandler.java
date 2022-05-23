@@ -5,24 +5,22 @@ import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class EnumHandler {
 
-    private static List<String> blockNames;
-    private static List<String> entityTypeNames;
-    private static List<String> itemNames;
-    private static List<String> statNames;
-    private static List<String> entityStatNames;
-    private static List<String> subStatEntryNames;
+    private final static List<String> blockNames;
+    private final static List<String> entityTypeNames;
+    private final static List<String> itemNames;
+    private final static List<String> statNames;
+    private final static List<String> entityStatNames;
+    private final static List<String> subStatEntryNames;
 
-    private EnumHandler() {
-    }
-
-    public static void prepareLists() {
+    static{
         blockNames = Arrays.stream(Material.values()).filter(
                 Material::isBlock).map(Material::toString).map(String::toLowerCase).toList();
         entityTypeNames = Arrays.stream(EntityType.values()).map(
@@ -31,15 +29,14 @@ public class EnumHandler {
                 Material::isItem).map(Material::toString).map(String::toLowerCase).toList();
         statNames = Arrays.stream(Statistic.values()).map(
                 Statistic::toString).map(String::toLowerCase).toList();
-
         entityStatNames = Arrays.stream(Statistic.values()).filter(statistic ->
                 statistic.getType().equals(Statistic.Type.ENTITY)).map(
                 Statistic::toString).map(String::toLowerCase).collect(Collectors.toList());
 
-        subStatEntryNames = new ArrayList<>();
-        subStatEntryNames.addAll(getBlockNames());
-        subStatEntryNames.addAll(getEntityTypeNames());
-        subStatEntryNames.addAll(getItemNames());
+        subStatEntryNames = Stream.of(blockNames, entityTypeNames, itemNames).flatMap(Collection::stream).toList();
+    }
+
+    private EnumHandler() {
     }
 
     //checks whether the provided string is a valid item

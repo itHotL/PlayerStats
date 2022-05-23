@@ -3,23 +3,22 @@
 # ------------------------------
 
 # ------ General Options -------
-# The following are filtering options to control which players are included in statistic results
+# The following are filtering options to control which players are included when calculating statistics
 include-whitelist-only: false
 exclude-banned-players: false
 
 # To only show statistics from players that have been online in the last x days, specify the number of days below
-# 0 means no time-constraint will be used
+# Leave this on 0 if you want to include everyone
 number-of-days-since-last-joined: 0
 
-# The maximum number of entries displayed in the top list
+# ------ Format Options --------
+# The maximum number of results displayed in the top list
 top-list-max-size: 10
 
-# --- Format & Color Options ---
-# --------- Format -------------
 # If true, the top list will be aligned with lines of dots so that the stat numbers are all underneath each other
 use-dots: true
 
-# ---------- Color -------------
+# ------ Color Options ---------
 # The colors below can be chat colors or hex codes if your server supports those (Bukkit does not, Spigot and further forks do)
 # Make sure to put hex codes between quotation marks! (format: '#xxxxxx')
 individual-statistics:
@@ -43,7 +42,7 @@ individual-statistics-style:
   sub-stat-names: none
   stat-numbers: none
 
-# Note that making the player-names bold will cause the alignment of the stat numbers to shift slightly
+# Note that making the player-names bold could cause the alignment of the stat numbers to shift slightly
 top-list-style:
   player-names: none
   stat-names: none

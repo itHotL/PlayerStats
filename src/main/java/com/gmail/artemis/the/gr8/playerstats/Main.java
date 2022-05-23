@@ -37,7 +37,7 @@ public class Main extends JavaPlugin {
         getLogger().info("Amount of offline players: " + offlinePlayerHandler.getOfflinePlayerCount());
 
         //get private lists ready with item/material/entity/stat names
-        EnumHandler.prepareLists();
+        //EnumHandler.prepareLists();
 
         //register the commands
         PluginCommand statcmd = this.getCommand("statistic");
@@ -46,7 +46,7 @@ public class Main extends JavaPlugin {
             statcmd.setTabCompleter(new TabCompleter(offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
-        if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(config, offlinePlayerHandler, outputFormatter));
+        if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(config, offlinePlayerHandler, outputFormatter, this));
 
         //register the listener
         Bukkit.getPluginManager().registerEvents(new JoinListener(offlinePlayerHandler), this);
@@ -60,7 +60,7 @@ public class Main extends JavaPlugin {
     }
 
     public long logTimeTaken(String className, String methodName, long previousTime) {
-        getLogger().info(className + " " + methodName + " " + ": " + (System.currentTimeMillis() - previousTime));
+        getLogger().info(className + " " + methodName + ": " + (System.currentTimeMillis() - previousTime));
         return System.currentTimeMillis();
     }
 }
