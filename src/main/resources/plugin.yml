@@ -10,8 +10,6 @@ commands:
       - stat
       - stats
     description: general statistic command
-    usage: "§7[§6PlayerStats§7]
-    /statistic <statistic-name> [item-, material- or entity-name] {top | player | me} [player-name]"
     permission: playerstats.stat
   statisticreload:
     aliases:

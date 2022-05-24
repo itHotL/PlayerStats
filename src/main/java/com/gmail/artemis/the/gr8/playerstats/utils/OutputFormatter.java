@@ -1,6 +1,11 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.ChatColor;
 import org.bukkit.map.MinecraftFont;
 
@@ -36,20 +41,49 @@ public class OutputFormatter {
         return pluginPrefix + exception;
     }
 
-    public String formatHelp() {
-        StringBuilder helpMsg = new StringBuilder();
-        String underscores;
+    public BaseComponent[] formatHelp() {
+        String spaces = "    ";
+
         if (useHex) {
-            underscores = net.md_5.bungee.api.ChatColor.of("#6E3485") + "_________";
+            ComponentBuilder underscores = new ComponentBuilder("____________").color(net.md_5.bungee.api.ChatColor.of("#6E3485"));
+            TextComponent arrow = new TextComponent("→ ");
+            arrow.setColor(net.md_5.bungee.api.ChatColor.GOLD);
+
+            TextComponent statName = new TextComponent("name");
+            statName.setColor(net.md_5.bungee.api.ChatColor.YELLOW);
+            statName.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                    new Text("The name of the statistic (example: \"mine_block\")")));
+
+            TextComponent subStatName = new TextComponent("sub-statistic");
+            subStatName.setColor(net.md_5.bungee.api.ChatColor.YELLOW);
+            subStatName.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                    new Text("Some statistics require an item, block or entity as sub-statistic (example: \"mine_block diorite\")")));
+
+            TextComponent target = new TextComponent("me | player | top");
+            target.setColor(net.md_5.bungee.api.ChatColor.YELLOW);
+            target.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                    new Text("Choose whether you want to see your own statistic, another player's, or the top " + config.getTopListMaxSize())));
+
+            TextComponent playerName = new TextComponent("player-name");
+            playerName.setColor(net.md_5.bungee.api.ChatColor.YELLOW);
+            playerName.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                    new Text("In case you selected \"player\", specify the player's name here")));
+
+            ComponentBuilder title = new ComponentBuilder()
+                    .append(underscores.create()).append("\n").append(spaces).append(pluginPrefix).append(spaces).append(underscores.create()).append("\n")
+                    .append("Hover over the arguments for more information!").color(net.md_5.bungee.api.ChatColor.GRAY).italic(true).append("\n")
+                    .append("Usage: ").color(net.md_5.bungee.api.ChatColor.GOLD).italic(false)
+                    .append("/statistic ").color(net.md_5.bungee.api.ChatColor.YELLOW).append("\n")
+                    .append(spaces).append(arrow).append(statName).append("\n").reset()
+                    .append(spaces).append(arrow).append(subStatName).append("\n").reset()
+                    .append(spaces).append(arrow).append(target).append("\n").reset()
+                    .append(spaces).append(arrow).append(playerName);
+
+            return title.create();
         }
         else {
-            underscores = ChatColor.GOLD + "_________";
+            return new BaseComponent[0];
         }
-        helpMsg.append(underscores).append("   ").append(pluginPrefix).append("   ").append(underscores).append("\n")
-                .append(ChatColor.GRAY).append(ChatColor.ITALIC).append("Hover over the arguments for more information!").append("\n")
-                .append(ChatColor.RESET).append(ChatColor.GOLD).append("Usage: ")
-                .append(ChatColor.YELLOW).append("/statistic <name> [sub-statistic] {me | player | top}").append("\n");
-        return helpMsg.toString();
     }
 
     public String formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
