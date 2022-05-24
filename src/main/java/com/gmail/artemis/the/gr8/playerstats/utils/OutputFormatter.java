@@ -36,6 +36,22 @@ public class OutputFormatter {
         return pluginPrefix + exception;
     }
 
+    public String formatHelp() {
+        StringBuilder helpMsg = new StringBuilder();
+        String underscores;
+        if (useHex) {
+            underscores = net.md_5.bungee.api.ChatColor.of("#6E3485") + "_________";
+        }
+        else {
+            underscores = ChatColor.GOLD + "_________";
+        }
+        helpMsg.append(underscores).append("   ").append(pluginPrefix).append("   ").append(underscores).append("\n")
+                .append(ChatColor.GRAY).append(ChatColor.ITALIC).append("Hover over the arguments for more information!").append("\n")
+                .append(ChatColor.RESET).append(ChatColor.GOLD).append("Usage: ")
+                .append(ChatColor.YELLOW).append("/statistic <name> [sub-statistic] {me | player | top}").append("\n");
+        return helpMsg.toString();
+    }
+
     public String formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
         StringBuilder singleStat = new StringBuilder();
         String subStat = subStatEntryName != null ?

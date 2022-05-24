@@ -30,6 +30,10 @@ public class StatCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        if (args.length == 0) {
+            sender.sendMessage(outputFormatter.formatHelp());
+        }
+
         //part 1: collecting all relevant information from the args
         if (args.length >= 2) {
             StatRequest request = new StatRequest(sender);
