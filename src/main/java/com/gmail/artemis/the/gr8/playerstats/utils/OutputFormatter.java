@@ -1,11 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.ChatColor;
 import org.bukkit.map.MinecraftFont;
 
@@ -19,7 +14,7 @@ public class OutputFormatter {
     private HashMap<String, ChatColor> chatColors;
     private HashMap<String, ChatColor> styleOptions;
     private HashMap<String, net.md_5.bungee.api.ChatColor> hexChatColors;
-    private final String pluginPrefix;
+    private static String pluginPrefix;
 
     public OutputFormatter(ConfigHandler c, boolean enableHexColors) {
         config = c;
@@ -33,13 +28,15 @@ public class OutputFormatter {
         updateOutPutColors(useHex);
     }
 
-    public String getPluginPrefix() {
+    public static String getPluginPrefix() {
         return pluginPrefix;
     }
 
     public String formatExceptions(String exception) {
         return pluginPrefix + exception;
     }
+
+    /*
 
     public BaseComponent[] formatHelpSpigot() {
         String spaces = "    ";
@@ -81,6 +78,8 @@ public class OutputFormatter {
 
         return help.create();
     }
+
+     */
 
     public String formatHelpBukkit() {
         String spaces = "    ";

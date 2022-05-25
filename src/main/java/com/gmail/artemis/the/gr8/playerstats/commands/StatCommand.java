@@ -72,7 +72,7 @@ public class StatCommand implements CommandExecutor {
             }
             else {
                 if (Main.hexEnabled()) {
-                    sender.spigot().sendMessage(outputFormatter.formatHelpSpigot());
+                    //sender.spigot().sendMessage(outputFormatter.formatHelpSpigot());
                 }
                 else {
                     sender.sendMessage(outputFormatter.formatHelpBukkit());
@@ -83,7 +83,7 @@ public class StatCommand implements CommandExecutor {
 
         else {
             if (Main.hexEnabled()) {
-                sender.spigot().sendMessage(outputFormatter.formatHelpSpigot());
+                //sender.spigot().sendMessage(outputFormatter.formatHelpSpigot());
             }
             else {
                 sender.sendMessage(outputFormatter.formatHelpBukkit());

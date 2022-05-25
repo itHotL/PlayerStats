@@ -7,18 +7,31 @@ import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OutputFormatter;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 
 public class Main extends JavaPlugin {
 
     private static boolean enableHexColors;
+    private BukkitAudiences adventure;
+
+    public @NotNull BukkitAudiences adventure() {
+        if (adventure == null) {
+            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
+        }
+        return adventure;
+    }
 
     @Override
     public void onEnable() {
         long time = System.currentTimeMillis();
+
+        //initialize the Adventure library
+        adventure = BukkitAudiences.create(this);
 
         //check if Spigot ChatColors can be used, and prepare accordingly
         try {
@@ -37,9 +50,6 @@ public class Main extends JavaPlugin {
         OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler(config);
         getLogger().info("Amount of offline players: " + offlinePlayerHandler.getOfflinePlayerCount());
 
-        //get private lists ready with item/material/entity/stat names
-        //EnumHandler.prepareLists();
-
         //register the commands
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
@@ -47,7 +57,7 @@ public class Main extends JavaPlugin {
             statcmd.setTabCompleter(new TabCompleter(offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
-        if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(config, offlinePlayerHandler, outputFormatter, this));
+        if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(adventure(), config, offlinePlayerHandler, outputFormatter, this));
 
         //register the listener
         Bukkit.getPluginManager().registerEvents(new JoinListener(offlinePlayerHandler), this);
@@ -57,6 +67,11 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (adventure != null) {
+            adventure.close();
+            adventure = null;
+        }
+
         this.getLogger().info("Disabled PlayerStats!");
     }
 
