@@ -5,7 +5,6 @@ import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
-import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OutputFormatter;
 import org.bukkit.Bukkit;
@@ -15,18 +14,20 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 
+    private static boolean enableHexColors;
+
     @Override
     public void onEnable() {
         long time = System.currentTimeMillis();
 
         //check if Spigot ChatColors can be used, and prepare accordingly
-        boolean enableHexColors = false;
         try {
             Class.forName("net.md_5.bungee.api.ChatColor");
             enableHexColors = true;
             this.getLogger().info("Hex Color support enabled!");
         }
         catch (ClassNotFoundException e) {
+            enableHexColors = false;
             this.getLogger().info("Hex Colors are not supported for this server type, proceeding with default Chat Colors...");
         }
 
@@ -57,6 +58,10 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         this.getLogger().info("Disabled PlayerStats!");
+    }
+
+    public static boolean hexEnabled() {
+        return enableHexColors;
     }
 
     public long logTimeTaken(String className, String methodName, long previousTime) {

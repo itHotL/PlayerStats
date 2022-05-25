@@ -71,13 +71,23 @@ public class StatCommand implements CommandExecutor {
                 return true;
             }
             else {
-                sender.spigot().sendMessage(outputFormatter.formatHelp());
+                if (Main.hexEnabled()) {
+                    sender.spigot().sendMessage(outputFormatter.formatHelpSpigot());
+                }
+                else {
+                    sender.sendMessage(outputFormatter.formatHelpBukkit());
+                }
                 return false;
             }
         }
 
         else {
-            sender.spigot().sendMessage(outputFormatter.formatHelp());
+            if (Main.hexEnabled()) {
+                sender.spigot().sendMessage(outputFormatter.formatHelpSpigot());
+            }
+            else {
+                sender.sendMessage(outputFormatter.formatHelpBukkit());
+            }
             return false;
         }
     }

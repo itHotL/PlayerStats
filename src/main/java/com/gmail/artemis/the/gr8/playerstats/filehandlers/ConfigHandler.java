@@ -205,5 +205,6 @@ public class ConfigHandler {
         config = plugin.getConfig();
         plugin.saveDefaultConfig();
         configFile = new File(plugin.getDataFolder(), "config.yml");
+
     }
 }
