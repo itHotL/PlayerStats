@@ -21,19 +21,11 @@ use-dots: true
 # ------ Color Options ---------
 # The colors below can be chat colors or hex codes if your server supports those (Bukkit does not, Spigot and further forks do)
 # Make sure to put hex codes between quotation marks! (format: '#xxxxxx')
-individual-statistics:
+individual-statistics-color:
   player-names: gold
   stat-names: yellow
   sub-stat-names: yellow
   stat-numbers: white
-
-top-list:
-  player-names: green
-  stat-names: yellow
-  sub-stat-names: yellow
-  stat-numbers: dark_aqua
-  list-numbers: gold
-  dots: dark_gray
 
 # This provides additional styling options (italic/underline/bold, and yes, even magic)
 individual-statistics-style:
@@ -41,6 +33,14 @@ individual-statistics-style:
   stat-names: none
   sub-stat-names: none
   stat-numbers: none
+
+top-list-color:
+  player-names: green
+  stat-names: yellow
+  sub-stat-names: yellow
+  stat-numbers: '#40b1f7'
+  list-numbers: gold
+  dots: dark_gray
 
 # Note that making the player-names bold could cause the alignment of the stat numbers to shift slightly
 top-list-style:

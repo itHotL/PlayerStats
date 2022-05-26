@@ -51,8 +51,4 @@ public class OfflinePlayerHandler {
     public OfflinePlayer getOfflinePlayer(String playerName) {
         return Bukkit.getOfflinePlayer(offlinePlayerUUIDs.get(playerName));
     }
-
-    public UUID getOfflinePlayerUUID(String playerName) {
-        return offlinePlayerUUIDs.get(playerName);
-    }
 }

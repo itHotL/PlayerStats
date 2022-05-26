@@ -3,7 +3,7 @@ package com.gmail.artemis.the.gr8.playerstats;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.gmail.artemis.the.gr8.playerstats.utils.OutputFormatter;
+import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
@@ -21,16 +21,16 @@ public class StatThread extends Thread {
 
     private final ConfigHandler config;
     private final OfflinePlayerHandler offlinePlayerHandler;
-    private final OutputFormatter outputFormatter;
+    private final MessageFactory messageFactory;
     private final Main plugin;
 
     //constructor (called on thread creation)
-    public StatThread(StatRequest s, ConfigHandler c, OfflinePlayerHandler of, OutputFormatter o, Main p) {
+    public StatThread(StatRequest s, ConfigHandler c, OfflinePlayerHandler of, MessageFactory o, Main p) {
         request = s;
 
         config = c;
         offlinePlayerHandler = of;
-        outputFormatter = o;
+        messageFactory = o;
         plugin = p;
         plugin.getLogger().info("StatThread created!");
     }
@@ -40,7 +40,7 @@ public class StatThread extends Thread {
     public void run() throws IllegalStateException, NullPointerException {
         long time = System.currentTimeMillis();
 
-        if (outputFormatter == null || plugin == null) {
+        if (messageFactory == null || plugin == null) {
             throw new IllegalStateException("Not all classes off the plugin are running!");
         }
         if (request == null) {
@@ -56,25 +56,25 @@ public class StatThread extends Thread {
         if (playerName != null) {
             try {
                 sender.sendMessage(
-                        outputFormatter.formatPlayerStat(
+                        messageFactory.formatPlayerStat(
                                 playerName, statName, subStatEntry, getStatistic(
                                         statName, subStatEntry, playerName)));
                 plugin.logTimeTaken("StatThread", "calculated individual stat", time);
 
             } catch (Exception e) {
-                sender.sendMessage(outputFormatter.formatExceptions(e.toString()));
+                sender.sendMessage(messageFactory.formatExceptions(e.toString()));
                 e.printStackTrace();
             }
 
         } else if (topFlag) {
             try {
-                sender.sendMessage(outputFormatter.formatTopStats(
+                sender.sendMessage(messageFactory.formatTopStats(
                         getTopStatistics(statName, subStatEntry), statName, subStatEntry));
 
                 plugin.logTimeTaken("StatThread", "calculated top stat", time);
 
             } catch (Exception e) {
-                sender.sendMessage(outputFormatter.formatExceptions(e.toString()));
+                sender.sendMessage(messageFactory.formatExceptions(e.toString()));
                 e.printStackTrace();
             }
         }
