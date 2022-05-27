@@ -90,66 +90,44 @@ public class ConfigHandler {
         }
     }
 
-    public String getPlayerNamesColor(boolean topStat) {
-        ConfigurationSection color = getRelevantSection(topStat, false);
-        return color != null ? color.getString("player-names") : null;
+    public String getPlayerNameFormatting(boolean topStat, boolean isStyle) {
+        ConfigurationSection section = getRelevantSection(topStat, isStyle);
+        return section != null ? section.getString("player-names") : null;
     }
 
-    public String getPlayerNamesStyle(boolean topStat) {
-        ConfigurationSection style = getRelevantSection(topStat, true);
-        return style != null ? style.getString("player-names") : null;
-    }
-
-    public boolean playerNamesStyleIsBold() {
+    public boolean playerNameIsBold() {
         ConfigurationSection style = getRelevantSection(true, true);
-        String styleString = null;
-        if (style != null) styleString = style.getString("player-names");
-        return styleString != null && styleString.equalsIgnoreCase("bold");
+
+        if (style != null) {
+            String styleString = style.getString("player-names");
+            return styleString != null && styleString.equalsIgnoreCase("bold");
+        }
+        return false;
     }
 
-    public String getStatNamesColor(boolean topStat) {
-        ConfigurationSection color = getRelevantSection(topStat, false);
-        return color != null ? color.getString("stat-names") : "";
+    public String getStatNameFormatting(boolean topStat, boolean isStyle) {
+        ConfigurationSection section = getRelevantSection(topStat, isStyle);
+        return section != null ? section.getString("stat-names") : null;
     }
 
-    public String getStatNamesStyle(boolean topStat) {
-        ConfigurationSection style = getRelevantSection(topStat, true);
-        return style != null ? style.getString("stat-names") : "";
+    public String getSubStatNameFormatting(boolean topStat, boolean isStyle) {
+        ConfigurationSection section = getRelevantSection(topStat, isStyle);
+        return section != null ? section.getString("sub-stat-names") : null;
     }
 
-    public String getSubStatNamesColor(boolean topStat) {
-        ConfigurationSection color = getRelevantSection(topStat, false);
-        return color != null ? color.getString("sub-stat-names") : "";
+    public String getStatNumberFormatting(boolean topStat, boolean isStyle) {
+        ConfigurationSection section = getRelevantSection(topStat, isStyle);
+        return section != null ? section.getString("stat-numbers") : null;
     }
 
-    public String getSubStatNamesStyle(boolean topStat) {
-        ConfigurationSection style = getRelevantSection(topStat, true);
-        return style != null ? style.getString("sub-stat-names") : "";
-    }
-
-    public String getStatNumbersColor(boolean topStat) {
-        ConfigurationSection color = getRelevantSection(topStat, false);
-        return color != null ? color.getString("stat-numbers") : "";
-    }
-
-    public String getStatNumbersStyle(boolean topStat) {
-        ConfigurationSection style = getRelevantSection(topStat, true);
-        return style != null ? style.getString("stat-numbers") : "";
-    }
-
-    public String getListNumbersColor() {
-        ConfigurationSection color = getRelevantSection(true, false);
-        return color != null ? color.getString("list-numbers") : "";
-    }
-
-    public String getListNumbersStyle() {
-        ConfigurationSection style = getRelevantSection(true, true);
-        return style != null ? style.getString("list-numbers") : "";
+    public String getListNumberFormatting(boolean isStyle) {
+        ConfigurationSection section = getRelevantSection(true, isStyle);
+        return section != null ? section.getString("list-numbers") : null;
     }
 
     public String getDotsColor() {
         ConfigurationSection section = getRelevantSection(true, false);
-        return section != null ? section.getString("dots") : "";
+        return section != null ? section.getString("dots") : null;
     }
 
     private ConfigurationSection getRelevantSection(boolean topStat, boolean isStyle) {

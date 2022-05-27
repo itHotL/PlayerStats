@@ -69,7 +69,7 @@ public class StatCommand implements CommandExecutor {
 
             //part 2: sending the information to the StatThread
             if (isValidStatRequest(request)) {
-                StatThread statThread = new StatThread(request, config, offlinePlayerHandler, messageFactory, plugin);
+                StatThread statThread = new StatThread(request, adventure, config, offlinePlayerHandler, messageFactory, plugin);
                 statThread.start();
                 return true;
             }

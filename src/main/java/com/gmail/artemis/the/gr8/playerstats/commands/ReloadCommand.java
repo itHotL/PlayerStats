@@ -15,13 +15,11 @@ public class ReloadCommand implements CommandExecutor {
 
     private final ConfigHandler config;
     private final OfflinePlayerHandler offlinePlayerHandler;
-    private final MessageFactory messageFactory;
     private final Main plugin;
 
 
-    public ReloadCommand(ConfigHandler c, OfflinePlayerHandler of, MessageFactory o, Main p) {
+    public ReloadCommand(ConfigHandler c, OfflinePlayerHandler of, Main p) {
         offlinePlayerHandler = of;
-        messageFactory = o;
         config = c;
         plugin = p;
     }

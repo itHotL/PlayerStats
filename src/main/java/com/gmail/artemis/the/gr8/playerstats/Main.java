@@ -45,7 +45,7 @@ public class Main extends JavaPlugin {
             statcmd.setTabCompleter(new TabCompleter(offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
-        if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(config, offlinePlayerHandler, messageFactory, this));
+        if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(config, offlinePlayerHandler, this));
 
         //register the listener
         Bukkit.getPluginManager().registerEvents(new JoinListener(offlinePlayerHandler), this);

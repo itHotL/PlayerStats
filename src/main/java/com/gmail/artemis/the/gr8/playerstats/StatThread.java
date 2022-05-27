@@ -4,6 +4,7 @@ import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
@@ -19,15 +20,17 @@ public class StatThread extends Thread {
 
     private final StatRequest request;
 
+    private final BukkitAudiences adventure;
     private final ConfigHandler config;
     private final OfflinePlayerHandler offlinePlayerHandler;
     private final MessageFactory messageFactory;
     private final Main plugin;
 
     //constructor (called on thread creation)
-    public StatThread(StatRequest s, ConfigHandler c, OfflinePlayerHandler of, MessageFactory o, Main p) {
+    public StatThread(StatRequest s, BukkitAudiences b, ConfigHandler c, OfflinePlayerHandler of, MessageFactory o, Main p) {
         request = s;
 
+        adventure = b;
         config = c;
         offlinePlayerHandler = of;
         messageFactory = o;
@@ -55,7 +58,7 @@ public class StatThread extends Thread {
 
         if (playerName != null) {
             try {
-                sender.sendMessage(
+                adventure.sender(sender).sendMessage(
                         messageFactory.formatPlayerStat(
                                 playerName, statName, subStatEntry, getStatistic(
                                         statName, subStatEntry, playerName)));
@@ -68,7 +71,7 @@ public class StatThread extends Thread {
 
         } else if (topFlag) {
             try {
-                sender.sendMessage(messageFactory.formatTopStats(
+                adventure.sender(sender).sendMessage(messageFactory.formatTopStats(
                         getTopStatistics(statName, subStatEntry), statName, subStatEntry));
 
                 plugin.logTimeTaken("StatThread", "calculated top stat", time);

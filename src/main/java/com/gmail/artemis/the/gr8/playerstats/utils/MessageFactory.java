@@ -7,13 +7,13 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.util.Index;
 import org.bukkit.ChatColor;
 import org.bukkit.map.MinecraftFont;
 
 import java.util.*;
 
-import static net.kyori.adventure.text.Component.newline;
-import static net.kyori.adventure.text.Component.text;
+import static net.kyori.adventure.text.Component.*;
 
 public class MessageFactory {
 
@@ -76,31 +76,29 @@ public class MessageFactory {
                                                 .append(text(", specify the player's name here").color(hoverDescription))))));
     }
 
-    public String formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
-        StringBuilder singleStat = new StringBuilder();
+    public TextComponent formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
+        TextComponent.Builder singleStat = Component.text();
         String subStat = subStatEntryName != null ?
                 " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
 
-        singleStat.append(config.getPlayerNamesColor(false)).append(playerName).append(": ")
-                .append(config.getStatNumbersColor(false)).append(stat).append(" ")
-                .append(config.getStatNamesColor(false))
-                        .append(statName.toLowerCase().replace("_", " "))
-                .append(config.getSubStatNamesColor(false)).append(subStat);
+        singleStat.append(playerNameComponent(playerName + ": ", false))
+                .append(statNumberComponent(stat, false)).append(space())
+                .append(statNameComponent(statName.toLowerCase().replace("_", " "), false))
+                .append(subStatNameComponent(subStat, false));
 
-        return singleStat.toString();
+        return singleStat.build();
     }
 
-    public String formatTopStats(LinkedHashMap<String, Integer> topStats, String statName, String subStatEntryName) {
-        StringBuilder topList = new StringBuilder();
+    public TextComponent formatTopStats(LinkedHashMap<String, Integer> topStats, String statName, String subStatEntryName) {
+        TextComponent.Builder topList = Component.text();
         String subStat = subStatEntryName != null ?
-                " (" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
+                "(" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
 
-        topList.append("\n").append(getPluginPrefix())
-                .append(config.getStatNamesColor(true)).append("Top ")
-                .append(config.getListNumbersColor()).append(topStats.size())
-                .append(config.getStatNamesColor(true)).append(" ")
-                        .append(statName.toLowerCase().replace("_", " "))
-                .append(config.getSubStatNamesColor(true)).append(subStat);
+        topList.append(newline()).append(text(getPluginPrefix()))
+                .append(statNameComponent("Top", true)).append(space())
+                .append(listNumberComponent(topStats.size() + "")).append(space())
+                .append(statNameComponent(statName.toLowerCase().replace("_", " "), true)).append(space())
+                .append(subStatNameComponent(subStat, true));
 
         boolean useDots = config.useDots();
         Set<String> playerNames = topStats.keySet();
@@ -110,103 +108,108 @@ public class MessageFactory {
         for (String playerName : playerNames) {
             count = count+1;
 
-            topList.append("\n")
-                    .append(config.getListNumbersColor()).append(count).append(". ")
-                    .append(config.getPlayerNamesColor(true)).append(playerName);
+            topList.append(newline())
+                    .append(listNumberComponent(count + ". "))
+                    .append(playerNameComponent(playerName, true));
 
             if (useDots) {
-                topList.append(config.getDotsColor()).append(" ");
+                topList.append(space());
 
                 int dots = (int) Math.round((130.0 - font.getWidth(count + ". " + playerName))/2);
-                if (config.playerNamesStyleIsBold()) {
+                if (config.playerNameIsBold()) {
                     dots = (int) Math.round((130.0 - font.getWidth(count + ". ") - (font.getWidth(playerName) * 1.19))/2);
                 }
                 if (dots >= 1) {
-                    topList.append(".".repeat(dots));
+                    topList.append(dotsComponent(".".repeat(dots)));
                 }
             }
             else {
-                topList.append(":");
+                topList.append(playerNameComponent(":", true));
             }
-            topList.append(" ").append(config.getStatNumbersColor(true)).append(topStats.get(playerName).toString());
+            topList.append(space()).append(statNumberComponent(topStats.get(playerName), true));
         }
-        return topList.toString();
+        return topList.build();
     }
 
     //try to get the hex color or ChatColor from config String, substitute green if both fail, and try to apply style if necessary
     private TextComponent playerNameComponent(String playerName, boolean topStat) {
         ChatColor defaultColor = topStat ? ChatColor.GREEN : ChatColor.GOLD;
-        TextComponent player = applyColor(
-                config.getPlayerNamesColor(topStat), playerName, defaultColor);
-        return applyStyle(config.getPlayerNamesStyle(topStat), player);
+        TextComponent.Builder player = applyColor(
+                config.getPlayerNameFormatting(topStat, false), playerName, defaultColor);
+        return applyStyle(config.getPlayerNameFormatting(topStat, true), player).build();
     }
 
     private TextComponent statNameComponent(String statName, boolean topStat) {
-        TextComponent stat = applyColor(
-                config.getStatNamesColor(topStat), statName, ChatColor.YELLOW);
-        return applyStyle(config.getStatNamesStyle(topStat), stat);
+        TextComponent.Builder stat = applyColor(
+                config.getStatNameFormatting(topStat, false), statName, ChatColor.YELLOW);
+        return applyStyle(config.getStatNameFormatting(topStat, true), stat).build();
     }
 
     private TextComponent subStatNameComponent(String subStatName, boolean topStat) {
-        TextComponent subStat = applyColor(
-                config.getSubStatNamesColor(topStat), subStatName, ChatColor.YELLOW);
-        return applyStyle(config.getSubStatNamesStyle(topStat), subStat);
+        TextComponent.Builder subStat = applyColor(
+                config.getSubStatNameFormatting(topStat, false), subStatName, ChatColor.YELLOW);
+        return applyStyle(config.getSubStatNameFormatting(topStat, true), subStat).build();
     }
 
     private TextComponent statNumberComponent(int statNumber, boolean topStat) {
-        TextComponent number = applyColor(
-                config.getStatNumbersColor(topStat), statNumber + "", ChatColor.LIGHT_PURPLE);
-        return applyStyle(config.getStatNumbersStyle(topStat), number);
+        TextComponent.Builder number = applyColor(
+                config.getStatNumberFormatting(topStat, false), statNumber + "", ChatColor.LIGHT_PURPLE);
+        return applyStyle(config.getStatNumberFormatting(topStat, true), number).build();
     }
 
-    private TextComponent listNumberComponent(int listNumber) {
-        TextComponent list = applyColor(config.getListNumbersColor(), listNumber + ".", ChatColor.GOLD);
-        return applyStyle(config.getListNumbersStyle(), list);
+    private TextComponent listNumberComponent(String listNumber) {
+        TextComponent.Builder list = applyColor(config.getListNumberFormatting(false), listNumber + "", ChatColor.GOLD);
+        return applyStyle(config.getListNumberFormatting(true), list).build();
     }
 
-    private TextComponent dotsComponent() {
-        return applyColor(config.getDotsColor(), "", ChatColor.DARK_GRAY);
+    private TextComponent dotsComponent(String dots) {
+        return applyColor(config.getDotsColor(), dots, ChatColor.DARK_GRAY).build();
     }
 
-    private TextComponent applyColor(String configString, String content, ChatColor defaultColor) {
-        TextComponent component = Component.text().build();
-        ChatColor color = defaultColor;
-
+    private TextComponent.Builder applyColor(String configString, String content, ChatColor defaultColor) {
+        TextComponent.Builder component = Component.text();
+        
         if (configString != null) {
             if (configString.contains("#")) {
                 return component.content(content).color(TextColor.fromHexString(configString));
             }
             else {
                 try {
-                    color = ChatColor.valueOf(configString.toUpperCase().replace(" ", "_"));
+                    return component.content(content).color(getTextColor(configString));
                 }
                 catch (IllegalArgumentException | NullPointerException exception) {
+                    //color = ChatColor.valueOf(configString.toUpperCase().replace(" ", "_"));
                     exception.printStackTrace();
                 }
             }
         }
-        return component.content(content + color);
+        return component.content(defaultColor + content);
     }
 
-    private TextComponent applyStyle(String configString, TextComponent component) {
+    private TextColor getTextColor(String textColor) {
+        Index<String, NamedTextColor> names = NamedTextColor.NAMES;
+        return names.value(textColor);
+    }
+
+    private TextComponent.Builder applyStyle(String configString, TextComponent.Builder component) {
         if (configString != null) {
             if (configString.equalsIgnoreCase("none")) {
                 return component;
             }
             else if (configString.equalsIgnoreCase("bold")) {
-                return component.decorate(TextDecoration.BOLD);
+                return component.decoration(TextDecoration.BOLD, TextDecoration.State.TRUE);
             }
             else if (configString.equalsIgnoreCase("italic")) {
-                return component.decorate(TextDecoration.ITALIC);
+                return component.decoration(TextDecoration.ITALIC, TextDecoration.State.TRUE);
             }
             else if (configString.equalsIgnoreCase("magic")) {
-                return component.decorate(TextDecoration.OBFUSCATED);
+                return component.decoration(TextDecoration.OBFUSCATED, TextDecoration.State.TRUE);
             }
             else if (configString.equalsIgnoreCase("strikethrough")) {
-                return component.decorate(TextDecoration.STRIKETHROUGH);
+                return component.decoration(TextDecoration.STRIKETHROUGH, TextDecoration.State.TRUE);
             }
             else if (configString.equalsIgnoreCase("underlined")) {
-                return component.decorate(TextDecoration.UNDERLINED);
+                return component.decoration(TextDecoration.UNDERLINED, TextDecoration.State.TRUE);
             }
         }
         return component;
