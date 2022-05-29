@@ -59,7 +59,6 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                 else if (args[args.length-2].equalsIgnoreCase("player")) {
                     if (args.length >= 3 && EnumHandler.getEntityStatNames().contains(args[args.length-3].toLowerCase())) {
                         tabSuggestions = commandOptions;
-
                     }
                     else {
                         tabSuggestions = offlinePlayerHandler.getOfflinePlayerNames().stream().filter(player ->

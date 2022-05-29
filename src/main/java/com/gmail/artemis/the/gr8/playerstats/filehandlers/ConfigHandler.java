@@ -105,7 +105,13 @@ public class ConfigHandler {
         return false;
     }
 
+    /*private String getData(boolean topStat, boolean isStyle, String statName){
+        ConfigurationSection section = getRelevantSection(topStat, isStyle);
+        return section != null ? section.getString(statName) : null;
+    }*/
+
     public String getStatNameFormatting(boolean topStat, boolean isStyle) {
+        //return getData(topStat, isStyle, "stat-names");
         ConfigurationSection section = getRelevantSection(topStat, isStyle);
         return section != null ? section.getString("stat-names") : null;
     }
@@ -121,6 +127,7 @@ public class ConfigHandler {
     }
 
     public String getListNumberFormatting(boolean isStyle) {
+        //return getData(true, isStyle, "list-numbers");
         ConfigurationSection section = getRelevantSection(true, isStyle);
         return section != null ? section.getString("list-numbers") : null;
     }
@@ -154,6 +161,5 @@ public class ConfigHandler {
         config = plugin.getConfig();
         plugin.saveDefaultConfig();
         configFile = new File(plugin.getDataFolder(), "config.yml");
-
     }
 }
