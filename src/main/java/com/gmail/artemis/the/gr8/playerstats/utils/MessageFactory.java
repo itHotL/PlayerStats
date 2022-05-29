@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
+import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -18,8 +19,10 @@ import static net.kyori.adventure.text.Component.*;
 public class MessageFactory {
 
     private static ConfigHandler config;
+    private final Main plugin;
 
-    public MessageFactory(ConfigHandler c) {
+    public MessageFactory(ConfigHandler c, Main p) {
+        plugin = p;
         config = c;
     }
 
@@ -36,9 +39,9 @@ public class MessageFactory {
         TextComponent underscores = text("____________").color(TextColor.fromHexString("#6E3485"));
         TextComponent arrow = text("→ ").color(NamedTextColor.GOLD);
         TextColor arguments = NamedTextColor.YELLOW;
-        TextColor hoverDescription = NamedTextColor.GOLD;
-        TextColor hoverExample1 = TextColor.fromHexString("#FFD52B");
-        TextColor hoverExample2 = NamedTextColor.YELLOW;
+        TextColor hoverDescription = TextColor.fromHexString("#55C6FF");
+        TextColor hoverExample1 = TextColor.fromHexString("#FFB80E");
+        TextColor hoverExample2 = TextColor.fromHexString("#FFD52B");
 
         return Component.newline()
                 .append(underscores).append(spaces).append(text(MessageFactory.getPluginPrefix())).append(spaces).append(underscores)
@@ -49,31 +52,43 @@ public class MessageFactory {
                 .append(newline())
                 .append(spaces).append(arrow)
                 .append(text("name").color(arguments)
-                        .hoverEvent(HoverEvent.showText(text("The name of the statistic").color(hoverDescription)
+                        .hoverEvent(HoverEvent.showText(text("The name that describes the statistic").color(hoverDescription)
                                 .append(newline())
                                 .append(text("Example: ").color(hoverExample1))
-                                .append(text("\"mine_block\"").color(hoverExample2)))))
+                                .append(text("\"animals_bred\"").color(hoverExample2)))))
                 .append(newline())
                 .append(spaces).append(arrow)
                 .append(text("sub-statistic").color(arguments)
                         .hoverEvent(HoverEvent.showText(
-                                text("Some statistics require an item, block or entity as sub-statistic").color(hoverDescription)
+                                text("Some statistics need an item, block or entity as sub-statistic").color(hoverDescription)
                                         .append(newline())
                                         .append(text("Example: ").color(hoverExample1)
                                                 .append(text("\"mine_block diorite\"").color(hoverExample2))))))
                 .append(newline())
-                .append(spaces).append(arrow)
-                .append(text("me | player | top").color(arguments)
+                .append(spaces)
+                .append(text("→").color(NamedTextColor.GOLD)
                         .hoverEvent(HoverEvent.showText(
-                                text("Choose whether you want to see your own statistic, another player's, or the top ").color(hoverDescription)
+                                text("Choose one").color(TextColor.fromHexString("#6E3485")))))
+                .append(space())
+                .append(text("me").color(arguments)
+                        .hoverEvent(HoverEvent.showText(
+                                text("See your own statistic").color(hoverDescription))))
+                .append(text(" | ").color(arguments))
+                .append(text("player").color(arguments)
+                        .hoverEvent(HoverEvent.showText(
+                                text("Choose any player that has played on your server").color(hoverDescription))))
+                .append(text(" | ").color(arguments))
+                .append(text("top").color(arguments)
+                        .hoverEvent(HoverEvent.showText(
+                                text("See the top ").color(hoverDescription)
                                         .append(text(config.getTopListMaxSize()).color(hoverDescription)))))
                 .append(newline())
                 .append(spaces).append(arrow)
                 .append(text("player-name").color(arguments)
                         .hoverEvent(HoverEvent.showText(
-                                text("In case you selected ").color(hoverDescription)
+                                text("In case you typed ").color(hoverDescription)
                                         .append(text("\"player\"").color(hoverExample2)
-                                                .append(text(", specify the player's name here").color(hoverDescription))))));
+                                                .append(text(", add the player's name").color(hoverDescription))))));
     }
 
     public TextComponent formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
@@ -90,6 +105,7 @@ public class MessageFactory {
     }
 
     public TextComponent formatTopStats(LinkedHashMap<String, Integer> topStats, String statName, String subStatEntryName) {
+        long time = System.currentTimeMillis();
         TextComponent.Builder topList = Component.text();
         String subStat = subStatEntryName != null ?
                 "(" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
@@ -128,6 +144,7 @@ public class MessageFactory {
             }
             topList.append(space()).append(statNumberComponent(topStats.get(playerName), true));
         }
+        plugin.logTimeTaken("MessageFactory", "applying colors", time);
         return topList.build();
     }
 
@@ -168,19 +185,18 @@ public class MessageFactory {
 
     private TextComponent.Builder applyColor(String configString, String content, ChatColor defaultColor) {
         TextComponent.Builder component = Component.text();
-        
+
         if (configString != null) {
-            if (configString.contains("#")) {
-                return component.content(content).color(TextColor.fromHexString(configString));
-            }
-            else {
-                try {
+            try {
+                if (configString.contains("#")) {
+                    return component.content(content).color(TextColor.fromHexString(configString));
+                }
+                else {
                     return component.content(content).color(getTextColor(configString));
                 }
-                catch (IllegalArgumentException | NullPointerException exception) {
-                    //color = ChatColor.valueOf(configString.toUpperCase().replace(" ", "_"));
-                    exception.printStackTrace();
-                }
+            }
+            catch (IllegalArgumentException | NullPointerException exception) {
+                plugin.getLogger().warning(exception.toString());
             }
         }
         return component.content(defaultColor + content);

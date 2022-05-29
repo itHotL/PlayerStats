@@ -34,7 +34,7 @@ public class Main extends JavaPlugin {
 
         //get instances of the classes that should be initialized
         ConfigHandler config = new ConfigHandler(this);
-        MessageFactory messageFactory = new MessageFactory(config);
+        MessageFactory messageFactory = new MessageFactory(config, this);
         OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler(config);
         getLogger().info("Amount of offline players: " + offlinePlayerHandler.getOfflinePlayerCount());
 

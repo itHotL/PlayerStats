@@ -91,8 +91,7 @@ public class ConfigHandler {
     }
 
     public String getPlayerNameFormatting(boolean topStat, boolean isStyle) {
-        ConfigurationSection section = getRelevantSection(topStat, isStyle);
-        return section != null ? section.getString("player-names") : null;
+        return getStringFromConfig(topStat, isStyle, "player-names");
     }
 
     public boolean playerNameIsBold() {
@@ -105,38 +104,33 @@ public class ConfigHandler {
         return false;
     }
 
-    /*private String getData(boolean topStat, boolean isStyle, String statName){
-        ConfigurationSection section = getRelevantSection(topStat, isStyle);
-        return section != null ? section.getString(statName) : null;
-    }*/
-
     public String getStatNameFormatting(boolean topStat, boolean isStyle) {
-        //return getData(topStat, isStyle, "stat-names");
-        ConfigurationSection section = getRelevantSection(topStat, isStyle);
-        return section != null ? section.getString("stat-names") : null;
+        return getStringFromConfig(topStat, isStyle, "stat-names");
     }
 
     public String getSubStatNameFormatting(boolean topStat, boolean isStyle) {
-        ConfigurationSection section = getRelevantSection(topStat, isStyle);
-        return section != null ? section.getString("sub-stat-names") : null;
+        return getStringFromConfig(topStat, isStyle, "sub-stat-names");
     }
 
     public String getStatNumberFormatting(boolean topStat, boolean isStyle) {
-        ConfigurationSection section = getRelevantSection(topStat, isStyle);
-        return section != null ? section.getString("stat-numbers") : null;
+        return getStringFromConfig(topStat, isStyle, "stat-numbers");
     }
 
     public String getListNumberFormatting(boolean isStyle) {
-        //return getData(true, isStyle, "list-numbers");
-        ConfigurationSection section = getRelevantSection(true, isStyle);
-        return section != null ? section.getString("list-numbers") : null;
+        return getStringFromConfig(true, isStyle, "list-numbers");
     }
 
     public String getDotsColor() {
-        ConfigurationSection section = getRelevantSection(true, false);
-        return section != null ? section.getString("dots") : null;
+        return getStringFromConfig(true, false, "dots");
     }
 
+    //returns the config value for a color or style option in string-format, or null if no value was found
+    private String getStringFromConfig(boolean topStat, boolean isStyle, String pathName){
+        ConfigurationSection section = getRelevantSection(topStat, isStyle);
+        return section != null ? section.getString(pathName) : null;
+    }
+
+    //returns the config section that contains the relevant color or style option
     private ConfigurationSection getRelevantSection(boolean topStat, boolean isStyle) {
         ConfigurationSection section;
         try {
