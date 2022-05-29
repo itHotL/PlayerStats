@@ -6,48 +6,46 @@ import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.gmail.artemis.the.gr8.playerstats.utils.OutputFormatter;
+import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 
 public class Main extends JavaPlugin {
 
-    private static boolean enableHexColors;
+    private BukkitAudiences adventure;
+
+    public @NotNull BukkitAudiences adventure() {
+        if (adventure == null) {
+            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
+        }
+        return adventure;
+    }
 
     @Override
     public void onEnable() {
         long time = System.currentTimeMillis();
 
-        //check if Spigot ChatColors can be used, and prepare accordingly
-        try {
-            Class.forName("net.md_5.bungee.api.ChatColor");
-            enableHexColors = true;
-            this.getLogger().info("Hex Color support enabled!");
-        }
-        catch (ClassNotFoundException e) {
-            enableHexColors = false;
-            this.getLogger().info("Hex Colors are not supported for this server type, proceeding with default Chat Colors...");
-        }
+        //initialize the Adventure library
+        adventure = BukkitAudiences.create(this);
 
         //get instances of the classes that should be initialized
         ConfigHandler config = new ConfigHandler(this);
-        OutputFormatter outputFormatter = new OutputFormatter(config, enableHexColors);
+        MessageFactory messageFactory = new MessageFactory(config, this);
         OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler(config);
         getLogger().info("Amount of offline players: " + offlinePlayerHandler.getOfflinePlayerCount());
-
-        //get private lists ready with item/material/entity/stat names
-        //EnumHandler.prepareLists();
 
         //register the commands
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(config, offlinePlayerHandler, outputFormatter, this));
+            statcmd.setExecutor(new StatCommand(adventure(), config, offlinePlayerHandler, messageFactory, this));
             statcmd.setTabCompleter(new TabCompleter(offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
-        if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(config, offlinePlayerHandler, outputFormatter, this));
+        if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(config, offlinePlayerHandler, this));
 
         //register the listener
         Bukkit.getPluginManager().registerEvents(new JoinListener(offlinePlayerHandler), this);
@@ -57,11 +55,12 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        this.getLogger().info("Disabled PlayerStats!");
-    }
+        if (adventure != null) {
+            adventure.close();
+            adventure = null;
+        }
 
-    public static boolean hexEnabled() {
-        return enableHexColors;
+        this.getLogger().info("Disabled PlayerStats!");
     }
 
     public long logTimeTaken(String className, String methodName, long previousTime) {

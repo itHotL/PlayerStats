@@ -6,7 +6,8 @@ import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.gmail.artemis.the.gr8.playerstats.utils.OutputFormatter;
+import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,15 +17,17 @@ import org.jetbrains.annotations.NotNull;
 
 public class StatCommand implements CommandExecutor {
 
+    private final BukkitAudiences adventure;
     private final ConfigHandler config;
     private final OfflinePlayerHandler offlinePlayerHandler;
-    private final OutputFormatter outputFormatter;
+    private final MessageFactory messageFactory;
     private final Main plugin;
 
-    public StatCommand(ConfigHandler c, OfflinePlayerHandler of, OutputFormatter o, Main p) {
+    public StatCommand(BukkitAudiences b, ConfigHandler c, OfflinePlayerHandler of, MessageFactory o, Main p) {
+        adventure = b;
         config = c;
         offlinePlayerHandler = of;
-        outputFormatter = o;
+        messageFactory = o;
         plugin = p;
     }
 
@@ -66,28 +69,18 @@ public class StatCommand implements CommandExecutor {
 
             //part 2: sending the information to the StatThread
             if (isValidStatRequest(request)) {
-                StatThread statThread = new StatThread(request, config, offlinePlayerHandler, outputFormatter, plugin);
+                StatThread statThread = new StatThread(request, adventure, config, offlinePlayerHandler, messageFactory, plugin);
                 statThread.start();
                 return true;
             }
             else {
-                if (Main.hexEnabled()) {
-                    sender.spigot().sendMessage(outputFormatter.formatHelpSpigot());
-                }
-                else {
-                    sender.sendMessage(outputFormatter.formatHelpBukkit());
-                }
+                adventure.sender(sender).sendMessage(messageFactory.getHelpMsg());
                 return false;
             }
         }
 
         else {
-            if (Main.hexEnabled()) {
-                sender.spigot().sendMessage(outputFormatter.formatHelpSpigot());
-            }
-            else {
-                sender.sendMessage(outputFormatter.formatHelpBukkit());
-            }
+            adventure.sender(sender).sendMessage(messageFactory.getHelpMsg());
             return false;
         }
     }

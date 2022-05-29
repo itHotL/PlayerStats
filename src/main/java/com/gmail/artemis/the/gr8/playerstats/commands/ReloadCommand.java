@@ -3,7 +3,8 @@ package com.gmail.artemis.the.gr8.playerstats.commands;
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.gmail.artemis.the.gr8.playerstats.utils.OutputFormatter;
+import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,13 +15,11 @@ public class ReloadCommand implements CommandExecutor {
 
     private final ConfigHandler config;
     private final OfflinePlayerHandler offlinePlayerHandler;
-    private final OutputFormatter outputFormatter;
     private final Main plugin;
 
 
-    public ReloadCommand(ConfigHandler c, OfflinePlayerHandler of, OutputFormatter o, Main p) {
+    public ReloadCommand(ConfigHandler c, OfflinePlayerHandler of, Main p) {
         offlinePlayerHandler = of;
-        outputFormatter = o;
         config = c;
         plugin = p;
     }
@@ -28,11 +27,10 @@ public class ReloadCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (config.reloadConfig()) {
-            outputFormatter.updateOutputColors();
             offlinePlayerHandler.updateOfflinePlayerList();
 
             plugin.getLogger().info("Amount of players: " + offlinePlayerHandler.getOfflinePlayerCount());
-            sender.sendMessage(outputFormatter.getPluginPrefix() + ChatColor.GREEN + "Config reloaded!");
+            sender.sendMessage(MessageFactory.getPluginPrefix() + ChatColor.GREEN + "Config reloaded!");
             return true;
         }
         return false;

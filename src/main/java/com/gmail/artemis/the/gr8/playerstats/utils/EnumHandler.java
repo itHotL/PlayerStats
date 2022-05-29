@@ -71,7 +71,7 @@ public class EnumHandler {
             return EntityType.valueOf(entityName.toUpperCase());
         }
         catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(entityName + " is not a valid EntityType!");
+            throw new IllegalArgumentException(entityName + " is not a valid EntityType! ", e.getCause());
         }
     }
 
@@ -160,7 +160,7 @@ public class EnumHandler {
                 return subStatEntry != null && isBlock(subStatEntry);
             }
             case UNTYPED -> {
-                return subStatEntry==null;
+                return subStatEntry == null;
             }
             default -> {
                 return false;
