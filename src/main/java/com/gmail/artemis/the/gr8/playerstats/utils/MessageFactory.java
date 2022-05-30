@@ -10,6 +10,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.util.Index;
 import org.bukkit.ChatColor;
+import org.bukkit.Statistic;
 import org.bukkit.map.MinecraftFont;
 
 import java.util.*;
@@ -21,27 +22,66 @@ public class MessageFactory {
     private static ConfigHandler config;
     private final Main plugin;
 
+    private static final TextColor errorColor = TextColor.fromHexString("#55aaff");
+    private static final String pluginPrefix = ChatColor.GRAY + "[" + ChatColor.GOLD + "PlayerStats" + ChatColor.GRAY + "] " + ChatColor.RESET;
+
     public MessageFactory(ConfigHandler c, Main p) {
         plugin = p;
         config = c;
     }
 
     public static String getPluginPrefix() {
-        return ChatColor.GRAY + "[" + ChatColor.GOLD + "PlayerStats" + ChatColor.GRAY + "] " + ChatColor.RESET;
+        return pluginPrefix;
     }
 
     public String formatExceptions(String exception) {
         return getPluginPrefix() + exception;
     }
 
-    public TextComponent getHelpMsg() {
+    public TextComponent missingStatName() {
+        return text(getPluginPrefix()).append(text("Please provide a valid statistic name!").color(errorColor));
+    }
+
+    public TextComponent missingSubStatName(Statistic.Type statType) {
+        String subStat = getSubStatTypeName(statType) == null ? "sub-statistic" : getSubStatTypeName(statType);
+        return text(getPluginPrefix())
+                .append(text("Please add a valid ")
+                        .append(text(subStat))
+                        .append(text(" to look up this statistic!")))
+                .color(errorColor);
+    }
+
+    public TextComponent missingTarget() {
+        return text(getPluginPrefix()).append(text("Please add \"me\", \"player\" or \"top\"").color(errorColor));
+    }
+
+    public TextComponent missingPlayerName() {
+        return text(getPluginPrefix()).append(text("Please specify a valid player-name!").color(errorColor));
+    }
+
+    public TextComponent wrongSubStatType(Statistic.Type statType, String subStatEntry) {
+        String subStat = getSubStatTypeName(statType) == null ? "sub-statistic for this statistic" : getSubStatTypeName(statType);
+        return text(getPluginPrefix())
+                .append(text("\"")
+                        .append(text(subStatEntry))
+                        .append(text("\""))
+                        .append(text(" is not a valid "))
+                        .append(text(subStat)))
+                .color(errorColor);
+    }
+
+    public TextComponent unknownError() {
+        return text(getPluginPrefix()).append(text("Something went wrong with your input. Check /statistic for a usage explanation").color(errorColor));
+    }
+
+    public TextComponent helpMsg() {
         TextComponent spaces = text("    ");
         TextComponent underscores = text("____________").color(TextColor.fromHexString("#6E3485"));
         TextComponent arrow = text("→ ").color(NamedTextColor.GOLD);
         TextColor arguments = NamedTextColor.YELLOW;
-        TextColor hoverDescription = TextColor.fromHexString("#55C6FF");
-        TextColor hoverExample1 = TextColor.fromHexString("#FFB80E");
-        TextColor hoverExample2 = TextColor.fromHexString("#FFD52B");
+        TextColor hoverBaseColor = TextColor.fromHexString("#55C6FF");
+        TextColor hoverAccentColor1 = TextColor.fromHexString("#FFB80E");
+        TextColor hoverAccentColor2 = TextColor.fromHexString("#FFD52B");
 
         return Component.newline()
                 .append(underscores).append(spaces).append(text(MessageFactory.getPluginPrefix())).append(spaces).append(underscores)
@@ -52,18 +92,18 @@ public class MessageFactory {
                 .append(newline())
                 .append(spaces).append(arrow)
                 .append(text("name").color(arguments)
-                        .hoverEvent(HoverEvent.showText(text("The name that describes the statistic").color(hoverDescription)
+                        .hoverEvent(HoverEvent.showText(text("The name that describes the statistic").color(hoverBaseColor)
                                 .append(newline())
-                                .append(text("Example: ").color(hoverExample1))
-                                .append(text("\"animals_bred\"").color(hoverExample2)))))
+                                .append(text("Example: ").color(hoverAccentColor1))
+                                .append(text("\"animals_bred\"").color(hoverAccentColor2)))))
                 .append(newline())
                 .append(spaces).append(arrow)
                 .append(text("sub-statistic").color(arguments)
                         .hoverEvent(HoverEvent.showText(
-                                text("Some statistics need an item, block or entity as sub-statistic").color(hoverDescription)
+                                text("Some statistics need an item, block or entity as sub-statistic").color(hoverBaseColor)
                                         .append(newline())
-                                        .append(text("Example: ").color(hoverExample1)
-                                                .append(text("\"mine_block diorite\"").color(hoverExample2))))))
+                                        .append(text("Example: ").color(hoverAccentColor1)
+                                                .append(text("\"mine_block diorite\"").color(hoverAccentColor2))))))
                 .append(newline())
                 .append(spaces)
                 .append(text("→").color(NamedTextColor.GOLD)
@@ -72,23 +112,23 @@ public class MessageFactory {
                 .append(space())
                 .append(text("me").color(arguments)
                         .hoverEvent(HoverEvent.showText(
-                                text("See your own statistic").color(hoverDescription))))
+                                text("See your own statistic").color(hoverBaseColor))))
                 .append(text(" | ").color(arguments))
                 .append(text("player").color(arguments)
                         .hoverEvent(HoverEvent.showText(
-                                text("Choose any player that has played on your server").color(hoverDescription))))
+                                text("Choose any player that has played on your server").color(hoverBaseColor))))
                 .append(text(" | ").color(arguments))
                 .append(text("top").color(arguments)
                         .hoverEvent(HoverEvent.showText(
-                                text("See the top ").color(hoverDescription)
-                                        .append(text(config.getTopListMaxSize()).color(hoverDescription)))))
+                                text("See the top ").color(hoverBaseColor)
+                                        .append(text(config.getTopListMaxSize()).color(hoverBaseColor)))))
                 .append(newline())
                 .append(spaces).append(arrow)
                 .append(text("player-name").color(arguments)
                         .hoverEvent(HoverEvent.showText(
-                                text("In case you typed ").color(hoverDescription)
-                                        .append(text("\"player\"").color(hoverExample2)
-                                                .append(text(", add the player's name").color(hoverDescription))))));
+                                text("In case you typed ").color(hoverBaseColor)
+                                        .append(text("\"player\"").color(hoverAccentColor2)
+                                                .append(text(", add the player's name").color(hoverBaseColor))))));
     }
 
     public TextComponent formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
@@ -148,9 +188,27 @@ public class MessageFactory {
         return topList.build();
     }
 
-    //try to get the hex color or ChatColor from config String, substitute green if both fail, and try to apply style if necessary
+    //returns the type of the substatistic in String-format, or null if this statistic is not of type block, item or entity
+    private String getSubStatTypeName(Statistic.Type statType) {
+        String subStat;
+        if (statType == Statistic.Type.BLOCK) {
+            subStat = "block";
+        }
+        else if (statType == Statistic.Type.ITEM) {
+            subStat = "item";
+        }
+        else if (statType == Statistic.Type.ENTITY) {
+            subStat = "entity";
+        }
+        else {
+            subStat = null;
+        }
+        return subStat;
+    }
+
+    //try to get the hex color or NamedTextColor from config String, substitute a default ChatColor if both fail, and try to apply style where necessary
     private TextComponent playerNameComponent(String playerName, boolean topStat) {
-        ChatColor defaultColor = topStat ? ChatColor.GREEN : ChatColor.GOLD;
+        NamedTextColor defaultColor = topStat ? NamedTextColor.GREEN : NamedTextColor.GOLD;
         TextComponent.Builder player = applyColor(
                 config.getPlayerNameFormatting(topStat, false), playerName, defaultColor);
         return applyStyle(config.getPlayerNameFormatting(topStat, true), player).build();
@@ -158,32 +216,50 @@ public class MessageFactory {
 
     private TextComponent statNameComponent(String statName, boolean topStat) {
         TextComponent.Builder stat = applyColor(
-                config.getStatNameFormatting(topStat, false), statName, ChatColor.YELLOW);
+                config.getStatNameFormatting(topStat, false), statName, NamedTextColor.YELLOW);
         return applyStyle(config.getStatNameFormatting(topStat, true), stat).build();
     }
 
     private TextComponent subStatNameComponent(String subStatName, boolean topStat) {
         TextComponent.Builder subStat = applyColor(
-                config.getSubStatNameFormatting(topStat, false), subStatName, ChatColor.YELLOW);
+                config.getSubStatNameFormatting(topStat, false), subStatName, NamedTextColor.YELLOW);
         return applyStyle(config.getSubStatNameFormatting(topStat, true), subStat).build();
     }
 
     private TextComponent statNumberComponent(int statNumber, boolean topStat) {
         TextComponent.Builder number = applyColor(
-                config.getStatNumberFormatting(topStat, false), statNumber + "", ChatColor.LIGHT_PURPLE);
+                config.getStatNumberFormatting(topStat, false), statNumber + "", NamedTextColor.LIGHT_PURPLE);
         return applyStyle(config.getStatNumberFormatting(topStat, true), number).build();
     }
 
     private TextComponent listNumberComponent(String listNumber) {
-        TextComponent.Builder list = applyColor(config.getListNumberFormatting(false), listNumber + "", ChatColor.GOLD);
+        TextComponent.Builder list = applyColor(config.getListNumberFormatting(false), listNumber + "", NamedTextColor.GOLD);
         return applyStyle(config.getListNumberFormatting(true), list).build();
     }
 
     private TextComponent dotsComponent(String dots) {
-        return applyColor(config.getDotsColor(), dots, ChatColor.DARK_GRAY).build();
+        return text(dots).color(getColorFromString(config.getDotsColor())).colorIfAbsent(NamedTextColor.DARK_GRAY);
+        //return applyColor(config.getDotsColor(), dots, NamedTextColor.DARK_GRAY).build();
     }
 
-    private TextComponent.Builder applyColor(String configString, String content, ChatColor defaultColor) {
+    private TextColor getColorFromString(String configString) {
+        if (configString != null) {
+            try {
+                if (configString.contains("#")) {
+                    return TextColor.fromHexString(configString);
+                }
+                else {
+                    return getTextColorByName(configString);
+                }
+            }
+            catch (IllegalArgumentException | NullPointerException exception) {
+                plugin.getLogger().warning(exception.toString());
+            }
+        }
+        return null;
+    }
+
+    private TextComponent.Builder applyColor(String configString, String content, NamedTextColor defaultColor) {
         TextComponent.Builder component = Component.text();
 
         if (configString != null) {
@@ -192,17 +268,17 @@ public class MessageFactory {
                     return component.content(content).color(TextColor.fromHexString(configString));
                 }
                 else {
-                    return component.content(content).color(getTextColor(configString));
+                    return component.content(content).color(getTextColorByName(configString));
                 }
             }
             catch (IllegalArgumentException | NullPointerException exception) {
                 plugin.getLogger().warning(exception.toString());
             }
         }
-        return component.content(defaultColor + content);
+        return component.content(content).colorIfAbsent(defaultColor);
     }
 
-    private TextColor getTextColor(String textColor) {
+    private TextColor getTextColorByName(String textColor) {
         Index<String, NamedTextColor> names = NamedTextColor.NAMES;
         return names.value(textColor);
     }

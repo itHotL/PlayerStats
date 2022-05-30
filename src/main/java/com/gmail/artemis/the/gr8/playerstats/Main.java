@@ -64,7 +64,7 @@ public class Main extends JavaPlugin {
     }
 
     public long logTimeTaken(String className, String methodName, long previousTime) {
-        getLogger().info(className + " " + methodName + ": " + (System.currentTimeMillis() - previousTime));
+        getLogger().info(className + " " + methodName + ": " + (System.currentTimeMillis() - previousTime) + "ms");
         return System.currentTimeMillis();
     }
 }

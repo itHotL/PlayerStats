@@ -44,8 +44,8 @@ public class EnumHandler {
         return itemNames.contains(itemName.toLowerCase());
     }
 
-    //returns corresponding item enum constant (uppercase), otherwise null (param: itemName, not case sensitive)
-    public static Material getItem(String itemName) {
+    //returns corresponding item enum constant (uppercase), otherwise throws exception (param: itemName, case insensitive)
+    public static Material getItem(String itemName) throws IllegalArgumentException {
         Material material = Material.matchMaterial(itemName);
         if (material != null) {
             return material;
@@ -65,8 +65,8 @@ public class EnumHandler {
         return entityTypeNames.contains(entityName.toLowerCase());
     }
 
-    //returns EntityType enum constant (uppercase) if the input name is valid
-    public static EntityType getEntityType(@NotNull String entityName) {
+    //returns EntityType enum constant (uppercase) if the input name is valid, otherwise throws exception (param: entityName, case insensitive)
+    public static EntityType getEntityType(@NotNull String entityName) throws IllegalArgumentException {
         try {
             return EntityType.valueOf(entityName.toUpperCase());
         }
@@ -85,7 +85,7 @@ public class EnumHandler {
         return blockNames.contains(materialName.toLowerCase());
     }
 
-    //returns corresponding block enum constant (uppercase), otherwise null (param: materialName, not case sensitive)
+    //returns corresponding block enum constant (uppercase), otherwise throws exception (param: materialName, case insensitive)
     public static Material getBlock(String materialName) throws IllegalArgumentException {
         Material material = Material.matchMaterial(materialName);
         if (material != null) {
@@ -101,7 +101,7 @@ public class EnumHandler {
         return blockNames;
     }
 
-    //returns the statistic enum constant, or null if non-existent (param: statName, not case sensitive)
+    //returns the statistic enum constant, otherwise throws exception (param: statName, case insensitive)
     public static Statistic getStatEnum(@NotNull String statName) throws IllegalArgumentException {
         try {
             return Statistic.valueOf(statName.toUpperCase());
@@ -111,8 +111,8 @@ public class EnumHandler {
         }
     }
 
-    //gets the type of the statistic from the string, otherwise returns null (param: statName, not case sensitive)
-    public static Statistic.Type getStatType(String statName) {
+    //gets the type of the statistic from the string, otherwise throws exception (param: statName, case insensitive)
+    public static Statistic.Type getStatType(@NotNull String statName) throws IllegalArgumentException {
         try {
             return Statistic.valueOf(statName.toUpperCase()).getType();
         }
@@ -142,14 +142,23 @@ public class EnumHandler {
     }
 
     //checks whether a subStatEntry is of the type that the statistic requires
-    public static boolean isValidStatEntry(String statName, String subStatEntry) {
-        Statistic stat = getStatEnum(statName);
-        return (stat != null && isMatchingSubStatEntry(stat, subStatEntry));
+    public static boolean isValidStatEntry(@NotNull String statName, String subStatEntry) {
+        try {
+            return isValidStatEntry(getStatType(statName), subStatEntry);
+        }
+        catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean isValidStatEntry(Statistic.Type statType, String subStatEntry) {
+        return (statType != null) && isMatchingSubStatEntry(statType, subStatEntry);
     }
 
     //returns true if subStatEntry matches the type the stat requires, or if stat is untyped and subStatEntry is null
-    private static boolean isMatchingSubStatEntry(@NotNull Statistic stat, String subStatEntry) {
-        switch (stat.getType()) {
+    private static boolean isMatchingSubStatEntry(@NotNull Statistic.Type statType, String subStatEntry) {
+        switch (statType) {
             case ENTITY -> {
                 return subStatEntry != null && isEntityType(subStatEntry);
             }

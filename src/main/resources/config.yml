@@ -24,8 +24,8 @@ use-dots: true
 individual-statistics-color:
   player-names: gold
   stat-names: yellow
-  sub-stat-names: yellow
-  stat-numbers: white
+  sub-stat-names: '#FFD52B'
+  stat-numbers: '#ADE7FF'
 
 individual-statistics-style:
   player-names: none
@@ -36,7 +36,7 @@ individual-statistics-style:
 top-list-color:
   player-names: green
   stat-names: yellow
-  sub-stat-names: yellow
+  sub-stat-names: '#FFD52B'
   stat-numbers: '#55aaff'
   list-numbers: gold
   dots: dark_gray
