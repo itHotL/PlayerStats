@@ -22,7 +22,7 @@ public class MessageFactory {
     private static ConfigHandler config;
     private final Main plugin;
 
-    private static final TextColor errorColor = TextColor.fromHexString("#55aaff");
+    private static final TextColor msgColor = TextColor.fromHexString("#55aaff");
     private static final String pluginPrefix = ChatColor.GRAY + "[" + ChatColor.GOLD + "PlayerStats" + ChatColor.GRAY + "] " + ChatColor.RESET;
 
     public MessageFactory(ConfigHandler c, Main p) {
@@ -34,12 +34,21 @@ public class MessageFactory {
         return pluginPrefix;
     }
 
+    public TextComponent stillReloading() {
+        return text(getPluginPrefix()).append(text("The plugin is reloading, your request will be processed when it is done!").color(msgColor));
+    }
+
+    public TextComponent waitAMoment(boolean longWait) {
+        return longWait ? text(getPluginPrefix()).append(text("Calculating statistics, this may take a minute...").color(msgColor))
+                : text(getPluginPrefix()).append(text("Calculating statistics, this may take a few moments...").color(msgColor));
+    }
+
     public String formatExceptions(String exception) {
         return getPluginPrefix() + exception;
     }
 
     public TextComponent missingStatName() {
-        return text(getPluginPrefix()).append(text("Please provide a valid statistic name!").color(errorColor));
+        return text(getPluginPrefix()).append(text("Please provide a valid statistic name!").color(msgColor));
     }
 
     public TextComponent missingSubStatName(Statistic.Type statType) {
@@ -48,15 +57,15 @@ public class MessageFactory {
                 .append(text("Please add a valid ")
                         .append(text(subStat))
                         .append(text(" to look up this statistic!")))
-                .color(errorColor);
+                .color(msgColor);
     }
 
     public TextComponent missingTarget() {
-        return text(getPluginPrefix()).append(text("Please add \"me\", \"player\" or \"top\"").color(errorColor));
+        return text(getPluginPrefix()).append(text("Please add \"me\", \"player\" or \"top\"").color(msgColor));
     }
 
     public TextComponent missingPlayerName() {
-        return text(getPluginPrefix()).append(text("Please specify a valid player-name!").color(errorColor));
+        return text(getPluginPrefix()).append(text("Please specify a valid player-name!").color(msgColor));
     }
 
     public TextComponent wrongSubStatType(Statistic.Type statType, String subStatEntry) {
@@ -67,11 +76,11 @@ public class MessageFactory {
                         .append(text("\""))
                         .append(text(" is not a valid "))
                         .append(text(subStat)))
-                .color(errorColor);
+                .color(msgColor);
     }
 
     public TextComponent unknownError() {
-        return text(getPluginPrefix()).append(text("Something went wrong with your input. Check /statistic for a usage explanation").color(errorColor));
+        return text(getPluginPrefix()).append(text("Something went wrong with your input. Check /statistic for a usage explanation").color(msgColor));
     }
 
     public TextComponent helpMsg() {

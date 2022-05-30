@@ -1,10 +1,10 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
-import com.gmail.artemis.the.gr8.playerstats.StatRequest;
-import com.gmail.artemis.the.gr8.playerstats.StatThread;
+import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -19,18 +19,16 @@ import org.jetbrains.annotations.NotNull;
 
 public class StatCommand implements CommandExecutor {
 
+    private final ThreadManager threadManager;
     private final BukkitAudiences adventure;
-    private final ConfigHandler config;
     private final OfflinePlayerHandler offlinePlayerHandler;
     private final MessageFactory messageFactory;
-    private final Main plugin;
 
-    public StatCommand(BukkitAudiences b, ConfigHandler c, OfflinePlayerHandler of, MessageFactory o, Main p) {
+    public StatCommand(ThreadManager t, BukkitAudiences b, OfflinePlayerHandler of, MessageFactory o) {
+        threadManager = t;
         adventure = b;
-        config = c;
         offlinePlayerHandler = of;
         messageFactory = o;
-        plugin = p;
     }
 
     @Override
@@ -41,14 +39,12 @@ public class StatCommand implements CommandExecutor {
 
             //part 2: sending the information to the StatThread, or give feedback if request is invalid
             if (isValidStatRequest(request)) {
-                StatThread statThread = new StatThread(request, adventure, config, offlinePlayerHandler, messageFactory, plugin);
-                statThread.start();
+                threadManager.startStatThread(request);
                 return true;
             }
 
             else {
                 adventure.sender(sender).sendMessage(getRelevantFeedback(request));
-                //adventure.sender(sender).sendMessage(messageFactory.getHelpMsg());
                 return false;
             }
         }
@@ -60,7 +56,7 @@ public class StatCommand implements CommandExecutor {
         }
     }
 
-    private TextComponent getRelevantFeedback(StatRequest request) {
+    private TextComponent getRelevantFeedback(@NotNull StatRequest request) {
         if (request.getStatName() == null) {
             return messageFactory.missingStatName();
         }
@@ -102,7 +98,6 @@ public class StatCommand implements CommandExecutor {
                     if (request.getSubStatEntry() == null) request.setSubStatEntry(arg);
                 }
             }
-
             else if (arg.equalsIgnoreCase("top")) {
                 request.setTopFlag(true);
             }

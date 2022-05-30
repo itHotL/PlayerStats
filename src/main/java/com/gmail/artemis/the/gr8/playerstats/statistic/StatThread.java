@@ -1,5 +1,8 @@
-package com.gmail.artemis.the.gr8.playerstats;
+package com.gmail.artemis.the.gr8.playerstats.statistic;
 
+import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.ReloadThread;
+import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
@@ -9,6 +12,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -19,6 +23,7 @@ import java.util.stream.Collectors;
 public class StatThread extends Thread {
 
     private final StatRequest request;
+    private final ReloadThread reloadThread;
 
     private final BukkitAudiences adventure;
     private final ConfigHandler config;
@@ -27,8 +32,9 @@ public class StatThread extends Thread {
     private final Main plugin;
 
     //constructor (called on thread creation)
-    public StatThread(StatRequest s, BukkitAudiences b, ConfigHandler c, OfflinePlayerHandler of, MessageFactory o, Main p) {
+    public StatThread(StatRequest s, @Nullable ReloadThread r, BukkitAudiences b, ConfigHandler c, OfflinePlayerHandler of, MessageFactory o, Main p) {
         request = s;
+        reloadThread = r;
 
         adventure = b;
         config = c;
@@ -49,6 +55,16 @@ public class StatThread extends Thread {
         if (request == null) {
             throw new NullPointerException("No statistic request was found!");
         }
+        if (reloadThread != null && reloadThread.isAlive()) {
+            try {
+                plugin.getLogger().info("Waiting for reloadThread to finish up...");
+                adventure.sender(request.getCommandSender()).sendMessage(messageFactory.stillReloading());
+                reloadThread.join();
+            } catch (InterruptedException e) {
+                plugin.getLogger().warning(e.toString());
+                throw new RuntimeException(e);
+            }
+        }
 
         CommandSender sender = request.getCommandSender();
         String playerName = request.getPlayerName();
@@ -62,7 +78,7 @@ public class StatThread extends Thread {
                         messageFactory.formatPlayerStat(
                                 playerName, statName, subStatEntry, getStatistic(
                                         statName, subStatEntry, playerName)));
-                plugin.logTimeTaken("StatThread", "calculated individual stat", time);
+                plugin.logTimeTaken("StatThread", "calculating individual stat", time);
 
             } catch (Exception e) {
                 sender.sendMessage(messageFactory.formatExceptions(e.toString()));
@@ -70,11 +86,19 @@ public class StatThread extends Thread {
             }
 
         } else if (topFlag) {
+            if (ThreadManager.getLastRecordedCalcTime() > 30000) {
+                adventure.sender(sender).sendMessage(messageFactory.waitAMoment(true));
+            }
+            else if (ThreadManager.getLastRecordedCalcTime() > 2000) {
+                adventure.sender(sender).sendMessage(messageFactory.waitAMoment(false));
+            }
+
             try {
                 adventure.sender(sender).sendMessage(messageFactory.formatTopStats(
                         getTopStatistics(statName, subStatEntry), statName, subStatEntry));
 
-                plugin.logTimeTaken("StatThread", "calculated top stat", time);
+                plugin.logTimeTaken("StatThread", "calculating top stat", time);
+                ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
 
             } catch (Exception e) {
                 sender.sendMessage(messageFactory.formatExceptions(e.toString()));
@@ -94,7 +118,6 @@ public class StatThread extends Thread {
             throw new IllegalArgumentException(e.toString());
         }
     }
-
 
     private LinkedHashMap<String, Integer> getTopStatistics(String statName, String subStatEntry) {
         try {

@@ -36,20 +36,20 @@ public class Main extends JavaPlugin {
         ConfigHandler config = new ConfigHandler(this);
         MessageFactory messageFactory = new MessageFactory(config, this);
         OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler(config);
-        getLogger().info("Amount of offline players: " + offlinePlayerHandler.getOfflinePlayerCount());
+        ThreadManager threadManager = new ThreadManager(this, adventure(), config, offlinePlayerHandler, messageFactory);
 
         //register the commands
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(adventure(), config, offlinePlayerHandler, messageFactory, this));
+            statcmd.setExecutor(new StatCommand(threadManager, adventure(),offlinePlayerHandler, messageFactory));
             statcmd.setTabCompleter(new TabCompleter(offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
-        if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(config, offlinePlayerHandler, this));
+        if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));
 
         //register the listener
         Bukkit.getPluginManager().registerEvents(new JoinListener(offlinePlayerHandler), this);
-        logTimeTaken("Time", "taken", time);
+        logTimeTaken("onEnable", "time taken", time);
         this.getLogger().info("Enabled PlayerStats!");
     }
 
@@ -59,12 +59,11 @@ public class Main extends JavaPlugin {
             adventure.close();
             adventure = null;
         }
-
         this.getLogger().info("Disabled PlayerStats!");
     }
 
     public long logTimeTaken(String className, String methodName, long previousTime) {
-        getLogger().info(className + " " + methodName + ": " + (System.currentTimeMillis() - previousTime) + "ms");
+        getLogger().info(className + ", " + methodName + ": " + (System.currentTimeMillis() - previousTime) + "ms");
         return System.currentTimeMillis();
     }
 }
