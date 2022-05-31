@@ -51,10 +51,10 @@ your server, and on the specs of the machine it is running on. I have done elabo
 my local server, and it is currently also running on the SMP I play on. Looking up an individual
 statistic is always nearly instant, but for a **top statistic** it can vary.
 
-With roughly 110 unique players, it takes about 0.1 seconds to calculate a top statistic on the SMP. 
-With 110 unique players, my laptop takes 0.3 seconds.
-With 1000 unique players, my laptop takes about 5 seconds. 
-With 5000 unique players, it takes 30 seconds.
+With roughly 110 unique players, it takes about 0.1 seconds to calculate a top statistic on the SMP.   
+With 110 unique players, my laptop takes 0.3 seconds.  
+With 1000 unique players, my laptop takes about 5 seconds.   
+With 5000 unique players, it takes 30 seconds.  
 (A beefy PC could do this much faster, of course.) 
 
 I have tried to make the plugin as fast and effecient as possible, but I have not tested it with more than 
