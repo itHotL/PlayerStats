@@ -11,13 +11,13 @@ top-10 format or individually. Currently supports version **1.18.2** on platform
 * **Easy to use**
    - One central command that can:
      - Explain **how to use** the plugin with `/statistic`
+       ![Usage](src/main/resources/images/usage.png)
      - Show you the **top 10** on your server for all possible statistics
+       ![Top_10](src/main/resources/images/top_10_4.png)
      - See those same statistics for any **individual player** 
+       ![Individual_stat](src/main/resources/images/individual_stat.png)
      - Guide you through the available options while you type with an extensive **tab-complete** feature
-
-[Top_10](src/main/resources/images/top_10_4.png)
-[Usage](src/main/resources/images/usage.png)
-[Tab_Complete](src/main/resources/images/tab_complete.png)
+       ![Tab_Complete](src/main/resources/images/tab_complete.png)
 
 * **No set-up required**
    - PlayerStats will work correctly regardless of how long your server has already existed - it doesn't 
