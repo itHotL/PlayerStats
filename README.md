@@ -1,4 +1,8 @@
-![PlayerStats_Logo](src/main/resources/images/logo_rounded.png)
+<p align="center">
+   <img src="src/main/resources/images/logo_rounded.png">
+</p>
+
+
 ## About
 PlayerStats is a Minecraft server plugin that adds a command to view player statistics in 
 top-10 format or individually. Currently supports version **1.18.2** on platforms:
