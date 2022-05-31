@@ -48,7 +48,7 @@ top-10 format or individually. Currently supports version **1.18.2** on platform
 ## Disclaimer
 How PlayerStats performs, will heavily depend on the amount of unique players that have joined 
 your server, and on the specs of the machine it is running on. I have done elaborate testing on 
-my local server, and it is currently also running on the SMP I play on. Lookup up an individual
+my local server, and it is currently also running on the SMP I play on. Looking up an individual
 statistic is always nearly instant, but for a **top statistic** it can vary.
 
 With roughly 110 unique players, it takes about 0.1 seconds to calculate a top statistic on the SMP. 
