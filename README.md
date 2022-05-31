@@ -7,19 +7,17 @@ top-10 format or individually. Currently supports version **1.18.2** on platform
 - Paper
 - Purpur
 
-## First Time Use
-
 ## Features 
 * **Easy to use**
    - One central command that can:
-     - Explain **how to use** the plugin with /statistic
+     - Explain **how to use** the plugin with `/statistic`
      - Show you the **top 10** on your server for all possible statistics
      - See those same statistics for any **individual player** 
      - Guide you through the available options while you type with an extensive **tab-complete** feature
 
-[Top_10](src/main/resources/images/.png)
-[Player_Stat](src/main/resources/images/.png)
-[Tab_Complete](src/main/resources/images/.png)
+[Top_10](src/main/resources/images/top_10.png)
+[Player_Stat](src/main/resources/images/player_stat.png)
+[Tab_Complete](src/main/resources/images/tab_complete.png)
 
 * **No set-up required**
    - PlayerStats will work correctly regardless of how long your server has already existed - it doesn't 
@@ -31,13 +29,13 @@ top-10 format or individually. Currently supports version **1.18.2** on platform
    - PlayerStats uses **multi-threading** to ensure server performance does not suffer and 
      players cannot crash the server by spamming its commands
    - This also means that for small to medium-sized servers, calculating statistics will be very **fast** 
-     For large servers (1000+ players), please read the disclaimer below
+     For large servers (1000+ players), please read the disclaimer below  
 
-* **Customizable**
+* **Customizable**  
     - You can customize the following:
       - Only show statistics for **whitelisted** players
       - Exclude statistics from **banned** players
-      - Limit statistics based on when a player **last joined**
+      - Limit statistics based on when a player **last joined**.  
         This option can be particularly useful if you have had a lot of players join your server in the past
         whose statistics aren't of particular interest to your current player-base.
         On top of that, limiting the amount of players shown in the top 10 will greatly increase performance speed.
@@ -74,4 +72,3 @@ or reach me by email: artemis.the.gr8@gmail.com
 
 ## Licence
 PlayerStats is licenced under the MIT licence. Please see [LICENCE](LICENSE) for more information.
-
