@@ -28,8 +28,8 @@ top-10 format or individually. Currently supports version **1.18.2** on platform
 * **Safe**
    - PlayerStats uses **multi-threading** to ensure server performance does not suffer and 
      players cannot crash the server by spamming its commands
-   - This also means that for small to medium-sized servers, calculating statistics will be very **fast** 
-     For large servers (1000+ players), please read the disclaimer below  
+   - This also means that for small to medium-sized servers, calculating statistics will be very **fast**   
+     **For large servers (1000+ players), please read the disclaimer below**  
 
 * **Customizable**  
     - You can customize the following:
