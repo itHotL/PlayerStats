@@ -44,6 +44,7 @@ top-10 format or individually. Currently supports version **1.18.2** on platform
         whose statistics aren't of particular interest to your current player-base.
         On top of that, limiting the amount of players shown in the top 10 will greatly increase performance speed.
       - The **colors** you want the output to be
+      - You can go for default Minecraft chat colors, or use **hex colors**
       - Whether you want the output to have additional **style**, such as italics 
     - You can configure the following **permissions**:
       - `playerstats.stat` for using the general command (true for everyone by default)
@@ -58,10 +59,10 @@ with 110 unique players, it takes about 0.1 seconds to calculate a top statistic
 With the same playerdata, my laptop takes 0.3 seconds to calculate the same thing.  
 
 If you have a large amount of unique players (1000+), you could run into performance issues. 
-If you notice it takes a long time to calculate top statistics, I recommend limiting the amount
-of included players by setting a `number-of-days-since-last-joined` limit in the config.
-Additionally, you could revoke the permission `playerstats.stat` for most players, and only
-allow staff to use it, for example.  
+If you notice it takes a long time to calculate top statistics, I recommend limiting 
+the amount of included players by setting a `number-of-days-since-last-joined` limit in the config. 
+Additionally, if you run into issues, you could revoke the permission `playerstats.stat` 
+for most players, and only allow selected players (such as staff, for example) to use it.
 
 I am working to improve performance for larger servers in the future, 
 and I'd love to hear feedback on how the plugin is performing!
