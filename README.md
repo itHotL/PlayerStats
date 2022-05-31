@@ -61,7 +61,7 @@ I have tried to make the plugin as fast and effecient as possible, but I have no
 10.000 playerfiles. Although spamming the command had no impact on the server TPS, I don't know if
 it could have other effects (mainly CPU usage, I am guessing). So if you want to use this plugin on servers
 with a lot of unique players, I recommend limiting the amount of included players by setting a 
-number-of-days-since-last-joined limit in the config, and use caution. I do want to improve
+`number-of-days-since-last-joined` limit in the config, and use caution. I do want to improve
 performance in the future though, and I'd love to hear feedback on how the plugin is performing!
 
 ## Author Info
