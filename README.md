@@ -30,19 +30,22 @@ top-10 format or individually. Currently supports version **1.18.2** on platform
 * **Safe**
    - PlayerStats uses **multi-threading** to ensure server performance does not suffer and 
      players cannot crash the server by spamming its commands
-   - This also means that for small to medium-sized servers, calculating statistics will be very *fast* 
+   - This also means that for small to medium-sized servers, calculating statistics will be very **fast** 
      For large servers (1000+ players), please read the disclaimer below
 
 * **Customizable**
     - You can customize the following:
-      - Only show statistics for *whitelisted* players
-      - Exclude statistics from *banned* players
-      - Limit statistics based on when a player *last joined*
+      - Only show statistics for **whitelisted** players
+      - Exclude statistics from **banned** players
+      - Limit statistics based on when a player **last joined**
         This option can be particularly useful if you have had a lot of players join your server in the past
         whose statistics aren't of particular interest to your current player-base.
         On top of that, limiting the amount of players shown in the top 10 will greatly increase performance speed.
-      - The *colors* you want the output to be
-      - Whether you want the output to have additional *style*, such as italics 
+      - The **colors** you want the output to be
+      - Whether you want the output to have additional **style**, such as italics 
+    - You can configure the following **permissions**:
+      - `playerstats.stat` for using the general command (true for everyone by default)
+      - `playerstats.reload` for reloading the config (only for OP players by default)
 
 ## Disclaimer
 How PlayerStats performs, will heavily depend on the amount of unique players that have joined 
@@ -57,8 +60,8 @@ With 5000 unique players, it takes 30 seconds.
 (A beefy PC could do this much faster, of course.) 
 
 I have tried to make the plugin as fast and effecient as possible, but I have not tested it with more than 
-10.000 playerfiles. Although spamming the command had no impact on the server TPS, I do not know if
-it would have other effects (mainly CPU usage, I am guessing). So if you want to use this plugin on servers
+10.000 playerfiles. Although spamming the command had no impact on the server TPS, I don't know if
+it could have other effects (mainly CPU usage, I am guessing). So if you want to use this plugin on servers
 with a lot of unique players, I recommend limiting the amount of included players by setting a 
 number-of-days-since-last-joined limit in the config, and use caution. I do want to improve
 performance in the future though, and I'd love to hear feedback on how the plugin is performing!
