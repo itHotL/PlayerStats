@@ -53,20 +53,18 @@ top-10 format or individually. Currently supports version **1.18.2** on platform
 How PlayerStats performs, will heavily depend on the amount of unique players that have joined 
 your server, and on the specs of the machine it is running on. I have done elaborate testing on 
 my local server, and it is currently also running on the SMP I play on. Looking up an individual
-statistic is always nearly instant, but for a **top statistic** it can vary.
+statistic is always nearly instant, but for a **top statistic** it can vary. For example: 
+with 110 unique players, it takes about 0.1 seconds to calculate a top statistic on my SMP. 
+With the same playerdata, my laptop takes 0.3 seconds to calculate the same thing.  
 
-With roughly 110 unique players, it takes about 0.1 seconds to calculate a top statistic on the SMP.   
-With 110 unique players, my laptop takes 0.3 seconds.  
-With 1000 unique players, my laptop takes about 5 seconds.   
-With 5000 unique players, it takes 30 seconds.  
-(A beefy PC could do this much faster, of course.) 
+If you have a large amount of unique players (1000+), you could run into performance issues. 
+If you notice it takes a long time to calculate top statistics, I recommend limiting the amount
+of included players by setting a `number-of-days-since-last-joined` limit in the config.
+Additionally, you could revoke the permission `playerstats.stat` for most players, and only
+allow staff to use it, for example.  
 
-I have tried to make the plugin as fast and effecient as possible, but I have not tested it with more than 
-10.000 playerfiles. Although spamming the command had no impact on the server TPS, I don't know if
-it could have other effects (mainly CPU usage, I am guessing). So if you want to use this plugin on servers
-with a lot of unique players, I recommend limiting the amount of included players by setting a 
-`number-of-days-since-last-joined` limit in the config, and use caution. I do want to improve
-performance in the future though, and I'd love to hear feedback on how the plugin is performing!
+I am working to improve performance for larger servers in the future, 
+and I'd love to hear feedback on how the plugin is performing!
 
 ## Author Info
 I am a relatively new programmer, and this is one of my first projects. I greatly enjoyed making it, 
