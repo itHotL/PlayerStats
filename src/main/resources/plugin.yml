@@ -21,7 +21,7 @@ commands:
 permissions:
   playerstats.stat:
     description: lowest permission level
-    default: op
+    default: true
   playerstats.reload:
     description: allows config and scoreboard related things?
     default: op
