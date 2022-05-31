@@ -1,7 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.filehandlers;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
-
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

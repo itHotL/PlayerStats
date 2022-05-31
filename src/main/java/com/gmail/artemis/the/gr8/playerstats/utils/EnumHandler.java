@@ -142,16 +142,6 @@ public class EnumHandler {
     }
 
     //checks whether a subStatEntry is of the type that the statistic requires
-    public static boolean isValidStatEntry(@NotNull String statName, String subStatEntry) {
-        try {
-            return isValidStatEntry(getStatType(statName), subStatEntry);
-        }
-        catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     public static boolean isValidStatEntry(Statistic.Type statType, String subStatEntry) {
         return (statType != null) && isMatchingSubStatEntry(statType, subStatEntry);
     }

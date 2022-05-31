@@ -35,7 +35,7 @@ public class MessageFactory {
     }
 
     public TextComponent stillReloading() {
-        return text(getPluginPrefix()).append(text("The plugin is reloading, your request will be processed when it is done!").color(msgColor));
+        return text(getPluginPrefix()).append(text("The plugin is still (re)loading, your request will be processed when it is done!").color(msgColor));
     }
 
     public TextComponent waitAMoment(boolean longWait) {

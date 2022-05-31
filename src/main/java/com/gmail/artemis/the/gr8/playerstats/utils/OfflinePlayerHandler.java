@@ -13,7 +13,6 @@ public class OfflinePlayerHandler {
 
     public OfflinePlayerHandler(ConfigHandler c) {
         config = c;
-        //updateOfflinePlayerList();
     }
 
     public boolean isOfflinePlayerName(String playerName) {
@@ -40,15 +39,12 @@ public class OfflinePlayerHandler {
             offlinePlayerUUIDs.clear();
         }
 
-        for (int i = 0; i <100; i++) {
-            int finalI = i;
-            Arrays.stream(Bukkit.getOfflinePlayers()).filter(offlinePlayer ->
-                    offlinePlayer.getName() != null &&
-                        (!excludeBanned || !offlinePlayer.isBanned()) &&
-                        (!whitelistOnly || offlinePlayer.isWhitelisted()) &&
-                        (lastPlayedLimit == 0 || UnixTimeHandler.hasPlayedSince(lastPlayedLimit, offlinePlayer.getLastPlayed())))
-                    .forEach(offlinePlayer -> offlinePlayerUUIDs.put((offlinePlayer.getName() + finalI), offlinePlayer.getUniqueId()));
-        }
+        Arrays.stream(Bukkit.getOfflinePlayers()).filter(offlinePlayer ->
+                offlinePlayer.getName() != null &&
+                    (!excludeBanned || !offlinePlayer.isBanned()) &&
+                    (!whitelistOnly || offlinePlayer.isWhitelisted()) &&
+                    (lastPlayedLimit == 0 || UnixTimeHandler.hasPlayedSince(lastPlayedLimit, offlinePlayer.getLastPlayed())))
+                .forEach(offlinePlayer -> offlinePlayerUUIDs.put((offlinePlayer.getName()), offlinePlayer.getUniqueId()));
     }
 
     public OfflinePlayer getOfflinePlayer(String playerName) {

@@ -48,7 +48,7 @@ public class Main extends JavaPlugin {
         if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));
 
         //register the listener
-        Bukkit.getPluginManager().registerEvents(new JoinListener(offlinePlayerHandler), this);
+        Bukkit.getPluginManager().registerEvents(new JoinListener(threadManager), this);
         logTimeTaken("onEnable", "time taken", time);
         this.getLogger().info("Enabled PlayerStats!");
     }
@@ -62,8 +62,7 @@ public class Main extends JavaPlugin {
         this.getLogger().info("Disabled PlayerStats!");
     }
 
-    public long logTimeTaken(String className, String methodName, long previousTime) {
+    public void logTimeTaken(String className, String methodName, long previousTime) {
         getLogger().info(className + ", " + methodName + ": " + (System.currentTimeMillis() - previousTime) + "ms");
-        return System.currentTimeMillis();
     }
 }

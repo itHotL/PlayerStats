@@ -1,6 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.listeners;
 
-import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
+import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -8,15 +8,16 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class JoinListener implements Listener {
 
-    private final OfflinePlayerHandler offlinePlayerHandler;
-    public JoinListener(OfflinePlayerHandler o) {
-        offlinePlayerHandler = o;
+    private final ThreadManager threadManager;
+
+    public JoinListener(ThreadManager t) {
+        threadManager = t;
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent joinEvent) {
         if (!joinEvent.getPlayer().hasPlayedBefore()) {
-            offlinePlayerHandler.updateOfflinePlayerList();
+            threadManager.startReloadThread(null, false);
         }
     }
 }
