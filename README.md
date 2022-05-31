@@ -12,9 +12,9 @@ top-10 format or individually. Currently supports version **1.18.2** on platform
    - One central command that can:
      - Explain **how to use** the plugin with `/statistic`
        ![Usage](src/main/resources/images/usage.png)
-     - Show you the **top 10** on your server for all possible statistics
+     - Show you the **top 10** on your server for all possible statistics with `/statistic ... top`
        ![Top_10](src/main/resources/images/top_10_4.png)
-     - See those same statistics for any **individual player** 
+     - See those same statistics for any **individual player** with `/statistic ... player`
        ![Individual_stat](src/main/resources/images/individual_stat.png)
      - Guide you through the available options while you type with an extensive **tab-complete** feature
        ![Tab_Complete](src/main/resources/images/tab_complete.png)
