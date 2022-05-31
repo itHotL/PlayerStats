@@ -15,8 +15,8 @@ top-10 format or individually. Currently supports version **1.18.2** on platform
      - See those same statistics for any **individual player** 
      - Guide you through the available options while you type with an extensive **tab-complete** feature
 
-[Top_10](src/main/resources/images/top_10.png)
-[Player_Stat](src/main/resources/images/player_stat.png)
+[Top_10](src/main/resources/images/top_10_4.png)
+[Usage](src/main/resources/images/usage.png)
 [Tab_Complete](src/main/resources/images/tab_complete.png)
 
 * **No set-up required**
