@@ -19,13 +19,11 @@ public class StatCommand implements CommandExecutor {
 
     private final ThreadManager threadManager;
     private final BukkitAudiences adventure;
-    private final OfflinePlayerHandler offlinePlayerHandler;
     private final MessageFactory messageFactory;
 
-    public StatCommand(ThreadManager t, BukkitAudiences b, OfflinePlayerHandler of, MessageFactory o) {
+    public StatCommand(ThreadManager t, BukkitAudiences b, MessageFactory o) {
         threadManager = t;
         adventure = b;
-        offlinePlayerHandler = of;
         messageFactory = o;
     }
 
@@ -102,7 +100,7 @@ public class StatCommand implements CommandExecutor {
             else if (arg.equalsIgnoreCase("me") && sender instanceof Player) {
                 request.setPlayerName(sender.getName());
             }
-            else if (offlinePlayerHandler.isOfflinePlayerName(arg) && request.getPlayerName() == null) {
+            else if (OfflinePlayerHandler.isOfflinePlayerName(arg) && request.getPlayerName() == null) {
                 request.setPlayerName(arg);
             }
         }

@@ -9,23 +9,23 @@ import java.util.*;
 public class OfflinePlayerHandler {
 
     private final ConfigHandler config;
-    private HashMap<String, UUID> offlinePlayerUUIDs;
+    private static HashMap<String, UUID> offlinePlayerUUIDs;
 
     public OfflinePlayerHandler(ConfigHandler c) {
         config = c;
     }
 
-    public boolean isOfflinePlayerName(String playerName) {
+    public static boolean isOfflinePlayerName(String playerName) {
         return offlinePlayerUUIDs.containsKey(playerName);
     }
 
-    public int getOfflinePlayerCount() throws NullPointerException {
+    public static int getOfflinePlayerCount() throws NullPointerException {
         if (offlinePlayerUUIDs != null && offlinePlayerUUIDs.size() > 0) return offlinePlayerUUIDs.size();
         else throw new NullPointerException("No players found!");
     }
 
-    public Set<String> getOfflinePlayerNames() {
-        return offlinePlayerUUIDs.keySet();
+    public static ArrayList<String> getOfflinePlayerNames() {
+        return new ArrayList<>(offlinePlayerUUIDs.keySet());
     }
 
     public void updateOfflinePlayerList() {
@@ -38,7 +38,6 @@ public class OfflinePlayerHandler {
         else if (!offlinePlayerUUIDs.isEmpty()) {
             offlinePlayerUUIDs.clear();
         }
-
         Arrays.stream(Bukkit.getOfflinePlayers()).filter(offlinePlayer ->
                 offlinePlayer.getName() != null &&
                     (!excludeBanned || !offlinePlayer.isBanned()) &&
@@ -47,7 +46,13 @@ public class OfflinePlayerHandler {
                 .forEach(offlinePlayer -> offlinePlayerUUIDs.put((offlinePlayer.getName()), offlinePlayer.getUniqueId()));
     }
 
-    public OfflinePlayer getOfflinePlayer(String playerName) {
+    /**
+     * Uses the playerName to get the player's UUID from a private HashMap, and uses the UUID to get the corresponding OfflinePlayer Object.
+     * @param playerName name of the target player
+     * @return OfflinePlayer (if this player is on the list)
+     */
+
+    public static OfflinePlayer getOfflinePlayer(String playerName) {
         return Bukkit.getOfflinePlayer(offlinePlayerUUIDs.get(playerName));
     }
 }

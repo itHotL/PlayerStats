@@ -18,6 +18,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 public class StatThread extends Thread {
@@ -27,18 +29,16 @@ public class StatThread extends Thread {
 
     private final BukkitAudiences adventure;
     private final ConfigHandler config;
-    private final OfflinePlayerHandler offlinePlayerHandler;
     private final MessageFactory messageFactory;
     private final Main plugin;
 
     //constructor (called on thread creation)
-    public StatThread(StatRequest s, @Nullable ReloadThread r, BukkitAudiences b, ConfigHandler c, OfflinePlayerHandler of, MessageFactory o, Main p) {
+    public StatThread(StatRequest s, @Nullable ReloadThread r, BukkitAudiences b, ConfigHandler c, MessageFactory o, Main p) {
         request = s;
         reloadThread = r;
 
         adventure = b;
         config = c;
-        offlinePlayerHandler = of;
         messageFactory = o;
         plugin = p;
         plugin.getLogger().info("StatThread created!");
@@ -95,7 +95,7 @@ public class StatThread extends Thread {
 
             try {
                 adventure.sender(sender).sendMessage(messageFactory.formatTopStats(
-                        getTopStatistics(statName, subStatEntry), statName, subStatEntry));
+                        getTopStatistics(), statName, subStatEntry));
 
                 plugin.logTimeTaken("StatThread", "calculating top stat", time);
                 ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
@@ -111,7 +111,7 @@ public class StatThread extends Thread {
     private int getStatistic(String statName, String subStatEntryName, String playerName) throws IllegalArgumentException, NullPointerException {
         try {
             Statistic stat = EnumHandler.getStatEnum(statName);
-            OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(playerName);
+            OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
             return getPlayerStat(player, stat, subStatEntryName);
         }
         catch (IllegalArgumentException e) {
@@ -119,31 +119,21 @@ public class StatThread extends Thread {
         }
     }
 
-    private LinkedHashMap<String, Integer> getTopStatistics(String statName, String subStatEntry) {
-        try {
-            Statistic stat = EnumHandler.getStatEnum(statName);
-            HashMap<String, Integer> playerStats = new HashMap<>((int) (getOfflinePlayerCount() * 1.05));
-            offlinePlayerHandler.getOfflinePlayerNames().forEach(playerName -> {
-                OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(playerName);
-                try {
-                    int statistic = getPlayerStat(player, stat, subStatEntry);
-                    if (statistic > 0) {
-                        playerStats.put(playerName, statistic);
-                    }
-                } catch (IllegalArgumentException ignored) {
-                }
-            });
-            return playerStats.entrySet().stream()
-                    .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                    .limit(config.getTopListMaxSize()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-        }
-        catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(e.toString());
-        }
+    private LinkedHashMap<String, Integer> getTopStatistics() {
+        ConcurrentHashMap<String, Integer> playerStats = new ConcurrentHashMap<>((int) (getOfflinePlayerCount() * 1.05));
+        TopStatAction task = new TopStatAction(OfflinePlayerHandler.getOfflinePlayerNames(),
+                request, playerStats);
+
+        ForkJoinPool pool = ForkJoinPool.commonPool();
+        pool.invoke(task);
+
+        return playerStats.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .limit(config.getTopListMaxSize()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
     //gets the actual statistic data for a given player
-    private int getPlayerStat(@NotNull OfflinePlayer player, @NotNull Statistic stat, String subStatEntryName) throws IllegalArgumentException {
+    protected int getPlayerStat(@NotNull OfflinePlayer player, @NotNull Statistic stat, String subStatEntryName) throws IllegalArgumentException {
         switch (stat.getType()) {
             case UNTYPED -> {
                 return player.getStatistic(stat);
@@ -180,7 +170,7 @@ public class StatThread extends Thread {
     //returns the amount of offline players, attempts to update the list if none are found, and otherwise throws an error
     private int getOfflinePlayerCount() {
         try {
-            return offlinePlayerHandler.getOfflinePlayerCount();
+            return OfflinePlayerHandler.getOfflinePlayerCount();
         }
         catch (NullPointerException e) {
             throw new RuntimeException("No offline players were found to calculate statistics for!");

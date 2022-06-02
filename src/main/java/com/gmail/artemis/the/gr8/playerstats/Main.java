@@ -10,8 +10,11 @@ import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.logging.Logger;
 
 
 public class Main extends JavaPlugin {
@@ -41,8 +44,8 @@ public class Main extends JavaPlugin {
         //register the commands
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(threadManager, adventure(),offlinePlayerHandler, messageFactory));
-            statcmd.setTabCompleter(new TabCompleter(offlinePlayerHandler));
+            statcmd.setExecutor(new StatCommand(threadManager, adventure(), messageFactory));
+            statcmd.setTabCompleter(new TabCompleter());
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
         if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));

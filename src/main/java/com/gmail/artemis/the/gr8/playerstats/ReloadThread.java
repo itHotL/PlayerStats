@@ -48,7 +48,7 @@ public class ReloadThread extends Thread {
             if (config.reloadConfig()) {
                 offlinePlayerHandler.updateOfflinePlayerList();
 
-                plugin.getLogger().info("Amount of relevant players: " + offlinePlayerHandler.getOfflinePlayerCount());
+                plugin.getLogger().info("Amount of relevant players: " + OfflinePlayerHandler.getOfflinePlayerCount());
                 plugin.logTimeTaken("ReloadThread", "loading offline players", time);
                 if (sender != null) {
                     sender.sendMessage(MessageFactory.getPluginPrefix() + ChatColor.GREEN + "Config reloaded!");
@@ -58,7 +58,7 @@ public class ReloadThread extends Thread {
         else {
             plugin.getLogger().info("Loading offline players...");
             offlinePlayerHandler.updateOfflinePlayerList();
-            plugin.getLogger().info("Amount of relevant players: " + offlinePlayerHandler.getOfflinePlayerCount());
+            plugin.getLogger().info("Amount of relevant players: " + OfflinePlayerHandler.getOfflinePlayerCount());
             plugin.logTimeTaken("ReloadThread", "loading offline players", time);
             ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
         }
