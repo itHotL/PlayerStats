@@ -8,12 +8,6 @@ import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.CommandSender;
 
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
 
 public class ThreadManager {
 
@@ -35,7 +29,6 @@ public class ThreadManager {
         messageFactory = m;
 
         startReloadThread(null, true);
-
     }
 
     public void startReloadThread(CommandSender sender, boolean firstTimeLoading) {
@@ -46,8 +39,6 @@ public class ThreadManager {
     public void startStatThread(StatRequest request) {
         statThread = new StatThread(request, reloadThread, adventure, config, messageFactory, plugin);
         statThread.start();
-
-
     }
 
     //store the time in milliseconds that the last top-stat-lookup took (or loading the offline-player-list if no look-ups have been done yet)
@@ -58,15 +49,5 @@ public class ThreadManager {
     //returns the time in milliseconds the last top-stat-lookup took (or loading the offline-player-list if no look-ups have been done yet)
     public static long getLastRecordedCalcTime() {
         return lastRecordedCalcTime;
-    }
-
-    //returns the amount of offline players, attempts to update the list if none are found, and otherwise throws an error
-    private int getOfflinePlayerCount() {
-        try {
-            return OfflinePlayerHandler.getOfflinePlayerCount();
-        }
-        catch (NullPointerException e) {
-            throw new RuntimeException("No offline players were found to calculate statistics for!");
-        }
     }
 }

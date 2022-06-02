@@ -4,18 +4,16 @@ import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
-import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,20 +70,7 @@ public class StatThread extends Thread {
         String subStatEntry = request.getSubStatEntry();
         boolean topFlag = request.topFlag();
 
-        if (playerName != null) {
-            try {
-                adventure.sender(sender).sendMessage(
-                        messageFactory.formatPlayerStat(
-                                playerName, statName, subStatEntry, getStatistic(
-                                        statName, subStatEntry, playerName)));
-                plugin.logTimeTaken("StatThread", "calculating individual stat", time);
-
-            } catch (Exception e) {
-                sender.sendMessage(messageFactory.formatExceptions(e.toString()));
-                e.printStackTrace();
-            }
-
-        } else if (topFlag) {
+        if (topFlag) {
             if (ThreadManager.getLastRecordedCalcTime() > 30000) {
                 adventure.sender(sender).sendMessage(messageFactory.waitAMoment(true));
             }
@@ -105,20 +90,34 @@ public class StatThread extends Thread {
                 e.printStackTrace();
             }
         }
+
+        else if (playerName != null) {
+            try {
+                adventure.sender(sender).sendMessage(
+                        messageFactory.formatPlayerStat(
+                                playerName, statName, subStatEntry, getStatistic()));
+                plugin.logTimeTaken("StatThread", "calculating individual stat", time);
+
+            } catch (Exception e) {
+                sender.sendMessage(messageFactory.formatExceptions(e.toString()));
+                e.printStackTrace();
+            }
+
+        }
     }
 
     //returns the integer associated with a certain statistic for a player
-    private int getStatistic(String statName, String subStatEntryName, String playerName) throws IllegalArgumentException, NullPointerException {
+    private int getStatistic() throws IllegalArgumentException, NullPointerException {
         try {
-            Statistic stat = EnumHandler.getStatEnum(statName);
-            OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
-            return getPlayerStat(player, stat, subStatEntryName);
+            return getPlayerStat(OfflinePlayerHandler.getOfflinePlayer(request.getPlayerName()));
         }
-        catch (IllegalArgumentException e) {
+        catch (Exception e) {
+            Bukkit.getLogger().warning(e.toString());
             throw new IllegalArgumentException(e.toString());
         }
     }
 
+    //invokes a bunch of worker pool threads to divide and conquer (get the statistics for all players in the list)
     private LinkedHashMap<String, Integer> getTopStatistics() {
         ConcurrentHashMap<String, Integer> playerStats = new ConcurrentHashMap<>((int) (getOfflinePlayerCount() * 1.05));
         TopStatAction task = new TopStatAction(OfflinePlayerHandler.getOfflinePlayerNames(),
@@ -132,38 +131,28 @@ public class StatThread extends Thread {
                 .limit(config.getTopListMaxSize()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
-    //gets the actual statistic data for a given player
-    protected int getPlayerStat(@NotNull OfflinePlayer player, @NotNull Statistic stat, String subStatEntryName) throws IllegalArgumentException {
-        switch (stat.getType()) {
-            case UNTYPED -> {
-                return player.getStatistic(stat);
+    //gets the actual statistic data for an individual player
+    private int getPlayerStat(@NotNull OfflinePlayer player) throws IllegalArgumentException {
+        try {
+            switch (request.getStatType()) {
+                case UNTYPED -> {
+                    return player.getStatistic(request.getStatEnum());
+                }
+                case ENTITY -> {
+                    return player.getStatistic(request.getStatEnum(), request.getEntity());
+                }
+                case BLOCK -> {
+                    return player.getStatistic(request.getStatEnum(), request.getBlock());
+                }
+                case ITEM -> {
+                    return player.getStatistic(request.getStatEnum(), request.getItem());
+                }
+                default ->
+                    throw new Exception("This statistic does not seem to be of type:untyped/block/entity/item, I strongly suggest we panic");
             }
-            case BLOCK -> {
-                try {
-                    return player.getStatistic(stat, EnumHandler.getBlock(subStatEntryName));
-                }
-                catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException(e.toString());
-                }
-            }
-            case ENTITY -> {
-                try {
-                    return player.getStatistic(stat, EnumHandler.getEntityType(subStatEntryName));
-                }
-                catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException(e.toString());
-                }
-            }
-            case ITEM -> {
-                try {
-                    return player.getStatistic(stat, EnumHandler.getItem(subStatEntryName));
-                }
-                catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException(e.toString());
-                }
-            }
-            default ->
-                    throw new IllegalArgumentException("This statistic does not seem to be of type:untyped/block/entity/item, I think we should panic");
+        } catch (Exception e) {
+            Bukkit.getLogger().warning(e.toString());
+            throw new IllegalArgumentException(e.toString());
         }
     }
 

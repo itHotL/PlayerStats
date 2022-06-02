@@ -113,9 +113,10 @@ public class StatCommand implements CommandExecutor {
         removeUnnecessarySubStat(request);
 
         if (request.getStatName() != null) {
-            if (request.topFlag() || request.getPlayerName() != null) {
-                return EnumHandler.isValidStatEntry(request.getStatType(), request.getSubStatEntry());
+            if (!request.topFlag() && request.getPlayerName() == null) {
+                assumeTopAsDefault(request);
             }
+            return EnumHandler.isValidStatEntry(request.getStatType(), request.getSubStatEntry());
         }
         return false;
     }
@@ -127,9 +128,15 @@ public class StatCommand implements CommandExecutor {
         }
     }
 
+    //in case the statistic is untyped, remove any subStatEntry that might be present
     private void removeUnnecessarySubStat(StatRequest request) {
         if (request.getSubStatEntry() != null && request.getStatType() == Statistic.Type.UNTYPED) {
             request.setSubStatEntry(null);
         }
+    }
+
+    //if no playerName was provided, and there is no topFlag, substitute a top flag
+    private void assumeTopAsDefault(StatRequest request) {
+        request.setTopFlag(true);
     }
 }

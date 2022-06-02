@@ -10,11 +10,8 @@ import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
-import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.logging.Logger;
 
 
 public class Main extends JavaPlugin {
