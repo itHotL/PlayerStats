@@ -4,6 +4,7 @@ import com.gmail.artemis.the.gr8.playerstats.commands.ReloadCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.filehandlers.TestFileHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
@@ -34,9 +35,9 @@ public class Main extends JavaPlugin {
 
         //get instances of the classes that should be initialized
         ConfigHandler config = new ConfigHandler(this);
-        MessageFactory messageFactory = new MessageFactory(config, this);
-        OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler(config);
-        ThreadManager threadManager = new ThreadManager(this, adventure(), config, offlinePlayerHandler, messageFactory);
+        TestFileHandler test = new TestFileHandler(this);
+        MessageFactory messageFactory = new MessageFactory(config);
+        ThreadManager threadManager = new ThreadManager(this, adventure(), config, messageFactory);
 
         //register the commands
         PluginCommand statcmd = this.getCommand("statistic");

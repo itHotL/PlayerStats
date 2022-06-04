@@ -1,7 +1,8 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
-import com.gmail.artemis.the.gr8.playerstats.ReloadThread;
+import com.gmail.artemis.the.gr8.playerstats.filehandlers.TestFileHandler;
+import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Comparator;
+import java.util.ConcurrentModificationException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -82,9 +84,12 @@ public class StatThread extends Thread {
                 adventure.sender(sender).sendMessage(messageFactory.formatTopStats(
                         getTopStatistics(), statName, subStatEntry));
 
+                TestFileHandler.saveTimeTaken(System.currentTimeMillis() - time, "top-stat");
                 plugin.logTimeTaken("StatThread", "calculating top stat", time);
                 ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
 
+            } catch (ConcurrentModificationException e) {
+                adventure.sender(sender).sendMessage(messageFactory.unknownError());
             } catch (Exception e) {
                 sender.sendMessage(messageFactory.formatExceptions(e.toString()));
                 e.printStackTrace();
@@ -96,13 +101,13 @@ public class StatThread extends Thread {
                 adventure.sender(sender).sendMessage(
                         messageFactory.formatPlayerStat(
                                 playerName, statName, subStatEntry, getStatistic()));
+                TestFileHandler.saveTimeTaken(System.currentTimeMillis() - time, "individual-stat");
                 plugin.logTimeTaken("StatThread", "calculating individual stat", time);
 
             } catch (Exception e) {
                 sender.sendMessage(messageFactory.formatExceptions(e.toString()));
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -118,13 +123,19 @@ public class StatThread extends Thread {
     }
 
     //invokes a bunch of worker pool threads to divide and conquer (get the statistics for all players in the list)
-    private LinkedHashMap<String, Integer> getTopStatistics() {
+    private LinkedHashMap<String, Integer> getTopStatistics() throws ConcurrentModificationException {
         ConcurrentHashMap<String, Integer> playerStats = new ConcurrentHashMap<>((int) (getOfflinePlayerCount() * 1.05));
-        TopStatAction task = new TopStatAction(OfflinePlayerHandler.getOfflinePlayerNames(),
+        String[] playerNames = OfflinePlayerHandler.getOfflinePlayerNames().toArray(new String[0]);
+        TopStatAction task = new TopStatAction(playerNames,
                 request, playerStats);
 
-        ForkJoinPool pool = ForkJoinPool.commonPool();
-        pool.invoke(task);
+        ForkJoinPool commonPool = ForkJoinPool.commonPool();
+        try {
+            commonPool.invoke(task);
+        } catch (ConcurrentModificationException e) {
+            e.printStackTrace();
+            throw new ConcurrentModificationException(e.toString());
+        }
 
         return playerStats.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))

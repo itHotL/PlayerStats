@@ -1,18 +1,16 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
-import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class OfflinePlayerHandler {
 
-    private final ConfigHandler config;
-    private static HashMap<String, UUID> offlinePlayerUUIDs;
+    private static ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
 
-    public OfflinePlayerHandler(ConfigHandler c) {
-        config = c;
+    private OfflinePlayerHandler() {
     }
 
     public static boolean isOfflinePlayerName(String playerName) {
@@ -28,22 +26,12 @@ public class OfflinePlayerHandler {
         return new ArrayList<>(offlinePlayerUUIDs.keySet());
     }
 
-    public void updateOfflinePlayerList() {
-        updateOfflinePlayerList(config.whitelistOnly(), config.excludeBanned(), config.lastPlayedLimit());
-    }
-
-    //stores a private HashMap of all relevant offline players with keys:playerName and values:UUID
-    private void updateOfflinePlayerList(boolean whitelistOnly, boolean excludeBanned, int lastPlayedLimit) {
-        if (offlinePlayerUUIDs == null) offlinePlayerUUIDs = new HashMap<>();
-        else if (!offlinePlayerUUIDs.isEmpty()) {
-            offlinePlayerUUIDs.clear();
-        }
-        Arrays.stream(Bukkit.getOfflinePlayers()).filter(offlinePlayer ->
-                offlinePlayer.getName() != null &&
-                    (!excludeBanned || !offlinePlayer.isBanned()) &&
-                    (!whitelistOnly || offlinePlayer.isWhitelisted()) &&
-                    (lastPlayedLimit == 0 || UnixTimeHandler.hasPlayedSince(lastPlayedLimit, offlinePlayer.getLastPlayed())))
-                .forEach(offlinePlayer -> offlinePlayerUUIDs.put((offlinePlayer.getName()), offlinePlayer.getUniqueId()));
+    /**
+     * Get a new HashMap that stores the players to include in stat calculations.
+     * This HashMap is stored as a private variable in OfflinePlayerHandler (keys: playerNames, values: UUIDs).
+     */
+    public static void updateOfflinePlayerList(ConcurrentHashMap<String, UUID> playerList) {
+        offlinePlayerUUIDs = playerList;
     }
 
     /**
@@ -51,7 +39,6 @@ public class OfflinePlayerHandler {
      * @param playerName name of the target player
      * @return OfflinePlayer (if this player is on the list)
      */
-
     public static OfflinePlayer getOfflinePlayer(String playerName) {
         return Bukkit.getOfflinePlayer(offlinePlayerUUIDs.get(playerName));
     }

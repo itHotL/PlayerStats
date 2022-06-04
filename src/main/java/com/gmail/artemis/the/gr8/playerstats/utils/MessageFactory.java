@@ -9,6 +9,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.util.Index;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Statistic;
 import org.bukkit.map.MinecraftFont;
@@ -20,13 +21,11 @@ import static net.kyori.adventure.text.Component.*;
 public class MessageFactory {
 
     private static ConfigHandler config;
-    private final Main plugin;
 
     private static final TextColor msgColor = TextColor.fromHexString("#55aaff");
     private static final String pluginPrefix = ChatColor.GRAY + "[" + ChatColor.GOLD + "PlayerStats" + ChatColor.GRAY + "] " + ChatColor.RESET;
 
-    public MessageFactory(ConfigHandler c, Main p) {
-        plugin = p;
+    public MessageFactory(ConfigHandler c) {
         config = c;
     }
 
@@ -80,7 +79,7 @@ public class MessageFactory {
     }
 
     public TextComponent unknownError() {
-        return text(getPluginPrefix()).append(text("Something went wrong with your input. Check /statistic for a usage explanation").color(msgColor));
+        return text(getPluginPrefix()).append(text("Something went wrong with your request, please try again!").color(msgColor));
     }
 
     public TextComponent helpMsg() {
@@ -154,7 +153,6 @@ public class MessageFactory {
     }
 
     public TextComponent formatTopStats(LinkedHashMap<String, Integer> topStats, String statName, String subStatEntryName) {
-        long time = System.currentTimeMillis();
         TextComponent.Builder topList = Component.text();
         String subStat = subStatEntryName != null ?
                 "(" + subStatEntryName.toLowerCase().replace("_", " ") + ")" : "";
@@ -193,7 +191,6 @@ public class MessageFactory {
             }
             topList.append(space()).append(statNumberComponent(topStats.get(playerName), true));
         }
-        plugin.logTimeTaken("MessageFactory", "applying colors", time);
         return topList.build();
     }
 
@@ -262,7 +259,7 @@ public class MessageFactory {
                 }
             }
             catch (IllegalArgumentException | NullPointerException exception) {
-                plugin.getLogger().warning(exception.toString());
+                Bukkit.getLogger().warning(exception.toString());
             }
         }
         return null;
@@ -281,7 +278,7 @@ public class MessageFactory {
                 }
             }
             catch (IllegalArgumentException | NullPointerException exception) {
-                plugin.getLogger().warning(exception.toString());
+                Bukkit.getLogger().warning(exception.toString());
             }
         }
         return component.content(content).colorIfAbsent(defaultColor);
