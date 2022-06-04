@@ -11,28 +11,43 @@ import java.io.IOException;
 
 public class TestFileHandler {
 
-    private static File testFile;
-    private static FileConfiguration testConf;
-    private static ConfigurationSection playerCount;
+    private File testFile;
+    private FileConfiguration testConf;
+    private ConfigurationSection number;
     private final Main plugin;
 
+    private String onEnable;
+    private String reload;
+    private String debugging;
+    private String topStat;
 
     public TestFileHandler(Main p) {
         plugin = p;
-        loadFile();
+        onEnable = "onEnable";
+        reload = "reload";
+        debugging = "exception-debugging";
+        topStat = "top-stat";
     }
 
-    public static void savePlayerCount(int count) {
+    /**
+     * Creates a new config section for the given threshold. Only needs to be called once, unless threshold changes.
+     * @param count amount of players to calculate statistics with
+     * @param threshold how small the subTasks have to become
+     */
+    public void saveThreshold(int count, int threshold) {
+        loadFile(count);
+        String path = threshold + " threshold";
         try {
-            playerCount = testConf.getConfigurationSection(count + " players");
-            if (playerCount == null) {
-                playerCount = testConf.createSection(count + " players");
-                playerCount.createSection("onEnable");
-                playerCount.createSection("individual-stat");
-                playerCount.createSection("top-stat");
+            number = testConf.getConfigurationSection(path);
+            if (number == null) {
+                number = testConf.createSection(path);
+                number.createSection(onEnable);
+                number.createSection(reload);
+                number.createSection(debugging);
+                number.createSection(topStat);
             }
             else {
-                playerCount = testConf.getConfigurationSection(count + " players");
+                number = testConf.getConfigurationSection(path);
             }
             saveFile();
         }
@@ -41,18 +56,49 @@ public class TestFileHandler {
         }
     }
 
-    public static void saveTimeTaken(long time, String timeDescription) {
+    public void logRunCount(boolean errorEncountered) {
         try {
-            if (timeDescription.equalsIgnoreCase("onEnable")) {
-                saveToSection(time, playerCount.getConfigurationSection("onEnable"));
+            ConfigurationSection section = number.getConfigurationSection(debugging);
+            if (section != null) {
+                int runs = section.getInt("runs");
+                section.set("runs", runs +1);
+
+                if (errorEncountered) {
+                    int errors = section.getInt("errors");
+                    section.set("errors", errors + 1);
+
+                    String path = "error-" + (errors + 1) + "-during-run";
+                    int lastError = section.getInt("error-" + errors + "-during-run");
+
+                    int runsUntilError = runs - lastError;
+                    String path2 = "until-error-" + (errors + 1);
+
+                    section.set(path2, runsUntilError);
+                    section.set(path, runs);
+                }
                 saveFile();
             }
-            else if (timeDescription.equalsIgnoreCase("individual-stat")) {
-                saveToSection(time, playerCount.getConfigurationSection("individual-stat"));
-                saveFile();
-            }
-            else if (timeDescription.equalsIgnoreCase("top-stat")) {
-                saveToSection(time, playerCount.getConfigurationSection("top-stat"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Logs how long a certain method took for the earlier set threshold. Always make sure saveThreshold has been
+     * called once before this method is called.
+     * @param time how long the given action took
+     * @param scenario describes which section to get. 1 means onEnable, 2 means reload, and 3 means top-stat
+     */
+    public void saveTimeTaken(long time, int scenario) {
+        String path = "";
+        if (scenario == 1) path = onEnable;
+        else if (scenario == 2) path = reload;
+        else if (scenario == 3) path = topStat;
+
+        try {
+            ConfigurationSection section = number.getConfigurationSection(path);
+            if (section != null) {
+                saveTimeToSection(time, section);
                 saveFile();
             }
         }
@@ -61,7 +107,7 @@ public class TestFileHandler {
         }
     }
 
-    private static void saveToSection(long time, ConfigurationSection section) {
+    private void saveTimeToSection(long time, ConfigurationSection section) {
         if (section.contains("average")) {
             long average = section.getLong("average");
             long newAverage = ((average * (section.getKeys(false).size() -1)) + time)/section.getKeys(false).size();
@@ -75,9 +121,11 @@ public class TestFileHandler {
         }
     }
 
-    private void loadFile() {
-        testFile = new File(plugin.getDataFolder(), "test.yml");
+    private void loadFile(int players) {
+        String fileName = "test_" + players + ".yml";
+        testFile = new File(plugin.getDataFolder(), fileName);
         if (!testFile.exists()) {
+            plugin.getLogger().info("Attempting to create testFile...");
             createFile();
         }
 
@@ -91,24 +139,23 @@ public class TestFileHandler {
         saveFile();
     }
 
-    private static void createFile() {
-        testFile.getParentFile().mkdirs();
+    private void createFile() {
+    testFile.getParentFile().mkdirs();
         try {
             testFile.createNewFile();
+            plugin.getLogger().info("Even though this would return false, secretly a file has been created anyway");
         }
         catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static boolean saveFile() {
+    private void saveFile() {
         try {
             testConf.save(testFile);
-            return true;
         }
         catch (Exception e) {
             e.printStackTrace();
-            return false;
         }
     }
 }

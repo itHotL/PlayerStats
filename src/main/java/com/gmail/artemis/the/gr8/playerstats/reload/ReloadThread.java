@@ -15,19 +15,25 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinPool;
 
 public class ReloadThread extends Thread {
 
+    private final int threshold;
+
     private static ConfigHandler config;
+    private static TestFileHandler testFile;
     private final Main plugin;
 
     private final StatThread statThread;
     private final CommandSender sender;
     private final boolean firstTimeLoading;
 
-    public ReloadThread(ConfigHandler c, Main p, @Nullable StatThread s, @Nullable CommandSender se, boolean firstTime) {
+    public ReloadThread(int threshold, ConfigHandler c, TestFileHandler t, Main p, @Nullable StatThread s, @Nullable CommandSender se, boolean firstTime) {
+        this.threshold = threshold;
         config = c;
+        testFile = t;
         plugin = p;
 
         statThread = s;
@@ -55,6 +61,7 @@ public class ReloadThread extends Thread {
             if (config.reloadConfig()) {
                 OfflinePlayerHandler.updateOfflinePlayerList(getPlayerMap(false));
 
+                testFile.saveTimeTaken(System.currentTimeMillis() - time, 2);
                 plugin.getLogger().info("Amount of relevant players: " + OfflinePlayerHandler.getOfflinePlayerCount());
                 plugin.logTimeTaken("ReloadThread", "loading offline players", time);
                 if (sender != null) {
@@ -66,8 +73,8 @@ public class ReloadThread extends Thread {
             plugin.getLogger().info("Loading offline players...");
             OfflinePlayerHandler.updateOfflinePlayerList(getPlayerMap(true));
 
-            TestFileHandler.savePlayerCount(OfflinePlayerHandler.getOfflinePlayerCount());
-            TestFileHandler.saveTimeTaken(System.currentTimeMillis() - time, "onEnable");
+            testFile.saveThreshold(OfflinePlayerHandler.getOfflinePlayerCount(), threshold);
+            testFile.saveTimeTaken(System.currentTimeMillis() - time, 1);
             plugin.getLogger().info("Amount of relevant players: " + OfflinePlayerHandler.getOfflinePlayerCount());
             plugin.logTimeTaken("ReloadThread", "loading offline players", time);
             ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
@@ -80,18 +87,21 @@ public class ReloadThread extends Thread {
 
         ConcurrentHashMap<String, UUID> playerMap = new ConcurrentHashMap<>(size);
 
-        ReloadAction task = new ReloadAction(offlinePlayers, config.whitelistOnly(), config.excludeBanned(), config.lastPlayedLimit(), playerMap);
+        ReloadAction task = new ReloadAction(threshold, offlinePlayers, config.whitelistOnly(), config.excludeBanned(), config.lastPlayedLimit(), playerMap);
         ForkJoinPool commonPool = ForkJoinPool.commonPool();
         commonPool.invoke(task);
 
-        ConcurrentHashMap<String, UUID> newPlayerMap = new ConcurrentHashMap<>(playerMap.size() * 11);
+        ConcurrentHashMap<String, UUID> newPlayerMap = new ConcurrentHashMap<>(playerMap.size());
 
+        /*
         for (int i = 0; i < 11; i++) {
             for (String key : playerMap.keySet()) {
                 newPlayerMap.put(key + i, playerMap.get(key));
             }
         }
-        //newPlayerMap.putAll(playerMap);
+         */
+
+        newPlayerMap.putAll(playerMap);
         return newPlayerMap;
     }
 }

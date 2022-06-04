@@ -7,6 +7,7 @@ import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
+import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -19,26 +20,31 @@ import java.util.ConcurrentModificationException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
 public class StatThread extends Thread {
 
+    private final int threshold;
     private final StatRequest request;
     private final ReloadThread reloadThread;
 
     private final BukkitAudiences adventure;
-    private final ConfigHandler config;
+    private static ConfigHandler config;
+    private static TestFileHandler testFile;
     private final MessageFactory messageFactory;
     private final Main plugin;
 
     //constructor (called on thread creation)
-    public StatThread(StatRequest s, @Nullable ReloadThread r, BukkitAudiences b, ConfigHandler c, MessageFactory o, Main p) {
+    public StatThread(int threshold, StatRequest s, @Nullable ReloadThread r, BukkitAudiences b, ConfigHandler c, TestFileHandler t, MessageFactory o, Main p) {
+        this.threshold = threshold;
         request = s;
         reloadThread = r;
 
         adventure = b;
         config = c;
+        testFile = t;
         messageFactory = o;
         plugin = p;
         plugin.getLogger().info("StatThread created!");
@@ -84,11 +90,13 @@ public class StatThread extends Thread {
                 adventure.sender(sender).sendMessage(messageFactory.formatTopStats(
                         getTopStatistics(), statName, subStatEntry));
 
-                TestFileHandler.saveTimeTaken(System.currentTimeMillis() - time, "top-stat");
+                testFile.saveTimeTaken(System.currentTimeMillis() - time, 3);
+                testFile.logRunCount(false);
                 plugin.logTimeTaken("StatThread", "calculating top stat", time);
                 ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
 
             } catch (ConcurrentModificationException e) {
+                testFile.logRunCount(true);
                 adventure.sender(sender).sendMessage(messageFactory.unknownError());
             } catch (Exception e) {
                 sender.sendMessage(messageFactory.formatExceptions(e.toString()));
@@ -101,7 +109,6 @@ public class StatThread extends Thread {
                 adventure.sender(sender).sendMessage(
                         messageFactory.formatPlayerStat(
                                 playerName, statName, subStatEntry, getStatistic()));
-                TestFileHandler.saveTimeTaken(System.currentTimeMillis() - time, "individual-stat");
                 plugin.logTimeTaken("StatThread", "calculating individual stat", time);
 
             } catch (Exception e) {
@@ -125,8 +132,10 @@ public class StatThread extends Thread {
     //invokes a bunch of worker pool threads to divide and conquer (get the statistics for all players in the list)
     private LinkedHashMap<String, Integer> getTopStatistics() throws ConcurrentModificationException {
         ConcurrentHashMap<String, Integer> playerStats = new ConcurrentHashMap<>((int) (getOfflinePlayerCount() * 1.05));
-        String[] playerNames = OfflinePlayerHandler.getOfflinePlayerNames().toArray(new String[0]);
-        TopStatAction task = new TopStatAction(playerNames,
+        //ConcurrentLinkedDeque<String> playerNames = new ConcurrentLinkedDeque<>(OfflinePlayerHandler.getOfflinePlayerNames());
+        //String[] playerNames = OfflinePlayerHandler.getOfflinePlayerNames().toArray(new String[0]);
+        ImmutableList<String> playerNames = ImmutableList.copyOf(OfflinePlayerHandler.getOfflinePlayerNames());
+        TopStatAction task = new TopStatAction(threshold, playerNames,
                 request, playerStats);
 
         ForkJoinPool commonPool = ForkJoinPool.commonPool();
@@ -134,7 +143,17 @@ public class StatThread extends Thread {
             commonPool.invoke(task);
         } catch (ConcurrentModificationException e) {
             e.printStackTrace();
-            throw new ConcurrentModificationException(e.toString());
+            try {
+                if (!task.cancel(true)) {
+                    plugin.getLogger().severe("Tried to cancel task, but failed. You might need to shut down the server and reboot");
+                    throw new ConcurrentModificationException(e.toString());
+                } else {
+                    plugin.getLogger().warning("Canceling task because of a ConcurrentModificationException...");
+                }
+            } catch (ConcurrentModificationException ex) {
+                ex.printStackTrace();
+                throw new ConcurrentModificationException(ex.toString());
+            }
         }
 
         return playerStats.entrySet().stream()

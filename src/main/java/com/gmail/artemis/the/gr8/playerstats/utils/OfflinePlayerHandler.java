@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class OfflinePlayerHandler {
 
     private static ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
+    private static ArrayList<String> playerNames;
 
     private OfflinePlayerHandler() {
     }
@@ -23,7 +24,7 @@ public class OfflinePlayerHandler {
     }
 
     public static ArrayList<String> getOfflinePlayerNames() {
-        return new ArrayList<>(offlinePlayerUUIDs.keySet());
+        return playerNames;
     }
 
     /**
@@ -32,6 +33,7 @@ public class OfflinePlayerHandler {
      */
     public static void updateOfflinePlayerList(ConcurrentHashMap<String, UUID> playerList) {
         offlinePlayerUUIDs = playerList;
+        playerNames = Collections.list(offlinePlayerUUIDs.keys());
     }
 
     /**
