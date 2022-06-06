@@ -11,6 +11,7 @@ import net.kyori.adventure.util.Index;
 import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.bukkit.map.MinecraftFont;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -170,7 +171,7 @@ public class MessageFactory {
         TextComponent.Builder topList = Component.text();
 
         topList.append(newline()).append(getPluginPrefix())
-                .append(titleComponent("Top")).append(space())
+                .append(titleComponent(true, "Top")).append(space())
                 .append(titleNumberComponent(topStats.size())).append(space())
                 .append(statNameComponent(statName, true)).append(space())
                 .append(subStatNameComponent(subStatEntryName, true));
@@ -208,12 +209,12 @@ public class MessageFactory {
 
     public TextComponent formatServerStat(String statName, String subStatEntry, int stat) {
         TextComponent.Builder serverStat = Component.text();
-        serverStat.append(titleComponent("All"))
+        serverStat.append(titleComponent(false, "All"))
                 .append(space())
                 .append(statNameComponent(statName, true))
                 .append(space())
                 .append(subStatNameComponent(subStatEntry, true))
-                .append(titleComponent("on this server:"))
+                .append(titleComponent(false, "on this server:"))
                 .append(space())
                 .append(statNumberComponent(stat, true));
 
@@ -238,9 +239,6 @@ public class MessageFactory {
         return subStat;
     }
 
-    //try to get the hex color or NamedTextColor from config String, substitute a default ChatColor if both fail, and try to apply style where necessary
-
-
     private TextComponent playerNameComponent(String playerName, boolean topStat) {
         NamedTextColor defaultColor = topStat ? NamedTextColor.GREEN : NamedTextColor.GOLD;
         TextComponent.Builder player = applyColor(
@@ -250,8 +248,8 @@ public class MessageFactory {
 
     private TextComponent statNameComponent(String statName, boolean topStat) {
         TextComponent.Builder stat = applyColor(
-                config.getStatNameFormatting(topStat, false), statName.toLowerCase().replace("_", " "), NamedTextColor.YELLOW);
-        return applyStyle(config.getStatNameFormatting(topStat, true), stat).build();
+                config.getStatNameFormatting(topStat, false, false), statName.toLowerCase().replace("_", " "), NamedTextColor.YELLOW);
+        return applyStyle(config.getStatNameFormatting(topStat, false, true), stat).build();
     }
 
     private TextComponent subStatNameComponent(String subStatName, boolean topStat) {
@@ -259,33 +257,45 @@ public class MessageFactory {
                 "(" + subStatName.toLowerCase().replace("_", " ") + ") " : "";
 
         TextComponent.Builder subStat = applyColor(
-                config.getSubStatNameFormatting(topStat, false), subStatString, NamedTextColor.YELLOW);
-        return applyStyle(config.getSubStatNameFormatting(topStat, true), subStat).build();
+                config.getSubStatNameFormatting(topStat, false, false), subStatString, NamedTextColor.YELLOW);
+        return applyStyle(config.getSubStatNameFormatting(topStat, false,true), subStat).build();
     }
 
     private TextComponent statNumberComponent(int statNumber, boolean topStat) {
         TextComponent.Builder number = applyColor(
-                config.getStatNumberFormatting(topStat, false), statNumber + "", NamedTextColor.LIGHT_PURPLE);
-        return applyStyle(config.getStatNumberFormatting(topStat, true), number).build();
+                config.getStatNumberFormatting(topStat, false, false), statNumber + "", NamedTextColor.LIGHT_PURPLE);
+        return applyStyle(config.getStatNumberFormatting(topStat, false, true), number).build();
     }
 
-    private TextComponent titleComponent(String content) {
-        TextComponent.Builder server = applyColor(config.getListTitleFormatting(false), content, NamedTextColor.YELLOW);
-        return applyStyle(config.getListTitleFormatting(true), server).build();
+    private TextComponent titleComponent(boolean topStat, String content) {
+        TextComponent.Builder server = applyColor(config.getTitleFormatting(topStat, false), content, NamedTextColor.YELLOW);
+        return applyStyle(config.getTitleFormatting(topStat, true), server).build();
     }
 
     private TextComponent titleNumberComponent(int number) {
-        TextComponent.Builder titleNumber = applyColor(config.getListTitleNumberFormatting(false), number + "", NamedTextColor.GOLD);
-        return applyStyle(config.getListTitleNumberFormatting(true), titleNumber).build();
+        return getComponent(
+                number + "",
+                getColorFromString(config.getTitleNumberFormatting(false)),
+                getStyleFromString(config.getTitleNumberFormatting(true)));
     }
 
     private TextComponent rankingNumberComponent(String number) {
-        TextComponent.Builder list = applyColor(config.getRankingNumberFormatting(false), number + "", NamedTextColor.GOLD);
-        return applyStyle(config.getRankingNumberFormatting(true), list).build();
+        return getComponent(
+                number,
+                getColorFromString(config.getRankNumberFormatting(false)),
+                getStyleFromString(config.getRankNumberFormatting(true)));
     }
 
     private TextComponent dotsComponent(String dots) {
-        return text(dots).color(getColorFromString(config.getDotsColor())).colorIfAbsent(NamedTextColor.DARK_GRAY);
+        return getComponent(
+                dots,
+                getColorFromString(config.getDotsFormatting(false)),
+                getStyleFromString(config.getDotsFormatting(true)));
+    }
+
+    private TextComponent getComponent(String content, TextColor color, @Nullable TextDecoration style) {
+        Bukkit.getLogger().info("Style = " + style);
+        return style == null ? text(content).color(color) : text(content).color(color).decoration(style, TextDecoration.State.TRUE);
     }
 
     private TextColor getColorFromString(String configString) {
@@ -300,6 +310,35 @@ public class MessageFactory {
             }
             catch (IllegalArgumentException | NullPointerException exception) {
                 Bukkit.getLogger().warning(exception.toString());
+            }
+        }
+        return null;
+    }
+
+    private TextColor getTextColorByName(String textColor) {
+        Index<String, NamedTextColor> names = NamedTextColor.NAMES;
+        return names.value(textColor);
+    }
+
+    private @Nullable TextDecoration getStyleFromString(String configString) {
+        if (configString != null) {
+            if (configString.equalsIgnoreCase("none")) {
+                return null;
+            }
+            else if (configString.equalsIgnoreCase("bold")) {
+                return TextDecoration.BOLD;
+            }
+            else if (configString.equalsIgnoreCase("italic")) {
+                return TextDecoration.ITALIC;
+            }
+            else if (configString.equalsIgnoreCase("magic")) {
+                return TextDecoration.OBFUSCATED;
+            }
+            else if (configString.equalsIgnoreCase("strikethrough")) {
+                return TextDecoration.STRIKETHROUGH;
+            }
+            else if (configString.equalsIgnoreCase("underlined")) {
+                return TextDecoration.UNDERLINED;
             }
         }
         return null;
@@ -322,11 +361,6 @@ public class MessageFactory {
             }
         }
         return component.content(content).colorIfAbsent(defaultColor);
-    }
-
-    private TextColor getTextColorByName(String textColor) {
-        Index<String, NamedTextColor> names = NamedTextColor.NAMES;
-        return names.value(textColor);
     }
 
     private TextComponent.Builder applyStyle(String configString, TextComponent.Builder component) {
