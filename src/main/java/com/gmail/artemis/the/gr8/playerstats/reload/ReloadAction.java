@@ -58,30 +58,20 @@ public class ReloadAction extends RecursiveAction {
             final ReloadAction subTask2 = new ReloadAction(threshold, players, (start + split), end,
                     whitelistOnly, excludeBanned, lastPlayedLimit, offlinePlayerUUIDs);
 
-            try {
-                //queue and compute all subtasks in the right order
-                invokeAll(subTask1, subTask2);
-            }
-            catch (ConcurrentModificationException e) {
-                e.printStackTrace();
-            }
+            //queue and compute all subtasks in the right order
+            invokeAll(subTask1, subTask2);
         }
     }
 
     private void process() {
-        try {
-            for (int i = start; i < end; i++) {
-                OfflinePlayer player = players[i];
-                if (player.getName() != null &&
-                        (!whitelistOnly || player.isWhitelisted()) &&
-                        (!excludeBanned || !player.isBanned()) &&
-                        (lastPlayedLimit == 0 || UnixTimeHandler.hasPlayedSince(lastPlayedLimit, player.getLastPlayed()))) {
-                    offlinePlayerUUIDs.put(player.getName(), player.getUniqueId());
-                }
+        for (int i = start; i < end; i++) {
+            OfflinePlayer player = players[i];
+            if (player.getName() != null &&
+                    (!whitelistOnly || player.isWhitelisted()) &&
+                    (!excludeBanned || !player.isBanned()) &&
+                    (lastPlayedLimit == 0 || UnixTimeHandler.hasPlayedSince(lastPlayedLimit, player.getLastPlayed()))) {
+                offlinePlayerUUIDs.put(player.getName(), player.getUniqueId());
             }
-        } catch (ConcurrentModificationException e) {
-            Bukkit.getLogger().warning("ReloadAction has thrown a ConcurrentModificationException because of " + e.getCause());
-            e.printStackTrace();
         }
     }
 }

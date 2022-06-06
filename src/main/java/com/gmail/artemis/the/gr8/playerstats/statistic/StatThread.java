@@ -9,18 +9,12 @@ import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
 import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
-import java.util.ConcurrentModificationException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
@@ -53,8 +47,6 @@ public class StatThread extends Thread {
     //what the thread will do once started
     @Override
     public void run() throws IllegalStateException, NullPointerException {
-        long time = System.currentTimeMillis();
-
         if (messageFactory == null || plugin == null) {
             throw new IllegalStateException("Not all classes off the plugin are running!");
         }
@@ -77,8 +69,9 @@ public class StatThread extends Thread {
         String statName = request.getStatName();
         String subStatEntry = request.getSubStatEntry();
         boolean topFlag = request.topFlag();
+        boolean serverFlag = request.serverFlag();
 
-        if (topFlag) {
+        if (topFlag || serverFlag) {
             if (ThreadManager.getLastRecordedCalcTime() > 30000) {
                 adventure.sender(sender).sendMessage(messageFactory.waitAMoment(true));
             }
@@ -87,53 +80,53 @@ public class StatThread extends Thread {
             }
 
             try {
-                adventure.sender(sender).sendMessage(messageFactory.formatTopStats(
-                        getTopStatistics(), statName, subStatEntry));
-
-                testFile.saveTimeTaken(System.currentTimeMillis() - time, 3);
-                testFile.logRunCount(false);
-                plugin.logTimeTaken("StatThread", "calculating top stat", time);
-                ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
+                if (topFlag) {
+                    adventure.sender(sender).sendMessage(messageFactory.formatTopStats(
+                            getTopStats(), statName, subStatEntry));
+                }
+                else {
+                    adventure.sender(sender).sendMessage(messageFactory.formatServerStat(
+                            statName, subStatEntry, getServerTotal()));
+                }
 
             } catch (ConcurrentModificationException e) {
                 testFile.logRunCount(true);
                 adventure.sender(sender).sendMessage(messageFactory.unknownError());
             } catch (Exception e) {
                 sender.sendMessage(messageFactory.formatExceptions(e.toString()));
-                e.printStackTrace();
             }
         }
 
         else if (playerName != null) {
             try {
+                long time = System.currentTimeMillis();
                 adventure.sender(sender).sendMessage(
                         messageFactory.formatPlayerStat(
-                                playerName, statName, subStatEntry, getStatistic()));
+                                playerName, statName, subStatEntry, getIndividualStat()));
                 plugin.logTimeTaken("StatThread", "calculating individual stat", time);
 
-            } catch (Exception e) {
-                sender.sendMessage(messageFactory.formatExceptions(e.toString()));
-                e.printStackTrace();
+            } catch (UnsupportedOperationException | NullPointerException e) {
+                sender.sendMessage(messageFactory.formatExceptions(e.getMessage()));
             }
         }
     }
 
-    //returns the integer associated with a certain statistic for a player
-    private int getStatistic() throws IllegalArgumentException, NullPointerException {
-        try {
-            return getPlayerStat(OfflinePlayerHandler.getOfflinePlayer(request.getPlayerName()));
-        }
-        catch (Exception e) {
-            Bukkit.getLogger().warning(e.toString());
-            throw new IllegalArgumentException(e.toString());
-        }
+    private LinkedHashMap<String, Integer> getTopStats() throws ConcurrentModificationException, NullPointerException {
+        return getAllStats().entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .limit(config.getTopListMaxSize()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    }
+
+    private int getServerTotal() {
+        List<Integer> numbers = getAllStats().values().stream().toList();
+        return numbers.parallelStream().mapToInt(Integer::intValue).sum();
     }
 
     //invokes a bunch of worker pool threads to divide and conquer (get the statistics for all players in the list)
-    private LinkedHashMap<String, Integer> getTopStatistics() throws ConcurrentModificationException {
-        ConcurrentHashMap<String, Integer> playerStats = new ConcurrentHashMap<>((int) (getOfflinePlayerCount() * 1.05));
-        //ConcurrentLinkedDeque<String> playerNames = new ConcurrentLinkedDeque<>(OfflinePlayerHandler.getOfflinePlayerNames());
-        //String[] playerNames = OfflinePlayerHandler.getOfflinePlayerNames().toArray(new String[0]);
+    private ConcurrentHashMap<String, Integer> getAllStats() throws ConcurrentModificationException, NullPointerException {
+        long time = System.currentTimeMillis();
+
+        ConcurrentHashMap<String, Integer> playerStats = new ConcurrentHashMap<>((int) (OfflinePlayerHandler.getOfflinePlayerCount() * 1.05));
         ImmutableList<String> playerNames = ImmutableList.copyOf(OfflinePlayerHandler.getOfflinePlayerNames());
         TopStatAction task = new TopStatAction(threshold, playerNames,
                 request, playerStats);
@@ -142,57 +135,44 @@ public class StatThread extends Thread {
         try {
             commonPool.invoke(task);
         } catch (ConcurrentModificationException e) {
-            e.printStackTrace();
-            try {
-                if (!task.cancel(true)) {
-                    plugin.getLogger().severe("Tried to cancel task, but failed. You might need to shut down the server and reboot");
-                    throw new ConcurrentModificationException(e.toString());
-                } else {
-                    plugin.getLogger().warning("Canceling task because of a ConcurrentModificationException...");
-                }
-            } catch (ConcurrentModificationException ex) {
-                ex.printStackTrace();
-                throw new ConcurrentModificationException(ex.toString());
-            }
+            plugin.getLogger().warning("The request could not be executed due to a ConcurrentModificationException. " +
+                    "This likely happened because Bukkit hasn't fully initialized all players yet. Try again and it should be fine!");
+            throw new ConcurrentModificationException(e.toString());
         }
 
-        return playerStats.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .limit(config.getTopListMaxSize()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+        testFile.saveTimeTaken(System.currentTimeMillis() - time, 3);
+        testFile.logRunCount(false);
+        ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
+        plugin.logTimeTaken("StatThread", "calculating all stats", time);
+
+        return playerStats;
     }
 
     //gets the actual statistic data for an individual player
-    private int getPlayerStat(@NotNull OfflinePlayer player) throws IllegalArgumentException {
-        try {
-            switch (request.getStatType()) {
-                case UNTYPED -> {
-                    return player.getStatistic(request.getStatEnum());
-                }
-                case ENTITY -> {
-                    return player.getStatistic(request.getStatEnum(), request.getEntity());
-                }
-                case BLOCK -> {
-                    return player.getStatistic(request.getStatEnum(), request.getBlock());
-                }
-                case ITEM -> {
-                    return player.getStatistic(request.getStatEnum(), request.getItem());
-                }
-                default ->
-                    throw new Exception("This statistic does not seem to be of type:untyped/block/entity/item, I strongly suggest we panic");
-            }
-        } catch (Exception e) {
-            Bukkit.getLogger().warning(e.toString());
-            throw new IllegalArgumentException(e.toString());
-        }
-    }
+    private int getIndividualStat() throws UnsupportedOperationException, NullPointerException {
+        OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(request.getPlayerName());
 
-    //returns the amount of offline players, attempts to update the list if none are found, and otherwise throws an error
-    private int getOfflinePlayerCount() {
-        try {
-            return OfflinePlayerHandler.getOfflinePlayerCount();
-        }
-        catch (NullPointerException e) {
-            throw new RuntimeException("No offline players were found to calculate statistics for!");
+        switch (request.getStatType()) {
+            case UNTYPED -> {
+                return player.getStatistic(request.getStatEnum());
+            }
+            case ENTITY -> {
+                return player.getStatistic(request.getStatEnum(), request.getEntity());
+            }
+            case BLOCK -> {
+                return player.getStatistic(request.getStatEnum(), request.getBlock());
+            }
+            case ITEM -> {
+                return player.getStatistic(request.getStatEnum(), request.getItem());
+            }
+            default -> {
+                if (request.getStatType() != null) {
+                    throw new UnsupportedOperationException("PlayerStats is not familiar with this statistic type - please check if you are using the latest version of the plugin!");
+                }
+                else {
+                    throw new NullPointerException("Trying to calculate a statistic of which the type is null - is this a valid statistic?");
+                }
+            }
         }
     }
 }

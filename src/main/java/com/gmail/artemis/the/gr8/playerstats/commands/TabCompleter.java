@@ -19,6 +19,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
         commandOptions = new ArrayList<>();
         commandOptions.add("top");
         commandOptions.add("player");
+        commandOptions.add("server");
         commandOptions.add("me");
     }
 

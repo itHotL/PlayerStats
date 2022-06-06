@@ -97,6 +97,9 @@ public class StatCommand implements CommandExecutor {
             else if (arg.equalsIgnoreCase("top")) {
                 request.setTopFlag(true);
             }
+            else if (arg.equalsIgnoreCase("server")) {
+                request.setServerFlag(true);
+            }
             else if (arg.equalsIgnoreCase("me") && sender instanceof Player) {
                 request.setPlayerName(sender.getName());
             }
@@ -113,8 +116,11 @@ public class StatCommand implements CommandExecutor {
         removeUnnecessarySubStat(request);
 
         if (request.getStatName() != null) {
-            if (!request.topFlag() && request.getPlayerName() == null) {
+            if (!(request.topFlag() || request.serverFlag()) && request.getPlayerName() == null) {
                 assumeTopAsDefault(request);
+            }
+            else if (request.topFlag() && request.serverFlag()) {
+                assumeServerFlag(request);
             }
             return EnumHandler.isValidStatEntry(request.getStatType(), request.getSubStatEntry());
         }
@@ -135,8 +141,13 @@ public class StatCommand implements CommandExecutor {
         }
     }
 
-    //if no playerName was provided, and there is no topFlag, substitute a top flag
+    //if no playerName was provided, and there is no topFlag or serverFlag, substitute a top flag
     private void assumeTopAsDefault(StatRequest request) {
         request.setTopFlag(true);
+    }
+
+    //if both a topFlag and serverFlag are present, keep the serverFlag and reset the topFlag
+    private void assumeServerFlag(StatRequest request) {
+        request.setTopFlag(false);
     }
 }

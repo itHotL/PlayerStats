@@ -35,7 +35,7 @@ public class ThreadManager {
     }
 
     public void startReloadThread(CommandSender sender, boolean firstTimeLoading) {
-        reloadThread = new ReloadThread(threshold, config, testFile, plugin, statThread, sender, firstTimeLoading);
+        reloadThread = new ReloadThread(threshold, adventure, config, testFile, messageFactory, plugin, statThread, sender, firstTimeLoading);
         reloadThread.start();
     }
 

@@ -2,7 +2,6 @@ package com.gmail.artemis.the.gr8.playerstats.statistic;
 
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.google.common.collect.ImmutableList;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.util.*;
@@ -48,30 +47,26 @@ public class TopStatAction extends RecursiveAction {
         }
     }
 
-    private void getStatsDirectly() throws IllegalArgumentException, ConcurrentModificationException {
+    private void getStatsDirectly() {
         try {
             Iterator<String> iterator = playerNames.iterator();
-            while (iterator.hasNext()) {
-                String playerName = iterator.next();
-                OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
-                int statistic = 0;
-                switch (request.getStatType()) {
-                    case UNTYPED -> statistic = player.getStatistic(request.getStatEnum());
-                    case ENTITY -> statistic = player.getStatistic(request.getStatEnum(), request.getEntity());
-                    case BLOCK -> statistic = player.getStatistic(request.getStatEnum(), request.getBlock());
-                    case ITEM -> statistic = player.getStatistic(request.getStatEnum(), request.getItem());
-                }
-                if (statistic > 0) {
-                    playerStats.put(playerName, statistic);
-                }
+            if (iterator.hasNext()) {
+                do {
+                    String playerName = iterator.next();
+                    OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
+                    int statistic = 0;
+                    switch (request.getStatType()) {
+                        case UNTYPED -> statistic = player.getStatistic(request.getStatEnum());
+                        case ENTITY -> statistic = player.getStatistic(request.getStatEnum(), request.getEntity());
+                        case BLOCK -> statistic = player.getStatistic(request.getStatEnum(), request.getBlock());
+                        case ITEM -> statistic = player.getStatistic(request.getStatEnum(), request.getItem());
+                    }
+                    if (statistic > 0) {
+                        playerStats.put(playerName, statistic);
+                    }
+                } while (iterator.hasNext());
             }
-        } catch (NoSuchElementException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException ignored) {
-        } catch (ConcurrentModificationException e) {
-            Bukkit.getLogger().warning("A ConcurrentModificationException has occurred" + e.getCause());
-            e.printStackTrace();
-            throw new ConcurrentModificationException(e.toString());
+        } catch (NoSuchElementException ignored) {
         }
     }
 }

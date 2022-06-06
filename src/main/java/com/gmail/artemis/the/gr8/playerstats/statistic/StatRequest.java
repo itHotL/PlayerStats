@@ -16,6 +16,7 @@ public class StatRequest {
     private String playerName;
     private boolean playerFlag;
     private boolean topFlag;
+    private boolean serverFlag;
 
     private Statistic statEnum;
     private Statistic.Type statType;
@@ -28,6 +29,7 @@ public class StatRequest {
         sender = s;
         playerFlag = false;
         topFlag = false;
+        serverFlag = false;
     }
 
     //sets the statName, and automatically tries to set the correct statType and get the corresponding item/block/entity if there is a subStatEntry
@@ -41,7 +43,7 @@ public class StatRequest {
         }
     }
 
-    private void setStatEnumAndType() {
+    private void setStatEnumAndType() throws IllegalArgumentException {
         try {
             statEnum = EnumHandler.getStatEnum(statName);
             statType = statEnum.getType();
@@ -105,6 +107,10 @@ public class StatRequest {
         this.topFlag = topFlag;
     }
 
+    public void setServerFlag(boolean serverFlag) {
+        this.serverFlag = serverFlag;
+    }
+
     public CommandSender getCommandSender() {
         return sender;
     }
@@ -150,4 +156,7 @@ public class StatRequest {
         return topFlag;
     }
 
+    public boolean serverFlag() {
+        return serverFlag;
+    }
 }

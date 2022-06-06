@@ -115,8 +115,16 @@ public class ConfigHandler {
         return getStringFromConfig(topStat, isStyle, "stat-numbers");
     }
 
-    public String getListNumberFormatting(boolean isStyle) {
-        return getStringFromConfig(true, isStyle, "list-numbers");
+    public String getListTitleFormatting(boolean isStyle) {
+        return getStringFromConfig(true, isStyle, "list-title");
+    }
+
+    public String getListTitleNumberFormatting(boolean isStyle) {
+        return getStringFromConfig(true, isStyle, "list-title-number");
+    }
+
+    public String getRankingNumberFormatting(boolean isStyle) {
+        return getStringFromConfig(true, isStyle, "ranking-numbers");
     }
 
     public String getDotsColor() {

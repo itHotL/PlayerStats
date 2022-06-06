@@ -37,8 +37,10 @@ top-list-color:
   player-names: green
   stat-names: yellow
   sub-stat-names: '#FFD52B'
-  stat-numbers: '#55aaff'
-  list-numbers: gold
+  stat-numbers: '#55AAFF'
+  list-title: yellow
+  list-title-number: gold
+  ranking-numbers: gold
   dots: dark_gray
 
 top-list-style:
@@ -46,7 +48,9 @@ top-list-style:
   stat-names: none
   sub-stat-names: none
   stat-numbers: none
-  list-numbers: none
+  list-title: none
+  list-title-number: none
+  ranking-numbers: none
 
 
 
