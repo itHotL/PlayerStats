@@ -2,6 +2,8 @@ package com.gmail.artemis.the.gr8.playerstats.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,9 +41,14 @@ public class OfflinePlayerHandler {
     /**
      * Uses the playerName to get the player's UUID from a private HashMap, and uses the UUID to get the corresponding OfflinePlayer Object.
      * @param playerName name of the target player
-     * @return OfflinePlayer (if this player is on the list)
+     * @return OfflinePlayer (if this player is on the list, otherwise null)
      */
-    public static OfflinePlayer getOfflinePlayer(String playerName) {
-        return Bukkit.getOfflinePlayer(offlinePlayerUUIDs.get(playerName));
+    public static @Nullable OfflinePlayer getOfflinePlayer(String playerName) {
+        if (offlinePlayerUUIDs.get(playerName) != null) {
+            return Bukkit.getOfflinePlayer(offlinePlayerUUIDs.get(playerName));
+        }
+        else {
+            return null;
+        }
     }
 }

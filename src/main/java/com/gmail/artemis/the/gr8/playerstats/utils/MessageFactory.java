@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
+import com.gmail.artemis.the.gr8.playerstats.enums.CommandOption;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -57,8 +58,8 @@ public class MessageFactory {
                 : getPluginPrefix().append(text("Calculating statistics, this may take a few moments...").color(msgColor));
     }
 
-    public String formatExceptions(String exception) {
-        return getPluginPrefix() + exception;
+    public TextComponent formatExceptions(String exception) {
+        return getPluginPrefix().append(text(exception).color(msgColor));
     }
 
     public TextComponent missingStatName() {
@@ -141,7 +142,7 @@ public class MessageFactory {
                 .append(text(" | ").color(arguments))
                 .append(text("server").color(arguments)
                         .hoverEvent(HoverEvent.showText(
-                                text("See the combined total for everyone on the server").color(hoverBaseColor))))
+                                text("See the combined total for everyone on your server").color(hoverBaseColor))))
                 .append(text(" | ").color(arguments))
                 .append(text("top").color(arguments)
                         .hoverEvent(HoverEvent.showText(
@@ -159,10 +160,10 @@ public class MessageFactory {
     public TextComponent formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
         TextComponent.Builder singleStat = Component.text();
 
-        singleStat.append(playerNameComponent(playerName + ": ", false))
-                .append(statNumberComponent(stat, false)).append(space())
-                .append(statNameComponent(statName, false))
-                .append(subStatNameComponent(subStatEntryName, false));
+        singleStat.append(playerNameComponent(CommandOption.PLAYER, playerName + ": "))
+                .append(statNumberComponent(CommandOption.PLAYER, stat)).append(space())
+                .append(statNameComponent(CommandOption.PLAYER, statName))
+                .append(subStatNameComponent(CommandOption.PLAYER, subStatEntryName));
 
         return singleStat.build();
     }
@@ -171,10 +172,10 @@ public class MessageFactory {
         TextComponent.Builder topList = Component.text();
 
         topList.append(newline()).append(getPluginPrefix())
-                .append(titleComponent(true, "Top")).append(space())
+                .append(titleComponent(CommandOption.TOP, "Top")).append(space())
                 .append(titleNumberComponent(topStats.size())).append(space())
-                .append(statNameComponent(statName, true)).append(space())
-                .append(subStatNameComponent(subStatEntryName, true));
+                .append(statNameComponent(CommandOption.TOP, statName)).append(space())
+                .append(subStatNameComponent(CommandOption.TOP, subStatEntryName));
 
         boolean useDots = config.useDots();
         Set<String> playerNames = topStats.keySet();
@@ -186,7 +187,7 @@ public class MessageFactory {
 
             topList.append(newline())
                     .append(rankingNumberComponent(count + ". "))
-                    .append(playerNameComponent(playerName, true));
+                    .append(playerNameComponent(CommandOption.TOP, playerName));
 
             if (useDots) {
                 topList.append(space());
@@ -200,23 +201,24 @@ public class MessageFactory {
                 }
             }
             else {
-                topList.append(playerNameComponent(":", true));
+                topList.append(playerNameComponent(CommandOption.TOP, ":"));
             }
-            topList.append(space()).append(statNumberComponent(topStats.get(playerName), true));
+            topList.append(space()).append(statNumberComponent(CommandOption.TOP, topStats.get(playerName)));
         }
         return topList.build();
     }
 
     public TextComponent formatServerStat(String statName, String subStatEntry, int stat) {
         TextComponent.Builder serverStat = Component.text();
-        serverStat.append(titleComponent(false, "All"))
+        serverStat.append(titleComponent(CommandOption.SERVER, "Total for"))
                 .append(space())
-                .append(statNameComponent(statName, true))
+                .append(serverNameComponent())
                 .append(space())
-                .append(subStatNameComponent(subStatEntry, true))
-                .append(titleComponent(false, "on this server:"))
+                .append(statNumberComponent(CommandOption.SERVER, stat))
                 .append(space())
-                .append(statNumberComponent(stat, true));
+                .append(statNameComponent(CommandOption.SERVER, statName))
+                .append(space())
+                .append(subStatNameComponent(CommandOption.SERVER, subStatEntry));
 
         return  serverStat.build();
     }
@@ -239,62 +241,67 @@ public class MessageFactory {
         return subStat;
     }
 
-    private TextComponent playerNameComponent(String playerName, boolean topStat) {
-        NamedTextColor defaultColor = topStat ? NamedTextColor.GREEN : NamedTextColor.GOLD;
-        TextComponent.Builder player = applyColor(
-                config.getPlayerNameFormatting(topStat, false), playerName, defaultColor);
-        return applyStyle(config.getPlayerNameFormatting(topStat, true), player).build();
+    private TextComponent playerNameComponent(CommandOption selection, String playerName) {
+        return getComponent(playerName,
+                getColorFromString(config.getPlayerNameFormatting(selection, false)),
+                getStyleFromString(config.getPlayerNameFormatting(selection, true)));
     }
 
-    private TextComponent statNameComponent(String statName, boolean topStat) {
-        TextComponent.Builder stat = applyColor(
-                config.getStatNameFormatting(topStat, false, false), statName.toLowerCase().replace("_", " "), NamedTextColor.YELLOW);
-        return applyStyle(config.getStatNameFormatting(topStat, false, true), stat).build();
+    private TextComponent statNameComponent(CommandOption selection, String statName) {
+        return getComponent(statName.toLowerCase().replace("_", " "),
+                getColorFromString(config.getStatNameFormatting(selection, false)),
+                getStyleFromString(config.getStatNameFormatting(selection, true)));
     }
 
-    private TextComponent subStatNameComponent(String subStatName, boolean topStat) {
-        String subStatString = subStatName != null ?
-                "(" + subStatName.toLowerCase().replace("_", " ") + ") " : "";
-
-        TextComponent.Builder subStat = applyColor(
-                config.getSubStatNameFormatting(topStat, false, false), subStatString, NamedTextColor.YELLOW);
-        return applyStyle(config.getSubStatNameFormatting(topStat, false,true), subStat).build();
+    private TextComponent subStatNameComponent(CommandOption selection, String subStatName) {
+        if (subStatName == null) {
+            return empty();
+        }
+        else {
+            return getComponent("(" + subStatName.toLowerCase().replace("_", " ") + ")",
+                    getColorFromString(config.getSubStatNameFormatting(selection, false)),
+                    getStyleFromString(config.getSubStatNameFormatting(selection, true)))
+                    .append(space());
+        }
     }
 
-    private TextComponent statNumberComponent(int statNumber, boolean topStat) {
-        TextComponent.Builder number = applyColor(
-                config.getStatNumberFormatting(topStat, false, false), statNumber + "", NamedTextColor.LIGHT_PURPLE);
-        return applyStyle(config.getStatNumberFormatting(topStat, false, true), number).build();
+    private TextComponent statNumberComponent(CommandOption selection, int number) {
+        return getComponent(number + "",
+                getColorFromString(config.getStatNumberFormatting(selection, false)),
+                getStyleFromString(config.getStatNumberFormatting(selection, true)));
     }
 
-    private TextComponent titleComponent(boolean topStat, String content) {
-        TextComponent.Builder server = applyColor(config.getTitleFormatting(topStat, false), content, NamedTextColor.YELLOW);
-        return applyStyle(config.getTitleFormatting(topStat, true), server).build();
+    private TextComponent titleComponent(CommandOption selection, String content) {
+        return getComponent(content,
+                getColorFromString(config.getTitleFormatting(selection, false)),
+                getStyleFromString(config.getTitleFormatting(selection, true)));
     }
 
     private TextComponent titleNumberComponent(int number) {
-        return getComponent(
-                number + "",
+        return getComponent(number + "",
                 getColorFromString(config.getTitleNumberFormatting(false)),
                 getStyleFromString(config.getTitleNumberFormatting(true)));
     }
 
+    private TextComponent serverNameComponent() {
+        return getComponent(config.getServerName() + ":",
+                getColorFromString(config.getServerNameFormatting(false)),
+                getStyleFromString(config.getServerNameFormatting(true)));
+    }
+
     private TextComponent rankingNumberComponent(String number) {
-        return getComponent(
-                number,
+        return getComponent(number,
                 getColorFromString(config.getRankNumberFormatting(false)),
                 getStyleFromString(config.getRankNumberFormatting(true)));
     }
 
     private TextComponent dotsComponent(String dots) {
-        return getComponent(
-                dots,
+        return getComponent(dots,
                 getColorFromString(config.getDotsFormatting(false)),
                 getStyleFromString(config.getDotsFormatting(true)));
     }
 
     private TextComponent getComponent(String content, TextColor color, @Nullable TextDecoration style) {
-        Bukkit.getLogger().info("Style = " + style);
         return style == null ? text(content).color(color) : text(content).color(color).decoration(style, TextDecoration.State.TRUE);
     }
 
@@ -321,69 +328,15 @@ public class MessageFactory {
     }
 
     private @Nullable TextDecoration getStyleFromString(String configString) {
-        if (configString != null) {
-            if (configString.equalsIgnoreCase("none")) {
-                return null;
-            }
-            else if (configString.equalsIgnoreCase("bold")) {
-                return TextDecoration.BOLD;
-            }
-            else if (configString.equalsIgnoreCase("italic")) {
-                return TextDecoration.ITALIC;
-            }
-            else if (configString.equalsIgnoreCase("magic")) {
-                return TextDecoration.OBFUSCATED;
-            }
-            else if (configString.equalsIgnoreCase("strikethrough")) {
-                return TextDecoration.STRIKETHROUGH;
-            }
-            else if (configString.equalsIgnoreCase("underlined")) {
-                return TextDecoration.UNDERLINED;
-            }
+        if (configString.equalsIgnoreCase("none")) {
+            return null;
         }
-        return null;
-    }
-
-    private TextComponent.Builder applyColor(String configString, String content, NamedTextColor defaultColor) {
-        TextComponent.Builder component = Component.text();
-
-        if (configString != null) {
-            try {
-                if (configString.contains("#")) {
-                    return component.content(content).color(TextColor.fromHexString(configString));
-                }
-                else {
-                    return component.content(content).color(getTextColorByName(configString));
-                }
-            }
-            catch (IllegalArgumentException | NullPointerException exception) {
-                Bukkit.getLogger().warning(exception.toString());
-            }
+        else if (configString.equalsIgnoreCase("magic")) {
+            return TextDecoration.OBFUSCATED;
         }
-        return component.content(content).colorIfAbsent(defaultColor);
-    }
-
-    private TextComponent.Builder applyStyle(String configString, TextComponent.Builder component) {
-        if (configString != null) {
-            if (configString.equalsIgnoreCase("none")) {
-                return component;
-            }
-            else if (configString.equalsIgnoreCase("bold")) {
-                return component.decoration(TextDecoration.BOLD, TextDecoration.State.TRUE);
-            }
-            else if (configString.equalsIgnoreCase("italic")) {
-                return component.decoration(TextDecoration.ITALIC, TextDecoration.State.TRUE);
-            }
-            else if (configString.equalsIgnoreCase("magic")) {
-                return component.decoration(TextDecoration.OBFUSCATED, TextDecoration.State.TRUE);
-            }
-            else if (configString.equalsIgnoreCase("strikethrough")) {
-                return component.decoration(TextDecoration.STRIKETHROUGH, TextDecoration.State.TRUE);
-            }
-            else if (configString.equalsIgnoreCase("underlined")) {
-                return component.decoration(TextDecoration.UNDERLINED, TextDecoration.State.TRUE);
-            }
+        else {
+            Index<String, TextDecoration> styles = TextDecoration.NAMES;
+            return styles.value(configString);
         }
-        return component;
     }
 }

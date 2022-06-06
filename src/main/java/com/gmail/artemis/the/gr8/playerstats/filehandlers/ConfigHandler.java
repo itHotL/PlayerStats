@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.filehandlers;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.enums.CommandOption;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -67,13 +68,19 @@ public class ConfigHandler {
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "green" or "gold" for Color (for top or individual color). */
-    public String getPlayerNameFormatting(boolean topStat, boolean isStyle) {
-        String def = topStat ? "green" : "gold";
-        return getStringFromConfig(topStat, false, isStyle, def, "player-names");
+    public String getPlayerNameFormatting(CommandOption selection, boolean isStyle) {
+        String def;
+        if (selection == CommandOption.TOP) {
+            def = "green";
+        }
+        else {
+            def = "gold";
+        }
+        return getStringFromConfig(selection, isStyle, def, "player-names");
     }
 
     public boolean playerNameIsBold() {
-        ConfigurationSection style = getRelevantSection(true, true);
+        ConfigurationSection style = getRelevantSection(CommandOption.PLAYER);
 
         if (style != null) {
             String styleString = style.getString("player-names");
@@ -84,72 +91,83 @@ public class ConfigHandler {
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "yellow" for Color. */
-    public String getStatNameFormatting(boolean topStat, boolean serverStat, boolean isStyle) {
-        return getStringFromConfig(topStat, serverStat, isStyle, "yellow", "stat-names");
+    public String getStatNameFormatting(CommandOption selection, boolean isStyle) {
+        return getStringFromConfig(selection, isStyle, "yellow", "stat-names");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "#FFD52B" for Color. */
-    public String getSubStatNameFormatting(boolean topStat, boolean serverStat, boolean isStyle) {
-        return getStringFromConfig(topStat, serverStat, isStyle, "#FFD52B", "sub-stat-names");
+    public String getSubStatNameFormatting(CommandOption selection, boolean isStyle) {
+        return getStringFromConfig(selection, isStyle, "#FFD52B", "sub-stat-names");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
-     and "#55AAFF" or "#ADE7FF" for Color (for the top or individual color). */
-    public String getStatNumberFormatting(boolean topStat, boolean serverStat, boolean isStyle) {
-        String def = topStat ? "#55AAFF" : "#ADE7FF";
-        return getStringFromConfig(topStat, serverStat, isStyle, def,"stat-numbers");
+     and "#55AAFF" or "#ADE7FF" for Color (for the top or individual/server color). */
+    public String getStatNumberFormatting(CommandOption selection, boolean isStyle) {
+        String def;
+        if (selection == CommandOption.TOP) {
+            def = "#55AAFF";
+        }
+        else {
+            def = "#ADE7FF";
+        }
+        return getStringFromConfig(selection, isStyle, def,"stat-numbers");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "yellow" for Color. */
-    public String getTitleFormatting(boolean topStat, boolean isStyle) {
-        return getStringFromConfig(topStat, (!topStat), isStyle, "yellow", "title");
+    public String getTitleFormatting(CommandOption selection, boolean isStyle) {
+        return getStringFromConfig(selection, isStyle, "yellow", "title");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "gold" for Color. */
     public String getTitleNumberFormatting(boolean isStyle) {
-        return getStringFromConfig(true, false, isStyle, "gold", "title-number");
+        return getStringFromConfig(CommandOption.TOP, isStyle, "gold", "title-number");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "#FFB80E" for Color. */
     public String getServerNameFormatting(boolean isStyle) {
-        return getStringFromConfig(false, true, isStyle, "#FFB80E", "server-name");
+        return getStringFromConfig(CommandOption.SERVER, isStyle, "#FFB80E", "server-name");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "gold" for Color. */
     public String getRankNumberFormatting(boolean isStyle) {
-        return getStringFromConfig(true, false, isStyle, "gold", "rank-numbers");
+        return getStringFromConfig(CommandOption.TOP, isStyle, "gold", "rank-numbers");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "dark_gray" for Color. */
     public String getDotsFormatting(boolean isStyle) {
-        return getStringFromConfig(true, false, isStyle, "dark_gray", "dots");
+        return getStringFromConfig(CommandOption.TOP, isStyle, "dark_gray", "dots");
     }
 
     /** Returns the config value for a color or style option in string-format, the supplied default value, or null if no configSection was found. */
-    private @Nullable String getStringFromConfig(boolean topStat, boolean serverStat, boolean isStyle, String def, String pathName){
+    private @Nullable String getStringFromConfig(CommandOption selection, boolean isStyle, String def, String pathName){
         String path = isStyle ? pathName + "-style" : pathName;
         String defaultValue = isStyle ? "none" : def;
 
-        ConfigurationSection section = getRelevantSection(topStat, serverStat);
+        ConfigurationSection section = getRelevantSection(selection);
         return section != null ? section.getString(path, defaultValue) : null;
     }
 
     /** Returns the config section that contains the relevant color or style option. */
-    private @Nullable ConfigurationSection getRelevantSection(boolean topStat, boolean serverStat) {
-        if (topStat) {
-            return config.getConfigurationSection("top-list");
-        }
-        else if (serverStat) {
-            return config.getConfigurationSection("total-server");
-        }
-        else {
-            return config.getConfigurationSection("individual-statistics");
+    private @Nullable ConfigurationSection getRelevantSection(CommandOption selection) {
+        switch (selection) {
+            case TOP -> {
+                return config.getConfigurationSection("top-list");
+            }
+            case PLAYER -> {
+                return config.getConfigurationSection("individual-statistics");
+            }
+            case SERVER -> {
+                return config.getConfigurationSection("total-server");
+            }
+            default -> {
+                return null;
+            }
         }
     }
 

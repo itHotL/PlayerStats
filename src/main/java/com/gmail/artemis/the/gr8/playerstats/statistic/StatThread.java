@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -93,7 +94,7 @@ public class StatThread extends Thread {
                 testFile.logRunCount(true);
                 adventure.sender(sender).sendMessage(messageFactory.unknownError());
             } catch (Exception e) {
-                sender.sendMessage(messageFactory.formatExceptions(e.toString()));
+                adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString()));
             }
         }
 
@@ -106,7 +107,7 @@ public class StatThread extends Thread {
                 plugin.logTimeTaken("StatThread", "calculating individual stat", time);
 
             } catch (UnsupportedOperationException | NullPointerException e) {
-                sender.sendMessage(messageFactory.formatExceptions(e.getMessage()));
+                adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.getMessage()));
             }
         }
     }
@@ -123,7 +124,7 @@ public class StatThread extends Thread {
     }
 
     //invokes a bunch of worker pool threads to divide and conquer (get the statistics for all players in the list)
-    private ConcurrentHashMap<String, Integer> getAllStats() throws ConcurrentModificationException, NullPointerException {
+    private @NotNull ConcurrentHashMap<String, Integer> getAllStats() throws ConcurrentModificationException, NullPointerException {
         long time = System.currentTimeMillis();
 
         ConcurrentHashMap<String, Integer> playerStats = new ConcurrentHashMap<>((int) (OfflinePlayerHandler.getOfflinePlayerCount() * 1.05));
@@ -151,28 +152,30 @@ public class StatThread extends Thread {
     //gets the actual statistic data for an individual player
     private int getIndividualStat() throws UnsupportedOperationException, NullPointerException {
         OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(request.getPlayerName());
-
-        switch (request.getStatType()) {
-            case UNTYPED -> {
-                return player.getStatistic(request.getStatEnum());
-            }
-            case ENTITY -> {
-                return player.getStatistic(request.getStatEnum(), request.getEntity());
-            }
-            case BLOCK -> {
-                return player.getStatistic(request.getStatEnum(), request.getBlock());
-            }
-            case ITEM -> {
-                return player.getStatistic(request.getStatEnum(), request.getItem());
-            }
-            default -> {
-                if (request.getStatType() != null) {
-                    throw new UnsupportedOperationException("PlayerStats is not familiar with this statistic type - please check if you are using the latest version of the plugin!");
+        if (player != null) {
+            switch (request.getStatType()) {
+                case UNTYPED -> {
+                    return player.getStatistic(request.getStatEnum());
                 }
-                else {
-                    throw new NullPointerException("Trying to calculate a statistic of which the type is null - is this a valid statistic?");
+                case ENTITY -> {
+                    return player.getStatistic(request.getStatEnum(), request.getEntity());
+                }
+                case BLOCK -> {
+                    return player.getStatistic(request.getStatEnum(), request.getBlock());
+                }
+                case ITEM -> {
+                    return player.getStatistic(request.getStatEnum(), request.getItem());
+                }
+                default -> {
+                    if (request.getStatType() != null) {
+                        throw new UnsupportedOperationException("PlayerStats is not familiar with this statistic type - please check if you are using the latest version of the plugin!");
+                    }
+                    else {
+                        throw new NullPointerException("Trying to calculate a statistic of which the type is null - is this a valid statistic?");
+                    }
                 }
             }
         }
+        throw new NullPointerException("The player you are trying to request either does not exist, or is not on the list for statistic lookups!");
     }
 }
