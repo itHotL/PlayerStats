@@ -10,6 +10,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.util.Index;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Statistic;
 import org.bukkit.map.MinecraftFont;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +23,7 @@ public class MessageFactory {
 
     private static ConfigHandler config;
 
-    private static final TextColor msgColor = TextColor.fromHexString("#55aaff");
+    private static final TextColor msgColor = TextColor.fromHexString("#55AAFF");
     private static final TextColor hoverBaseColor = TextColor.fromHexString("#55C6FF");
     private static final TextColor hoverAccentColor1 = TextColor.fromHexString("#FFB80E");
     private static final TextColor hoverAccentColor2 = TextColor.fromHexString("#FFD52B");
@@ -32,7 +33,11 @@ public class MessageFactory {
         config = c;
     }
 
-    private static TextComponent getPluginPrefix() {
+    public static String getPluginPrefix() {
+        return ChatColor.GRAY + "[" + ChatColor.GOLD + "PlayerStats" + ChatColor.GRAY + "] " + ChatColor.RESET;
+    }
+
+    private static TextComponent pluginPrefix() {
         return text("[")
                 .append(text("PlayerStats").color(NamedTextColor.GOLD))
                 .append(text("]")
@@ -41,34 +46,34 @@ public class MessageFactory {
     }
 
     public TextComponent reloadedConfig() {
-        return getPluginPrefix().append(text("Config reloaded!").color(NamedTextColor.GREEN));
+        return pluginPrefix().append(text("Config reloaded!").color(NamedTextColor.GREEN));
     }
 
     public TextComponent stillReloading() {
-        return getPluginPrefix().append(text("The plugin is still (re)loading, your request will be processed when it is done!").color(msgColor));
+        return pluginPrefix().append(text("The plugin is still (re)loading, your request will be processed when it is done!").color(msgColor));
     }
 
     public TextComponent partiallyReloaded() {
-        return getPluginPrefix().append(
+        return pluginPrefix().append(
                 text("The reload process was interrupted. If you notice unexpected behavior, please reload PlayerStats again to fix it!").color(msgColor));
     }
 
     public TextComponent waitAMoment(boolean longWait) {
-        return longWait ? getPluginPrefix().append(text("Calculating statistics, this may take a minute...").color(msgColor))
-                : getPluginPrefix().append(text("Calculating statistics, this may take a few moments...").color(msgColor));
+        return longWait ? pluginPrefix().append(text("Calculating statistics, this may take a minute...").color(msgColor))
+                : pluginPrefix().append(text("Calculating statistics, this may take a few moments...").color(msgColor));
     }
 
     public TextComponent formatExceptions(String exception) {
-        return getPluginPrefix().append(text(exception).color(msgColor));
+        return pluginPrefix().append(text(exception).color(msgColor));
     }
 
     public TextComponent missingStatName() {
-        return getPluginPrefix().append(text("Please provide a valid statistic name!").color(msgColor));
+        return pluginPrefix().append(text("Please provide a valid statistic name!").color(msgColor));
     }
 
     public TextComponent missingSubStatName(Statistic.Type statType) {
         String subStat = getSubStatTypeName(statType) == null ? "sub-statistic" : getSubStatTypeName(statType);
-        return getPluginPrefix()
+        return pluginPrefix()
                 .append(text("Please add a valid ")
                         .append(text(subStat))
                         .append(text(" to look up this statistic!")))
@@ -76,12 +81,12 @@ public class MessageFactory {
     }
 
     public TextComponent missingPlayerName() {
-        return getPluginPrefix().append(text("Please specify a valid player-name!").color(msgColor));
+        return pluginPrefix().append(text("Please specify a valid player-name!").color(msgColor));
     }
 
     public TextComponent wrongSubStatType(Statistic.Type statType, String subStatEntry) {
         String subStat = getSubStatTypeName(statType) == null ? "sub-statistic for this statistic" : getSubStatTypeName(statType);
-        return getPluginPrefix()
+        return pluginPrefix()
                 .append(text("\"")
                         .append(text(subStatEntry))
                         .append(text("\""))
@@ -91,7 +96,7 @@ public class MessageFactory {
     }
 
     public TextComponent unknownError() {
-        return getPluginPrefix()
+        return pluginPrefix()
                 .append(text("Something went wrong with your request, please try again or see /statistic for a usage explanation!")
                         .color(msgColor));
     }
@@ -104,7 +109,7 @@ public class MessageFactory {
 
 
         return Component.newline()
-                .append(underscores).append(spaces).append(getPluginPrefix()).append(spaces).append(underscores)
+                .append(underscores).append(spaces).append(pluginPrefix()).append(spaces).append(underscores)
                 .append(newline())
                 .append(text("Hover over the arguments for more information!").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC))
                 .append(newline())
@@ -169,7 +174,7 @@ public class MessageFactory {
     public TextComponent formatTopStats(LinkedHashMap<String, Integer> topStats, String statName, String subStatEntryName) {
         TextComponent.Builder topList = Component.text();
 
-        topList.append(newline()).append(getPluginPrefix())
+        topList.append(newline()).append(pluginPrefix())
                 .append(titleComponent(Query.TOP, "Top")).append(space())
                 .append(titleNumberComponent(topStats.size())).append(space())
                 .append(statNameComponent(Query.TOP, statName)).append(space())
@@ -208,7 +213,7 @@ public class MessageFactory {
 
     public TextComponent formatServerStat(String statName, String subStatEntry, int stat) {
         TextComponent.Builder serverStat = Component.text();
-        serverStat.append(titleComponent(Query.SERVER, "Total for"))
+        serverStat.append(titleComponent(Query.SERVER, config.getServerTitle()))
                 .append(space())
                 .append(serverNameComponent())
                 .append(space())

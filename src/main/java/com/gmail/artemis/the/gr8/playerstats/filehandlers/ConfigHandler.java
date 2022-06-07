@@ -19,7 +19,21 @@ public class ConfigHandler {
     public ConfigHandler(Main p) {
         plugin = p;
         saveDefaultConfig();
+
         config = YamlConfiguration.loadConfiguration(configFile);
+        checkConfigVersion();
+    }
+
+    public boolean isConfigUpdated() {
+        return config.contains("config-version");
+    }
+
+    /** Sends a message in console if the latest version of the config is not present */
+    private void checkConfigVersion() {
+        if (!config.contains("config-version")) {
+            plugin.getLogger().warning("Your config version is outdated! " +
+                    "Please delete your current config.yml (or rename it/copy it to another folder) and do /statreload");
+        }
     }
 
     /** Reloads the config from file, or creates a new file with default values if there is none. */
@@ -65,6 +79,11 @@ public class ConfigHandler {
     /** Returns the specified server name, or "this server" if no value can be retrieved. */
     public String getServerName() {
         return config.getString("your-server-name", "this server");
+    }
+
+
+    public String getServerTitle() {
+        return config.getString("total-server-stat-title", "In total on");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,

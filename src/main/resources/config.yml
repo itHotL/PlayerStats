@@ -1,33 +1,58 @@
-# --------------------------------
-#    PlayerStats Configuration
-# --------------------------------
+# -------------------------------------------------------------------------------------------------------- #
+#                                       PlayerStats Configuration                                          #
+# -------------------------------------------------------------------------------------------------------- #
+config-version: 2
 
-# ----------- General ------------
+
+                                 # ------------------------------- #
+                                 #            General              #
+                                 # ------------------------------- #
+# If true, OP players will receive a message when they join the server if the config version is outdated
+outdated-config-notifications: true
+
 # Filtering options to control which players should be included in statistic calculations
 include-whitelist-only: false
 exclude-banned-players: false
 
-# To only show statistics from players that have been online in the last x days, specify the number of days here
+# To only show statistics from players that have been online in the last [x] days, set a number for x
 # Leave this on 0 to include all players
 number-of-days-since-last-joined: 0
 
 
-# ----------- Format -------------
-# The name you want displayed for a total-on-this-server statistic
-your-server-name: 'this server'
+                                 # ------------------------------- #
+                                 #        Format & Display         #
+                                 # ------------------------------- #
+# If true, the stat-numbers in the top list will be aligned with dots
+use-dots: true
 
 # The maximum number of results displayed in the top list
 top-list-max-size: 10
 
-# If true, the top list will be aligned with lines of dots so that the stat numbers are all underneath each other
-use-dots: true
+# The title above the top list (the x is translated to the list-max-size, by default 10)
+top-list-title: 'Top [x]'
+
+# The text you want displayed for a total-on-this-server statistic
+# This will be put on the same line ('In total on this server: [x] animals bred', for example)
+total-server-stat-title: 'In total on'
+your-server-name: 'this server'
 
 
-# -------- Color & Style ---------
-# The colors below can be chat color names or hex codes (format: '#xxxxxx' <-- including quotation marks!)
-# The style options include: bold, italic, underlined, strikethrough (and for some reason I decided to also include magic)
+                                 # ------------------------------- #
+                                 #          Color & Style          #
+                                 # ------------------------------- #
+# The colors below can be Chat Colors or hex codes (format: '#xxxxxx' <-- including quotation marks!)
 
-top-list:
+              # -------- Styles --------- #               # -------- Chat Colors --------- #
+              #                           #               #                                #
+              #           bold            #               #      red          dark_red     #
+              #          italic           #               #    yellow           gold       #
+              #        underlined         #               #     green        dark_green    #
+              #          magic            #               #     aqua          dark_aqua    #
+              #       strikethrough       #               #     blue          dark_blue    #
+              # ------------------------- #               #  light_purple    dark_purple   #
+                                                          #     gray          dark_gray    #
+                                                          #     black           white      #
+top-list:                                                 # ------------------------------ #
   title: yellow
   title-style: none
 
@@ -72,7 +97,7 @@ total-server:
   title-style: none
 
   server-name: gold
-  server-name-style: italic
+  server-name-style: none
 
   stat-names: yellow
   stat-names-style: none
@@ -82,6 +107,3 @@ total-server:
 
   stat-numbers: '#ADE7FF'
   stat-numbers-style: none
-
-
-

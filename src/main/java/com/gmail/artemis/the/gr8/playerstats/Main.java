@@ -46,7 +46,7 @@ public class Main extends JavaPlugin {
         if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));
 
         //register the listener
-        Bukkit.getPluginManager().registerEvents(new JoinListener(threadManager), this);
+        Bukkit.getPluginManager().registerEvents(new JoinListener(config, threadManager), this);
         logTimeTaken("onEnable", "time taken", time);
         this.getLogger().info("Enabled PlayerStats!");
     }

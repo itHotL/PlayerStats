@@ -1,7 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
-import com.gmail.artemis.the.gr8.playerstats.filehandlers.TestFileHandler;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
@@ -17,7 +16,6 @@ public class ThreadManager {
     private final Main plugin;
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
-    private static TestFileHandler testFile;
     private final MessageFactory messageFactory;
 
     private ReloadThread reloadThread;
@@ -30,17 +28,16 @@ public class ThreadManager {
         config = c;
         messageFactory = m;
 
-        testFile = new TestFileHandler(plugin);
         startReloadThread(null, true);
     }
 
     public void startReloadThread(CommandSender sender, boolean firstTimeLoading) {
-        reloadThread = new ReloadThread(threshold, adventure, config, testFile, messageFactory, plugin, statThread, sender, firstTimeLoading);
+        reloadThread = new ReloadThread(threshold, adventure, config, messageFactory, plugin, statThread, sender, firstTimeLoading);
         reloadThread.start();
     }
 
     public void startStatThread(StatRequest request) {
-        statThread = new StatThread(threshold, request, reloadThread, adventure, config, testFile, messageFactory, plugin);
+        statThread = new StatThread(threshold, request, reloadThread, adventure, config, messageFactory, plugin);
         statThread.start();
     }
 

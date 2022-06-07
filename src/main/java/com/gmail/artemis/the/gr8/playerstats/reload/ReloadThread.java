@@ -3,7 +3,6 @@ package com.gmail.artemis.the.gr8.playerstats.reload;
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
-import com.gmail.artemis.the.gr8.playerstats.filehandlers.TestFileHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
@@ -24,7 +23,6 @@ public class ReloadThread extends Thread {
 
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
-    private static TestFileHandler testFile;
     private final MessageFactory messageFactory;
     private final Main plugin;
 
@@ -32,11 +30,10 @@ public class ReloadThread extends Thread {
     private final CommandSender sender;
     private final boolean firstTimeLoading;
 
-    public ReloadThread(int threshold, BukkitAudiences b, ConfigHandler c, TestFileHandler t, MessageFactory m, Main p, @Nullable StatThread s, @Nullable CommandSender se, boolean firstTime) {
+    public ReloadThread(int threshold, BukkitAudiences b, ConfigHandler c, MessageFactory m, Main p, @Nullable StatThread s, @Nullable CommandSender se, boolean firstTime) {
         this.threshold = threshold;
         adventure = b;
         config = c;
-        testFile = t;
         messageFactory = m;
         plugin = p;
 
@@ -73,7 +70,6 @@ public class ReloadThread extends Thread {
                     }
                 }
 
-                testFile.saveTimeTaken(System.currentTimeMillis() - time, 2);
                 plugin.getLogger().info("Amount of relevant players: " + OfflinePlayerHandler.getOfflinePlayerCount());
                 plugin.logTimeTaken("ReloadThread", "loading offline players", time);
                 if (sender != null) {
@@ -85,8 +81,6 @@ public class ReloadThread extends Thread {
             plugin.getLogger().info("Loading offline players...");
             OfflinePlayerHandler.updateOfflinePlayerList(getPlayerMap(true));
 
-            testFile.saveThreshold(OfflinePlayerHandler.getOfflinePlayerCount(), threshold);
-            testFile.saveTimeTaken(System.currentTimeMillis() - time, 1);
             plugin.getLogger().info("Amount of relevant players: " + OfflinePlayerHandler.getOfflinePlayerCount());
             plugin.logTimeTaken("ReloadThread", "loading offline players", time);
             ThreadManager.recordCalcTime(System.currentTimeMillis() - time);

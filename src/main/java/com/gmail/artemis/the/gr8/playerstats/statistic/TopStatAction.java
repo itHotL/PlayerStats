@@ -20,11 +20,10 @@ public class TopStatAction extends RecursiveAction {
     /**
      * Gets the statistic numbers for all players whose name is on the list, puts them in a ConcurrentHashMap
      * using the default ForkJoinPool, and returns the ConcurrentHashMap when everything is done
-     * @param playerNames List of playerNames of players that should be included in the stat calculations
+     * @param playerNames ImmutableList of playerNames of players that should be included in the stat calculations
      * @param statRequest a validated statRequest
      * @param playerStats the ConcurrentHashMap to put the results on
      */
-
     public TopStatAction(int threshold, ImmutableList<String> playerNames, StatRequest statRequest, ConcurrentHashMap<String, Integer> playerStats) {
         this.threshold = threshold;
         this.playerNames = playerNames;

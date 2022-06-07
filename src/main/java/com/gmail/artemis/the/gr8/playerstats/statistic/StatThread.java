@@ -2,7 +2,6 @@ package com.gmail.artemis.the.gr8.playerstats.statistic;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.enums.Query;
-import com.gmail.artemis.the.gr8.playerstats.filehandlers.TestFileHandler;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
@@ -28,19 +27,17 @@ public class StatThread extends Thread {
 
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
-    private static TestFileHandler testFile;
     private final MessageFactory messageFactory;
     private final Main plugin;
 
     //constructor (called on thread creation)
-    public StatThread(int threshold, StatRequest s, @Nullable ReloadThread r, BukkitAudiences b, ConfigHandler c, TestFileHandler t, MessageFactory o, Main p) {
+    public StatThread(int threshold, StatRequest s, @Nullable ReloadThread r, BukkitAudiences b, ConfigHandler c, MessageFactory o, Main p) {
         this.threshold = threshold;
         request = s;
         reloadThread = r;
 
         adventure = b;
         config = c;
-        testFile = t;
         messageFactory = o;
         plugin = p;
         plugin.getLogger().info("StatThread created!");
@@ -76,7 +73,7 @@ public class StatThread extends Thread {
             if (ThreadManager.getLastRecordedCalcTime() > 20000) {
                 adventure.sender(sender).sendMessage(messageFactory.waitAMoment(true));
             }
-            else if (ThreadManager.getLastRecordedCalcTime() > 1500) {
+            else if (ThreadManager.getLastRecordedCalcTime() > 2000) {
                 adventure.sender(sender).sendMessage(messageFactory.waitAMoment(false));
             }
 
@@ -91,7 +88,6 @@ public class StatThread extends Thread {
                 }
 
             } catch (ConcurrentModificationException e) {
-                testFile.logRunCount(true);
                 adventure.sender(sender).sendMessage(messageFactory.unknownError());
             } catch (Exception e) {
                 adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString()));
@@ -141,8 +137,6 @@ public class StatThread extends Thread {
             throw new ConcurrentModificationException(e.toString());
         }
 
-        testFile.saveTimeTaken(System.currentTimeMillis() - time, 3);
-        testFile.logRunCount(false);
         ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
         plugin.logTimeTaken("StatThread", "calculating all stats", time);
 
