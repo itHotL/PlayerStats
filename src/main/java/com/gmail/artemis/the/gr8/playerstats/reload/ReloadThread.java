@@ -107,7 +107,7 @@ public class ReloadThread extends Thread {
         } catch (ConcurrentModificationException e) {
             throw new ConcurrentModificationException(e.toString());
         }
-        return generateFakeExtraPlayers(playerMap, 10);
+        return playerMap;
     }
 
     private ConcurrentHashMap<String, UUID> generateFakeExtraPlayers(ConcurrentHashMap<String, UUID> realPlayers, int loops) {

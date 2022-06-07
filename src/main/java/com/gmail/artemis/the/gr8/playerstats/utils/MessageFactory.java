@@ -1,6 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
-import com.gmail.artemis.the.gr8.playerstats.enums.CommandOption;
+import com.gmail.artemis.the.gr8.playerstats.enums.Query;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -75,10 +75,6 @@ public class MessageFactory {
                 .color(msgColor);
     }
 
-    public TextComponent missingTarget() {
-        return getPluginPrefix().append(text("Please add \"me\", \"player\" or \"top\"").color(msgColor));
-    }
-
     public TextComponent missingPlayerName() {
         return getPluginPrefix().append(text("Please specify a valid player-name!").color(msgColor));
     }
@@ -95,7 +91,9 @@ public class MessageFactory {
     }
 
     public TextComponent unknownError() {
-        return getPluginPrefix().append(text("Something went wrong with your request, please try again!").color(msgColor));
+        return getPluginPrefix()
+                .append(text("Something went wrong with your request, please try again or see /statistic for a usage explanation!")
+                        .color(msgColor));
     }
 
     public TextComponent helpMsg() {
@@ -160,10 +158,10 @@ public class MessageFactory {
     public TextComponent formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
         TextComponent.Builder singleStat = Component.text();
 
-        singleStat.append(playerNameComponent(CommandOption.PLAYER, playerName + ": "))
-                .append(statNumberComponent(CommandOption.PLAYER, stat)).append(space())
-                .append(statNameComponent(CommandOption.PLAYER, statName))
-                .append(subStatNameComponent(CommandOption.PLAYER, subStatEntryName));
+        singleStat.append(playerNameComponent(Query.PLAYER, playerName + ": "))
+                .append(statNumberComponent(Query.PLAYER, stat)).append(space())
+                .append(statNameComponent(Query.PLAYER, statName))
+                .append(subStatNameComponent(Query.PLAYER, subStatEntryName));
 
         return singleStat.build();
     }
@@ -172,10 +170,10 @@ public class MessageFactory {
         TextComponent.Builder topList = Component.text();
 
         topList.append(newline()).append(getPluginPrefix())
-                .append(titleComponent(CommandOption.TOP, "Top")).append(space())
+                .append(titleComponent(Query.TOP, "Top")).append(space())
                 .append(titleNumberComponent(topStats.size())).append(space())
-                .append(statNameComponent(CommandOption.TOP, statName)).append(space())
-                .append(subStatNameComponent(CommandOption.TOP, subStatEntryName));
+                .append(statNameComponent(Query.TOP, statName)).append(space())
+                .append(subStatNameComponent(Query.TOP, subStatEntryName));
 
         boolean useDots = config.useDots();
         Set<String> playerNames = topStats.keySet();
@@ -187,7 +185,7 @@ public class MessageFactory {
 
             topList.append(newline())
                     .append(rankingNumberComponent(count + ". "))
-                    .append(playerNameComponent(CommandOption.TOP, playerName));
+                    .append(playerNameComponent(Query.TOP, playerName));
 
             if (useDots) {
                 topList.append(space());
@@ -201,24 +199,24 @@ public class MessageFactory {
                 }
             }
             else {
-                topList.append(playerNameComponent(CommandOption.TOP, ":"));
+                topList.append(playerNameComponent(Query.TOP, ":"));
             }
-            topList.append(space()).append(statNumberComponent(CommandOption.TOP, topStats.get(playerName)));
+            topList.append(space()).append(statNumberComponent(Query.TOP, topStats.get(playerName)));
         }
         return topList.build();
     }
 
     public TextComponent formatServerStat(String statName, String subStatEntry, int stat) {
         TextComponent.Builder serverStat = Component.text();
-        serverStat.append(titleComponent(CommandOption.SERVER, "Total for"))
+        serverStat.append(titleComponent(Query.SERVER, "Total for"))
                 .append(space())
                 .append(serverNameComponent())
                 .append(space())
-                .append(statNumberComponent(CommandOption.SERVER, stat))
+                .append(statNumberComponent(Query.SERVER, stat))
                 .append(space())
-                .append(statNameComponent(CommandOption.SERVER, statName))
+                .append(statNameComponent(Query.SERVER, statName))
                 .append(space())
-                .append(subStatNameComponent(CommandOption.SERVER, subStatEntry));
+                .append(subStatNameComponent(Query.SERVER, subStatEntry));
 
         return  serverStat.build();
     }
@@ -241,19 +239,19 @@ public class MessageFactory {
         return subStat;
     }
 
-    private TextComponent playerNameComponent(CommandOption selection, String playerName) {
+    private TextComponent playerNameComponent(Query selection, String playerName) {
         return getComponent(playerName,
                 getColorFromString(config.getPlayerNameFormatting(selection, false)),
                 getStyleFromString(config.getPlayerNameFormatting(selection, true)));
     }
 
-    private TextComponent statNameComponent(CommandOption selection, String statName) {
+    private TextComponent statNameComponent(Query selection, String statName) {
         return getComponent(statName.toLowerCase().replace("_", " "),
                 getColorFromString(config.getStatNameFormatting(selection, false)),
                 getStyleFromString(config.getStatNameFormatting(selection, true)));
     }
 
-    private TextComponent subStatNameComponent(CommandOption selection, String subStatName) {
+    private TextComponent subStatNameComponent(Query selection, String subStatName) {
         if (subStatName == null) {
             return empty();
         }
@@ -265,13 +263,13 @@ public class MessageFactory {
         }
     }
 
-    private TextComponent statNumberComponent(CommandOption selection, int number) {
+    private TextComponent statNumberComponent(Query selection, int number) {
         return getComponent(number + "",
                 getColorFromString(config.getStatNumberFormatting(selection, false)),
                 getStyleFromString(config.getStatNumberFormatting(selection, true)));
     }
 
-    private TextComponent titleComponent(CommandOption selection, String content) {
+    private TextComponent titleComponent(Query selection, String content) {
         return getComponent(content,
                 getColorFromString(config.getTitleFormatting(selection, false)),
                 getStyleFromString(config.getTitleFormatting(selection, true)));
@@ -284,9 +282,11 @@ public class MessageFactory {
     }
 
     private TextComponent serverNameComponent() {
-        return getComponent(config.getServerName() + ":",
+        TextComponent colon = text(":").color(getColorFromString(config.getServerNameFormatting(false)));
+        return getComponent(config.getServerName(),
                 getColorFromString(config.getServerNameFormatting(false)),
-                getStyleFromString(config.getServerNameFormatting(true)));
+                getStyleFromString(config.getServerNameFormatting(true)))
+                .append(colon);
     }
 
     private TextComponent rankingNumberComponent(String number) {

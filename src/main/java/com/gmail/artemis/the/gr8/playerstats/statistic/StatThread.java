@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.enums.Query;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.TestFileHandler;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
@@ -69,19 +70,18 @@ public class StatThread extends Thread {
         String playerName = request.getPlayerName();
         String statName = request.getStatName();
         String subStatEntry = request.getSubStatEntry();
-        boolean topFlag = request.topFlag();
-        boolean serverFlag = request.serverFlag();
+        Query selection = request.getSelection();
 
-        if (topFlag || serverFlag) {
-            if (ThreadManager.getLastRecordedCalcTime() > 30000) {
+        if (selection == Query.TOP || selection == Query.SERVER) {
+            if (ThreadManager.getLastRecordedCalcTime() > 20000) {
                 adventure.sender(sender).sendMessage(messageFactory.waitAMoment(true));
             }
-            else if (ThreadManager.getLastRecordedCalcTime() > 2000) {
+            else if (ThreadManager.getLastRecordedCalcTime() > 1500) {
                 adventure.sender(sender).sendMessage(messageFactory.waitAMoment(false));
             }
 
             try {
-                if (topFlag) {
+                if (selection == Query.TOP) {
                     adventure.sender(sender).sendMessage(messageFactory.formatTopStats(
                             getTopStats(), statName, subStatEntry));
                 }
@@ -98,7 +98,7 @@ public class StatThread extends Thread {
             }
         }
 
-        else if (playerName != null) {
+        else if (selection == Query.PLAYER) {
             try {
                 long time = System.currentTimeMillis();
                 adventure.sender(sender).sendMessage(

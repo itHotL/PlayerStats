@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
+import com.gmail.artemis.the.gr8.playerstats.enums.Query;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -7,6 +8,7 @@ import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class StatRequest {
 
@@ -14,9 +16,8 @@ public class StatRequest {
     private String statName;
     private String subStatEntry;
     private String playerName;
+    private Query selection;
     private boolean playerFlag;
-    private boolean topFlag;
-    private boolean serverFlag;
 
     private Statistic statEnum;
     private Statistic.Type statType;
@@ -28,8 +29,6 @@ public class StatRequest {
     public StatRequest(@NotNull CommandSender s) {
         sender = s;
         playerFlag = false;
-        topFlag = false;
-        serverFlag = false;
     }
 
     //sets the statName, and automatically tries to set the correct statType and get the corresponding item/block/entity if there is a subStatEntry
@@ -51,7 +50,6 @@ public class StatRequest {
             Bukkit.getLogger().warning(e.toString());
         }
     }
-
 
     //sets the subStatEntry, and automatically tries to get the corresponding item/block/entity if there is a valid statType present
     //if the subStatEntry is set to null, any present item/block/entity is set to null again
@@ -103,12 +101,8 @@ public class StatRequest {
         this.playerFlag = playerFlag;
     }
 
-    public void setTopFlag(boolean topFlag) {
-        this.topFlag = topFlag;
-    }
-
-    public void setServerFlag(boolean serverFlag) {
-        this.serverFlag = serverFlag;
+    public void setSelection(Query selection) {
+        this.selection = selection;
     }
 
     public CommandSender getCommandSender() {
@@ -152,11 +146,7 @@ public class StatRequest {
         return playerFlag;
     }
 
-    public boolean topFlag() {
-        return topFlag;
-    }
-
-    public boolean serverFlag() {
-        return serverFlag;
+    public @Nullable Query getSelection() {
+        return selection;
     }
 }

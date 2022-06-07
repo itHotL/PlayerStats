@@ -71,8 +71,8 @@ total-server:
   title: gold
   title-style: none
 
-  server-name: '#FFB80E'
-  server-name-style: none
+  server-name: gold
+  server-name-style: italic
 
   stat-names: yellow
   stat-names-style: none

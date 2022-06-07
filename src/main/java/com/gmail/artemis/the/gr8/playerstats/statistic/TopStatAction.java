@@ -54,15 +54,17 @@ public class TopStatAction extends RecursiveAction {
                 do {
                     String playerName = iterator.next();
                     OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
-                    int statistic = 0;
-                    switch (request.getStatType()) {
-                        case UNTYPED -> statistic = player.getStatistic(request.getStatEnum());
-                        case ENTITY -> statistic = player.getStatistic(request.getStatEnum(), request.getEntity());
-                        case BLOCK -> statistic = player.getStatistic(request.getStatEnum(), request.getBlock());
-                        case ITEM -> statistic = player.getStatistic(request.getStatEnum(), request.getItem());
-                    }
-                    if (statistic > 0) {
-                        playerStats.put(playerName, statistic);
+                    if (player != null) {
+                        int statistic = 0;
+                        switch (request.getStatType()) {
+                            case UNTYPED -> statistic = player.getStatistic(request.getStatEnum());
+                            case ENTITY -> statistic = player.getStatistic(request.getStatEnum(), request.getEntity());
+                            case BLOCK -> statistic = player.getStatistic(request.getStatEnum(), request.getBlock());
+                            case ITEM -> statistic = player.getStatistic(request.getStatEnum(), request.getItem());
+                        }
+                        if (statistic > 0) {
+                            playerStats.put(playerName, statistic);
+                        }
                     }
                 } while (iterator.hasNext());
             }

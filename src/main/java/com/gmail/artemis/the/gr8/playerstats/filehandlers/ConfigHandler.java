@@ -1,7 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.filehandlers;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
-import com.gmail.artemis.the.gr8.playerstats.enums.CommandOption;
+import com.gmail.artemis.the.gr8.playerstats.enums.Query;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -19,6 +19,7 @@ public class ConfigHandler {
     public ConfigHandler(Main p) {
         plugin = p;
         saveDefaultConfig();
+        config = YamlConfiguration.loadConfiguration(configFile);
     }
 
     /** Reloads the config from file, or creates a new file with default values if there is none. */
@@ -68,9 +69,9 @@ public class ConfigHandler {
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "green" or "gold" for Color (for top or individual color). */
-    public String getPlayerNameFormatting(CommandOption selection, boolean isStyle) {
+    public String getPlayerNameFormatting(Query selection, boolean isStyle) {
         String def;
-        if (selection == CommandOption.TOP) {
+        if (selection == Query.TOP) {
             def = "green";
         }
         else {
@@ -80,7 +81,7 @@ public class ConfigHandler {
     }
 
     public boolean playerNameIsBold() {
-        ConfigurationSection style = getRelevantSection(CommandOption.PLAYER);
+        ConfigurationSection style = getRelevantSection(Query.PLAYER);
 
         if (style != null) {
             String styleString = style.getString("player-names");
@@ -91,21 +92,21 @@ public class ConfigHandler {
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "yellow" for Color. */
-    public String getStatNameFormatting(CommandOption selection, boolean isStyle) {
+    public String getStatNameFormatting(Query selection, boolean isStyle) {
         return getStringFromConfig(selection, isStyle, "yellow", "stat-names");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "#FFD52B" for Color. */
-    public String getSubStatNameFormatting(CommandOption selection, boolean isStyle) {
+    public String getSubStatNameFormatting(Query selection, boolean isStyle) {
         return getStringFromConfig(selection, isStyle, "#FFD52B", "sub-stat-names");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "#55AAFF" or "#ADE7FF" for Color (for the top or individual/server color). */
-    public String getStatNumberFormatting(CommandOption selection, boolean isStyle) {
+    public String getStatNumberFormatting(Query selection, boolean isStyle) {
         String def;
-        if (selection == CommandOption.TOP) {
+        if (selection == Query.TOP) {
             def = "#55AAFF";
         }
         else {
@@ -115,37 +116,44 @@ public class ConfigHandler {
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
-     and "yellow" for Color. */
-    public String getTitleFormatting(CommandOption selection, boolean isStyle) {
-        return getStringFromConfig(selection, isStyle, "yellow", "title");
+     and "yellow" or "gold" for Color (for top/server). */
+    public String getTitleFormatting(Query selection, boolean isStyle) {
+        String def;
+        if (selection == Query.TOP) {
+            def = "yellow";
+        }
+        else {
+            def = "gold";
+        }
+        return getStringFromConfig(selection, isStyle, def, "title");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "gold" for Color. */
     public String getTitleNumberFormatting(boolean isStyle) {
-        return getStringFromConfig(CommandOption.TOP, isStyle, "gold", "title-number");
+        return getStringFromConfig(Query.TOP, isStyle, "gold", "title-number");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "#FFB80E" for Color. */
     public String getServerNameFormatting(boolean isStyle) {
-        return getStringFromConfig(CommandOption.SERVER, isStyle, "#FFB80E", "server-name");
+        return getStringFromConfig(Query.SERVER, isStyle, "#FFB80E", "server-name");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "gold" for Color. */
     public String getRankNumberFormatting(boolean isStyle) {
-        return getStringFromConfig(CommandOption.TOP, isStyle, "gold", "rank-numbers");
+        return getStringFromConfig(Query.TOP, isStyle, "gold", "rank-numbers");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
      and "dark_gray" for Color. */
     public String getDotsFormatting(boolean isStyle) {
-        return getStringFromConfig(CommandOption.TOP, isStyle, "dark_gray", "dots");
+        return getStringFromConfig(Query.TOP, isStyle, "dark_gray", "dots");
     }
 
     /** Returns the config value for a color or style option in string-format, the supplied default value, or null if no configSection was found. */
-    private @Nullable String getStringFromConfig(CommandOption selection, boolean isStyle, String def, String pathName){
+    private @Nullable String getStringFromConfig(Query selection, boolean isStyle, String def, String pathName){
         String path = isStyle ? pathName + "-style" : pathName;
         String defaultValue = isStyle ? "none" : def;
 
@@ -154,7 +162,7 @@ public class ConfigHandler {
     }
 
     /** Returns the config section that contains the relevant color or style option. */
-    private @Nullable ConfigurationSection getRelevantSection(CommandOption selection) {
+    private @Nullable ConfigurationSection getRelevantSection(Query selection) {
         switch (selection) {
             case TOP -> {
                 return config.getConfigurationSection("top-list");

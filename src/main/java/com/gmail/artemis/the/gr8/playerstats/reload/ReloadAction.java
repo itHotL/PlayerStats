@@ -1,10 +1,8 @@
 package com.gmail.artemis.the.gr8.playerstats.reload;
 
 import com.gmail.artemis.the.gr8.playerstats.utils.UnixTimeHandler;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
-import java.util.ConcurrentModificationException;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RecursiveAction;
