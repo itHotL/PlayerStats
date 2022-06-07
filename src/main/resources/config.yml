@@ -33,7 +33,7 @@ top-list-title: 'Top [x]'
 
 # The text you want displayed for a total-on-this-server statistic
 # This will be put on the same line ('In total on this server: [x] animals bred', for example)
-total-server-stat-title: 'In total on'
+total-server-stat-title: 'Total on'
 your-server-name: 'this server'
 
 
