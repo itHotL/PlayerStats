@@ -1,53 +1,53 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
-import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class OfflinePlayerHandler {
 
-    private final ConfigHandler config;
-    private HashMap<String, UUID> offlinePlayerUUIDs;
+    private static ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
+    private static ArrayList<String> playerNames;
 
-    public OfflinePlayerHandler(ConfigHandler c) {
-        config = c;
+    private OfflinePlayerHandler() {
     }
 
-    public boolean isOfflinePlayerName(String playerName) {
+    public static boolean isOfflinePlayerName(String playerName) {
         return offlinePlayerUUIDs.containsKey(playerName);
     }
 
-    public int getOfflinePlayerCount() throws NullPointerException {
+    public static int getOfflinePlayerCount() throws NullPointerException {
         if (offlinePlayerUUIDs != null && offlinePlayerUUIDs.size() > 0) return offlinePlayerUUIDs.size();
         else throw new NullPointerException("No players found!");
     }
 
-    public Set<String> getOfflinePlayerNames() {
-        return offlinePlayerUUIDs.keySet();
+    public static ArrayList<String> getOfflinePlayerNames() {
+        return playerNames;
     }
 
-    public void updateOfflinePlayerList() {
-        updateOfflinePlayerList(config.whitelistOnly(), config.excludeBanned(), config.lastPlayedLimit());
+    /**
+     * Get a new HashMap that stores the players to include in stat calculations.
+     * This HashMap is stored as a private variable in OfflinePlayerHandler (keys: playerNames, values: UUIDs).
+     */
+    public static void updateOfflinePlayerList(ConcurrentHashMap<String, UUID> playerList) {
+        offlinePlayerUUIDs = playerList;
+        playerNames = Collections.list(offlinePlayerUUIDs.keys());
     }
 
-    //stores a private HashMap of all relevant offline players with keys:playerName and values:UUID
-    private void updateOfflinePlayerList(boolean whitelistOnly, boolean excludeBanned, int lastPlayedLimit) {
-        if (offlinePlayerUUIDs == null) offlinePlayerUUIDs = new HashMap<>();
-        else if (!offlinePlayerUUIDs.isEmpty()) {
-            offlinePlayerUUIDs.clear();
+    /**
+     * Uses the playerName to get the player's UUID from a private HashMap, and uses the UUID to get the corresponding OfflinePlayer Object.
+     * @param playerName name of the target player
+     * @return OfflinePlayer (if this player is on the list, otherwise null)
+     */
+    public static @Nullable OfflinePlayer getOfflinePlayer(String playerName) {
+        if (offlinePlayerUUIDs.get(playerName) != null) {
+            return Bukkit.getOfflinePlayer(offlinePlayerUUIDs.get(playerName));
         }
-
-        Arrays.stream(Bukkit.getOfflinePlayers()).filter(offlinePlayer ->
-                offlinePlayer.getName() != null &&
-                    (!excludeBanned || !offlinePlayer.isBanned()) &&
-                    (!whitelistOnly || offlinePlayer.isWhitelisted()) &&
-                    (lastPlayedLimit == 0 || UnixTimeHandler.hasPlayedSince(lastPlayedLimit, offlinePlayer.getLastPlayed())))
-                .forEach(offlinePlayer -> offlinePlayerUUIDs.put((offlinePlayer.getName()), offlinePlayer.getUniqueId()));
-    }
-
-    public OfflinePlayer getOfflinePlayer(String playerName) {
-        return Bukkit.getOfflinePlayer(offlinePlayerUUIDs.get(playerName));
+        else {
+            return null;
+        }
     }
 }

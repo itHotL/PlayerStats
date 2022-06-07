@@ -1,9 +1,11 @@
 package com.gmail.artemis.the.gr8.playerstats.filehandlers;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.enums.Query;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.jetbrains.annotations.Nullable;
 
 
 import java.io.File;
@@ -17,9 +19,10 @@ public class ConfigHandler {
     public ConfigHandler(Main p) {
         plugin = p;
         saveDefaultConfig();
+        config = YamlConfiguration.loadConfiguration(configFile);
     }
 
-    //reload the config after changes have been made to it
+    /** Reloads the config from file, or creates a new file with default values if there is none. */
     public boolean reloadConfig() {
         try {
             if (!configFile.exists()) {
@@ -34,67 +37,51 @@ public class ConfigHandler {
         }
     }
 
-    //returns the config setting for include-whitelist-only, or the default value "false"
+    /** Returns the config setting for include-whitelist-only, or the default value "false". */
     public boolean whitelistOnly() {
-        try {
-            return config.getBoolean("include-whitelist-only");
-        }
-        catch (Exception e) {
-            plugin.getLogger().warning(e.toString());
-            return false;
-        }
+        return config.getBoolean("include-whitelist-only", false);
     }
 
-    //returns the config setting for exclude-banned-players, or the default value "false"
+    /** Returns the config setting for exclude-banned-players, or the default value "false". */
     public boolean excludeBanned() {
-        try {
-            return config.getBoolean("exclude-banned-players");
-        }
-        catch (Exception e) {
-            plugin.getLogger().warning(e.toString());
-            return false;
-        }
+        return config.getBoolean("exclude-banned-players", false);
     }
 
-    //returns the number of maximum days since a player has last been online, or the default value of 0 to not use this constraint
+    /** Returns the number of maximum days since a player has last been online, or the default value of 0 to not use this constraint. */
     public int lastPlayedLimit() {
-        try {
-            return config.getInt("number-of-days-since-last-joined");
-        }
-        catch (Exception e) {
-            plugin.getLogger().warning(e.toString());
-            return 0;
-        }
+        return config.getInt("number-of-days-since-last-joined", 0);
     }
 
-    //returns the config setting for top-list-max-size, or the default value of 10 if no value can be retrieved
+    /** Returns the config setting for top-list-max-size, or the default value of 10 if no value can be retrieved. */
     public int getTopListMaxSize() {
-        try {
-            return config.getInt("top-list-max-size");
-        }
-        catch (Exception e) {
-            plugin.getLogger().warning(e.toString());
-            return 10;
-        }
+        return config.getInt("top-list-max-size", 10);
     }
 
-    //returns the config setting for use-dots, or the default value "true" if no value can be retrieved
+    /** Returns the config setting for use-dots, or the default value "true" if no value can be retrieved. */
     public boolean useDots() {
-        try {
-            return config.getBoolean("use-dots");
-        }
-        catch (Exception e) {
-            plugin.getLogger().warning(e.toString());
-            return true;
-        }
+        return config.getBoolean("use-dots", true);
     }
 
-    public String getPlayerNameFormatting(boolean topStat, boolean isStyle) {
-        return getStringFromConfig(topStat, isStyle, "player-names");
+    /** Returns the specified server name, or "this server" if no value can be retrieved. */
+    public String getServerName() {
+        return config.getString("your-server-name", "this server");
+    }
+
+    /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
+     and "green" or "gold" for Color (for top or individual color). */
+    public String getPlayerNameFormatting(Query selection, boolean isStyle) {
+        String def;
+        if (selection == Query.TOP) {
+            def = "green";
+        }
+        else {
+            def = "gold";
+        }
+        return getStringFromConfig(selection, isStyle, def, "player-names");
     }
 
     public boolean playerNameIsBold() {
-        ConfigurationSection style = getRelevantSection(true, true);
+        ConfigurationSection style = getRelevantSection(Query.PLAYER);
 
         if (style != null) {
             String styleString = style.getString("player-names");
@@ -103,53 +90,96 @@ public class ConfigHandler {
         return false;
     }
 
-    public String getStatNameFormatting(boolean topStat, boolean isStyle) {
-        return getStringFromConfig(topStat, isStyle, "stat-names");
+    /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
+     and "yellow" for Color. */
+    public String getStatNameFormatting(Query selection, boolean isStyle) {
+        return getStringFromConfig(selection, isStyle, "yellow", "stat-names");
     }
 
-    public String getSubStatNameFormatting(boolean topStat, boolean isStyle) {
-        return getStringFromConfig(topStat, isStyle, "sub-stat-names");
+    /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
+     and "#FFD52B" for Color. */
+    public String getSubStatNameFormatting(Query selection, boolean isStyle) {
+        return getStringFromConfig(selection, isStyle, "#FFD52B", "sub-stat-names");
     }
 
-    public String getStatNumberFormatting(boolean topStat, boolean isStyle) {
-        return getStringFromConfig(topStat, isStyle, "stat-numbers");
-    }
-
-    public String getListNumberFormatting(boolean isStyle) {
-        return getStringFromConfig(true, isStyle, "list-numbers");
-    }
-
-    public String getDotsColor() {
-        return getStringFromConfig(true, false, "dots");
-    }
-
-    //returns the config value for a color or style option in string-format, or null if no value was found
-    private String getStringFromConfig(boolean topStat, boolean isStyle, String pathName){
-        ConfigurationSection section = getRelevantSection(topStat, isStyle);
-        return section != null ? section.getString(pathName) : null;
-    }
-
-    //returns the config section that contains the relevant color or style option
-    private ConfigurationSection getRelevantSection(boolean topStat, boolean isStyle) {
-        ConfigurationSection section;
-        try {
-            if (!topStat) {
-                if (!isStyle) section = config.getConfigurationSection("individual-statistics-color");
-                else section = config.getConfigurationSection("individual-statistics-style");
-            }
-            else {
-                if (!isStyle) section = config.getConfigurationSection("top-list-color");
-                else section = config.getConfigurationSection("top-list-style");
-            }
-            return section;
+    /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
+     and "#55AAFF" or "#ADE7FF" for Color (for the top or individual/server color). */
+    public String getStatNumberFormatting(Query selection, boolean isStyle) {
+        String def;
+        if (selection == Query.TOP) {
+            def = "#55AAFF";
         }
-        catch (IllegalArgumentException | NullPointerException exception) {
-            plugin.getLogger().warning(exception.toString());
-            return null;
+        else {
+            def = "#ADE7FF";
+        }
+        return getStringFromConfig(selection, isStyle, def,"stat-numbers");
+    }
+
+    /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
+     and "yellow" or "gold" for Color (for top/server). */
+    public String getTitleFormatting(Query selection, boolean isStyle) {
+        String def;
+        if (selection == Query.TOP) {
+            def = "yellow";
+        }
+        else {
+            def = "gold";
+        }
+        return getStringFromConfig(selection, isStyle, def, "title");
+    }
+
+    /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
+     and "gold" for Color. */
+    public String getTitleNumberFormatting(boolean isStyle) {
+        return getStringFromConfig(Query.TOP, isStyle, "gold", "title-number");
+    }
+
+    /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
+     and "#FFB80E" for Color. */
+    public String getServerNameFormatting(boolean isStyle) {
+        return getStringFromConfig(Query.SERVER, isStyle, "#FFB80E", "server-name");
+    }
+
+    /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
+     and "gold" for Color. */
+    public String getRankNumberFormatting(boolean isStyle) {
+        return getStringFromConfig(Query.TOP, isStyle, "gold", "rank-numbers");
+    }
+
+    /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,
+     and "dark_gray" for Color. */
+    public String getDotsFormatting(boolean isStyle) {
+        return getStringFromConfig(Query.TOP, isStyle, "dark_gray", "dots");
+    }
+
+    /** Returns the config value for a color or style option in string-format, the supplied default value, or null if no configSection was found. */
+    private @Nullable String getStringFromConfig(Query selection, boolean isStyle, String def, String pathName){
+        String path = isStyle ? pathName + "-style" : pathName;
+        String defaultValue = isStyle ? "none" : def;
+
+        ConfigurationSection section = getRelevantSection(selection);
+        return section != null ? section.getString(path, defaultValue) : null;
+    }
+
+    /** Returns the config section that contains the relevant color or style option. */
+    private @Nullable ConfigurationSection getRelevantSection(Query selection) {
+        switch (selection) {
+            case TOP -> {
+                return config.getConfigurationSection("top-list");
+            }
+            case PLAYER -> {
+                return config.getConfigurationSection("individual-statistics");
+            }
+            case SERVER -> {
+                return config.getConfigurationSection("total-server");
+            }
+            default -> {
+                return null;
+            }
         }
     }
 
-    //create a config file if none exists yet (from the config.yml in the plugin's resources)
+    /** Create a config file if none exists yet (from the config.yml in the plugin's resources). */
     private void saveDefaultConfig() {
         config = plugin.getConfig();
         plugin.saveDefaultConfig();

@@ -1,8 +1,8 @@
-# ------------------------------
-#   PlayerStats Configuration
-# ------------------------------
+# --------------------------------
+#    PlayerStats Configuration
+# --------------------------------
 
-# ------ General Options -------
+# ----------- General ------------
 # Filtering options to control which players should be included in statistic calculations
 include-whitelist-only: false
 exclude-banned-players: false
@@ -11,43 +11,77 @@ exclude-banned-players: false
 # Leave this on 0 to include all players
 number-of-days-since-last-joined: 0
 
-# ------ Format Options --------
+
+# ----------- Format -------------
+# The name you want displayed for a total-on-this-server statistic
+your-server-name: 'this server'
+
 # The maximum number of results displayed in the top list
 top-list-max-size: 10
 
 # If true, the top list will be aligned with lines of dots so that the stat numbers are all underneath each other
 use-dots: true
 
-# ------ Color Options ---------
+
+# -------- Color & Style ---------
 # The colors below can be chat color names or hex codes (format: '#xxxxxx' <-- including quotation marks!)
-# The style options include: bold, italic, underlined, strikethrough, and magic
-individual-statistics-color:
-  player-names: gold
+# The style options include: bold, italic, underlined, strikethrough (and for some reason I decided to also include magic)
+
+top-list:
+  title: yellow
+  title-style: none
+
+  title-number: gold
+  title-number-style: none
+
   stat-names: yellow
+  stat-names-style: none
+
   sub-stat-names: '#FFD52B'
-  stat-numbers: '#ADE7FF'
+  sub-stat-names-style: none
 
-individual-statistics-style:
-  player-names: none
-  stat-names: none
-  sub-stat-names: none
-  stat-numbers: none
+  rank-numbers: gold
+  rank-numbers-style: none
 
-top-list-color:
   player-names: green
-  stat-names: yellow
-  sub-stat-names: '#FFD52B'
-  stat-numbers: '#55aaff'
-  list-numbers: gold
+  player-names-style: none
+
+  stat-numbers: '#55AAFF'
+  stat-numbers-style: none
+
   dots: dark_gray
+  dots-style: none
 
-top-list-style:
-  player-names: none
-  stat-names: none
-  sub-stat-names: none
-  stat-numbers: none
-  list-numbers: none
 
+individual-statistics:
+  player-names: gold
+  player-names-style: none
+
+  stat-names: yellow
+  stat-names-style: none
+
+  sub-stat-names: '#FFD52B'
+  sub-stat-names-style: none
+
+  stat-numbers: '#ADE7FF'
+  stat-numbers-style: none
+
+
+total-server:
+  title: gold
+  title-style: none
+
+  server-name: gold
+  server-name-style: italic
+
+  stat-names: yellow
+  stat-names-style: none
+
+  sub-stat-names: '#FFD52B'
+  sub-stat-names-style: none
+
+  stat-numbers: '#ADE7FF'
+  stat-numbers-style: none
 
 
 

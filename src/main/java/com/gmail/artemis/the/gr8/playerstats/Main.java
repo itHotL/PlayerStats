@@ -5,7 +5,6 @@ import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
-import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
@@ -34,15 +33,14 @@ public class Main extends JavaPlugin {
 
         //get instances of the classes that should be initialized
         ConfigHandler config = new ConfigHandler(this);
-        MessageFactory messageFactory = new MessageFactory(config, this);
-        OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler(config);
-        ThreadManager threadManager = new ThreadManager(this, adventure(), config, offlinePlayerHandler, messageFactory);
+        MessageFactory messageFactory = new MessageFactory(config);
+        ThreadManager threadManager = new ThreadManager(this, adventure(), config, messageFactory);
 
         //register the commands
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(threadManager, adventure(),offlinePlayerHandler, messageFactory));
-            statcmd.setTabCompleter(new TabCompleter(offlinePlayerHandler));
+            statcmd.setExecutor(new StatCommand(threadManager, adventure(), messageFactory));
+            statcmd.setTabCompleter(new TabCompleter());
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
         if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));
