@@ -23,10 +23,10 @@ public class MessageFactory {
 
     private static ConfigHandler config;
 
-    private static final TextColor msgColor = TextColor.fromHexString("#55AAFF");
-    private static final TextColor hoverBaseColor = TextColor.fromHexString("#55C6FF");
-    private static final TextColor hoverAccentColor1 = TextColor.fromHexString("#FFB80E");
-    private static final TextColor hoverAccentColor2 = TextColor.fromHexString("#FFD52B");
+    private static final TextColor msgColor = TextColor.fromHexString("#55AAFF");  //my favorite shade of light blue, somewhere between blue and aqua
+    private static final TextColor hoverBaseColor = TextColor.fromHexString("#55C6FF");  //light blue - one shade lighter than msgColor
+    private static final TextColor accentColor1 = TextColor.fromHexString("#FFB80E");  //gold - one shade lighter than standard gold
+    private static final TextColor accentColor2 = TextColor.fromHexString("#FFD52B");  //yellow - a few shades darker than standard yellow
 
 
     public MessageFactory(ConfigHandler c) {
@@ -101,71 +101,50 @@ public class MessageFactory {
                         .color(msgColor));
     }
 
-    public TextComponent helpMsg() {
-        TextComponent spaces = text("    ");
-        TextComponent underscores = text("____________").color(TextColor.fromHexString("#6E3485"));
-        TextComponent arrow = text("→ ").color(NamedTextColor.GOLD);
-        TextColor arguments = NamedTextColor.YELLOW;
+    public TextComponent helpMsg(boolean isConsoleSender) {
+        if (!isConsoleSender) {
+            return config.useHoverText() ? helpMsgHover() : helpMsgPlain(false);
+        }
+        else {
+            return helpMsgPlain(true);
+        }
+    }
 
+    public TextComponent usageExamples(boolean isConsoleSender) {
+        TextComponent spaces = text("    "); //4 spaces
+        TextComponent underscores = text("_____________").color(TextColor.fromHexString("#6E3485"));
+        TextComponent arrow = text("→ ").color(NamedTextColor.GOLD);
+        TextColor accentColor = TextColor.fromHexString("#FFE339");
+
+        if (isConsoleSender) {
+            arrow = text("-> ").color(NamedTextColor.GOLD);
+            accentColor = NamedTextColor.YELLOW;
+        }
 
         return Component.newline()
                 .append(underscores).append(spaces).append(pluginPrefix()).append(spaces).append(underscores)
                 .append(newline())
-                .append(text("Hover over the arguments for more information!").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC))
-                .append(newline())
-                .append(text("Usage: ").color(NamedTextColor.GOLD)).append(text("/statistic").color(arguments))
+                .append(text("Examples: ").color(NamedTextColor.GOLD))
                 .append(newline())
                 .append(spaces).append(arrow)
-                .append(text("name").color(arguments)
-                        .hoverEvent(HoverEvent.showText(text("The name that describes the statistic").color(hoverBaseColor)
-                                .append(newline())
-                                .append(text("Example: ").color(hoverAccentColor1))
-                                .append(text("\"animals_bred\"").color(hoverAccentColor2)))))
+                .append(text("/statistic animals_bred top").color(accentColor))
                 .append(newline())
                 .append(spaces).append(arrow)
-                .append(text("sub-statistic").color(arguments)
-                        .hoverEvent(HoverEvent.showText(
-                                text("Some statistics need an item, block or entity as sub-statistic").color(hoverBaseColor)
-                                        .append(newline())
-                                        .append(text("Example: ").color(hoverAccentColor1)
-                                                .append(text("\"mine_block diorite\"").color(hoverAccentColor2))))))
-                .append(newline())
-                .append(spaces)
-                .append(text("→").color(NamedTextColor.GOLD)
-                        .hoverEvent(HoverEvent.showText(
-                                text("Choose one").color(TextColor.fromHexString("#6E3485")))))
-                .append(space())
-                .append(text("me").color(arguments)
-                        .hoverEvent(HoverEvent.showText(
-                                text("See your own statistic").color(hoverBaseColor))))
-                .append(text(" | ").color(arguments))
-                .append(text("player").color(arguments)
-                        .hoverEvent(HoverEvent.showText(
-                                text("Choose any player that has played on your server").color(hoverBaseColor))))
-                .append(text(" | ").color(arguments))
-                .append(text("server").color(arguments)
-                        .hoverEvent(HoverEvent.showText(
-                                text("See the combined total for everyone on your server").color(hoverBaseColor))))
-                .append(text(" | ").color(arguments))
-                .append(text("top").color(arguments)
-                        .hoverEvent(HoverEvent.showText(
-                                text("See the top ").color(hoverBaseColor)
-                                        .append(text(config.getTopListMaxSize()).color(hoverBaseColor)))))
+                .append(text("/statistic mine_block diorite me").color(accentColor))
                 .append(newline())
                 .append(spaces).append(arrow)
-                .append(text("player-name").color(arguments)
-                        .hoverEvent(HoverEvent.showText(
-                                text("In case you typed ").color(hoverBaseColor)
-                                        .append(text("\"player\"").color(hoverAccentColor2)
-                                                .append(text(", add the player's name").color(hoverBaseColor))))));
+                .append(text("/statistic deaths player Artemis_the_gr8").color(accentColor))
+                .append(newline());
     }
 
     public TextComponent formatPlayerStat(String playerName, String statName, String subStatEntryName, int stat) {
         TextComponent.Builder singleStat = Component.text();
 
         singleStat.append(playerNameComponent(Query.PLAYER, playerName + ": "))
-                .append(statNumberComponent(Query.PLAYER, stat)).append(space())
+                .append(statNumberComponent(Query.PLAYER, stat))
+                .append(space())
                 .append(statNameComponent(Query.PLAYER, statName))
+                .append(space())
                 .append(subStatNameComponent(Query.PLAYER, subStatEntryName));
 
         return singleStat.build();
@@ -343,5 +322,119 @@ public class MessageFactory {
             Index<String, TextDecoration> styles = TextDecoration.NAMES;
             return styles.value(configString);
         }
+    }
+
+    //returns the usage-explanation with hovering text
+    private TextComponent helpMsgHover() {
+        TextComponent spaces = text("    "); //4 spaces
+        TextComponent underscores = text("____________").color(TextColor.fromHexString("#6E3485")); //12 underscores
+        TextComponent arrow = text("→ ").color(NamedTextColor.GOLD);  //alt + 26
+        TextColor arguments = NamedTextColor.YELLOW;
+
+        return Component.newline()
+                .append(underscores).append(spaces).append(pluginPrefix()).append(spaces).append(underscores)
+                .append(newline())
+                .append(text("Hover over the arguments for more information!").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC))
+                .append(newline())
+                .append(text("Usage: ").color(NamedTextColor.GOLD)).append(text("/statistic").color(arguments))
+                .append(newline())
+                .append(spaces).append(arrow)
+                .append(text("name").color(arguments)
+                        .hoverEvent(HoverEvent.showText(text("The name that describes the statistic").color(hoverBaseColor)
+                                .append(newline())
+                                .append(text("Example: ").color(accentColor1))
+                                .append(text("\"animals_bred\"").color(accentColor2)))))
+                .append(newline())
+                .append(spaces).append(arrow)
+                .append(text("sub-statistic").color(arguments)
+                        .hoverEvent(HoverEvent.showText(
+                                text("Some statistics need an item, block or entity as extra input").color(hoverBaseColor)
+                                        .append(newline())
+                                        .append(text("Example: ").color(accentColor1)
+                                                .append(text("\"mine_block diorite\"").color(accentColor2))))))
+                .append(newline())
+                .append(spaces)
+                .append(text("→").color(NamedTextColor.GOLD)
+                        .hoverEvent(HoverEvent.showText(
+                                text("Choose one").color(TextColor.fromHexString("#6E3485")))))
+                .append(space())
+                .append(text("me").color(arguments)
+                        .hoverEvent(HoverEvent.showText(
+                                text("See your own statistic").color(hoverBaseColor))))
+                .append(text(" | ").color(arguments))
+                .append(text("player").color(arguments)
+                        .hoverEvent(HoverEvent.showText(
+                                text("Choose any player that has played on your server").color(hoverBaseColor))))
+                .append(text(" | ").color(arguments))
+                .append(text("server").color(arguments)
+                        .hoverEvent(HoverEvent.showText(
+                                text("See the combined total for everyone on your server").color(hoverBaseColor))))
+                .append(text(" | ").color(arguments))
+                .append(text("top").color(arguments)
+                        .hoverEvent(HoverEvent.showText(
+                                text("See the top ").color(hoverBaseColor)
+                                        .append(text(config.getTopListMaxSize()).color(hoverBaseColor)))))
+                .append(newline())
+                .append(spaces).append(arrow)
+                .append(text("player-name").color(arguments)
+                        .hoverEvent(HoverEvent.showText(
+                                text("In case you typed ").color(hoverBaseColor)
+                                        .append(text("\"player\"").color(accentColor2)
+                                                .append(text(", add the player's name").color(hoverBaseColor))))));
+    }
+
+    //returns the usage-explanation without any hovering text
+    private TextComponent helpMsgPlain(boolean isConsoleSender) {
+        TextComponent underscores = text("__________").color(TextColor.fromHexString("#6E3485")); //10 underscores
+        TextComponent spaces = text("    "); //4 spaces
+        TextComponent arrow = text("→ ").color(NamedTextColor.GOLD); //alt + 26;
+        TextComponent bullet = text("• ").color(NamedTextColor.GOLD); //alt + 7
+        TextColor arguments = NamedTextColor.YELLOW;
+        TextColor accentColor = accentColor2;
+
+        if (isConsoleSender) {
+            arrow = text("-> ").color(NamedTextColor.GOLD);
+            bullet = text("* ").color(NamedTextColor.GOLD);
+            accentColor = NamedTextColor.GOLD;
+        }
+
+        return Component.newline()
+                .append(underscores).append(spaces).append(pluginPrefix()).append(text("   ")).append(underscores)
+                .append(newline())
+                .append(text("Type \"/statistic examples\" to see examples!").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC))
+                .append(newline())
+                .append(text("Usage: ").color(NamedTextColor.GOLD))
+                .append(text("/statistic").color(arguments))
+                .append(newline())
+                .append(spaces).append(arrow)
+                .append(text("name").color(arguments))
+                .append(newline())
+                .append(spaces).append(arrow)
+                .append(text("{sub-statistic}").color(arguments))
+                .append(space())
+                .append(text("(a block, item or entity)").color(NamedTextColor.GRAY))
+                .append(newline())
+                .append(spaces).append(arrow)
+                .append(text("me | player | server | top").color(arguments))
+                .append(newline())
+                .append(spaces).append(spaces).append(bullet)
+                .append(text("me:").color(accentColor))
+                .append(space()).append(text("your own statistic").color(NamedTextColor.GRAY))
+                .append(newline())
+                .append(spaces).append(spaces).append(bullet)
+                .append(text("player:").color(accentColor))
+                .append(space()).append(text("choose a player").color(NamedTextColor.GRAY))
+                .append(newline())
+                .append(spaces).append(spaces).append(bullet)
+                .append(text("server:").color(accentColor))
+                .append(space()).append(text("everyone on the server combined").color(NamedTextColor.GRAY))
+                .append(newline())
+                .append(spaces).append(spaces).append(bullet)
+                .append(text("top:").color(accentColor))
+                .append(space()).append(text("the top").color(NamedTextColor.GRAY)
+                        .append(space()).append(text(config.getTopListMaxSize())))
+                .append(newline())
+                .append(spaces).append(arrow)
+                .append(text("{player-name}").color(arguments));
     }
 }

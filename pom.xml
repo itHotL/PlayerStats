@@ -21,7 +21,7 @@
         </repository>
 
         <repository>
-            <id>sonatype-oss-snapshots1</id>
+            <id>sonatype-oss-snapshots1</id> <!-- the Adventure repository for development builds -->
             <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
         </repository>
     </repositories>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.18.2-R0.1-SNAPSHOT</version>
+            <version>1.19-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
