@@ -30,9 +30,10 @@ public class Main extends JavaPlugin {
 
         //initialize the Adventure library
         adventure = BukkitAudiences.create(this);
+        boolean canHover = !Bukkit.getBukkitVersion().equalsIgnoreCase("1.19-R0.1-SNAPSHOT");
 
         //get instances of the classes that should be initialized
-        ConfigHandler config = new ConfigHandler(this);
+        ConfigHandler config = new ConfigHandler(this, canHover);
         MessageFactory messageFactory = new MessageFactory(config);
         ThreadManager threadManager = new ThreadManager(this, adventure(), config, messageFactory);
 

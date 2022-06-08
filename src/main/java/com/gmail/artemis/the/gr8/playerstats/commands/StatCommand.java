@@ -36,7 +36,8 @@ public class StatCommand implements CommandExecutor {
             return true;
         }
 
-        else if (args[0].equalsIgnoreCase("examples")) {  //in case of "statistic examples", show examples
+        else if (args[0].equalsIgnoreCase("examples") ||
+                args[0].equalsIgnoreCase("example")) {  //in case of "statistic examples", show examples
             adventure.sender(sender).sendMessage(messageFactory.usageExamples(sender instanceof ConsoleCommandSender));
             return true;
         }

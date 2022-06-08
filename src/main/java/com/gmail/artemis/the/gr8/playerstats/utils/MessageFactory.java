@@ -385,7 +385,7 @@ public class MessageFactory {
 
     //returns the usage-explanation without any hovering text
     private TextComponent helpMsgPlain(boolean isConsoleSender) {
-        TextComponent underscores = text("____________").color(TextColor.fromHexString("#6E3485")); //12 underscores
+        TextComponent underscores = text("__________").color(TextColor.fromHexString("#6E3485")); //10 underscores
         TextComponent spaces = text("    "); //4 spaces
         TextComponent arrow = text("→ ").color(NamedTextColor.GOLD); //alt + 26;
         TextComponent bullet = text("• ").color(NamedTextColor.GOLD); //alt + 7
@@ -399,7 +399,7 @@ public class MessageFactory {
         }
 
         return Component.newline()
-                .append(underscores).append(spaces).append(pluginPrefix()).append(spaces).append(underscores)
+                .append(underscores).append(spaces).append(pluginPrefix()).append(text("   ")).append(underscores)
                 .append(newline())
                 .append(text("Type \"/statistic examples\" to see examples!").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC))
                 .append(newline())
