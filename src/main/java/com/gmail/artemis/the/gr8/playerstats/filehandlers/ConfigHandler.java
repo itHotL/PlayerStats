@@ -66,9 +66,9 @@ public class ConfigHandler {
         return config.getInt("number-of-days-since-last-joined", 0);
     }
 
-    /** Returns the config setting for top-list-max-size, or the default value of 10 if no value can be retrieved. */
-    public int getTopListMaxSize() {
-        return config.getInt("top-list-max-size", 10);
+
+    public boolean useHoverText() {
+        return config.getBoolean("enable-hover-text", true);
     }
 
     /** Returns the config setting for use-dots, or the default value "true" if no value can be retrieved. */
@@ -76,14 +76,18 @@ public class ConfigHandler {
         return config.getBoolean("use-dots", true);
     }
 
+    /** Returns the config setting for top-list-max-size, or the default value of 10 if no value can be retrieved. */
+    public int getTopListMaxSize() {
+        return config.getInt("top-list-max-size", 10);
+    }
+
+    public String getServerTitle() {
+        return config.getString("total-server-stat-title", "Total on");
+    }
+
     /** Returns the specified server name, or "this server" if no value can be retrieved. */
     public String getServerName() {
         return config.getString("your-server-name", "this server");
-    }
-
-
-    public String getServerTitle() {
-        return config.getString("total-server-stat-title", "In total on");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are "none" for Style,

@@ -21,7 +21,7 @@
         </repository>
 
         <repository>
-            <id>sonatype-oss-snapshots1</id>
+            <id>sonatype-oss-snapshots1</id> <!-- the Adventure repository for development builds -->
             <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
         </repository>
     </repositories>
