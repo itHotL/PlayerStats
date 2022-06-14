@@ -5,7 +5,8 @@ import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
-import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
+import com.gmail.artemis.the.gr8.playerstats.msg.PrideMessageFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
@@ -30,11 +31,10 @@ public class Main extends JavaPlugin {
 
         //initialize the Adventure library
         adventure = BukkitAudiences.create(this);
-        boolean canHover = !Bukkit.getBukkitVersion().equalsIgnoreCase("1.19-R0.1-SNAPSHOT");
 
         //get instances of the classes that should be initialized
-        ConfigHandler config = new ConfigHandler(this, canHover);
-        MessageFactory messageFactory = new MessageFactory(config);
+        ConfigHandler config = new ConfigHandler(this);
+        MessageFactory messageFactory = new PrideMessageFactory(config);
         ThreadManager threadManager = new ThreadManager(this, adventure(), config, messageFactory);
 
         //register the commands
@@ -47,7 +47,7 @@ public class Main extends JavaPlugin {
         if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));
 
         //register the listener
-        Bukkit.getPluginManager().registerEvents(new JoinListener(config, threadManager), this);
+        Bukkit.getPluginManager().registerEvents(new JoinListener(adventure(), config, messageFactory, threadManager), this);
         logTimeTaken("onEnable", "time taken", time);
         this.getLogger().info("Enabled PlayerStats!");
     }

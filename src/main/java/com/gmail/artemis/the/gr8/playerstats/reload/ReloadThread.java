@@ -4,7 +4,7 @@ import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
-import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;

@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------------------------------ #
 #                                     PlayerStats Configuration                                          #
 # ------------------------------------------------------------------------------------------------------ #
-config-version: 2
+config-version: 2.1
 
 
                                  # ------------------------------- #
@@ -22,9 +22,12 @@ number-of-days-since-last-joined: 0
                                  # ------------------------------- #
                                  #        Format & Display         #
                                  # ------------------------------- #
+# For the duration of certain holidays or festivals, PlayerStats will use special themed formatting
+enable-festive-formatting: true
+rainbow-phase:
+
 # Use hover-text for additional info in the usage explanation (set "false" to disable)
-# If you leave this un-set, PlayerStats will use hover-text if the Minecraft-version supports it
-enable-hover-text:
+enable-hover-text: true
 
 # If true, the stat-numbers in the top list will be aligned with dots
 use-dots: true

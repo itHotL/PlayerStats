@@ -2,8 +2,8 @@ package com.gmail.artemis.the.gr8.playerstats.listeners;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
-import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
-import org.bukkit.ChatColor;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
+import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -11,11 +11,15 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class JoinListener implements Listener {
 
-    private static ConfigHandler config;
+    private final BukkitAudiences adventure;
     private final ThreadManager threadManager;
+    private static ConfigHandler config;
+    private static MessageFactory messageFactory;
 
-    public JoinListener(ConfigHandler c, ThreadManager t) {
+    public JoinListener(BukkitAudiences a, ConfigHandler c, MessageFactory m, ThreadManager t) {
+        adventure = a;
         config = c;
+        messageFactory = m;
         threadManager = t;
     }
 
@@ -26,9 +30,7 @@ public class JoinListener implements Listener {
         }
 
         else if (joinEvent.getPlayer().isOp() && !config.isConfigUpdated()) {
-            joinEvent.getPlayer().sendMessage(MessageFactory.getPluginPrefix() + ChatColor.GRAY + ChatColor.ITALIC +
-                    "Your config version is outdated! " +
-                    "Please delete your current config.yml (or rename it/copy it to another folder) and do /statreload");
+            adventure.player(joinEvent.getPlayer()).sendMessage(messageFactory.configIsOutdated());
         }
     }
 }

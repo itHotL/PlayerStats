@@ -4,7 +4,7 @@ import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
-import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.CommandSender;
 
@@ -16,7 +16,7 @@ public class ThreadManager {
     private final Main plugin;
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
-    private final MessageFactory messageFactory;
+    private static MessageFactory messageFactory;
 
     private ReloadThread reloadThread;
     private StatThread statThread;

@@ -1,4 +1,4 @@
-package com.gmail.artemis.the.gr8.playerstats.utils;
+package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.Query;
 import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
@@ -10,7 +10,6 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.util.Index;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Statistic;
 import org.bukkit.map.MinecraftFont;
 import org.jetbrains.annotations.Nullable;
@@ -23,21 +22,21 @@ public class MessageFactory {
 
     private static ConfigHandler config;
 
-    private static final TextColor msgColor = TextColor.fromHexString("#55AAFF");  //my favorite shade of light blue, somewhere between blue and aqua
-    private static final TextColor hoverBaseColor = TextColor.fromHexString("#55C6FF");  //light blue - one shade lighter than msgColor
-    private static final TextColor accentColor1 = TextColor.fromHexString("#FFB80E");  //gold - one shade lighter than standard gold
-    private static final TextColor accentColor2 = TextColor.fromHexString("#FFD52B");  //yellow - a few shades darker than standard yellow
-
+    private final TextColor msgColor;  //my favorite shade of light blue, somewhere between blue and aqua
+    private final TextColor hoverBaseColor;  //light blue - one shade lighter than msgColor
+    private final TextColor accentColor1;  //gold - one shade lighter than standard gold
+    private final TextColor accentColor2;  //yellow - a few shades darker than standard yellow
 
     public MessageFactory(ConfigHandler c) {
         config = c;
+
+        msgColor = TextColor.fromHexString("#55AAFF");
+        hoverBaseColor = TextColor.fromHexString("#55C6FF");
+        accentColor1 = TextColor.fromHexString("#FFB80E");
+        accentColor2 = TextColor.fromHexString("#FFD52B");
     }
 
-    public static String getPluginPrefix() {
-        return ChatColor.GRAY + "[" + ChatColor.GOLD + "PlayerStats" + ChatColor.GRAY + "] " + ChatColor.RESET;
-    }
-
-    private static TextComponent pluginPrefix() {
+    protected TextComponent pluginPrefix() {
         return text("[")
                 .append(text("PlayerStats").color(NamedTextColor.GOLD))
                 .append(text("]")
@@ -45,6 +44,11 @@ public class MessageFactory {
                 .color(NamedTextColor.GRAY);
     }
 
+    public TextComponent configIsOutdated() {
+        return pluginPrefix().append(
+                text("Your config version is outdated! Please delete your current config.yml (or rename it/copy it to another folder) and do /statreload"))
+                .color(NamedTextColor.DARK_GRAY).decorate(TextDecoration.ITALIC);
+    }
     public TextComponent reloadedConfig() {
         return pluginPrefix().append(text("Config reloaded!").color(NamedTextColor.GREEN));
     }
@@ -223,19 +227,19 @@ public class MessageFactory {
         return subStat;
     }
 
-    private TextComponent playerNameComponent(Query selection, String playerName) {
+    protected TextComponent playerNameComponent(Query selection, String playerName) {
         return getComponent(playerName,
                 getColorFromString(config.getPlayerNameFormatting(selection, false)),
                 getStyleFromString(config.getPlayerNameFormatting(selection, true)));
     }
 
-    private TextComponent statNameComponent(Query selection, String statName) {
+    protected TextComponent statNameComponent(Query selection, String statName) {
         return getComponent(statName.toLowerCase().replace("_", " "),
                 getColorFromString(config.getStatNameFormatting(selection, false)),
                 getStyleFromString(config.getStatNameFormatting(selection, true)));
     }
 
-    private TextComponent subStatNameComponent(Query selection, String subStatName) {
+    protected TextComponent subStatNameComponent(Query selection, String subStatName) {
         if (subStatName == null) {
             return empty();
         }
@@ -247,25 +251,25 @@ public class MessageFactory {
         }
     }
 
-    private TextComponent statNumberComponent(Query selection, int number) {
+    protected TextComponent statNumberComponent(Query selection, int number) {
         return getComponent(number + "",
                 getColorFromString(config.getStatNumberFormatting(selection, false)),
                 getStyleFromString(config.getStatNumberFormatting(selection, true)));
     }
 
-    private TextComponent titleComponent(Query selection, String content) {
+    protected TextComponent titleComponent(Query selection, String content) {
         return getComponent(content,
                 getColorFromString(config.getTitleFormatting(selection, false)),
                 getStyleFromString(config.getTitleFormatting(selection, true)));
     }
 
-    private TextComponent titleNumberComponent(int number) {
+    protected TextComponent titleNumberComponent(int number) {
         return getComponent(number + "",
                 getColorFromString(config.getTitleNumberFormatting(false)),
                 getStyleFromString(config.getTitleNumberFormatting(true)));
     }
 
-    private TextComponent serverNameComponent() {
+    protected TextComponent serverNameComponent() {
         TextComponent colon = text(":").color(getColorFromString(config.getServerNameFormatting(false)));
         return getComponent(config.getServerName(),
                 getColorFromString(config.getServerNameFormatting(false)),
@@ -273,19 +277,19 @@ public class MessageFactory {
                 .append(colon);
     }
 
-    private TextComponent rankingNumberComponent(String number) {
+    protected TextComponent rankingNumberComponent(String number) {
         return getComponent(number,
                 getColorFromString(config.getRankNumberFormatting(false)),
                 getStyleFromString(config.getRankNumberFormatting(true)));
     }
 
-    private TextComponent dotsComponent(String dots) {
+    protected TextComponent dotsComponent(String dots) {
         return getComponent(dots,
                 getColorFromString(config.getDotsFormatting(false)),
                 getStyleFromString(config.getDotsFormatting(true)));
     }
 
-    private TextComponent getComponent(String content, TextColor color, @Nullable TextDecoration style) {
+    protected TextComponent getComponent(String content, TextColor color, @Nullable TextDecoration style) {
         return style == null ? text(content).color(color) : text(content).color(color).decoration(style, TextDecoration.State.TRUE);
     }
 
@@ -324,15 +328,23 @@ public class MessageFactory {
         }
     }
 
+    protected TextComponent getHelpMsgTitle(boolean isConsoleSender) {
+        String underscores = isConsoleSender ? "___________" : "____________";  //11 underscores for console, 12 for in-game chat
+        return text(underscores).color(TextColor.fromHexString("#6E3485"))  //a dark shade of purple
+                .append(text("    "))  //4 spaces
+                .append(pluginPrefix())
+                .append(text("   "))  //3 spaces (since prefix already has one)
+                .append(text(underscores));
+    }
+
     //returns the usage-explanation with hovering text
     private TextComponent helpMsgHover() {
         TextComponent spaces = text("    "); //4 spaces
-        TextComponent underscores = text("____________").color(TextColor.fromHexString("#6E3485")); //12 underscores
         TextComponent arrow = text("→ ").color(NamedTextColor.GOLD);  //alt + 26
         TextColor arguments = NamedTextColor.YELLOW;
 
         return Component.newline()
-                .append(underscores).append(spaces).append(pluginPrefix()).append(spaces).append(underscores)
+                .append(getHelpMsgTitle(false))
                 .append(newline())
                 .append(text("Hover over the arguments for more information!").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC))
                 .append(newline())
@@ -384,22 +396,22 @@ public class MessageFactory {
     }
 
     //returns the usage-explanation without any hovering text
+    //if BukkitVersion is CraftBukkit, this doesn't use unicode symbols or hex colors
     private TextComponent helpMsgPlain(boolean isConsoleSender) {
-        TextComponent underscores = text("__________").color(TextColor.fromHexString("#6E3485")); //10 underscores
         TextComponent spaces = text("    "); //4 spaces
         TextComponent arrow = text("→ ").color(NamedTextColor.GOLD); //alt + 26;
         TextComponent bullet = text("• ").color(NamedTextColor.GOLD); //alt + 7
         TextColor arguments = NamedTextColor.YELLOW;
         TextColor accentColor = accentColor2;
 
-        if (isConsoleSender) {
+        if (isConsoleSender && Bukkit.getVersion().equalsIgnoreCase("CraftBukkit")) {
             arrow = text("-> ").color(NamedTextColor.GOLD);
             bullet = text("* ").color(NamedTextColor.GOLD);
             accentColor = NamedTextColor.GOLD;
         }
 
         return Component.newline()
-                .append(underscores).append(spaces).append(pluginPrefix()).append(text("   ")).append(underscores)
+                .append(getHelpMsgTitle(isConsoleSender))
                 .append(newline())
                 .append(text("Type \"/statistic examples\" to see examples!").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC))
                 .append(newline())

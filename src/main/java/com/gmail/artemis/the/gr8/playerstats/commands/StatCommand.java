@@ -5,7 +5,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.Query;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.gmail.artemis.the.gr8.playerstats.utils.MessageFactory;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Statistic;
@@ -21,12 +21,12 @@ public class StatCommand implements CommandExecutor {
 
     private final ThreadManager threadManager;
     private final BukkitAudiences adventure;
-    private final MessageFactory messageFactory;
+    private static MessageFactory messageFactory;
 
-    public StatCommand(ThreadManager t, BukkitAudiences b, MessageFactory o) {
+    public StatCommand(ThreadManager t, BukkitAudiences b, MessageFactory m) {
         threadManager = t;
         adventure = b;
-        messageFactory = o;
+        messageFactory = m;
     }
 
     @Override

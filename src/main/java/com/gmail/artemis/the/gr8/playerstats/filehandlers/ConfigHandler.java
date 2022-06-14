@@ -15,13 +15,11 @@ public class ConfigHandler {
     private File configFile;
     private FileConfiguration config;
     private final Main plugin;
-    private final boolean canHover;
 
-    public ConfigHandler(Main p, boolean useHover) {
+    public ConfigHandler(Main p) {
         plugin = p;
-        this.canHover = useHover;
-        saveDefaultConfig();
 
+        saveDefaultConfig();
         config = YamlConfiguration.loadConfiguration(configFile);
         checkConfigVersion();
     }
@@ -68,9 +66,18 @@ public class ConfigHandler {
         return config.getInt("number-of-days-since-last-joined", 0);
     }
 
-    /** On Spigot 1.19, do not use hover-text by default - otherwise do*/
+    /** Whether to use festive formatting, such as pride colors - true by default */
+    public boolean useFestiveFormatting() {
+        return config.getBoolean("enable-festive-formatting", true);
+    }
+
+    public String getRainbowPhase() {
+        return config.getString("rainbow-phase", "");
+    }
+
+    /** Whether or not to use HoverComponents in the usage explanation, returns true by default*/
     public boolean useHoverText() {
-        return config.getBoolean("enable-hover-text", canHover);
+        return config.getBoolean("enable-hover-text", true);
     }
 
     /** Returns the config setting for use-dots, or the default value "true" if no value can be retrieved. */
