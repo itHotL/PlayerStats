@@ -3,7 +3,7 @@ package com.gmail.artemis.the.gr8.playerstats;
 import com.gmail.artemis.the.gr8.playerstats.commands.ReloadCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
-import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import com.gmail.artemis.the.gr8.playerstats.msg.PrideMessageFactory;
@@ -34,20 +34,22 @@ public class Main extends JavaPlugin {
 
         //get instances of the classes that should be initialized
         ConfigHandler config = new ConfigHandler(this);
-        MessageFactory messageFactory = new PrideMessageFactory(config);
-        ThreadManager threadManager = new ThreadManager(this, adventure(), config, messageFactory);
+        MessageFactory messageFactory = config.useFestiveFormatting() ? new PrideMessageFactory(config) : new MessageFactory(config);
+        ThreadManager threadManager = new ThreadManager(adventure(), config, messageFactory, this);
 
         //register the commands
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(threadManager, adventure(), messageFactory));
+            statcmd.setExecutor(new StatCommand(adventure(), messageFactory, threadManager));
             statcmd.setTabCompleter(new TabCompleter());
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
         if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));
 
         //register the listener
-        Bukkit.getPluginManager().registerEvents(new JoinListener(adventure(), config, messageFactory, threadManager), this);
+        Bukkit.getPluginManager().registerEvents(new JoinListener(threadManager), this);
+
+        //finish up
         logTimeTaken("onEnable", "time taken", time);
         this.getLogger().info("Enabled PlayerStats!");
     }

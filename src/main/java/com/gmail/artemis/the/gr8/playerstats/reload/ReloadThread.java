@@ -2,7 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.reload;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
-import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
@@ -23,16 +23,16 @@ public class ReloadThread extends Thread {
 
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
-    private final MessageFactory messageFactory;
+    private static MessageFactory messageFactory;
     private final Main plugin;
 
     private final StatThread statThread;
     private final CommandSender sender;
     private final boolean firstTimeLoading;
 
-    public ReloadThread(int threshold, BukkitAudiences b, ConfigHandler c, MessageFactory m, Main p, @Nullable StatThread s, @Nullable CommandSender se, boolean firstTime) {
+    public ReloadThread(BukkitAudiences a, ConfigHandler c, MessageFactory m, Main p, int threshold, boolean firstTime, @Nullable StatThread s, @Nullable CommandSender se) {
         this.threshold = threshold;
-        adventure = b;
+        adventure = a;
         config = c;
         messageFactory = m;
         plugin = p;
@@ -48,6 +48,7 @@ public class ReloadThread extends Thread {
     public void run() {
         long time = System.currentTimeMillis();
 
+        //if reload is triggered by /statreload...
         if (!firstTimeLoading) {
             if (statThread != null && statThread.isAlive()) {
                 try {
@@ -63,7 +64,8 @@ public class ReloadThread extends Thread {
 
                 try {
                     OfflinePlayerHandler.updateOfflinePlayerList(getPlayerMap(false));
-                } catch (ConcurrentModificationException e) {
+                }
+                catch (ConcurrentModificationException e) {
                     plugin.getLogger().warning("The request could not be fully executed due to a ConcurrentModificationException");
                     if (sender != null) {
                         adventure.sender(sender).sendMessage(messageFactory.partiallyReloaded());
@@ -71,18 +73,19 @@ public class ReloadThread extends Thread {
                 }
 
                 plugin.getLogger().info("Amount of relevant players: " + OfflinePlayerHandler.getOfflinePlayerCount());
-                plugin.logTimeTaken("ReloadThread", "loading offline players", time);
+                plugin.logTimeTaken("ReloadThread", "loaded offline players", time);
                 if (sender != null) {
                     adventure.sender(sender).sendMessage(messageFactory.reloadedConfig());
                 }
             }
         }
+        //during first start-up...
         else {
             plugin.getLogger().info("Loading offline players...");
             OfflinePlayerHandler.updateOfflinePlayerList(getPlayerMap(true));
 
             plugin.getLogger().info("Amount of relevant players: " + OfflinePlayerHandler.getOfflinePlayerCount());
-            plugin.logTimeTaken("ReloadThread", "loading offline players", time);
+            plugin.logTimeTaken("ReloadThread", "loaded offline players", time);
             ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
         }
     }

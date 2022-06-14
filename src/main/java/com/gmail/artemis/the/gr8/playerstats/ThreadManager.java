@@ -1,6 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats;
 
-import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
@@ -22,31 +22,31 @@ public class ThreadManager {
     private StatThread statThread;
     private static long lastRecordedCalcTime;
 
-    public ThreadManager(Main p, BukkitAudiences b, ConfigHandler c, MessageFactory m) {
-        plugin = p;
-        adventure = b;
+    public ThreadManager(BukkitAudiences a, ConfigHandler c, MessageFactory m, Main p) {
+        adventure = a;
         config = c;
         messageFactory = m;
+        plugin = p;
 
         startReloadThread(null, true);
     }
 
     public void startReloadThread(CommandSender sender, boolean firstTimeLoading) {
-        reloadThread = new ReloadThread(threshold, adventure, config, messageFactory, plugin, statThread, sender, firstTimeLoading);
+        reloadThread = new ReloadThread(adventure, config, messageFactory, plugin, threshold, firstTimeLoading, statThread, sender);
         reloadThread.start();
     }
 
     public void startStatThread(StatRequest request) {
-        statThread = new StatThread(threshold, request, reloadThread, adventure, config, messageFactory, plugin);
+        statThread = new StatThread(adventure, config, messageFactory, plugin, threshold, request, reloadThread);
         statThread.start();
     }
 
-    //store the time in milliseconds that the last top-stat-lookup took (or loading the offline-player-list if no look-ups have been done yet)
+    /** Store the time in milliseconds that the last top-stat-lookup took (or loading the offline-player-list if no look-ups have been done yet). */
     public static void recordCalcTime(long time) {
         lastRecordedCalcTime = time;
     }
 
-    //returns the time in milliseconds the last top-stat-lookup took (or loading the offline-player-list if no look-ups have been done yet)
+    /** Returns the time in milliseconds the last top-stat-lookup took (or loading the offline-player-list if no look-ups have been done yet). */
     public static long getLastRecordedCalcTime() {
         return lastRecordedCalcTime;
     }

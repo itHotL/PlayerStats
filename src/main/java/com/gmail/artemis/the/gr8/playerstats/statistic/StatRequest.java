@@ -25,13 +25,13 @@ public class StatRequest {
     private Material block;
     private Material item;
 
-    //playerFlag and topFlag are false by default, will be set to true if "player" or "top" is in the args
+    //playerFlag is set to false by default, will be set to true if "player" is in the args
     public StatRequest(@NotNull CommandSender s) {
         sender = s;
         playerFlag = false;
     }
 
-    //sets the statName, and automatically tries to set the correct statType and get the corresponding item/block/entity if there is a subStatEntry
+    /** Sets the statName, and automatically tries to set the correct statType and get the corresponding item/block/entity if there is a subStatEntry. */
     public void setStatName(String statName) {
         this.statName = statName;
         if (statName != null) {
@@ -51,8 +51,8 @@ public class StatRequest {
         }
     }
 
-    //sets the subStatEntry, and automatically tries to get the corresponding item/block/entity if there is a valid statType present
-    //if the subStatEntry is set to null, any present item/block/entity is set to null again
+    /** Sets the subStatEntry, and automatically tries to get the corresponding item/block/entity if there is a valid statType present.
+    If the subStatEntry is set to null, any present item/block/entity is set to null again. */
     public void setSubStatEntry(String subStatEntry) {
         this.subStatEntry = subStatEntry;
         if (subStatEntry != null && statType != null) {
@@ -69,21 +69,21 @@ public class StatRequest {
         switch (statType) {
             case ENTITY -> {
                 try {
-                    entity = EnumHandler.getEntityType(subStatEntry);
+                    entity = EnumHandler.getEntityEnum(subStatEntry);
                 } catch (IllegalArgumentException e) {
                     Bukkit.getLogger().warning(e.toString());
                 }
             }
             case ITEM -> {
                 try {
-                    item = EnumHandler.getItem(subStatEntry);
+                    item = EnumHandler.getItemEnum(subStatEntry);
                 } catch (IllegalArgumentException e) {
                     Bukkit.getLogger().warning(e.toString());
                 }
             }
             case BLOCK -> {
                 try {
-                    block = EnumHandler.getBlock(subStatEntry);
+                    block = EnumHandler.getBlockEnum(subStatEntry);
                 } catch (IllegalArgumentException e) {
                     Bukkit.getLogger().warning(e.toString());
                 }
@@ -95,8 +95,7 @@ public class StatRequest {
         this.playerName = playerName;
     }
 
-    //the "player" arg is a special case, because it could either be a valid subStatEntry, or indicate that the lookup action should target a specific player
-    //this is why the playerFlag exists - if this is true, and playerName is null, subStatEntry should be set to "player"
+    /** False by default, set to true if args[] contains "player". */
     public void setPlayerFlag(boolean playerFlag) {
         this.playerFlag = playerFlag;
     }
@@ -113,7 +112,7 @@ public class StatRequest {
         return statName;
     }
 
-    //returns the type of the stored statistic, or null if no statName has been set
+    /** Returns the type of the stored statistic, or null if no statName has been set. */
     public Statistic.Type getStatType() {
         return statType;
     }
@@ -142,6 +141,8 @@ public class StatRequest {
         return playerName;
     }
 
+    /** The "player" arg is a special case, because it could either be a valid subStatEntry, or indicate that the lookup action should target a specific player.
+     This is why the playerFlag exists - if this is true, and playerName is null, subStatEntry should be set to "player". */
     public boolean playerFlag() {
         return playerFlag;
     }

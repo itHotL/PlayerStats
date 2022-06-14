@@ -1,4 +1,4 @@
-package com.gmail.artemis.the.gr8.playerstats.filehandlers;
+package com.gmail.artemis.the.gr8.playerstats.config;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.enums.Query;
@@ -7,7 +7,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.Nullable;
 
-
 import java.io.File;
 
 public class ConfigHandler {
@@ -15,24 +14,26 @@ public class ConfigHandler {
     private File configFile;
     private FileConfiguration config;
     private final Main plugin;
+    private final int configVersion;
 
     public ConfigHandler(Main p) {
         plugin = p;
 
         saveDefaultConfig();
         config = YamlConfiguration.loadConfiguration(configFile);
+        configVersion = 3;
+
         checkConfigVersion();
     }
 
-    public boolean isConfigUpdated() {
-        return config.contains("config-version");
-    }
-
-    /** Sends a message in console if the latest version of the config is not present */
+    /** Checks the number that "config-version" returns, to see if the config needs updating.
+     <p></p>
+     <p>PlayerStats 1.1: "config-version" doesn't exist.</p>
+     <p>PlayerStats 1.2: "config-version" is 2.</p>
+     <p>PlayerStats 1.3: "config-version" is 3. </P>*/
     private void checkConfigVersion() {
-        if (!config.contains("config-version")) {
-            plugin.getLogger().warning("Your config version is outdated! " +
-                    "Please delete your current config.yml (or rename it/copy it to another folder) and do /statreload");
+        if (!config.contains("config-version") || config.getInt("config-version") != configVersion) {
+            new ConfigUpdateHandler(plugin, configFile, configVersion);
         }
     }
 
@@ -71,6 +72,7 @@ public class ConfigHandler {
         return config.getBoolean("enable-festive-formatting", true);
     }
 
+    /** Gets a String representation of an integer (with or without "!" in front of it) that can determine rainbow phase in Adventure. */
     public String getRainbowPhase() {
         return config.getString("rainbow-phase", "");
     }
@@ -112,6 +114,7 @@ public class ConfigHandler {
         return getStringFromConfig(selection, isStyle, def, "player-names");
     }
 
+    /** Returns true if playerNames style is bold, false if it is not (and false by default). */
     public boolean playerNameIsBold() {
         ConfigurationSection style = getRelevantSection(Query.PLAYER);
 

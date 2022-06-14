@@ -4,7 +4,7 @@ import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.enums.Query;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
-import com.gmail.artemis.the.gr8.playerstats.filehandlers.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import com.google.common.collect.ImmutableList;
@@ -27,18 +27,18 @@ public class StatThread extends Thread {
 
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
-    private final MessageFactory messageFactory;
+    private static MessageFactory messageFactory;
     private final Main plugin;
 
     //constructor (called on thread creation)
-    public StatThread(int threshold, StatRequest s, @Nullable ReloadThread r, BukkitAudiences b, ConfigHandler c, MessageFactory o, Main p) {
+    public StatThread(BukkitAudiences a, ConfigHandler c, MessageFactory m, Main p, int threshold, StatRequest s, @Nullable ReloadThread r) {
         this.threshold = threshold;
         request = s;
         reloadThread = r;
 
-        adventure = b;
+        adventure = a;
         config = c;
-        messageFactory = o;
+        messageFactory = m;
         plugin = p;
         plugin.getLogger().info("StatThread created!");
     }

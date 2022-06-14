@@ -19,14 +19,14 @@ import org.jetbrains.annotations.NotNull;
 
 public class StatCommand implements CommandExecutor {
 
-    private final ThreadManager threadManager;
     private final BukkitAudiences adventure;
-    private static MessageFactory messageFactory;
+    private final MessageFactory messageFactory;
+    private final ThreadManager threadManager;
 
-    public StatCommand(ThreadManager t, BukkitAudiences b, MessageFactory m) {
-        threadManager = t;
-        adventure = b;
+    public StatCommand(BukkitAudiences a, MessageFactory m, ThreadManager t) {
+        adventure = a;
         messageFactory = m;
+        threadManager = t;
     }
 
     @Override

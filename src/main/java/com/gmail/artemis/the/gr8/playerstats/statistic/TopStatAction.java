@@ -20,6 +20,7 @@ public class TopStatAction extends RecursiveAction {
     /**
      * Gets the statistic numbers for all players whose name is on the list, puts them in a ConcurrentHashMap
      * using the default ForkJoinPool, and returns the ConcurrentHashMap when everything is done
+     * @param threshold the maximum length of playerNames to process in one task
      * @param playerNames ImmutableList of playerNames of players that should be included in the stat calculations
      * @param statRequest a validated statRequest
      * @param playerStats the ConcurrentHashMap to put the results on
@@ -46,7 +47,7 @@ public class TopStatAction extends RecursiveAction {
         }
     }
 
-    private void getStatsDirectly() {
+    private void getStatsDirectly() throws UnsupportedOperationException {
         try {
             Iterator<String> iterator = playerNames.iterator();
             if (iterator.hasNext()) {

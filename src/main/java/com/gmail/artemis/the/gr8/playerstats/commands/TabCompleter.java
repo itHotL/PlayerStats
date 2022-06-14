@@ -48,14 +48,14 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                                     block.contains(args[args.length - 1])).collect(Collectors.toList());
                             case ITEM -> EnumHandler.getItemNames().stream().filter(item ->
                                     item.contains(args[args.length - 1])).collect(Collectors.toList());
-                            case ENTITY -> EnumHandler.getEntityTypeNames().stream().filter(entity ->
+                            case ENTITY -> EnumHandler.getEntityNames().stream().filter(entity ->
                                     entity.contains(args[args.length - 1])).collect(Collectors.toList());
                         };
                 }
 
                 //if previous arg = "player", suggest playerNames
                 else if (args[args.length-2].equalsIgnoreCase("player")) {
-                    if (args.length >= 3 && EnumHandler.getEntityStatNames().contains(args[args.length-3].toLowerCase())) {
+                    if (args.length >= 3 && EnumHandler.getEntitySubStatNames().contains(args[args.length-3].toLowerCase())) {
                         tabSuggestions = commandOptions;
                     }
                     else {

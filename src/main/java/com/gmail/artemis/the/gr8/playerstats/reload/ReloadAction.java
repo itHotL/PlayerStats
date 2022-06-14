@@ -20,6 +20,10 @@ public class ReloadAction extends RecursiveAction {
     private final int lastPlayedLimit;
     private final ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
 
+    /**
+     * @param threshold the maximum length of playerNames to process in one task
+     * @param players array of OfflinePlayers
+     */
     public ReloadAction(int threshold, OfflinePlayer[] players,
                         boolean whitelistOnly, boolean excludeBanned, int lastPlayedLimit,
                         ConcurrentHashMap<String, UUID> offlinePlayerUUIDs) {

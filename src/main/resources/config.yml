@@ -1,14 +1,12 @@
 # ------------------------------------------------------------------------------------------------------ #
 #                                     PlayerStats Configuration                                          #
 # ------------------------------------------------------------------------------------------------------ #
-config-version: 2.1
+config-version: 3
 
 
-                                 # ------------------------------- #
-                                 #            General              #
-                                 # ------------------------------- #
-# Send OP players a message if the config-version is outdated when they join the server
-outdated-config-notifications: true
+#                                # ------------------------------- #                                     #
+#                                #            General              #                                     #
+#                                # ------------------------------- #                                     #
 
 # Filtering options to control which players should be included in statistic calculations
 include-whitelist-only: false
@@ -19,10 +17,13 @@ exclude-banned-players: false
 number-of-days-since-last-joined: 0
 
 
-                                 # ------------------------------- #
-                                 #        Format & Display         #
-                                 # ------------------------------- #
-# For the duration of certain holidays or festivals, PlayerStats will use special themed formatting
+#                                # ------------------------------- #                                     #
+#                                #        Format & Display         #                                     #
+#                                # ------------------------------- #                                     #
+
+# Whether to use special themed formatting for the duration of certain holidays or festivals
+# The festive formatting automatically stops when the holiday/event is over
+# Changing this setting requires a server restart to take effect!
 enable-festive-formatting: true
 rainbow-phase:
 
@@ -44,22 +45,24 @@ total-server-stat-title: 'Total on'
 your-server-name: 'this server'
 
 
-                                 # ------------------------------- #
-                                 #          Color & Style          #
-                                 # ------------------------------- #
+#                                # ------------------------------- #                                     #
+#                                #          Color & Style          #                                     #
+#                                # ------------------------------- #                                     #
+
 # The colors below can be Chat Colors or hex codes (format: '#xxxxxx' <-- including quotation marks!)
 
-              # -------- Styles --------- #               # -------- Chat Colors --------- #
-              #                           #               #                                #
-              #           bold            #               #      red          dark_red     #
-              #          italic           #               #    yellow           gold       #
-              #        underlined         #               #     green        dark_green    #
-              #          magic            #               #     aqua          dark_aqua    #
-              #       strikethrough       #               #     blue          dark_blue    #
-              # ------------------------- #               #  light_purple    dark_purple   #
-                                                          #     gray          dark_gray    #
-                                                          #     black           white      #
-top-list:                                                 # ------------------------------ #
+#             # -------- Styles --------- #               # -------- Chat Colors --------- #             #
+#             #                           #               #                                #             #
+#             #           bold            #               #      red          dark_red     #             #
+#             #          italic           #               #    yellow           gold       #             #
+#             #        underlined         #               #     green        dark_green    #             #
+#             #          magic            #               #     aqua          dark_aqua    #             #
+#             #       strikethrough       #               #     blue          dark_blue    #             #
+#             # ------------------------- #               #  light_purple    dark_purple   #             #
+#                                                         #     gray          dark_gray    #             #
+#                                                         #     black           white      #             #
+#                                                         # ------------------------------ #             #
+top-list:
   title: yellow
   title-style: none
 
