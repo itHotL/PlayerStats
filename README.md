@@ -5,7 +5,7 @@
 
 ## About
 PlayerStats is a Minecraft server plugin that adds a command to view player statistics in 
-top-10 format or individually. Currently supports version **1.18.2** on platforms:
+top-10 format or individually. Currently tested on all versions between **1.18** and **1.19** on platforms:
 - Bukkit
 - Spigot
 - Paper
@@ -19,7 +19,9 @@ top-10 format or individually. Currently supports version **1.18.2** on platform
      - Show you the **top 10** on your server for all possible statistics with `/statistic ... top`
        ![Top_10](src/main/resources/images/top_10_4.png)
      - See those same statistics for any **individual player** with `/statistic ... player`
-       ![Individual_stat](src/main/resources/images/individual_stat.png)
+       ![Individual_Stat](src/main/resources/images/individual_stat.png)
+     - Or look up the **combined total** of everyone on your server!
+       ![Server_Stat](src/main/resources/images/server_stat.png)
      - Guide you through the available options while you type with an extensive **tab-complete** feature
        ![Tab_Complete](src/main/resources/images/tab_complete.png)
 
@@ -33,10 +35,10 @@ top-10 format or individually. Currently supports version **1.18.2** on platform
    - PlayerStats uses **multi-threading** to ensure server performance does not suffer and 
      players cannot crash the server by spamming its commands
    - This also means that for small to medium-sized servers, calculating statistics will be very **fast**   
-     **For large servers (1000+ players), please read the disclaimer below**  
+     **For large servers (10.000+ players), please read the disclaimer below**  
 
 * **Customizable**  
-    - You can customize the following:
+    - You can customize the following (and more!):
       - Only show statistics for **whitelisted** players
       - Exclude statistics from **banned** players
       - Limit statistics based on when a player **last joined**.  
@@ -54,11 +56,9 @@ top-10 format or individually. Currently supports version **1.18.2** on platform
 How PlayerStats performs, will heavily depend on the amount of unique players that have joined 
 your server, and on the specs of the machine it is running on. I have done elaborate testing on 
 my local server, and it is currently also running on the SMP I play on. Looking up an individual
-statistic is always nearly instant, but for a **top statistic** it can vary. For example: 
-with 110 unique players, it takes about 0.1 seconds to calculate a top statistic on my SMP. 
-With the same playerdata, my laptop takes 0.3 seconds to calculate the same thing.  
+statistic is always nearly instant, but for a **top statistic** it can vary.  
 
-If you have a large amount of unique players (1000+), you could run into performance issues. 
+If you have a large amount of unique players (10.000+), you could run into performance issues. 
 If you notice it takes a long time to calculate top statistics, I recommend limiting 
 the amount of included players by setting a `number-of-days-since-last-joined` limit in the config. 
 Additionally, if you run into issues, you could revoke the permission `playerstats.stat` 
