@@ -42,15 +42,23 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
             //after checking if args[0] is a viable statistic, suggest substatistic OR commandOptions
             else {
                 if (EnumHandler.isStatistic(args[args.length-2])) {
-                        tabSuggestions = switch (EnumHandler.getStatType(args[args.length-2])) {
-                            case UNTYPED -> commandOptions;
-                            case BLOCK -> EnumHandler.getBlockNames().stream().filter(block ->
+                        switch (EnumHandler.getStatType(args[args.length-2])) {
+                            case UNTYPED:
+                                tabSuggestions = commandOptions;
+                                break;
+                            case BLOCK:
+                                tabSuggestions = EnumHandler.getBlockNames().stream().filter(block ->
                                     block.contains(args[args.length - 1])).collect(Collectors.toList());
-                            case ITEM -> EnumHandler.getItemNames().stream().filter(item ->
+                                break;
+                            case ITEM:
+                                tabSuggestions = EnumHandler.getItemNames().stream().filter(item ->
                                     item.contains(args[args.length - 1])).collect(Collectors.toList());
-                            case ENTITY -> EnumHandler.getEntityNames().stream().filter(entity ->
+                                break;
+                            case ENTITY:
+                                tabSuggestions = EnumHandler.getEntityNames().stream().filter(entity ->
                                     entity.contains(args[args.length - 1])).collect(Collectors.toList());
-                        };
+                                break;
+                        }
                 }
 
                 //if previous arg = "player", suggest playerNames

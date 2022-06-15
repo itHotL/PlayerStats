@@ -22,18 +22,18 @@ public class EnumHandler {
 
     static{
         blockNames = Arrays.stream(Material.values()).filter(
-                Material::isBlock).map(Material::toString).map(String::toLowerCase).toList();
+                Material::isBlock).map(Material::toString).map(String::toLowerCase).collect(Collectors.toList());
         entityNames = Arrays.stream(EntityType.values()).map(
-                EntityType::toString).map(String::toLowerCase).toList();
+                EntityType::toString).map(String::toLowerCase).collect(Collectors.toList());
         itemNames = Arrays.stream(Material.values()).filter(
-                Material::isItem).map(Material::toString).map(String::toLowerCase).toList();
+                Material::isItem).map(Material::toString).map(String::toLowerCase).collect(Collectors.toList());
         statNames = Arrays.stream(Statistic.values()).map(
-                Statistic::toString).map(String::toLowerCase).toList();
+                Statistic::toString).map(String::toLowerCase).collect(Collectors.toList());
         entitySubStatNames = Arrays.stream(Statistic.values()).filter(statistic ->
                 statistic.getType().equals(Statistic.Type.ENTITY)).map(
                 Statistic::toString).map(String::toLowerCase).collect(Collectors.toList());
 
-        subStatNames = Stream.of(blockNames, entityNames, itemNames).flatMap(Collection::stream).toList();
+        subStatNames = Stream.of(blockNames, entityNames, itemNames).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
     private EnumHandler() {
@@ -166,21 +166,16 @@ public class EnumHandler {
      @param subStatEntry a String representing the subStatEntry (entity, item or block) */
     private static boolean isMatchingSubStatEntry(@NotNull Statistic.Type statType, String subStatEntry) {
         switch (statType) {
-            case ENTITY -> {
+            case ENTITY:
                 return subStatEntry != null && isEntity(subStatEntry);
-            }
-            case ITEM -> {
+            case ITEM:
                 return subStatEntry != null && isItem(subStatEntry);
-            }
-            case BLOCK -> {
+            case BLOCK:
                 return subStatEntry != null && isBlock(subStatEntry);
-            }
-            case UNTYPED -> {
+            case UNTYPED:
                 return subStatEntry == null;
-            }
-            default -> {
+            default:
                 return false;
-            }
         }
     }
 }

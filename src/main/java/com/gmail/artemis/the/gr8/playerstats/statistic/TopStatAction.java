@@ -57,10 +57,18 @@ public class TopStatAction extends RecursiveAction {
                     if (player != null) {
                         int statistic = 0;
                         switch (request.getStatType()) {
-                            case UNTYPED -> statistic = player.getStatistic(request.getStatEnum());
-                            case ENTITY -> statistic = player.getStatistic(request.getStatEnum(), request.getEntity());
-                            case BLOCK -> statistic = player.getStatistic(request.getStatEnum(), request.getBlock());
-                            case ITEM -> statistic = player.getStatistic(request.getStatEnum(), request.getItem());
+                            case UNTYPED:
+                                statistic = player.getStatistic(request.getStatEnum());
+                                break;
+                            case ENTITY:
+                                statistic = player.getStatistic(request.getStatEnum(), request.getEntity());
+                                break;
+                            case BLOCK:
+                                statistic = player.getStatistic(request.getStatEnum(), request.getBlock());
+                                break;
+                            case ITEM:
+                                statistic = player.getStatistic(request.getStatEnum(), request.getItem());
+                                break;
                         }
                         if (statistic > 0) {
                             playerStats.put(playerName, statistic);

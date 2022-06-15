@@ -195,7 +195,9 @@ public class MessageFactory {
                     dots = (int) Math.round((130.0 - font.getWidth(count + ". ") - (font.getWidth(playerName) * 1.19))/2);
                 }
                 if (dots >= 1) {
-                    topList.append(dotsComponent(".".repeat(dots)));
+                    for (int i = 0; i <= dots; i++) {
+                        topList.append(dotsComponent());
+                    }
                 }
             }
             else {
@@ -295,8 +297,8 @@ public class MessageFactory {
                 getStyleFromString(config.getRankNumberFormatting(true)));
     }
 
-    protected TextComponent dotsComponent(String dots) {
-        return getComponent(dots,
+    protected TextComponent dotsComponent() {
+        return getComponent(".",
                 getColorFromString(config.getDotsFormatting(false)),
                 getStyleFromString(config.getDotsFormatting(true)));
     }

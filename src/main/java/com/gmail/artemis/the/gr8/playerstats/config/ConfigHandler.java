@@ -212,18 +212,14 @@ public class ConfigHandler {
     /** Returns the config section that contains the relevant color or style option. */
     private @Nullable ConfigurationSection getRelevantSection(Query selection) {
         switch (selection) {
-            case TOP -> {
+            case TOP:
                 return config.getConfigurationSection("top-list");
-            }
-            case PLAYER -> {
+            case PLAYER:
                 return config.getConfigurationSection("individual-statistics");
-            }
-            case SERVER -> {
+            case SERVER:
                 return config.getConfigurationSection("total-server");
-            }
-            default -> {
+            default:
                 return null;
-            }
         }
     }
 

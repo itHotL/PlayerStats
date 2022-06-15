@@ -112,7 +112,7 @@ public class StatThread extends Thread {
     }
 
     private int getServerTotal() {
-        List<Integer> numbers = getAllStats().values().stream().toList();
+        List<Integer> numbers = new ArrayList<>(getAllStats().values());
         return numbers.parallelStream().mapToInt(Integer::intValue).sum();
     }
 
@@ -146,26 +146,22 @@ public class StatThread extends Thread {
         OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(request.getPlayerName());
         if (player != null) {
             switch (request.getStatType()) {
-                case UNTYPED -> {
+                case UNTYPED:
                     return player.getStatistic(request.getStatEnum());
-                }
-                case ENTITY -> {
+                case ENTITY:
                     return player.getStatistic(request.getStatEnum(), request.getEntity());
-                }
-                case BLOCK -> {
+                case BLOCK:
                     return player.getStatistic(request.getStatEnum(), request.getBlock());
-                }
-                case ITEM -> {
+                case ITEM:
                     return player.getStatistic(request.getStatEnum(), request.getItem());
-                }
-                default -> {
+                default:
                     if (request.getStatType() != null) {
                         throw new UnsupportedOperationException("PlayerStats is not familiar with this statistic type - please check if you are using the latest version of the plugin!");
                     }
                     else {
                         throw new NullPointerException("Trying to calculate a statistic of which the type is null - is this a valid statistic?");
                     }
-                }
+
             }
         }
         throw new NullPointerException("The player you are trying to request either does not exist, or is not on the list for statistic lookups!");

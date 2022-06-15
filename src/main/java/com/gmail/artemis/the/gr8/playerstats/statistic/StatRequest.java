@@ -67,33 +67,34 @@ public class StatRequest {
 
     private void extractSubStat() {
         switch (statType) {
-            case ENTITY -> {
+            case ENTITY:
                 try {
                     if (EnumHandler.isEntity(subStatEntry)) {
                         entity = EnumHandler.getEntityEnum(subStatEntry);
+                        break;
                     }
                 } catch (IllegalArgumentException e) {
                     Bukkit.getLogger().warning(e.toString());
                 }
-            }
-            case ITEM -> {
+            case ITEM:
                 try {
                     if (EnumHandler.isItem(subStatEntry)) {
                         item = EnumHandler.getItemEnum(subStatEntry);
+                        break;
                     }
                 } catch (IllegalArgumentException e) {
                     Bukkit.getLogger().warning(e.toString());
                 }
-            }
-            case BLOCK -> {
+
+            case BLOCK:
                 try {
                     if (EnumHandler.isBlock(subStatEntry)) {
                         block = EnumHandler.getBlockEnum(subStatEntry);
+                        break;
                     }
                 } catch (IllegalArgumentException e) {
                     Bukkit.getLogger().warning(e.toString());
                 }
-            }
         }
     }
 

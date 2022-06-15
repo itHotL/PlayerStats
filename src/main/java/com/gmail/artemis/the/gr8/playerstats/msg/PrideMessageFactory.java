@@ -23,8 +23,8 @@ public class PrideMessageFactory extends MessageFactory {
     }
 
     @Override
-    protected TextComponent dotsComponent(String dots) {
+    protected TextComponent dotsComponent() {
         String tag = "<rainbow:" + config.getRainbowPhase() + ">";
-        return text().append(MiniMessage.miniMessage().deserialize((tag + dots))).build();
+        return text().append(MiniMessage.miniMessage().deserialize((tag + "."))).build();
     }
 }
