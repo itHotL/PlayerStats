@@ -17,7 +17,8 @@ public class ConfigUpdateHandler {
         try {
             configuration.save(configFile);
             ConfigUpdater.update(plugin, configFile.getName(), configFile);
-            //some logging statement
+            plugin.getLogger().info("Your config has been updated to version " + configVersion +
+                    "! This should have migrated your settings, but double-check your config.yml if you suspect something went wrong.");
         } catch (IOException e) {
             e.printStackTrace();
         }

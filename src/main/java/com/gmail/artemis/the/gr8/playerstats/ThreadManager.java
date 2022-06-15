@@ -41,12 +41,14 @@ public class ThreadManager {
         statThread.start();
     }
 
-    /** Store the time in milliseconds that the last top-stat-lookup took (or loading the offline-player-list if no look-ups have been done yet). */
+    /** Store the duration in milliseconds of the last top-stat-lookup
+     (or of loading the offline-player-list if no look-ups have been done yet). */
     public static void recordCalcTime(long time) {
         lastRecordedCalcTime = time;
     }
 
-    /** Returns the time in milliseconds the last top-stat-lookup took (or loading the offline-player-list if no look-ups have been done yet). */
+    /** Returns the duration in milliseconds of the last top-stat-lookup
+     (or of loading the offline-player-list if no look-ups have been done yet). */
     public static long getLastRecordedCalcTime() {
         return lastRecordedCalcTime;
     }

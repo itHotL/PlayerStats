@@ -20,9 +20,13 @@ public class ReloadAction extends RecursiveAction {
     private final int lastPlayedLimit;
     private final ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
 
-    /**
-     * @param threshold the maximum length of playerNames to process in one task
-     * @param players array of OfflinePlayers
+    /** Fills a ConcurrentHashMap with PlayerNames and UUIDs for all OfflinePlayers that should be included in statistic calculations.
+     * @param threshold the maximum length of OfflinePlayers to process in one task
+     * @param players array of all OfflinePlayers (straight from Bukkit)
+     * @param whitelistOnly whether to limit players based on the whitelist
+     * @param excludeBanned whether to exclude banned players
+     * @param lastPlayedLimit whether to set a limit based on last-played-date
+     * @param offlinePlayerUUIDs the ConcurrentHashMap to put resulting playerNames and UUIDs on
      */
     public ReloadAction(int threshold, OfflinePlayer[] players,
                         boolean whitelistOnly, boolean excludeBanned, int lastPlayedLimit,

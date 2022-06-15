@@ -69,21 +69,27 @@ public class StatRequest {
         switch (statType) {
             case ENTITY -> {
                 try {
-                    entity = EnumHandler.getEntityEnum(subStatEntry);
+                    if (EnumHandler.isEntity(subStatEntry)) {
+                        entity = EnumHandler.getEntityEnum(subStatEntry);
+                    }
                 } catch (IllegalArgumentException e) {
                     Bukkit.getLogger().warning(e.toString());
                 }
             }
             case ITEM -> {
                 try {
-                    item = EnumHandler.getItemEnum(subStatEntry);
+                    if (EnumHandler.isItem(subStatEntry)) {
+                        item = EnumHandler.getItemEnum(subStatEntry);
+                    }
                 } catch (IllegalArgumentException e) {
                     Bukkit.getLogger().warning(e.toString());
                 }
             }
             case BLOCK -> {
                 try {
-                    block = EnumHandler.getBlockEnum(subStatEntry);
+                    if (EnumHandler.isBlock(subStatEntry)) {
+                        block = EnumHandler.getBlockEnum(subStatEntry);
+                    }
                 } catch (IllegalArgumentException e) {
                     Bukkit.getLogger().warning(e.toString());
                 }

@@ -15,22 +15,26 @@ public class OfflinePlayerHandler {
     private OfflinePlayerHandler() {
     }
 
+    /** Checks if a given playerName is on the private HashMap of players that should be included in statistic calculations
+     @param playerName String, case-sensitive */
     public static boolean isOfflinePlayerName(String playerName) {
         return offlinePlayerUUIDs.containsKey(playerName);
     }
 
-    public static int getOfflinePlayerCount() throws NullPointerException {
-        if (offlinePlayerUUIDs != null && offlinePlayerUUIDs.size() > 0) return offlinePlayerUUIDs.size();
-        else throw new NullPointerException("No players found!");
+    /** Returns the number of OfflinePlayers that are included in statistic calculations */
+    public static int getOfflinePlayerCount() {
+        return offlinePlayerUUIDs != null ? offlinePlayerUUIDs.size() : 0;
     }
 
+    /** Get an ArrayList of names from all OfflinePlayers that should be included in statistic calculations */
     public static ArrayList<String> getOfflinePlayerNames() {
         return playerNames;
     }
 
     /**
      * Get a new HashMap that stores the players to include in stat calculations.
-     * This HashMap is stored as a private variable in OfflinePlayerHandler (keys: playerNames, values: UUIDs).
+     * This HashMap is stored as a private variable in OfflinePlayerHandler.
+     * @param playerList ConcurrentHashMap with keys: playerNames and values: UUIDs
      */
     public static void updateOfflinePlayerList(ConcurrentHashMap<String, UUID> playerList) {
         offlinePlayerUUIDs = playerList;

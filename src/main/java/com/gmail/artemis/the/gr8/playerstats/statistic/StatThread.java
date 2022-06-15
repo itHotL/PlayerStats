@@ -40,7 +40,6 @@ public class StatThread extends Thread {
         config = c;
         messageFactory = m;
         plugin = p;
-        plugin.getLogger().info("StatThread created!");
     }
 
     //what the thread will do once started
@@ -96,14 +95,12 @@ public class StatThread extends Thread {
 
         else if (selection == Query.PLAYER) {
             try {
-                long time = System.currentTimeMillis();
                 adventure.sender(sender).sendMessage(
                         messageFactory.formatPlayerStat(
                                 playerName, statName, subStatEntry, getIndividualStat()));
-                plugin.logTimeTaken("StatThread", "calculating individual stat", time);
 
             } catch (UnsupportedOperationException | NullPointerException e) {
-                adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.getMessage()));
+                adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString()));
             }
         }
     }
@@ -123,7 +120,8 @@ public class StatThread extends Thread {
     private @NotNull ConcurrentHashMap<String, Integer> getAllStats() throws ConcurrentModificationException, NullPointerException {
         long time = System.currentTimeMillis();
 
-        ConcurrentHashMap<String, Integer> playerStats = new ConcurrentHashMap<>((int) (OfflinePlayerHandler.getOfflinePlayerCount() * 1.05));
+        int size = OfflinePlayerHandler.getOfflinePlayerCount() != 0 ? (int) (OfflinePlayerHandler.getOfflinePlayerCount() * 1.05) : 16;
+        ConcurrentHashMap<String, Integer> playerStats = new ConcurrentHashMap<>(size);
         ImmutableList<String> playerNames = ImmutableList.copyOf(OfflinePlayerHandler.getOfflinePlayerNames());
         TopStatAction task = new TopStatAction(threshold, playerNames,
                 request, playerStats);
@@ -138,7 +136,7 @@ public class StatThread extends Thread {
         }
 
         ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
-        plugin.logTimeTaken("StatThread", "calculating all stats", time);
+        plugin.logTimeTaken("StatThread", "calculated all stats", time);
 
         return playerStats;
     }

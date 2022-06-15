@@ -39,8 +39,9 @@ public class EnumHandler {
     private EnumHandler() {
     }
 
-    /** Checks whether the provided string is a valid item */
-    public static boolean isItem(String itemName) {
+    /** Checks whether the provided string is a valid item
+     @param itemName String, case-insensitive */
+    public static boolean isItem(@NotNull String itemName) {
         return itemNames.contains(itemName.toLowerCase());
     }
 
@@ -49,8 +50,10 @@ public class EnumHandler {
         return itemNames;
     }
 
-    /** Returns corresponding item enum constant (uppercase), otherwise throws exception (param: itemName, case insensitive) */
-    public static Material getItemEnum(String itemName) throws IllegalArgumentException {
+    /** Returns corresponding item enum constant for an itemName
+     @param itemName String, case-insensitive
+     @return Material enum constant, uppercase */
+    public static @NotNull Material getItemEnum(String itemName) throws IllegalArgumentException {
         Material material = Material.matchMaterial(itemName);
         if (material != null) {
             return material;
@@ -61,7 +64,7 @@ public class EnumHandler {
     }
 
     /** Checks whether the provided string is a valid entity */
-    public static boolean isEntity(String entityName) {
+    public static boolean isEntity(@NotNull String entityName) {
         return entityNames.contains(entityName.toLowerCase());
     }
 
@@ -70,18 +73,21 @@ public class EnumHandler {
         return entityNames;
     }
 
-    /** Returns EntityType enum constant (uppercase) if the input name is valid, otherwise throws exception (param: entityName, case insensitive) */
+    /** Returns corresponding EntityType enum constant for an entityName
+     @param entityName String, case-insensitive
+     @return EntityType enum constant, uppercase */
     public static EntityType getEntityEnum(@NotNull String entityName) throws IllegalArgumentException {
         try {
             return EntityType.valueOf(entityName.toUpperCase());
         }
         catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(entityName + " is not a valid EntityType! ", e.getCause());
+            throw new IllegalArgumentException(entityName + " is not a valid entity! ", e.getCause());
         }
     }
 
-    /** Checks whether the provided string is a valid block */
-    public static boolean isBlock(String materialName) {
+    /** Checks whether the provided string is a valid block
+     @param materialName String, case-insensitive */
+    public static boolean isBlock(@NotNull String materialName) {
         return blockNames.contains(materialName.toLowerCase());
     }
 
@@ -90,8 +96,10 @@ public class EnumHandler {
         return blockNames;
     }
 
-    /** Returns corresponding block enum constant (uppercase), otherwise throws exception (param: materialName, case insensitive) */
-    public static Material getBlockEnum(String materialName) throws IllegalArgumentException {
+    /** Returns corresponding block enum constant for a materialName
+     @param materialName String, case-insensitive
+     @return Material enum constant, uppercase */
+    public static @NotNull Material getBlockEnum(String materialName) throws IllegalArgumentException {
         Material material = Material.matchMaterial(materialName);
         if (material != null) {
             return material;
@@ -101,8 +109,9 @@ public class EnumHandler {
         }
     }
 
-    /** Checks if string is a valid statistic (param: statName, not case sensitive) */
-    public static boolean isStatistic(String statName) {
+    /** Checks if string is a valid statistic
+     @param statName String, case-insensitive */
+    public static boolean isStatistic(@NotNull String statName) {
         return statNames.contains(statName.toLowerCase());
     }
 
@@ -111,7 +120,8 @@ public class EnumHandler {
         return statNames;
     }
 
-    /** Returns the statistic enum constant, otherwise throws exception (param: statName, case insensitive) */
+    /** Returns the statistic enum constant, otherwise throws exception
+     @param statName String, case-insensitive */
     public static Statistic getStatEnum(@NotNull String statName) throws IllegalArgumentException {
         try {
             return Statistic.valueOf(statName.toUpperCase());
@@ -121,8 +131,10 @@ public class EnumHandler {
         }
     }
 
-    /** Gets the type of the statistic from the string, otherwise throws exception (param: statName, case insensitive) */
-    public static Statistic.Type getStatType(@NotNull String statName) throws IllegalArgumentException {
+    /** Gets the type of the statistic from the string
+     @param statName String, case-insensitive
+     @return Statistic.Type */
+    public static Statistic.@NotNull Type getStatType(@NotNull String statName) throws IllegalArgumentException {
         try {
             return Statistic.valueOf(statName.toUpperCase()).getType();
         }
@@ -131,8 +143,9 @@ public class EnumHandler {
         }
     }
 
-    /** Checks if this statistic is a subStatEntry, meaning it is a block, item or entity (param: statName, not case sensitive) */
-    public static boolean isSubStatEntry(String statName) {
+    /** Checks if this statistic is a subStatEntry, meaning it is a block, item or entity
+     @param statName String, case-insensitive*/
+    public static boolean isSubStatEntry(@NotNull String statName) {
         return subStatNames.contains(statName.toLowerCase());
     }
 
@@ -141,12 +154,16 @@ public class EnumHandler {
         return entitySubStatNames;
     }
 
-    /** Checks whether a subStatEntry is of the type that the statistic requires */
+    /** Checks whether a subStatEntry is of the type that the statistic requires
+     @param statType the Type of the Statistic to check
+     @param subStatEntry a String representing the subStatEntry (entity, item or block)*/
     public static boolean isValidStatEntry(Statistic.Type statType, String subStatEntry) {
         return (statType != null) && isMatchingSubStatEntry(statType, subStatEntry);
     }
 
-    /** Returns true if subStatEntry matches the type the stat requires, or if stat is untyped and subStatEntry is null */
+    /** Returns true if subStatEntry matches the type the stat requires, or if stat is untyped and subStatEntry is null
+     @param statType the Type of the Statistic to check
+     @param subStatEntry a String representing the subStatEntry (entity, item or block) */
     private static boolean isMatchingSubStatEntry(@NotNull Statistic.Type statType, String subStatEntry) {
         switch (statType) {
             case ENTITY -> {

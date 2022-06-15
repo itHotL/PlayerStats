@@ -12,6 +12,7 @@ import net.kyori.adventure.util.Index;
 import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.bukkit.map.MinecraftFont;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -38,41 +39,49 @@ public class MessageFactory {
 
     protected TextComponent pluginPrefix() {
         return text("[")
+                .color(NamedTextColor.GRAY)
                 .append(text("PlayerStats").color(NamedTextColor.GOLD))
-                .append(text("]")
-                        .append(space()))
-                .color(NamedTextColor.GRAY);
+                .append(text("]"))
+                .append(space());
     }
 
-    public TextComponent configIsOutdated() {
-        return pluginPrefix().append(
-                text("Your config version is outdated! Please delete your current config.yml (or rename it/copy it to another folder) and do /statreload"))
-                .color(NamedTextColor.DARK_GRAY).decorate(TextDecoration.ITALIC);
-    }
     public TextComponent reloadedConfig() {
-        return pluginPrefix().append(text("Config reloaded!").color(NamedTextColor.GREEN));
+        return pluginPrefix()
+                .append(text("Config reloaded!")
+                        .color(NamedTextColor.GREEN));
     }
 
     public TextComponent stillReloading() {
-        return pluginPrefix().append(text("The plugin is still (re)loading, your request will be processed when it is done!").color(msgColor));
+        return pluginPrefix()
+                .append(text("The plugin is still (re)loading, your request will be processed when it is done!")
+                        .color(msgColor));
     }
 
     public TextComponent partiallyReloaded() {
-        return pluginPrefix().append(
-                text("The reload process was interrupted. If you notice unexpected behavior, please reload PlayerStats again to fix it!").color(msgColor));
+        return pluginPrefix()
+                .append(text("The reload process was interrupted. If you notice unexpected behavior, please reload PlayerStats again to fix it!")
+                        .color(msgColor));
     }
 
     public TextComponent waitAMoment(boolean longWait) {
-        return longWait ? pluginPrefix().append(text("Calculating statistics, this may take a minute...").color(msgColor))
-                : pluginPrefix().append(text("Calculating statistics, this may take a few moments...").color(msgColor));
+        return longWait ? pluginPrefix()
+                .append(text("Calculating statistics, this may take a minute...")
+                        .color(msgColor))
+                : pluginPrefix()
+                .append(text("Calculating statistics, this may take a few moments...")
+                        .color(msgColor));
     }
 
-    public TextComponent formatExceptions(String exception) {
-        return pluginPrefix().append(text(exception).color(msgColor));
+    public TextComponent formatExceptions(@NotNull String exception) {
+        return pluginPrefix()
+                .append(text(exception)
+                        .color(msgColor));
     }
 
     public TextComponent missingStatName() {
-        return pluginPrefix().append(text("Please provide a valid statistic name!").color(msgColor));
+        return pluginPrefix()
+                .append(text("Please provide a valid statistic name!")
+                        .color(msgColor));
     }
 
     public TextComponent missingSubStatName(Statistic.Type statType) {
@@ -80,12 +89,14 @@ public class MessageFactory {
         return pluginPrefix()
                 .append(text("Please add a valid ")
                         .append(text(subStat))
-                        .append(text(" to look up this statistic!")))
-                .color(msgColor);
+                        .append(text(" to look up this statistic!"))
+                        .color(msgColor));
     }
 
     public TextComponent missingPlayerName() {
-        return pluginPrefix().append(text("Please specify a valid player-name!").color(msgColor));
+        return pluginPrefix()
+                .append(text("Please specify a valid player-name!")
+                        .color(msgColor));
     }
 
     public TextComponent wrongSubStatType(Statistic.Type statType, String subStatEntry) {
@@ -95,8 +106,9 @@ public class MessageFactory {
                         .append(text(subStatEntry))
                         .append(text("\""))
                         .append(text(" is not a valid "))
-                        .append(text(subStat)))
-                .color(msgColor);
+                        .append(text(subStat))
+                        .append(text("!"))
+                        .color(msgColor));
     }
 
     public TextComponent unknownError() {

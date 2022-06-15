@@ -40,8 +40,6 @@ public class ReloadThread extends Thread {
         statThread = s;
         sender = se;
         firstTimeLoading = firstTime;
-
-        plugin.getLogger().info("ReloadThread created");
     }
 
     @Override
@@ -72,8 +70,7 @@ public class ReloadThread extends Thread {
                     }
                 }
 
-                plugin.getLogger().info("Amount of relevant players: " + OfflinePlayerHandler.getOfflinePlayerCount());
-                plugin.logTimeTaken("ReloadThread", "loaded offline players", time);
+                plugin.logTimeTaken("ReloadThread", ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
                 if (sender != null) {
                     adventure.sender(sender).sendMessage(messageFactory.reloadedConfig());
                 }
@@ -81,18 +78,22 @@ public class ReloadThread extends Thread {
         }
         //during first start-up...
         else {
-            plugin.getLogger().info("Loading offline players...");
             OfflinePlayerHandler.updateOfflinePlayerList(getPlayerMap(true));
-
-            plugin.getLogger().info("Amount of relevant players: " + OfflinePlayerHandler.getOfflinePlayerCount());
-            plugin.logTimeTaken("ReloadThread", "loaded offline players", time);
+            plugin.logTimeTaken("ReloadThread", ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
             ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
         }
     }
 
     private ConcurrentHashMap<String, UUID> getPlayerMap(boolean firstTimeLoading) {
         OfflinePlayer[] offlinePlayers = Bukkit.getOfflinePlayers();
-        int size = firstTimeLoading ? offlinePlayers.length : OfflinePlayerHandler.getOfflinePlayerCount();
+
+        int size;
+        if (firstTimeLoading) {
+            size = offlinePlayers.length;
+        }
+        else {
+            size = OfflinePlayerHandler.getOfflinePlayerCount() != 0 ? OfflinePlayerHandler.getOfflinePlayerCount() : 16;
+        }
 
         ConcurrentHashMap<String, UUID> playerMap = new ConcurrentHashMap<>(size);
 

@@ -102,7 +102,12 @@ public class StatCommand implements CommandExecutor {
             if (request.getSelection() == null) assumeTopAsDefault(request);
             if (request.getSubStatEntry() != null) verifySubStat(request);
 
-            return EnumHandler.isValidStatEntry(request.getStatType(), request.getSubStatEntry());
+            if (request.getSelection() == Query.PLAYER && request.getPlayerName() == null) {
+                return false;
+            }
+            else {
+                return EnumHandler.isValidStatEntry(request.getStatType(), request.getSubStatEntry());
+            }
         }
         return false;
     }

@@ -13,6 +13,9 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDate;
+import java.time.Month;
+
 
 public class Main extends JavaPlugin {
 
@@ -27,17 +30,30 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        long time = System.currentTimeMillis();
-
         //initialize the Adventure library
         adventure = BukkitAudiences.create(this);
 
-        //get instances of the classes that should be initialized
+        //first get an instance of the ConfigHandler
         ConfigHandler config = new ConfigHandler(this);
-        MessageFactory messageFactory = config.useFestiveFormatting() ? new PrideMessageFactory(config) : new MessageFactory(config);
+
+        //then determine if we need a regular MessageFactory or a festive one
+        MessageFactory messageFactory;
+        if (config.useFestiveFormatting()) {
+            if (LocalDate.now().getMonth().equals(Month.JUNE)) {
+                messageFactory = new PrideMessageFactory(config);
+            }
+            else {
+                messageFactory = new MessageFactory(config);
+            }
+        }
+        else {
+            messageFactory = new MessageFactory(config);
+        }
+
+        //initialize the threadManager
         ThreadManager threadManager = new ThreadManager(adventure(), config, messageFactory, this);
 
-        //register the commands
+        //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
             statcmd.setExecutor(new StatCommand(adventure(), messageFactory, threadManager));
@@ -50,7 +66,6 @@ public class Main extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new JoinListener(threadManager), this);
 
         //finish up
-        logTimeTaken("onEnable", "time taken", time);
         this.getLogger().info("Enabled PlayerStats!");
     }
 
