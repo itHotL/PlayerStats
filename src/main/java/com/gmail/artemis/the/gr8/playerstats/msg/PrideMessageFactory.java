@@ -51,16 +51,21 @@ public class PrideMessageFactory extends MessageFactory {
                     .build();
 
             if (font.getWidth(prefixTitle.content()) > font.getWidth(statTitle.content())) {
-
+                //divide by 4 to get spaces, then by 2 to get distance needed at the front
+                int spaces = (int) Math.round((double) (font.getWidth(prefixTitle.content()) - font.getWidth(statTitle.content()))/8);
+                String space = " ".repeat(spaces);
+                return Component.newline()
+                        .append(prefixTitle)
+                        .append(newline())
+                        .append(text(space))
+                        .append(statTitle);
             }
-
-            return Component.newline()
-                    .append(getPrefixAsTitle(false))
-                    .append(newline())
-                    .append(titleComponent(Query.TOP, "Top")).append(space())
-                    .append(titleNumberComponent(topLength)).append(space())
-                    .append(statNameComponent(Query.TOP, statName)).append(space())
-                    .append(subStatNameComponent(Query.TOP, subStatEntryName));
+            else {
+                return Component.newline()
+                        .append(prefixTitle)
+                        .append(newline())
+                        .append(statTitle);
+            }
         }
     }
 
