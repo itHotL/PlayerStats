@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -79,7 +80,7 @@ public class StatThread extends Thread {
             try {
                 if (selection == Query.TOP) {
                     adventure.sender(sender).sendMessage(messageFactory.formatTopStats(
-                            getTopStats(), statName, subStatEntry));
+                            getTopStats(), statName, subStatEntry, sender instanceof ConsoleCommandSender));
                 }
                 else {
                     adventure.sender(sender).sendMessage(messageFactory.formatServerStat(

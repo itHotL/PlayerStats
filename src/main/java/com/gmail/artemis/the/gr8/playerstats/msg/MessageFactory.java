@@ -128,17 +128,16 @@ public class MessageFactory {
 
     public TextComponent usageExamples(boolean isConsoleSender) {
         TextComponent spaces = text("    "); //4 spaces
-        TextComponent underscores = text("_____________").color(TextColor.fromHexString("#6E3485"));
         TextComponent arrow = text("→ ").color(NamedTextColor.GOLD);
         TextColor accentColor = TextColor.fromHexString("#FFE339");
 
-        if (isConsoleSender) {
+        if (isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit")) {
             arrow = text("-> ").color(NamedTextColor.GOLD);
             accentColor = NamedTextColor.YELLOW;
         }
 
         return Component.newline()
-                .append(underscores).append(spaces).append(pluginPrefix()).append(spaces).append(underscores)
+                .append(getPrefixAsTitle(isConsoleSender))
                 .append(newline())
                 .append(text("Examples: ").color(NamedTextColor.GOLD))
                 .append(newline())
@@ -166,14 +165,9 @@ public class MessageFactory {
         return singleStat.build();
     }
 
-    public TextComponent formatTopStats(LinkedHashMap<String, Integer> topStats, String statName, String subStatEntryName) {
+    public TextComponent formatTopStats(@NotNull LinkedHashMap<String, Integer> topStats, String statName, String subStatEntryName, boolean isConsoleSender) {
         TextComponent.Builder topList = Component.text();
-
-        topList.append(newline()).append(pluginPrefix())
-                .append(titleComponent(Query.TOP, "Top")).append(space())
-                .append(titleNumberComponent(topStats.size())).append(space())
-                .append(statNameComponent(Query.TOP, statName)).append(space())
-                .append(subStatNameComponent(Query.TOP, subStatEntryName));
+        topList.append(getTopStatTitle(topStats.size(), statName, subStatEntryName, isConsoleSender));
 
         boolean useDots = config.useDots();
         Set<String> playerNames = topStats.keySet();
@@ -191,11 +185,14 @@ public class MessageFactory {
                 topList.append(space());
 
                 int dots = (int) Math.round((130.0 - font.getWidth(count + ". " + playerName))/2);
-                if (config.playerNameIsBold()) {
+                if (isConsoleSender) {
+                    dots = (int) Math.round((130.0 - font.getWidth(count + ". " + playerName))/6) + 7;
+                }
+                else if (config.playerNameIsBold()) {
                     dots = (int) Math.round((130.0 - font.getWidth(count + ". ") - (font.getWidth(playerName) * 1.19))/2);
                 }
                 if (dots >= 1) {
-                    topList.append(dotsComponent(".".repeat(dots)));
+                    topList.append(dotsComponent(".".repeat(dots), isConsoleSender));
                 }
             }
             else {
@@ -221,22 +218,28 @@ public class MessageFactory {
         return  serverStat.build();
     }
 
-    //returns the type of the substatistic in String-format, or null if this statistic is not of type block, item or entity
-    private String getSubStatTypeName(Statistic.Type statType) {
-        String subStat;
-        if (statType == Statistic.Type.BLOCK) {
-            subStat = "block";
+    protected TextComponent getPrefixAsTitle(boolean isConsoleSender) {
+        String underscores = "____________";  //12 underscores for both console and in-game
+        TextColor underscoreColor = TextColor.fromHexString("#6E3485");  //a dark shade of purple
+
+        if (isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit")) {
+            underscoreColor = NamedTextColor.DARK_PURPLE;
         }
-        else if (statType == Statistic.Type.ITEM) {
-            subStat = "item";
-        }
-        else if (statType == Statistic.Type.ENTITY) {
-            subStat = "entity";
-        }
-        else {
-            subStat = null;
-        }
-        return subStat;
+
+        return text(underscores).color(underscoreColor)
+                .append(text("    "))  //4 spaces
+                .append(pluginPrefix())
+                .append(text("   "))  //3 spaces (since prefix already has one)
+                .append(text(underscores));
+    }
+
+    protected TextComponent getTopStatTitle(int topLength, String statName, String subStatEntryName, boolean isConsoleSender) {
+        return Component.newline()
+                .append(pluginPrefix())
+                .append(titleComponent(Query.TOP, "Top")).append(space())
+                .append(titleNumberComponent(topLength)).append(space())
+                .append(statNameComponent(Query.TOP, statName)).append(space())
+                .append(subStatNameComponent(Query.TOP, subStatEntryName));
     }
 
     protected TextComponent playerNameComponent(Query selection, String playerName) {
@@ -245,7 +248,7 @@ public class MessageFactory {
                 getStyleFromString(config.getPlayerNameFormatting(selection, true)));
     }
 
-    protected TextComponent statNameComponent(Query selection, String statName) {
+    protected TextComponent statNameComponent(Query selection, @NotNull String statName) {
         return getComponent(statName.toLowerCase().replace("_", " "),
                 getColorFromString(config.getStatNameFormatting(selection, false)),
                 getStyleFromString(config.getStatNameFormatting(selection, true)));
@@ -295,7 +298,7 @@ public class MessageFactory {
                 getStyleFromString(config.getRankNumberFormatting(true)));
     }
 
-    protected TextComponent dotsComponent(String dots) {
+    protected TextComponent dotsComponent(String dots, boolean isConsoleSender) {
         return getComponent(dots,
                 getColorFromString(config.getDotsFormatting(false)),
                 getStyleFromString(config.getDotsFormatting(true)));
@@ -327,7 +330,7 @@ public class MessageFactory {
         return names.value(textColor);
     }
 
-    private @Nullable TextDecoration getStyleFromString(String configString) {
+    private @Nullable TextDecoration getStyleFromString(@NotNull String configString) {
         if (configString.equalsIgnoreCase("none")) {
             return null;
         }
@@ -340,23 +343,32 @@ public class MessageFactory {
         }
     }
 
-    protected TextComponent getHelpMsgTitle(boolean isConsoleSender) {
-        String underscores = isConsoleSender ? "___________" : "____________";  //11 underscores for console, 12 for in-game chat
-        return text(underscores).color(TextColor.fromHexString("#6E3485"))  //a dark shade of purple
-                .append(text("    "))  //4 spaces
-                .append(pluginPrefix())
-                .append(text("   "))  //3 spaces (since prefix already has one)
-                .append(text(underscores));
+    //returns the type of the substatistic in String-format, or null if this statistic is not of type block, item or entity
+    private String getSubStatTypeName(Statistic.Type statType) {
+        String subStat;
+        if (statType == Statistic.Type.BLOCK) {
+            subStat = "block";
+        }
+        else if (statType == Statistic.Type.ITEM) {
+            subStat = "item";
+        }
+        else if (statType == Statistic.Type.ENTITY) {
+            subStat = "entity";
+        }
+        else {
+            subStat = null;
+        }
+        return subStat;
     }
 
     //returns the usage-explanation with hovering text
-    private TextComponent helpMsgHover() {
+    private @NotNull TextComponent helpMsgHover() {
         TextComponent spaces = text("    "); //4 spaces
         TextComponent arrow = text("→ ").color(NamedTextColor.GOLD);  //alt + 26
         TextColor arguments = NamedTextColor.YELLOW;
 
         return Component.newline()
-                .append(getHelpMsgTitle(false))
+                .append(getPrefixAsTitle(false))
                 .append(newline())
                 .append(text("Hover over the arguments for more information!").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC))
                 .append(newline())
@@ -409,21 +421,21 @@ public class MessageFactory {
 
     //returns the usage-explanation without any hovering text
     //if BukkitVersion is CraftBukkit, this doesn't use unicode symbols or hex colors
-    private TextComponent helpMsgPlain(boolean isConsoleSender) {
+    private @NotNull TextComponent helpMsgPlain(boolean isConsoleSender) {
         TextComponent spaces = text("    "); //4 spaces
         TextComponent arrow = text("→ ").color(NamedTextColor.GOLD); //alt + 26;
         TextComponent bullet = text("• ").color(NamedTextColor.GOLD); //alt + 7
         TextColor arguments = NamedTextColor.YELLOW;
         TextColor accentColor = accentColor2;
 
-        if (isConsoleSender && Bukkit.getVersion().equalsIgnoreCase("CraftBukkit")) {
+        if (isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit")) {
             arrow = text("-> ").color(NamedTextColor.GOLD);
             bullet = text("* ").color(NamedTextColor.GOLD);
             accentColor = NamedTextColor.GOLD;
         }
 
         return Component.newline()
-                .append(getHelpMsgTitle(isConsoleSender))
+                .append(getPrefixAsTitle(isConsoleSender))
                 .append(newline())
                 .append(text("Type \"/statistic examples\" to see examples!").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC))
                 .append(newline())

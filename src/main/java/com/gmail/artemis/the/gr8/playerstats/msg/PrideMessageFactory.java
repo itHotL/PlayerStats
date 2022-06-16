@@ -2,8 +2,12 @@ package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 
+import com.gmail.artemis.the.gr8.playerstats.enums.Query;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
+import org.bukkit.map.MinecraftFont;
 
 import static net.kyori.adventure.text.Component.*;
 
@@ -18,13 +22,56 @@ public class PrideMessageFactory extends MessageFactory {
     }
 
     @Override
-    protected TextComponent getHelpMsgTitle(boolean isConsoleSender) {
-        return text().append(MiniMessage.miniMessage().deserialize("<rainbow:16>____________    [PlayerStats]    ____________</rainbow>")).build();
+    protected TextComponent getPrefixAsTitle(boolean isConsoleSender) {
+        if (isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit")) {
+            return super.getPrefixAsTitle(true);
+        }
+        else {
+            String underscores = "____________";  //12 underscores
+            String title = "<rainbow:16>" + underscores + "    [PlayerStats]    " + underscores + "</rainbow>";
+            return text()
+                    .append(MiniMessage.miniMessage().deserialize(title))
+                    .build();
+        }
     }
 
     @Override
-    protected TextComponent dotsComponent(String dots) {
-        String tag = "<rainbow:" + config.getRainbowPhase() + ">";
-        return text().append(MiniMessage.miniMessage().deserialize((tag + dots))).build();
+    protected TextComponent getTopStatTitle(int topLength, String statName, String subStatEntryName, boolean isConsoleSender) {
+        if (isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit")) {
+            return super.getTopStatTitle(topLength, statName, subStatEntryName, true);
+        }
+        else {
+            MinecraftFont font = new MinecraftFont();
+            TextComponent prefixTitle = getPrefixAsTitle(false);
+            TextComponent statTitle = Component.text()
+                    .append(titleComponent(Query.TOP, "Top")).append(space())
+                    .append(titleNumberComponent(topLength)).append(space())
+                    .append(statNameComponent(Query.TOP, statName)).append(space())
+                    .append(subStatNameComponent(Query.TOP, subStatEntryName))
+                    .build();
+
+            if (font.getWidth(prefixTitle.content()) > font.getWidth(statTitle.content())) {
+
+            }
+
+            return Component.newline()
+                    .append(getPrefixAsTitle(false))
+                    .append(newline())
+                    .append(titleComponent(Query.TOP, "Top")).append(space())
+                    .append(titleNumberComponent(topLength)).append(space())
+                    .append(statNameComponent(Query.TOP, statName)).append(space())
+                    .append(subStatNameComponent(Query.TOP, subStatEntryName));
+        }
+    }
+
+    @Override
+    protected TextComponent dotsComponent(String dots, boolean isConsoleSender) {
+        if (isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit")) {
+            return super.dotsComponent(dots, true);
+        }
+        else {
+            String tag = "<rainbow:" + config.getRainbowPhase() + ">";
+            return text().append(MiniMessage.miniMessage().deserialize((tag + dots))).build();
+        }
     }
 }
