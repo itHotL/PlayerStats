@@ -89,6 +89,11 @@ public class ConfigHandler {
         return config.getInt("top-list-max-size", 10);
     }
 
+    /** Returns a String that represents the title for a top statistic.
+     <p>Default: "Top"</p>*/
+    public String getTopStatsTitel() {
+        return config.getString("top-list-title", "Top");
+    }
     /** Returns a String that represents the title for a server stat.
      <p>Default: "Total on"</p> */
     public String getServerTitle() {

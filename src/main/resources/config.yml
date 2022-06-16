@@ -37,7 +37,7 @@ use-dots: true
 top-list-max-size: 10
 
 # The title above the top list (this will become 'Top 10 animals bred', for example)
-top-list-title: 'Top [x]'
+top-list-title: 'Top'
 
 # The title in front of a total-on-this-server statistic
 # This will become 'Total on this server: [n] animals bred', for example

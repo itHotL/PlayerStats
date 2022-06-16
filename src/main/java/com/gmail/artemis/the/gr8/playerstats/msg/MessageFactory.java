@@ -236,7 +236,7 @@ public class MessageFactory {
     protected TextComponent getTopStatTitle(int topLength, String statName, String subStatEntryName, boolean isConsoleSender) {
         return Component.newline()
                 .append(pluginPrefix())
-                .append(titleComponent(Query.TOP, "Top")).append(space())
+                .append(titleComponent(Query.TOP, config.getTopStatsTitel())).append(space())
                 .append(titleNumberComponent(topLength)).append(space())
                 .append(statNameComponent(Query.TOP, statName)).append(space())
                 .append(subStatNameComponent(Query.TOP, subStatEntryName));
