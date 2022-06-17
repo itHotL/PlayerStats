@@ -65,12 +65,6 @@ public class ConfigHandler {
         return config.getBoolean("enable-festive-formatting", true);
     }
 
-    /** Gets a String representation of an integer (with or without "!" in front of it) that can determine rainbow phase in Adventure.
-     <p>Default: ""</p>*/
-    public String getRainbowPhase() {
-        return config.getString("rainbow-phase", "");
-    }
-
     /** Whether or not to use HoverComponents in the usage explanation.
      <p>Default: true</p>*/
     public boolean useHoverText() {
@@ -91,9 +85,10 @@ public class ConfigHandler {
 
     /** Returns a String that represents the title for a top statistic.
      <p>Default: "Top"</p>*/
-    public String getTopStatsTitel() {
+    public String getTopStatsTitle() {
         return config.getString("top-list-title", "Top");
     }
+
     /** Returns a String that represents the title for a server stat.
      <p>Default: "Total on"</p> */
     public String getServerTitle() {
@@ -247,6 +242,7 @@ public class ConfigHandler {
     private void checkConfigVersion() {
         if (!config.contains("config-version") || config.getInt("config-version") != configVersion) {
             new ConfigUpdateHandler(plugin, configFile, configVersion);
+            reloadConfig();
         }
     }
 }

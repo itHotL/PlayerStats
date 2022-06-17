@@ -37,7 +37,7 @@ public class MessageFactory {
         accentColor2 = TextColor.fromHexString("#FFD52B");
     }
 
-    protected TextComponent pluginPrefix() {
+    protected TextComponent pluginPrefix(boolean isConsoleSender) {
         return text("[")
                 .color(NamedTextColor.GRAY)
                 .append(text("PlayerStats").color(NamedTextColor.GOLD))
@@ -45,63 +45,63 @@ public class MessageFactory {
                 .append(space());
     }
 
-    public TextComponent reloadedConfig() {
-        return pluginPrefix()
+    public TextComponent reloadedConfig(boolean isConsoleSender) {
+        return pluginPrefix(isConsoleSender)
                 .append(text("Config reloaded!")
                         .color(NamedTextColor.GREEN));
     }
 
-    public TextComponent stillReloading() {
-        return pluginPrefix()
+    public TextComponent stillReloading(boolean isConsoleSender) {
+        return pluginPrefix(isConsoleSender)
                 .append(text("The plugin is still (re)loading, your request will be processed when it is done!")
                         .color(msgColor));
     }
 
-    public TextComponent partiallyReloaded() {
-        return pluginPrefix()
+    public TextComponent partiallyReloaded(boolean isConsoleSender) {
+        return pluginPrefix(isConsoleSender)
                 .append(text("The reload process was interrupted. If you notice unexpected behavior, please reload PlayerStats again to fix it!")
                         .color(msgColor));
     }
 
-    public TextComponent waitAMoment(boolean longWait) {
-        return longWait ? pluginPrefix()
+    public TextComponent waitAMoment(boolean longWait, boolean isConsoleSender) {
+        return longWait ? pluginPrefix(isConsoleSender)
                 .append(text("Calculating statistics, this may take a minute...")
                         .color(msgColor))
-                : pluginPrefix()
+                : pluginPrefix(isConsoleSender)
                 .append(text("Calculating statistics, this may take a few moments...")
                         .color(msgColor));
     }
 
-    public TextComponent formatExceptions(@NotNull String exception) {
-        return pluginPrefix()
+    public TextComponent formatExceptions(@NotNull String exception, boolean isConsoleSender) {
+        return pluginPrefix(isConsoleSender)
                 .append(text(exception)
                         .color(msgColor));
     }
 
-    public TextComponent missingStatName() {
-        return pluginPrefix()
+    public TextComponent missingStatName(boolean isConsoleSender) {
+        return pluginPrefix(isConsoleSender)
                 .append(text("Please provide a valid statistic name!")
                         .color(msgColor));
     }
 
-    public TextComponent missingSubStatName(Statistic.Type statType) {
+    public TextComponent missingSubStatName(Statistic.Type statType, boolean isConsoleSender) {
         String subStat = getSubStatTypeName(statType) == null ? "sub-statistic" : getSubStatTypeName(statType);
-        return pluginPrefix()
+        return pluginPrefix(isConsoleSender)
                 .append(text("Please add a valid ")
                         .append(text(subStat))
                         .append(text(" to look up this statistic!"))
                         .color(msgColor));
     }
 
-    public TextComponent missingPlayerName() {
-        return pluginPrefix()
+    public TextComponent missingPlayerName(boolean isConsoleSender) {
+        return pluginPrefix(isConsoleSender)
                 .append(text("Please specify a valid player-name!")
                         .color(msgColor));
     }
 
-    public TextComponent wrongSubStatType(Statistic.Type statType, String subStatEntry) {
+    public TextComponent wrongSubStatType(Statistic.Type statType, String subStatEntry, boolean isConsoleSender) {
         String subStat = getSubStatTypeName(statType) == null ? "sub-statistic for this statistic" : getSubStatTypeName(statType);
-        return pluginPrefix()
+        return pluginPrefix(isConsoleSender)
                 .append(text("\"")
                         .append(text(subStatEntry))
                         .append(text("\""))
@@ -111,8 +111,8 @@ public class MessageFactory {
                         .color(msgColor));
     }
 
-    public TextComponent unknownError() {
-        return pluginPrefix()
+    public TextComponent unknownError(boolean isConsoleSender) {
+        return pluginPrefix(isConsoleSender)
                 .append(text("Something went wrong with your request, please try again or see /statistic for a usage explanation!")
                         .color(msgColor));
     }
@@ -192,7 +192,7 @@ public class MessageFactory {
                     dots = (int) Math.round((130.0 - font.getWidth(count + ". ") - (font.getWidth(playerName) * 1.19))/2);
                 }
                 if (dots >= 1) {
-                    topList.append(dotsComponent(".".repeat(dots), isConsoleSender));
+                    topList.append(dotsComponent(".".repeat(dots)));
                 }
             }
             else {
@@ -228,15 +228,15 @@ public class MessageFactory {
 
         return text(underscores).color(underscoreColor)
                 .append(text("    "))  //4 spaces
-                .append(pluginPrefix())
+                .append(pluginPrefix(isConsoleSender))
                 .append(text("   "))  //3 spaces (since prefix already has one)
                 .append(text(underscores));
     }
 
     protected TextComponent getTopStatTitle(int topLength, String statName, String subStatEntryName, boolean isConsoleSender) {
         return Component.newline()
-                .append(pluginPrefix())
-                .append(titleComponent(Query.TOP, config.getTopStatsTitel())).append(space())
+                .append(pluginPrefix(isConsoleSender))
+                .append(titleComponent(Query.TOP, config.getTopStatsTitle())).append(space())
                 .append(titleNumberComponent(topLength)).append(space())
                 .append(statNameComponent(Query.TOP, statName)).append(space())
                 .append(subStatNameComponent(Query.TOP, subStatEntryName));
@@ -298,7 +298,7 @@ public class MessageFactory {
                 getStyleFromString(config.getRankNumberFormatting(true)));
     }
 
-    protected TextComponent dotsComponent(String dots, boolean isConsoleSender) {
+    protected TextComponent dotsComponent(String dots) {
         return getComponent(dots,
                 getColorFromString(config.getDotsFormatting(false)),
                 getStyleFromString(config.getDotsFormatting(true)));

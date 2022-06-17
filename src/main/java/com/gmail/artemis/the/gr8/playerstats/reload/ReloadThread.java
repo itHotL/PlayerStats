@@ -10,6 +10,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ConcurrentModificationException;
@@ -66,13 +67,13 @@ public class ReloadThread extends Thread {
                 catch (ConcurrentModificationException e) {
                     plugin.getLogger().warning("The request could not be fully executed due to a ConcurrentModificationException");
                     if (sender != null) {
-                        adventure.sender(sender).sendMessage(messageFactory.partiallyReloaded());
+                        adventure.sender(sender).sendMessage(messageFactory.partiallyReloaded(sender instanceof ConsoleCommandSender));
                     }
                 }
 
                 plugin.logTimeTaken("ReloadThread", ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
                 if (sender != null) {
-                    adventure.sender(sender).sendMessage(messageFactory.reloadedConfig());
+                    adventure.sender(sender).sendMessage(messageFactory.reloadedConfig(sender instanceof ConsoleCommandSender));
                 }
             }
         }

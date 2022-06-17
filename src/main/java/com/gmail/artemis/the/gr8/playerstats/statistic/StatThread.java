@@ -55,7 +55,7 @@ public class StatThread extends Thread {
         if (reloadThread != null && reloadThread.isAlive()) {
             try {
                 plugin.getLogger().info("Waiting for reloadThread to finish up...");
-                adventure.sender(request.getCommandSender()).sendMessage(messageFactory.stillReloading());
+                adventure.sender(request.getCommandSender()).sendMessage(messageFactory.stillReloading(request.getCommandSender() instanceof ConsoleCommandSender));
                 reloadThread.join();
             } catch (InterruptedException e) {
                 plugin.getLogger().warning(e.toString());
@@ -64,6 +64,7 @@ public class StatThread extends Thread {
         }
 
         CommandSender sender = request.getCommandSender();
+        boolean isConsoleSencer = sender instanceof ConsoleCommandSender;
         String playerName = request.getPlayerName();
         String statName = request.getStatName();
         String subStatEntry = request.getSubStatEntry();
@@ -71,10 +72,10 @@ public class StatThread extends Thread {
 
         if (selection == Query.TOP || selection == Query.SERVER) {
             if (ThreadManager.getLastRecordedCalcTime() > 20000) {
-                adventure.sender(sender).sendMessage(messageFactory.waitAMoment(true));
+                adventure.sender(sender).sendMessage(messageFactory.waitAMoment(true, isConsoleSencer));
             }
             else if (ThreadManager.getLastRecordedCalcTime() > 2000) {
-                adventure.sender(sender).sendMessage(messageFactory.waitAMoment(false));
+                adventure.sender(sender).sendMessage(messageFactory.waitAMoment(false, isConsoleSencer));
             }
 
             try {
@@ -88,9 +89,11 @@ public class StatThread extends Thread {
                 }
 
             } catch (ConcurrentModificationException e) {
-                adventure.sender(sender).sendMessage(messageFactory.unknownError());
+                if (!isConsoleSencer) {
+                    adventure.sender(sender).sendMessage(messageFactory.unknownError(false));
+                }
             } catch (Exception e) {
-                adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString()));
+                adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString(), isConsoleSencer));
             }
         }
 
@@ -101,7 +104,7 @@ public class StatThread extends Thread {
                                 playerName, statName, subStatEntry, getIndividualStat()));
 
             } catch (UnsupportedOperationException | NullPointerException e) {
-                adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString()));
+                adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString(), isConsoleSencer));
             }
         }
     }
@@ -132,7 +135,7 @@ public class StatThread extends Thread {
             commonPool.invoke(task);
         } catch (ConcurrentModificationException e) {
             plugin.getLogger().warning("The request could not be executed due to a ConcurrentModificationException. " +
-                    "This likely happened because Bukkit hasn't fully initialized all players yet. Try again and it should be fine!");
+                    "This likely happened because Bukkit hasn't fully initialized all player-data yet. Try again and it should be fine!");
             throw new ConcurrentModificationException(e.toString());
         }
 

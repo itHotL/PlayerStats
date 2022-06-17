@@ -136,18 +136,19 @@ public class StatCommand implements CommandExecutor {
 
     //call this method when isValidStatRequest has returned false to get a relevant error-message
     private TextComponent getRelevantFeedback(@NotNull StatRequest request) {
+        boolean isConsoleSender = request.getCommandSender() instanceof ConsoleCommandSender;
         if (request.getStatName() == null) {
-            return messageFactory.missingStatName();
+            return messageFactory.missingStatName(isConsoleSender);
         }
         else if (request.getStatType() != Statistic.Type.UNTYPED && request.getSubStatEntry() == null) {
-            return messageFactory.missingSubStatName(request.getStatType());
+            return messageFactory.missingSubStatName(request.getStatType(), isConsoleSender);
         }
         else if (!EnumHandler.isValidStatEntry(request.getStatType(), request.getSubStatEntry())){
-            return messageFactory.wrongSubStatType(request.getStatType(), request.getSubStatEntry());
+            return messageFactory.wrongSubStatType(request.getStatType(), request.getSubStatEntry(), isConsoleSender);
         }
         else if (request.getSelection() == Query.PLAYER && request.getPlayerName() == null) {
-            return messageFactory.missingPlayerName();
+            return messageFactory.missingPlayerName(isConsoleSender);
         }
-        return messageFactory.unknownError();
+        return messageFactory.unknownError(isConsoleSender);
     }
 }

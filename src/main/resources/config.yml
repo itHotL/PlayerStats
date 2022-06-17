@@ -25,7 +25,6 @@ number-of-days-since-last-joined: 0
 # The festive formatting automatically stops when the holiday/event is over
 # Changing this setting requires a server restart to take effect!
 enable-festive-formatting: true
-rainbow-phase: 5
 
 # Use hover-text for additional info in the usage explanation (set "false" to disable)
 enable-hover-text: true

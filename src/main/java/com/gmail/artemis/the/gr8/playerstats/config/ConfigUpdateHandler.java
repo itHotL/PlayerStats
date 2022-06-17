@@ -13,6 +13,7 @@ public class ConfigUpdateHandler {
     /** Add new key-value pairs to the config without losing comments, using <a href="https://github.com/tchristofferson/Config-Updater">tchristofferson's Config-Updater</a> */
     public ConfigUpdateHandler(Main plugin, File configFile, int configVersion) {
         YamlConfiguration configuration = YamlConfiguration.loadConfiguration(configFile);
+        updateTopListDefault(configuration);
         configuration.set("config-version", configVersion);
         try {
             configuration.save(configFile);
@@ -21,6 +22,13 @@ public class ConfigUpdateHandler {
                     "! This should have migrated your settings, but double-check your config.yml if you suspect something went wrong.");
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void updateTopListDefault(YamlConfiguration configuration) {
+        String oldTitle = configuration.getString("top-list-title");
+        if (oldTitle != null && oldTitle.equalsIgnoreCase("Top [x]")) {
+            configuration.set("top-list-title", "Top");
         }
     }
 }
