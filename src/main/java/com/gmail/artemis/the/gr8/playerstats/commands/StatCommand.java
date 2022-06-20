@@ -35,6 +35,10 @@ public class StatCommand implements CommandExecutor {
             adventure.sender(sender).sendMessage(messageFactory.helpMsg(sender instanceof ConsoleCommandSender));
             return true;
         }
+        else if (args[0].equalsIgnoreCase("help")) {
+            adventure.sender(sender).sendMessage(messageFactory.helpMsg(sender instanceof ConsoleCommandSender));
+            return false;
+        }
 
         else if (args[0].equalsIgnoreCase("examples") ||
                 args[0].equalsIgnoreCase("example")) {  //in case of "statistic examples", show examples
