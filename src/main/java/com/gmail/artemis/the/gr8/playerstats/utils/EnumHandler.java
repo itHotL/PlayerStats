@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
@@ -63,6 +64,22 @@ public class EnumHandler {
         }
     }
 
+    public static String getItemKey(@NotNull String itemName, boolean logCC) throws IllegalArgumentException {
+        Material item = getItemEnum(itemName);
+        if (item.isBlock()) {
+            if (logCC) {
+                Bukkit.getLogger().info("Creative Category for Block " + item + " : " + item.getCreativeCategory());
+            }
+            return "block.minecraft." + item.getKey().getKey();
+        }
+        else {
+            if (logCC) {
+                Bukkit.getLogger().info("Creative Category for Item " + item + " : " + item.getCreativeCategory());
+            }
+            return "item.minecraft." + getItemEnum(itemName).getKey().getKey();
+        }
+    }
+
     /** Checks whether the provided string is a valid entity */
     public static boolean isEntity(@NotNull String entityName) {
         return entityNames.contains(entityName.toLowerCase());
@@ -83,6 +100,10 @@ public class EnumHandler {
         catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(entityName + " is not a valid entity! ", e.getCause());
         }
+    }
+
+    public static String getEntityKey(@NotNull String entityName) throws IllegalArgumentException {
+        return "entity.minecraft." + getEntityEnum(entityName).getKey().getKey();
     }
 
     /** Checks whether the provided string is a valid block
@@ -109,6 +130,10 @@ public class EnumHandler {
         }
     }
 
+    public static String getBlockKey(String materialName) throws IllegalArgumentException {
+        return "block.minecraft." + getBlockEnum(materialName).getKey().getKey();
+    }
+
     /** Checks if string is a valid statistic
      @param statName String, case-insensitive */
     public static boolean isStatistic(@NotNull String statName) {
@@ -130,6 +155,17 @@ public class EnumHandler {
             throw new IllegalArgumentException(statName + " is not a valid statistic!");
         }
     }
+
+    public static String getStatKey(@NotNull String statName) throws IllegalArgumentException {
+        Statistic stat = getStatEnum(statName);
+        if (stat.getType() == Statistic.Type.UNTYPED) {
+            return "stat.minecraft." + getStatEnum(statName).getKey().getKey();
+        }
+        else {
+            return "stat_type.minecraft." + getStatEnum(statName).getKey().getKey();
+        }
+    }
+
 
     /** Gets the type of the statistic from the string
      @param statName String, case-insensitive

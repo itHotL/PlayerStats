@@ -95,6 +95,7 @@
                             <artifactSet>
                                 <excludes>
                                     <exclude>org.jetbrains:annotations</exclude>
+                                    <exclude>META-INF/versions/**</exclude>
                                 </excludes>
                             </artifactSet>
                         </configuration>

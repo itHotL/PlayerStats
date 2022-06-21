@@ -2,8 +2,10 @@ package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.Query;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -159,9 +161,11 @@ public class MessageFactory {
                 .append(statNumberComponent(Query.PLAYER, stat))
                 .append(space())
                 .append(statNameComponent(Query.PLAYER, statName))
-                .append(space())
-                .append(subStatNameComponent(Query.PLAYER, subStatEntryName));
+                .append(space());
 
+        if (subStatNameComponent(Query.PLAYER, subStatEntryName) != null) {
+                singleStat.append(subStatNameComponent(Query.PLAYER, subStatEntryName));
+        }
         return singleStat.build();
     }
 
@@ -212,9 +216,11 @@ public class MessageFactory {
                 .append(statNumberComponent(Query.SERVER, stat))
                 .append(space())
                 .append(statNameComponent(Query.SERVER, statName))
-                .append(space())
-                .append(subStatNameComponent(Query.SERVER, subStatEntry));
+                .append(space());
 
+        if (subStatNameComponent(Query.SERVER, subStatEntry) != null) {
+                serverStat.append(subStatNameComponent(Query.SERVER, subStatEntry));
+        }
         return  serverStat.build();
     }
 
@@ -234,12 +240,17 @@ public class MessageFactory {
     }
 
     protected TextComponent getTopStatTitle(int topLength, String statName, String subStatEntryName, boolean isConsoleSender) {
-        return Component.newline()
+        TextComponent.Builder topStat = Component.text();
+                topStat.append(newline())
                 .append(pluginPrefix(isConsoleSender))
                 .append(titleComponent(Query.TOP, config.getTopStatsTitle())).append(space())
                 .append(titleNumberComponent(topLength)).append(space())
-                .append(statNameComponent(Query.TOP, statName)).append(space())
-                .append(subStatNameComponent(Query.TOP, subStatEntryName));
+                .append(statNameComponent(Query.TOP, statName)).append(space());
+
+        if (subStatNameComponent(Query.TOP, subStatEntryName) != null) {
+                topStat.append(subStatNameComponent(Query.TOP, subStatEntryName));
+        }
+        return topStat.build();
     }
 
     protected TextComponent playerNameComponent(Query selection, String playerName) {
@@ -248,21 +259,51 @@ public class MessageFactory {
                 getStyleFromString(config.getPlayerNameFormatting(selection, true)));
     }
 
-    protected TextComponent statNameComponent(Query selection, @NotNull String statName) {
-        return getComponent(statName.toLowerCase().replace("_", " "),
-                getColorFromString(config.getStatNameFormatting(selection, false)),
-                getStyleFromString(config.getStatNameFormatting(selection, true)));
+    protected TranslatableComponent statNameComponent(Query selection, @NotNull String statName) {
+        TextDecoration style = getStyleFromString(config.getStatNameFormatting(selection, true));
+        String name = EnumHandler.getStatKey(statName);
+        if (style != null) {
+            return Component.translatable(
+                    name,
+                    getColorFromString(config.getStatNameFormatting(selection, false)),
+                    style);
+        } else {
+            return Component.translatable(name,
+                    getColorFromString(config.getStatNameFormatting(selection, false)));
+        }
     }
 
-    protected TextComponent subStatNameComponent(Query selection, String subStatName) {
+    protected TranslatableComponent subStatNameComponent(Query selection, @Nullable String subStatName) {
         if (subStatName == null) {
-            return empty();
+            return null;
+        }
+        String name = null;
+        if (EnumHandler.isEntity(subStatName)){
+            name = EnumHandler.getEntityKey(subStatName);
+        }
+        else if (EnumHandler.isBlock(subStatName)) {
+            name = EnumHandler.getBlockKey(subStatName);
+        }
+        else if (EnumHandler.isItem(subStatName)) {
+            name = EnumHandler.getItemKey(subStatName, false);
+        }
+        if (name != null) {
+            TextDecoration style = getStyleFromString(config.getSubStatNameFormatting(selection, true));
+            if (style != null) {
+                return Component.translatable(
+                        name,
+                        getColorFromString(config.getSubStatNameFormatting(selection, false)),
+                        style)
+                        .append(space());
+            } else {
+                return Component.translatable(
+                        name,
+                        getColorFromString(config.getSubStatNameFormatting(selection, false)))
+                        .append(space());
+            }
         }
         else {
-            return getComponent("(" + subStatName.toLowerCase().replace("_", " ") + ")",
-                    getColorFromString(config.getSubStatNameFormatting(selection, false)),
-                    getStyleFromString(config.getSubStatNameFormatting(selection, true)))
-                    .append(space());
+            return null;
         }
     }
 
