@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.enums.Query;
+import com.gmail.artemis.the.gr8.playerstats.msg.LanguageKeyHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
@@ -75,68 +76,62 @@ public class StatCommand implements CommandExecutor {
 
     //test method
     private void printTranslatableNames(CommandSender sender, String selection, boolean extra) {
+        LanguageKeyHandler lang = new LanguageKeyHandler();
+
         if (selection == null) {
             TextComponent msg = Component.text("Include 'block', 'item', 'entity' or 'stat'").color(TextColor.fromHexString("#FFB80E"));
             adventure.sender(sender).sendMessage(msg);
         }
         else if (selection.equalsIgnoreCase("block")) {
             for (String name : EnumHandler.getBlockNames()) {
-                try {
-                    TranslatableComponent msg = Component.translatable((EnumHandler.getBlockKey(name)))
+                String key = lang.getBlockKey(name);
+                if (key != null) {
+                    TranslatableComponent msg = Component.translatable(key)
                             .color(TextColor.fromHexString("#FFB80E"))
                             .append(space())
                             .append(text("for blockName: ").color(NamedTextColor.WHITE))
                             .append(text(name).color(TextColor.fromHexString("#55AAFF")));
                     adventure.sender(sender).sendMessage(msg);
                 }
-                catch (IllegalArgumentException e) {
-                    adventure.sender(sender).sendMessage(Component.text(e.toString()));
-                }
-            }
-        }
-        else if (selection.equalsIgnoreCase("item")) {
-            for (String name : EnumHandler.getItemNames()) {
-                try {
-                    TranslatableComponent msg = Component.translatable((EnumHandler.getItemKey(name, extra)))
-                            .color(TextColor.fromHexString("#FFB80E"))
-                            .append(space())
-                            .append(text("for itemName: ").color(NamedTextColor.WHITE))
-                            .append(text(name).color(TextColor.fromHexString("#55AAFF")));
-                    adventure.sender(sender).sendMessage(msg);
-                }
-                catch (IllegalArgumentException e) {
-                    adventure.sender(sender).sendMessage(Component.text(e.toString()));
-                }
             }
         }
         else if (selection.equalsIgnoreCase("entity")) {
             for (String name : EnumHandler.getEntityNames()) {
-                try {
-                    TranslatableComponent msg = Component.translatable((EnumHandler.getEntityKey(name)))
+                String key = lang.getEntityKey(name);
+                if (key != null) {
+                    TranslatableComponent msg = Component.translatable(key)
                             .color(TextColor.fromHexString("#FFB80E"))
                             .append(space())
                             .append(text("for entityName: ").color(NamedTextColor.WHITE))
                             .append(text(name).color(TextColor.fromHexString("#55AAFF")));
                     adventure.sender(sender).sendMessage(msg);
                 }
-                catch (IllegalArgumentException e) {
-                    adventure.sender(sender).sendMessage(Component.text(e.toString()));
+            }
+        }
+        else if (selection.equalsIgnoreCase("item")) {
+            for (String name : EnumHandler.getItemNames()) {
+                String key = lang.getItemKey(name, extra);
+                if (key != null) {
+                    TranslatableComponent msg = Component.translatable(key)
+                            .color(TextColor.fromHexString("#FFB80E"))
+                            .append(space())
+                            .append(text("for itemName: ").color(NamedTextColor.WHITE))
+                            .append(text(name).color(TextColor.fromHexString("#55AAFF")));
+                    adventure.sender(sender).sendMessage(msg);
                 }
             }
         }
         else if (selection.equalsIgnoreCase("stat")) {
-            try {
-                for (String name : EnumHandler.getStatNames()) {
-                    TranslatableComponent msg = Component.translatable((EnumHandler.getStatKey(name)))
+            for (String name : EnumHandler.getStatNames()) {
+                String key = lang.getStatKey(name);
+                if (key != null) {
+                    TranslatableComponent msg = Component.translatable(key)
                             .color(TextColor.fromHexString("#FFB80E"))
                             .append(space())
                             .append(text("for statName: ").color(NamedTextColor.WHITE))
                             .append(text(name).color(TextColor.fromHexString("#55AAFF")));
                     adventure.sender(sender).sendMessage(msg);
                 }
-            }
-            catch (IllegalArgumentException e) {
-                adventure.sender(sender).sendMessage(Component.text(e.toString()));
             }
         }
         else {
