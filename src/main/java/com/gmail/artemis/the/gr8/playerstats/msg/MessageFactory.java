@@ -157,18 +157,13 @@ public class MessageFactory {
     }
 
     public TextComponent formatPlayerStat(String playerName, String statName, String subStatEntry, int stat) {
-        TextComponent.Builder singleStat = Component.text();
-
-        singleStat.append(playerNameComponent(Query.PLAYER, playerName + ": "))
+        return Component.text()
+                .append(playerNameComponent(Query.PLAYER, playerName + ": "))
                 .append(statNumberComponent(Query.PLAYER, stat))
                 .append(space())
                 .append(statNameComponent(Query.PLAYER, statName, subStatEntry))
-                .append(space());
-
-        if (subStatNameComponent(Query.PLAYER, subStatEntry) != null) {
-                singleStat.append(subStatNameComponent(Query.PLAYER, subStatEntry));
-        }
-        return singleStat.build();
+                .append(space())
+                .build();
     }
 
     public TextComponent formatTopStats(@NotNull LinkedHashMap<String, Integer> topStats, String statName, String subStatEntry, boolean isConsoleSender) {
@@ -210,20 +205,16 @@ public class MessageFactory {
     }
 
     public TextComponent formatServerStat(String statName, String subStatEntry, int stat) {
-        TextComponent.Builder serverStat = Component.text();
-        serverStat.append(titleComponent(Query.SERVER, config.getServerTitle()))
+        return Component.text()
+                .append(titleComponent(Query.SERVER, config.getServerTitle()))
                 .append(space())
                 .append(serverNameComponent())
                 .append(space())
                 .append(statNumberComponent(Query.SERVER, stat))
                 .append(space())
                 .append(statNameComponent(Query.SERVER, statName, subStatEntry))
-                .append(space());
-
-        if (subStatNameComponent(Query.SERVER, subStatEntry) != null) {
-                serverStat.append(subStatNameComponent(Query.SERVER, subStatEntry));
-        }
-        return  serverStat.build();
+                .append(space())
+                .build();
     }
 
     protected TextComponent getPrefixAsTitle(boolean isConsoleSender) {
@@ -242,17 +233,16 @@ public class MessageFactory {
     }
 
     protected TextComponent getTopStatTitle(int topLength, String statName, String subStatEntry, boolean isConsoleSender) {
-        TextComponent.Builder topStat = Component.text();
-                topStat.append(newline())
+        return Component.text()
+                .append(newline())
                 .append(pluginPrefix(isConsoleSender))
-                .append(titleComponent(Query.TOP, config.getTopStatsTitle())).append(space())
-                .append(titleNumberComponent(topLength)).append(space())
-                .append(statNameComponent(Query.TOP, statName, subStatEntry)).append(space());
-
-        if (subStatNameComponent(Query.TOP, subStatEntry) != null) {
-                topStat.append(subStatNameComponent(Query.TOP, subStatEntry));
-        }
-        return topStat.build();
+                .append(titleComponent(Query.TOP, config.getTopStatsTitle()))
+                .append(space())
+                .append(titleNumberComponent(topLength))
+                .append(space())
+                .append(statNameComponent(Query.TOP, statName, subStatEntry))
+                .append(space())
+                .build();
     }
 
     protected TextComponent playerNameComponent(Query selection, String playerName) {
@@ -262,74 +252,82 @@ public class MessageFactory {
     }
 
     protected TranslatableComponent statNameComponent(Query selection, @NotNull String statName, String subStatName) {
-        TextDecoration style = getStyleFromString(config.getStatNameFormatting(selection, true));
+        TextColor statNameColor = getColorFromString(config.getStatNameFormatting(selection, false));
+        TextDecoration statNameStyle = getStyleFromString(config.getStatNameFormatting(selection, true));
+        TranslatableComponent subStat = subStatNameComponent(selection, subStatName);
+
         String key = language.getStatKey(statName);
         if (key == null) {
             key = statName;
         }
-        else if (key.equalsIgnoreCase("stat_type.minecraft.killed")) {
-            TranslatableComponent.Builder statAndSubStat = translatable()
-                    .key("commands.kill.success.single")  //"Killed %s"
-                    .args(subStatNameComponent(selection, subStatName))
-                    .color(getColorFromString(config.getStatNameFormatting(selection, false)));
-            if (style != null) {
-                statAndSubStat.decoration(style, TextDecoration.State.TRUE);
-            }
-            return statAndSubStat.build();
-        }
-        else if (key.equalsIgnoreCase("stat_type.minecraft.killed_by")) {  //"commands.kill.success.single" + "book.byAuthor";  //"Killed %s" + "by %1$s"
+
+        //case for kill_entity
+        else if (key.equalsIgnoreCase("stat_type.minecraft.killed") && subStat != null) {
             TranslatableComponent.Builder totalName = translatable()
                     .key("commands.kill.success.single")  //"Killed %s"
-                    .color(getColorFromString(config.getStatNameFormatting(selection, false)))
-                    .append(translatable()
-                            .key("book.byAuthor")  //"by %1$s"
-                            .args(subStatNameComponent(selection, subStatName)));
-            if (style != null) {
-                totalName.decoration(style, TextDecoration.State.TRUE);
+                    .args(subStat)
+                    .color(statNameColor);
+            if (statNameStyle != null) {
+                totalName.decoration(statNameStyle, TextDecoration.State.TRUE);
             }
             return totalName.build();
         }
 
-        if (style != null) {
-            return Component.translatable(
-                    key,
-                    getColorFromString(config.getStatNameFormatting(selection, false)),
-                    style);
-        } else {
-            return Component.translatable(
-                    key,
-                    getColorFromString(config.getStatNameFormatting(selection, false)));
+        //case for entity_killed_by
+        else if (key.equalsIgnoreCase("stat_type.minecraft.killed_by") && subStat != null) {
+            String newKey = "stat.minecraft.player_kills";  //"Player Kills"
+            if (selection == Query.PLAYER) {
+                newKey = "stat.minecraft.deaths";  //"Number of Deaths"
+            }
+            TranslatableComponent.Builder totalName = translatable()
+                    .key(newKey)
+                    .append(space())
+                    .append(translatable()
+                            .key("book.byAuthor")  //"by %1$s"
+                            .args(subStat))
+                    .color(statNameColor);
+            if (statNameStyle != null) {
+                totalName.decoration(statNameStyle, TextDecoration.State.TRUE);
+            }
+            return totalName.build();
         }
+
+        //all other cases
+        TranslatableComponent.Builder totalName = translatable()
+                .key(key)
+                .color(statNameColor);
+
+        if (statNameStyle != null) totalName.decoration(statNameStyle, TextDecoration.State.TRUE);
+        if (subStat != null) {
+            totalName.append(space()).append(subStat);
+        }
+        return totalName.build();
     }
 
-    protected TranslatableComponent subStatNameComponent(Query selection, @Nullable String subStatName) {
+    protected @Nullable TranslatableComponent subStatNameComponent(Query selection, @Nullable String subStatName) {
         if (subStatName == null) {
             return null;
         }
-        String name = null;
+        String key = null;
         if (EnumHandler.isEntity(subStatName)){
-            name = language.getEntityKey(subStatName);
+            key = language.getEntityKey(subStatName);
         }
         else if (EnumHandler.isBlock(subStatName)) {
-            name = language.getBlockKey(subStatName);
+            key = language.getBlockKey(subStatName);
         }
         else if (EnumHandler.isItem(subStatName)) {
-            name = language.getItemKey(subStatName, false);
+            key = language.getItemKey(subStatName);
         }
-        if (name != null) {
+        if (key != null) {
             TextDecoration style = getStyleFromString(config.getSubStatNameFormatting(selection, true));
+            TranslatableComponent.Builder subStat = translatable()
+                    .key(key)
+                    .color(getColorFromString(config.getSubStatNameFormatting(selection, false)));
+
             if (style != null) {
-                return Component.translatable(
-                        name,
-                        getColorFromString(config.getSubStatNameFormatting(selection, false)),
-                        style)
-                        .append(space());
-            } else {
-                return Component.translatable(
-                        name,
-                        getColorFromString(config.getSubStatNameFormatting(selection, false)))
-                        .append(space());
+                subStat.decoration(style, TextDecoration.State.TRUE);
             }
+            return subStat.build();
         }
         else {
             return null;

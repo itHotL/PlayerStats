@@ -55,8 +55,7 @@ public class StatCommand implements CommandExecutor {
         }
         else if (args[0].equalsIgnoreCase("test")) {
             String selection = (args.length > 1) ? args[1] : null;
-            boolean extra = (args.length > 2);
-            printTranslatableNames(sender, selection, extra);
+            printTranslatableNames(sender, selection);
             return true;
         }
 
@@ -75,7 +74,7 @@ public class StatCommand implements CommandExecutor {
     }
 
     //test method
-    private void printTranslatableNames(CommandSender sender, String selection, boolean extra) {
+    private void printTranslatableNames(CommandSender sender, String selection) {
         LanguageKeyHandler lang = new LanguageKeyHandler();
 
         if (selection == null) {
@@ -110,7 +109,7 @@ public class StatCommand implements CommandExecutor {
         }
         else if (selection.equalsIgnoreCase("item")) {
             for (String name : EnumHandler.getItemNames()) {
-                String key = lang.getItemKey(name, extra);
+                String key = lang.getItemKey(name);
                 if (key != null) {
                     TranslatableComponent msg = Component.translatable(key)
                             .color(TextColor.fromHexString("#FFB80E"))

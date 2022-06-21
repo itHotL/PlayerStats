@@ -50,24 +50,18 @@ public class LanguageKeyHandler {
         }
     }
 
-    public @Nullable String getItemKey(@NotNull String itemName, boolean logCC) {
+    public @Nullable String getItemKey(@NotNull String itemName) {
         try {
             Material item = EnumHandler.getItemEnum(itemName);
             if (item.isBlock()) {
-                if (logCC) {
-                    Bukkit.getLogger().info("Creative Category for Block " + item + " : " + item.getCreativeCategory());
-                }
                 return "block.minecraft." + item.getKey().getKey();
             }
             else {
-                if (logCC) {
-                    Bukkit.getLogger().info("Creative Category for Item " + item + " : " + item.getCreativeCategory());
-                }
                 return "item.minecraft." + EnumHandler.getItemEnum(itemName).getKey().getKey();
             }
         }
         catch (IllegalArgumentException e) {
-            Bukkit.getLogger().info("PlayerStats, LanguageKeyHandler 70: " + e);
+            Bukkit.getLogger().info("PlayerStats, LanguageKeyHandler 64: " + e);
             return null;
         }
     }
@@ -81,7 +75,7 @@ public class LanguageKeyHandler {
             return "block.minecraft." + EnumHandler.getBlockEnum(name).getKey().getKey();
         }
         catch (IllegalArgumentException e) {
-            Bukkit.getLogger().info("PlayerStats, LanguageKeyHandler 84: " + e);
+            Bukkit.getLogger().info("PlayerStats, LanguageKeyHandler 78: " + e);
             return null;
         }
     }
