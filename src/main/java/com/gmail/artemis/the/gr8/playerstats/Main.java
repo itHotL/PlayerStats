@@ -7,6 +7,7 @@ import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import com.gmail.artemis.the.gr8.playerstats.msg.PrideMessageFactory;
+import com.gmail.artemis.the.gr8.playerstats.test.TestStatCommand;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
@@ -56,7 +57,7 @@ public class Main extends JavaPlugin {
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(adventure(), messageFactory, threadManager));
+            statcmd.setExecutor(new TestStatCommand(adventure(), messageFactory, threadManager));
             statcmd.setTabCompleter(new TabCompleter());
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
