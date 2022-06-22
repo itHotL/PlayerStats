@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------------------------------ #
 #                                     PlayerStats Configuration                                          #
 # ------------------------------------------------------------------------------------------------------ #
-config-version: 3
+config-version: 3.1
 
 
 #                                # ------------------------------- #                                     #
@@ -21,15 +21,22 @@ number-of-days-since-last-joined: 0
 #                                #        Format & Display         #                                     #
 #                                # ------------------------------- #                                     #
 
-# Whether to use special themed formatting for the duration of certain holidays or festivals
-# The festive formatting automatically stops when the holiday/event is over
-# Changing this setting requires a server restart to take effect!
-enable-festive-formatting: true
+# Display all statistic, block, item and entity names in the client language of the receiving player
+# The actual translation is handled by the Minecraft language files and happens automatically
+translate-to-client-language: true
 
-# Use hover-text for additional info in the usage explanation (set "false" to disable)
+# Use hover-text for additional info in the usage explanation
 enable-hover-text: true
 
-# If true, the stat-numbers in the top list will be aligned with dots
+# Use special themed formatting for the duration of certain holidays or festivals
+# The festive formatting automatically stops when the holiday/event is over
+enable-festive-formatting: true
+
+# Always use rainbow for the [PlayerStats] prefix instead of the default gold/purple
+# Changing this from false to true needs a server reboot to take full effect!
+rainbow-mode: false
+
+# Align the stat-numbers in the top list with dots
 use-dots: true
 
 # The maximum number of results displayed in the top list
@@ -39,7 +46,7 @@ top-list-max-size: 10
 top-list-title: 'Top'
 
 # The title in front of a total-on-this-server statistic
-# This will become 'Total on this server: [n] animals bred', for example
+# This will become 'Total on My Awesome Server: [n] animals bred', for example
 total-server-stat-title: 'Total on'
 your-server-name: 'this server'
 

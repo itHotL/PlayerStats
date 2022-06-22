@@ -21,19 +21,38 @@ public class EnumHandler {
     private final static List<String> subStatNames;
 
     static{
-        blockNames = Arrays.stream(Material.values()).filter(
-                Material::isBlock).map(Material::toString).map(String::toLowerCase).toList();
-        entityNames = Arrays.stream(EntityType.values()).map(
-                EntityType::toString).map(String::toLowerCase).toList();
-        itemNames = Arrays.stream(Material.values()).filter(
-                Material::isItem).map(Material::toString).map(String::toLowerCase).toList();
-        statNames = Arrays.stream(Statistic.values()).map(
-                Statistic::toString).map(String::toLowerCase).toList();
-        entitySubStatNames = Arrays.stream(Statistic.values()).filter(statistic ->
-                statistic.getType().equals(Statistic.Type.ENTITY)).map(
-                Statistic::toString).map(String::toLowerCase).collect(Collectors.toList());
+        blockNames = Arrays.stream(Material.values())
+                .filter(Material::isBlock)
+                .map(Material::toString)
+                .map(String::toLowerCase)
+                .toList();
 
-        subStatNames = Stream.of(blockNames, entityNames, itemNames).flatMap(Collection::stream).toList();
+        entityNames = Arrays.stream(EntityType.values())
+                .map(EntityType::toString)
+                .map(String::toLowerCase)
+                .filter(entityName -> !entityName.equalsIgnoreCase("unknown"))
+                .toList();
+
+        itemNames = Arrays.stream(Material.values())
+                .filter(Material::isItem)
+                .map(Material::toString)
+                .map(String::toLowerCase)
+                .toList();
+
+        statNames = Arrays.stream(Statistic.values())
+                .map(Statistic::toString)
+                .map(String::toLowerCase)
+                .toList();
+
+        entitySubStatNames = Arrays.stream(Statistic.values())
+                .filter(statistic -> statistic.getType().equals(Statistic.Type.ENTITY))
+                .map(Statistic::toString)
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+
+        subStatNames = Stream.of(blockNames, entityNames, itemNames)
+                .flatMap(Collection::stream)
+                .toList();
     }
 
     private EnumHandler() {

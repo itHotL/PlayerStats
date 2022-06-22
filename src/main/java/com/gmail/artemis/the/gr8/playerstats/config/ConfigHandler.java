@@ -14,14 +14,14 @@ public class ConfigHandler {
     private File configFile;
     private FileConfiguration config;
     private final Main plugin;
-    private final int configVersion;
+    private final double configVersion;
 
     public ConfigHandler(Main p) {
         plugin = p;
 
         saveDefaultConfig();
         config = YamlConfiguration.loadConfiguration(configFile);
-        configVersion = 3;
+        configVersion = 3.1;
 
         checkConfigVersion();
     }
@@ -59,16 +59,28 @@ public class ConfigHandler {
         return config.getInt("number-of-days-since-last-joined", 0);
     }
 
+    /** Whether to use TranslatableComponents for statistic, block, item and entity names.
+     <p>Default: true</p>*/
+    public boolean useTranslatableComponents() {
+        return config.getBoolean("translate-to-client-language", true);
+    }
+
+    /** Whether to use HoverComponents in the usage explanation.
+     <p>Default: true</p>*/
+    public boolean useHoverText() {
+        return config.getBoolean("enable-hover-text", true);
+    }
+
     /** Whether to use festive formatting, such as pride colors.
      <p>Default: true</p> */
     public boolean useFestiveFormatting() {
         return config.getBoolean("enable-festive-formatting", true);
     }
 
-    /** Whether or not to use HoverComponents in the usage explanation.
-     <p>Default: true</p>*/
-    public boolean useHoverText() {
-        return config.getBoolean("enable-hover-text", true);
+    /** Whether to use rainbow colors for the [PlayerStats] prefix rather than the default gold/purple.
+     <p>Default: false</p> */
+    public boolean useRainbowPrefix() {
+        return config.getBoolean("rainbow-mode", false);
     }
 
     /** Returns the config setting for use-dots.
@@ -240,7 +252,7 @@ public class ConfigHandler {
      <p>PlayerStats 1.2: "config-version" is 2.</p>
      <p>PlayerStats 1.3: "config-version" is 3. </P>*/
     private void checkConfigVersion() {
-        if (!config.contains("config-version") || config.getInt("config-version") != configVersion) {
+        if (!config.contains("config-version") || config.getDouble("config-version") != configVersion) {
             new ConfigUpdateHandler(plugin, configFile, configVersion);
             reloadConfig();
         }
