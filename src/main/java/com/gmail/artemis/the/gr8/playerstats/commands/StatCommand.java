@@ -2,12 +2,17 @@ package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.enums.Query;
+import com.gmail.artemis.the.gr8.playerstats.msg.LanguageKeyHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -15,6 +20,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import static net.kyori.adventure.text.Component.space;
+import static net.kyori.adventure.text.Component.text;
+
 
 public class StatCommand implements CommandExecutor {
 
@@ -38,9 +47,15 @@ public class StatCommand implements CommandExecutor {
             adventure.sender(sender).sendMessage(messageFactory.helpMsg(sender instanceof ConsoleCommandSender));
             return false;
         }
+
         else if (args[0].equalsIgnoreCase("examples") ||
                 args[0].equalsIgnoreCase("example")) {  //in case of "statistic examples", show examples
             adventure.sender(sender).sendMessage(messageFactory.usageExamples(sender instanceof ConsoleCommandSender));
+            return true;
+        }
+        else if (args[0].equalsIgnoreCase("test")) {
+            String selection = (args.length > 1) ? args[1] : null;
+            printTranslatableNames(sender, selection);
             return true;
         }
 
@@ -58,8 +73,74 @@ public class StatCommand implements CommandExecutor {
         }
     }
 
+    //test method
+    private void printTranslatableNames(CommandSender sender, String selection) {
+        LanguageKeyHandler lang = new LanguageKeyHandler();
+
+        if (selection == null) {
+            TextComponent msg = Component.text("Include 'block', 'item', 'entity' or 'stat'").color(TextColor.fromHexString("#FFB80E"));
+            adventure.sender(sender).sendMessage(msg);
+        }
+        else if (selection.equalsIgnoreCase("block")) {
+            for (String name : EnumHandler.getBlockNames()) {
+                String key = lang.getBlockKey(name);
+                if (key != null) {
+                    TranslatableComponent msg = Component.translatable(key)
+                            .color(TextColor.fromHexString("#FFB80E"))
+                            .append(space())
+                            .append(text("for blockName: ").color(NamedTextColor.WHITE))
+                            .append(text(name).color(TextColor.fromHexString("#55AAFF")));
+                    adventure.sender(sender).sendMessage(msg);
+                }
+            }
+        }
+        else if (selection.equalsIgnoreCase("entity")) {
+            for (String name : EnumHandler.getEntityNames()) {
+                String key = lang.getEntityKey(name);
+                if (key != null) {
+                    TranslatableComponent msg = Component.translatable(key)
+                            .color(TextColor.fromHexString("#FFB80E"))
+                            .append(space())
+                            .append(text("for entityName: ").color(NamedTextColor.WHITE))
+                            .append(text(name).color(TextColor.fromHexString("#55AAFF")));
+                    adventure.sender(sender).sendMessage(msg);
+                }
+            }
+        }
+        else if (selection.equalsIgnoreCase("item")) {
+            for (String name : EnumHandler.getItemNames()) {
+                String key = lang.getItemKey(name);
+                if (key != null) {
+                    TranslatableComponent msg = Component.translatable(key)
+                            .color(TextColor.fromHexString("#FFB80E"))
+                            .append(space())
+                            .append(text("for itemName: ").color(NamedTextColor.WHITE))
+                            .append(text(name).color(TextColor.fromHexString("#55AAFF")));
+                    adventure.sender(sender).sendMessage(msg);
+                }
+            }
+        }
+        else if (selection.equalsIgnoreCase("stat")) {
+            for (String name : EnumHandler.getStatNames()) {
+                String key = lang.getStatKey(name);
+                if (key != null) {
+                    TranslatableComponent msg = Component.translatable(key)
+                            .color(TextColor.fromHexString("#FFB80E"))
+                            .append(space())
+                            .append(text("for statName: ").color(NamedTextColor.WHITE))
+                            .append(text(name).color(TextColor.fromHexString("#55AAFF")));
+                    adventure.sender(sender).sendMessage(msg);
+                }
+            }
+        }
+        else {
+            TextComponent msg = Component.text("hi :)").color(TextColor.fromHexString("#FFB80E"));
+            adventure.sender(sender).sendMessage(msg);
+        }
+    }
+
     //create a StatRequest Object with all the relevant information from the args
-    protected StatRequest generateRequest(CommandSender sender, String @NotNull [] args) {
+    private StatRequest generateRequest(CommandSender sender, String[] args) {
         StatRequest request = new StatRequest(sender);
 
         for (String arg : args) {
@@ -98,7 +179,7 @@ public class StatCommand implements CommandExecutor {
     }
 
     //part 2: check whether all necessary ingredients are present to proceed with a lookup
-    protected boolean isValidStatRequest(@NotNull StatRequest request) {
+    private boolean isValidStatRequest(StatRequest request) {
         if (request.getStatName() != null) {
             if (request.playerFlag()) unpackPlayerFlag(request);
             if (request.getSelection() == null) assumeTopAsDefault(request);
@@ -115,7 +196,7 @@ public class StatCommand implements CommandExecutor {
     }
 
     //account for the fact that "player" could be either a subStatEntry, a flag to indicate the target for the lookup, or both
-    private void unpackPlayerFlag(@NotNull StatRequest request) {
+    private void unpackPlayerFlag(StatRequest request) {
         if (request.getStatType() == Statistic.Type.ENTITY && request.getSubStatEntry() == null) {
             request.setSubStatEntry("player");
         }
@@ -125,19 +206,19 @@ public class StatCommand implements CommandExecutor {
     }
 
     //in case the statistic is untyped, set the unnecessary subStatEntry to null
-    private void verifySubStat(@NotNull StatRequest request) {
+    private void verifySubStat(StatRequest request) {
         if (request.getSubStatEntry() != null && request.getStatType() == Statistic.Type.UNTYPED) {
             request.setSubStatEntry(null);
         }
     }
 
     //if no playerName was provided, and there is no topFlag or serverFlag, substitute a top flag
-    private void assumeTopAsDefault(@NotNull StatRequest request) {
+    private void assumeTopAsDefault(StatRequest request) {
         request.setSelection(Query.TOP);
     }
 
     //call this method when isValidStatRequest has returned false to get a relevant error-message
-    protected TextComponent getRelevantFeedback(@NotNull StatRequest request) {
+    private TextComponent getRelevantFeedback(@NotNull StatRequest request) {
         boolean isConsoleSender = request.getCommandSender() instanceof ConsoleCommandSender;
         if (request.getStatName() == null) {
             return messageFactory.missingStatName(isConsoleSender);

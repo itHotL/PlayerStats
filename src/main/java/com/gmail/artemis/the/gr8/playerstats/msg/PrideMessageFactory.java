@@ -12,8 +12,8 @@ import static net.kyori.adventure.text.Component.*;
 public class PrideMessageFactory extends MessageFactory {
 
 
-    public PrideMessageFactory(ConfigHandler c) {
-        super(c);
+    public PrideMessageFactory(ConfigHandler c, LanguageKeyHandler l) {
+        super(c, l);
     }
 
     @Override
