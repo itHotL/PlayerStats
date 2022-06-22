@@ -140,7 +140,7 @@ public class StatCommand implements CommandExecutor {
     }
 
     //create a StatRequest Object with all the relevant information from the args
-    private StatRequest generateRequest(CommandSender sender, String[] args) {
+    protected StatRequest generateRequest(CommandSender sender, String[] args) {
         StatRequest request = new StatRequest(sender);
 
         for (String arg : args) {
@@ -179,7 +179,7 @@ public class StatCommand implements CommandExecutor {
     }
 
     //part 2: check whether all necessary ingredients are present to proceed with a lookup
-    private boolean isValidStatRequest(StatRequest request) {
+    protected boolean isValidStatRequest(StatRequest request) {
         if (request.getStatName() != null) {
             if (request.playerFlag()) unpackPlayerFlag(request);
             if (request.getSelection() == null) assumeTopAsDefault(request);
@@ -218,7 +218,7 @@ public class StatCommand implements CommandExecutor {
     }
 
     //call this method when isValidStatRequest has returned false to get a relevant error-message
-    private TextComponent getRelevantFeedback(@NotNull StatRequest request) {
+    protected TextComponent getRelevantFeedback(@NotNull StatRequest request) {
         boolean isConsoleSender = request.getCommandSender() instanceof ConsoleCommandSender;
         if (request.getStatName() == null) {
             return messageFactory.missingStatName(isConsoleSender);
