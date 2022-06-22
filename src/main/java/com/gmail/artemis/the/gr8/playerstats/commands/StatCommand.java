@@ -2,12 +2,17 @@ package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.enums.Query;
+import com.gmail.artemis.the.gr8.playerstats.msg.LanguageKeyHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -15,6 +20,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import static net.kyori.adventure.text.Component.space;
+import static net.kyori.adventure.text.Component.text;
 
 
 public class StatCommand implements CommandExecutor {
@@ -45,6 +53,11 @@ public class StatCommand implements CommandExecutor {
             adventure.sender(sender).sendMessage(messageFactory.usageExamples(sender instanceof ConsoleCommandSender));
             return true;
         }
+        else if (args[0].equalsIgnoreCase("test")) {
+            String selection = (args.length > 1) ? args[1] : null;
+            printTranslatableNames(sender, selection);
+            return true;
+        }
 
         else {  //part 1: collecting all relevant information from the args
             StatRequest request = generateRequest(sender, args);
@@ -57,6 +70,72 @@ public class StatCommand implements CommandExecutor {
                 adventure.sender(sender).sendMessage(getRelevantFeedback(request));
                 return false;
             }
+        }
+    }
+
+    //test method
+    private void printTranslatableNames(CommandSender sender, String selection) {
+        LanguageKeyHandler lang = new LanguageKeyHandler();
+
+        if (selection == null) {
+            TextComponent msg = Component.text("Include 'block', 'item', 'entity' or 'stat'").color(TextColor.fromHexString("#FFB80E"));
+            adventure.sender(sender).sendMessage(msg);
+        }
+        else if (selection.equalsIgnoreCase("block")) {
+            for (String name : EnumHandler.getBlockNames()) {
+                String key = lang.getBlockKey(name);
+                if (key != null) {
+                    TranslatableComponent msg = Component.translatable(key)
+                            .color(TextColor.fromHexString("#FFB80E"))
+                            .append(space())
+                            .append(text("for blockName: ").color(NamedTextColor.WHITE))
+                            .append(text(name).color(TextColor.fromHexString("#55AAFF")));
+                    adventure.sender(sender).sendMessage(msg);
+                }
+            }
+        }
+        else if (selection.equalsIgnoreCase("entity")) {
+            for (String name : EnumHandler.getEntityNames()) {
+                String key = lang.getEntityKey(name);
+                if (key != null) {
+                    TranslatableComponent msg = Component.translatable(key)
+                            .color(TextColor.fromHexString("#FFB80E"))
+                            .append(space())
+                            .append(text("for entityName: ").color(NamedTextColor.WHITE))
+                            .append(text(name).color(TextColor.fromHexString("#55AAFF")));
+                    adventure.sender(sender).sendMessage(msg);
+                }
+            }
+        }
+        else if (selection.equalsIgnoreCase("item")) {
+            for (String name : EnumHandler.getItemNames()) {
+                String key = lang.getItemKey(name);
+                if (key != null) {
+                    TranslatableComponent msg = Component.translatable(key)
+                            .color(TextColor.fromHexString("#FFB80E"))
+                            .append(space())
+                            .append(text("for itemName: ").color(NamedTextColor.WHITE))
+                            .append(text(name).color(TextColor.fromHexString("#55AAFF")));
+                    adventure.sender(sender).sendMessage(msg);
+                }
+            }
+        }
+        else if (selection.equalsIgnoreCase("stat")) {
+            for (String name : EnumHandler.getStatNames()) {
+                String key = lang.getStatKey(name);
+                if (key != null) {
+                    TranslatableComponent msg = Component.translatable(key)
+                            .color(TextColor.fromHexString("#FFB80E"))
+                            .append(space())
+                            .append(text("for statName: ").color(NamedTextColor.WHITE))
+                            .append(text(name).color(TextColor.fromHexString("#55AAFF")));
+                    adventure.sender(sender).sendMessage(msg);
+                }
+            }
+        }
+        else {
+            TextComponent msg = Component.text("hi :)").color(TextColor.fromHexString("#FFB80E"));
+            adventure.sender(sender).sendMessage(msg);
         }
     }
 

@@ -94,6 +94,7 @@ public class StatThread extends Thread {
                 }
             } catch (Exception e) {
                 adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString(), isConsoleSencer));
+                e.printStackTrace();
             }
         }
 
