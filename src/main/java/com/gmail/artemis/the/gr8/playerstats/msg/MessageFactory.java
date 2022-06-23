@@ -3,6 +3,7 @@ package com.gmail.artemis.the.gr8.playerstats.msg;
 import com.gmail.artemis.the.gr8.playerstats.enums.Query;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -254,70 +255,59 @@ public class MessageFactory {
     protected TranslatableComponent statNameComponent(Query selection, @NotNull String statName, String subStatName) {
         TextColor statNameColor = getColorFromString(config.getStatNameFormatting(selection, false));
         TextDecoration statNameStyle = getStyleFromString(config.getStatNameFormatting(selection, true));
-        TranslatableComponent subStat = subStatNameComponent(selection, subStatName);
 
-        String key = language.getStatKey(statName);
-        if (key == null) {
-            key = statName;
+        Statistic.Type statType = EnumHandler.getStatType(statName);
+        TranslatableComponent subStat = subStatNameComponent(selection, subStatName, statType);
+        TranslatableComponent.Builder totalName;
+
+        String key = getLanguageKey(statName, null, statType);
+        if (key == null) key = statName;
+
+        if (key.equalsIgnoreCase("stat_type.minecraft.killed") && subStat != null) {
+            totalName = killEntityComponent(subStat);
         }
-
-        //case for kill_entity
-        else if (key.equalsIgnoreCase("stat_type.minecraft.killed") && subStat != null) {
-            TranslatableComponent.Builder totalName = translatable()
-                    .key("commands.kill.success.single")  //"Killed %s"
-                    .args(subStat)
-                    .color(statNameColor);
-            if (statNameStyle != null) {
-                totalName.decoration(statNameStyle, TextDecoration.State.TRUE);
-            }
-            return totalName.build();
-        }
-
-        //case for entity_killed_by
         else if (key.equalsIgnoreCase("stat_type.minecraft.killed_by") && subStat != null) {
-            String newKey = "stat.minecraft.player_kills";  //"Player Kills"
-            if (selection == Query.PLAYER) {
-                newKey = "stat.minecraft.deaths";  //"Number of Deaths"
-            }
-            TranslatableComponent.Builder totalName = translatable()
-                    .key(newKey)
-                    .append(space())
-                    .append(translatable()
-                            .key("book.byAuthor")  //"by %1$s"
-                            .args(subStat))
-                    .color(statNameColor);
-            if (statNameStyle != null) {
-                totalName.decoration(statNameStyle, TextDecoration.State.TRUE);
-            }
-            return totalName.build();
+            totalName = entityKilledByComponent(selection, subStat);
         }
-
-        //all other cases
-        TranslatableComponent.Builder totalName = translatable()
-                .key(key)
-                .color(statNameColor);
+        else {
+            totalName = translatable().key(key);
+        }
 
         if (statNameStyle != null) totalName.decoration(statNameStyle, TextDecoration.State.TRUE);
-        if (subStat != null) {
-            totalName.append(space()).append(subStat);
-        }
-        return totalName.build();
+        if (subStat != null) totalName.append(space()).append(subStat);
+        return totalName
+                .color(statNameColor)
+                .build();
     }
 
-    protected @Nullable TranslatableComponent subStatNameComponent(Query selection, @Nullable String subStatName) {
-        if (subStatName == null) {
-            return null;
+    /** Construct a custom translation for kill_entity */
+    private TranslatableComponent.@NotNull Builder killEntityComponent(TranslatableComponent subStat) {
+        TranslatableComponent.Builder totalName = translatable()
+                .key("commands.kill.success.single");  //"Killed %s"
+
+        if (subStat != null) totalName.args(subStat);
+        return totalName;
+    }
+
+    /** Construct a custom translation for entity_killed_by */
+    private TranslatableComponent.@NotNull Builder entityKilledByComponent(Query selection, TranslatableComponent subStat) {
+        String key = "stat.minecraft.player_kills";  //"Player Kills"
+        if (selection == Query.PLAYER) {
+            key = "stat.minecraft.deaths";  //"Number of Deaths"
         }
-        String key = null;
-        if (EnumHandler.isEntity(subStatName)){
-            key = language.getEntityKey(subStatName);
-        }
-        else if (EnumHandler.isBlock(subStatName)) {
-            key = language.getBlockKey(subStatName);
-        }
-        else if (EnumHandler.isItem(subStatName)) {
-            key = language.getItemKey(subStatName);
-        }
+        TranslatableComponent.Builder totalName = translatable()
+                .key(key)
+                .append(space())
+                .append(translatable()
+                        .key("book.byAuthor"));  //"by %1$s"
+
+        if (subStat != null) totalName.args(subStat);
+        return totalName;
+    }
+
+    protected @Nullable TranslatableComponent subStatNameComponent(Query selection, @Nullable String subStatName, Statistic.Type statType) {
+        String key = getLanguageKey(null, subStatName, statType);
+
         if (key != null) {
             TextDecoration style = getStyleFromString(config.getSubStatNameFormatting(selection, true));
             TranslatableComponent.Builder subStat = translatable()
@@ -376,6 +366,47 @@ public class MessageFactory {
         return style == null ? text(content).color(color) : text(content).color(color).decoration(style, TextDecoration.State.TRUE);
     }
 
+    /** If TranslatableComponents are enabled, this will attempt to get the appropriate language key.
+     Otherwise, it will attempt to replace "_" with " " and capitalize each first letter of the input.
+     If that fails too, it will simply return the String it received as input.
+     If even THAT somehow fails, it will return null.*/
+    private @Nullable String getLanguageKey(@Nullable String statName, @Nullable String subStatName, Statistic.Type statType) {
+        String key = null;
+        if (config.useTranslatableComponents()) {
+            if (statName != null) {
+                key = language.getStatKey(statName);
+            } else if (subStatName != null && statType != null) {
+                switch (statType) {
+                    case BLOCK -> key = language.getBlockKey(subStatName);
+                    case ENTITY -> key = language.getEntityKey(subStatName);
+                    case ITEM -> key = language.getItemKey(subStatName);
+                    case UNTYPED -> {
+                    }
+                }
+            }
+            if (key != null) {
+                return key;
+            }
+        }
+
+        if (statName != null) key = statName;
+        else if (subStatName != null) key = subStatName;
+
+        if (key != null) {
+            StringBuilder capitals = new StringBuilder(key);
+            capitals.setCharAt(0, Character.toUpperCase(capitals.charAt(0)));
+            while (capitals.indexOf("_") != -1) {
+                MyLogger.replacingUnderscores();
+
+                int index = capitals.indexOf("_");
+                capitals.setCharAt(index + 1, Character.toUpperCase(capitals.charAt(index + 1)));
+                capitals.setCharAt(index, ' ');
+            }
+            key = capitals.toString();
+        }
+        return key;
+    }
+
     private TextColor getColorFromString(String configString) {
         if (configString != null) {
             try {
@@ -411,7 +442,7 @@ public class MessageFactory {
         }
     }
 
-    //returns the type of the substatistic in String-format, or null if this statistic is not of type block, item or entity
+    /** Returns the type of the substatistic in String-format, or null if this statistic is not of type block, item or entity */
     private String getSubStatTypeName(Statistic.Type statType) {
         String subStat;
         if (statType == Statistic.Type.BLOCK) {
@@ -429,7 +460,7 @@ public class MessageFactory {
         return subStat;
     }
 
-    //returns the usage-explanation with hovering text
+    /** Returns the usage-explanation with hovering text */
     private @NotNull TextComponent helpMsgHover() {
         TextComponent spaces = text("    "); //4 spaces
         TextComponent arrow = text("→ ").color(NamedTextColor.GOLD);  //alt + 26
@@ -487,8 +518,8 @@ public class MessageFactory {
                                                 .append(text(", add the player's name").color(hoverBaseColor))))));
     }
 
-    //returns the usage-explanation without any hovering text
-    //if BukkitVersion is CraftBukkit, this doesn't use unicode symbols or hex colors
+    /** Returns the usage-explanation without any hovering text.
+    If BukkitVersion is CraftBukkit, this doesn't use unicode symbols or hex colors */
     private @NotNull TextComponent helpMsgPlain(boolean isConsoleSender) {
         TextComponent spaces = text("    "); //4 spaces
         TextComponent arrow = text("→ ").color(NamedTextColor.GOLD); //alt + 26;

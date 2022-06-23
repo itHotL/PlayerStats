@@ -98,18 +98,18 @@ public class ReloadThread extends Thread {
         OfflinePlayer[] offlinePlayers;
         if (config.whitelistOnly()) {
             offlinePlayers = Bukkit.getWhitelistedPlayers().toArray(OfflinePlayer[]::new);
-            MyLogger.logTimeTaken("ReloadThread", "getting white-list-only list", time);
+            MyLogger.logTimeTaken("ReloadThread", "retrieved whitelist", time);
         }
         else if (config.excludeBanned()) {
             Set<OfflinePlayer> bannedPlayers = Bukkit.getBannedPlayers();
             offlinePlayers = Arrays.stream(Bukkit.getOfflinePlayers())
                     .parallel()
                     .filter(offlinePlayer -> !bannedPlayers.contains(offlinePlayer)).toArray(OfflinePlayer[]::new);
-            MyLogger.logTimeTaken("ReloadThread", "getting excluding-banned-players list", time);
+            MyLogger.logTimeTaken("ReloadThread", "retrieved banlist", time);
         }
         else {
             offlinePlayers = Bukkit.getOfflinePlayers();
-            MyLogger.logTimeTaken("ReloadThread", "getting regular player list", time);
+            MyLogger.logTimeTaken("ReloadThread", "retrieved list of Offline Players", time);
         }
 
         int size = offlinePlayers != null ? offlinePlayers.length : 16;

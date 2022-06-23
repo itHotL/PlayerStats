@@ -30,7 +30,7 @@ public class ConfigHandler {
 
     /** Returns the desired debugging level.
      <p>1 = low (only show unexpected errors)</p>
-     <p>2 = medium (show all encountered exceptions, log main tasks and show time taken)</p>
+     <p>2 = medium (detail all encountered exceptions, log main tasks and show time taken)</p>
      <p>3 = high (log all tasks and time taken)</p>
      <p>Default: 1</p>*/
     public int debugLevel() {

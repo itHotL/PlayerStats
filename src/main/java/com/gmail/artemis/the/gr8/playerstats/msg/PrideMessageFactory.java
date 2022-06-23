@@ -21,6 +21,7 @@ public class PrideMessageFactory extends MessageFactory {
         config = c;
     }
 
+
     @Override
     protected TextComponent getPrefixAsTitle(boolean isConsoleSender) {
         if (cancelRainbow(isConsoleSender)) {
@@ -63,11 +64,5 @@ public class PrideMessageFactory extends MessageFactory {
     private boolean cancelRainbow(boolean isConsoleSender) {
         return !(config.useRainbowPrefix() || (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) ||
                 (isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit"));
-        // If a player uses the command after pride month, with rainbow enabled
-        // not (true OR (true && false)) OR (false && false)
-        //   not (true OR (false)) OR (false)
-        //       not (true) OR (false)                       not (false) OR (false)
-        // false OR (false)      not (true)                true OR false    not (false)
-        //                false                                       true
     }
 }

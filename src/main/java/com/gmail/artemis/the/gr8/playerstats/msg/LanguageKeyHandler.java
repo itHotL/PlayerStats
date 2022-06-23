@@ -1,7 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
-import org.bukkit.Bukkit;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +30,7 @@ public class LanguageKeyHandler {
             }
         }
         catch (IllegalArgumentException e) {
-            Bukkit.getLogger().info("PlayerStats, LanguageKeyHandler 33: " + e);
+            MyLogger.logException(e, "LanguageKeyHandler, getStatKey", 34);
             return null;
         }
     }
@@ -44,7 +44,7 @@ public class LanguageKeyHandler {
                 return "entity.minecraft." + EnumHandler.getEntityEnum(entityName).getKey().getKey();
             }
             catch (IllegalArgumentException e) {
-                Bukkit.getLogger().info("PlayerStats, LanguageKeyHandler 47: " + e);
+                MyLogger.logException(e, "LanguageKeyHandler, getEntityKey", 48);
                 return null;
             }
         }
@@ -61,7 +61,7 @@ public class LanguageKeyHandler {
             }
         }
         catch (IllegalArgumentException e) {
-            Bukkit.getLogger().info("PlayerStats, LanguageKeyHandler 64: " + e);
+            MyLogger.logException(e, "LanguageKeyHandler, getItemKey", 65);
             return null;
         }
     }
@@ -75,7 +75,7 @@ public class LanguageKeyHandler {
             return "block.minecraft." + EnumHandler.getBlockEnum(name).getKey().getKey();
         }
         catch (IllegalArgumentException e) {
-            Bukkit.getLogger().info("PlayerStats, LanguageKeyHandler 78: " + e);
+            MyLogger.logException(e, "LanguageKeyHandler, getBlockKey", 79);
             return null;
         }
     }
