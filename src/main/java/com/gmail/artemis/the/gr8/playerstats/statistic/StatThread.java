@@ -126,7 +126,7 @@ public class StatThread extends Thread {
                 .limit(config.getTopListMaxSize()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
-    private int getServerTotal() {
+    private long getServerTotal() {
         List<Integer> numbers = getAllStats().values().stream().toList();
         return numbers.parallelStream().mapToInt(Integer::intValue).sum();
     }

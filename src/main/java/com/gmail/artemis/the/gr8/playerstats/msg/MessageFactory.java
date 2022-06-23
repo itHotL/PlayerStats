@@ -205,7 +205,7 @@ public class MessageFactory {
         return topList.build();
     }
 
-    public TextComponent formatServerStat(String statName, String subStatEntry, int stat) {
+    public TextComponent formatServerStat(String statName, String subStatEntry, long stat) {
         return Component.text()
                 .append(titleComponent(Query.SERVER, config.getServerTitle()))
                 .append(space())
@@ -317,10 +317,8 @@ public class MessageFactory {
                     .append(text(")"))
                     .color(getColorFromString(config.getSubStatNameFormatting(selection, false)));
 
+            subStat.decorations(TextDecoration.NAMES.values(), false);
             if (style != null) subStat.decoration(style, TextDecoration.State.TRUE);
-            else {
-                subStat.decorations(TextDecoration.NAMES.values(), false);
-            }
             return subStat.build();
         }
         else {
@@ -328,7 +326,7 @@ public class MessageFactory {
         }
     }
 
-    protected TextComponent statNumberComponent(Query selection, int number) {
+    protected TextComponent statNumberComponent(Query selection, long number) {
         return getComponent(number + "",
                 getColorFromString(config.getStatNumberFormatting(selection, false)),
                 getStyleFromString(config.getStatNumberFormatting(selection, true)));
