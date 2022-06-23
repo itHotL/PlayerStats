@@ -183,6 +183,6 @@ public class MyLogger {
      @param methodName Name or description of the task
      @param startTime Timestamp marking the beginning of the task */
     public static void logTimeTakenDefault(String className, String methodName, long startTime) {
-        logger.info(className + " " + methodName + ":" + (System.currentTimeMillis() - startTime) + "ms");
+        logger.info(className + " " + methodName + ": " + (System.currentTimeMillis() - startTime) + "ms");
     }
 }

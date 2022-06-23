@@ -8,7 +8,7 @@ config-version: 3.1
 #                                #            General              #                                     #
 #                                # ------------------------------- #                                     #
 
-# How much output in console you'll get while PlayerStats is processing
+# How much output you'll get in the server console while PlayerStats is processing
 # 1 = low (only show unexpected errors)
 # 2 = medium (detail all encountered exceptions, log main tasks and show time taken)
 # 3 = high (log all tasks and time taken)
@@ -34,12 +34,10 @@ translate-to-client-language: true
 # Use hover-text for additional info in the usage explanation
 enable-hover-text: true
 
-# Use special themed formatting for the duration of certain holidays or festivals
-# The festive formatting automatically stops when the holiday/event is over
+# Automatically use themed formatting for the duration of certain holidays or festivals
 enable-festive-formatting: true
 
 # Always use rainbow for the [PlayerStats] prefix instead of the default gold/purple
-# Changing this from false to true needs a server reboot to take full effect!
 rainbow-mode: false
 
 # Align the stat-numbers in the top list with dots
@@ -74,17 +72,18 @@ your-server-name: 'this server'
 #                                                         #     gray          dark_gray    #             #
 #                                                         #     black           white      #             #
 #                                                         # ------------------------------ #             #
+
 top-list:
-  title: yellow
+  title: '#FFD52B'
   title-style: none
 
   title-number: gold
   title-number-style: none
 
-  stat-names: yellow
+  stat-names: '#FFD52B'
   stat-names-style: none
 
-  sub-stat-names: '#FFD52B'
+  sub-stat-names: yellow
   sub-stat-names-style: none
 
   rank-numbers: gold
@@ -104,10 +103,10 @@ individual-statistics:
   player-names: gold
   player-names-style: none
 
-  stat-names: yellow
+  stat-names: '#FFD52B'
   stat-names-style: none
 
-  sub-stat-names: '#FFD52B'
+  sub-stat-names: yellow
   sub-stat-names-style: none
 
   stat-numbers: '#ADE7FF'
@@ -115,16 +114,16 @@ individual-statistics:
 
 
 total-server:
-  title: gold
+  title: '#55AAFF'
   title-style: none
 
-  server-name: gold
+  server-name: '#55AAFF'
   server-name-style: none
 
-  stat-names: yellow
+  stat-names: '#FFD52B'
   stat-names-style: none
 
-  sub-stat-names: '#FFD52B'
+  sub-stat-names: yellow
   sub-stat-names-style: none
 
   stat-numbers: '#ADE7FF'

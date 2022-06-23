@@ -53,7 +53,7 @@ public class MessageFactory {
     public TextComponent reloadedConfig(boolean isConsoleSender) {
         return pluginPrefix(isConsoleSender)
                 .append(text("Config reloaded!")
-                        .color(NamedTextColor.GREEN));
+                        .color(msgColor));
     }
 
     public TextComponent stillReloading(boolean isConsoleSender) {
@@ -257,7 +257,7 @@ public class MessageFactory {
         TextDecoration statNameStyle = getStyleFromString(config.getStatNameFormatting(selection, true));
 
         Statistic.Type statType = EnumHandler.getStatType(statName);
-        TranslatableComponent subStat = subStatNameComponent(selection, subStatName, statType);
+        TextComponent subStat = subStatNameComponent(selection, subStatName, statType);
         TranslatableComponent.Builder totalName;
 
         String key = getLanguageKey(statName, null, statType);
@@ -271,17 +271,17 @@ public class MessageFactory {
         }
         else {
             totalName = translatable().key(key);
+            if (subStat != null) totalName.append(space()).append(subStat);
         }
 
         if (statNameStyle != null) totalName.decoration(statNameStyle, TextDecoration.State.TRUE);
-        if (subStat != null) totalName.append(space()).append(subStat);
         return totalName
                 .color(statNameColor)
                 .build();
     }
 
     /** Construct a custom translation for kill_entity */
-    private TranslatableComponent.@NotNull Builder killEntityComponent(TranslatableComponent subStat) {
+    private TranslatableComponent.@NotNull Builder killEntityComponent(TextComponent subStat) {
         TranslatableComponent.Builder totalName = translatable()
                 .key("commands.kill.success.single");  //"Killed %s"
 
@@ -290,7 +290,7 @@ public class MessageFactory {
     }
 
     /** Construct a custom translation for entity_killed_by */
-    private TranslatableComponent.@NotNull Builder entityKilledByComponent(Query selection, TranslatableComponent subStat) {
+    private TranslatableComponent.@NotNull Builder entityKilledByComponent(Query selection, TextComponent subStat) {
         String key = "stat.minecraft.player_kills";  //"Player Kills"
         if (selection == Query.PLAYER) {
             key = "stat.minecraft.deaths";  //"Number of Deaths"
@@ -305,17 +305,21 @@ public class MessageFactory {
         return totalName;
     }
 
-    protected @Nullable TranslatableComponent subStatNameComponent(Query selection, @Nullable String subStatName, Statistic.Type statType) {
+    protected @Nullable TextComponent subStatNameComponent(Query selection, @Nullable String subStatName, Statistic.Type statType) {
         String key = getLanguageKey(null, subStatName, statType);
 
         if (key != null) {
             TextDecoration style = getStyleFromString(config.getSubStatNameFormatting(selection, true));
-            TranslatableComponent.Builder subStat = translatable()
-                    .key(key)
+            TextComponent.Builder subStat = text()
+                    .append(text("("))
+                    .append(translatable()
+                            .key(key))
+                    .append(text(")"))
                     .color(getColorFromString(config.getSubStatNameFormatting(selection, false)));
 
-            if (style != null) {
-                subStat.decoration(style, TextDecoration.State.TRUE);
+            if (style != null) subStat.decoration(style, TextDecoration.State.TRUE);
+            else {
+                subStat.decorations(TextDecoration.NAMES.values(), false);
             }
             return subStat.build();
         }
