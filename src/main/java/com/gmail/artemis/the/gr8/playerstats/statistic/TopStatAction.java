@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.OfflinePlayer;
@@ -31,6 +32,8 @@ public class TopStatAction extends RecursiveAction {
 
         this.request = statRequest;
         this.playerStats = playerStats;
+
+        MyLogger.subActionCreated(Thread.currentThread().getName());
     }
 
     @Override
@@ -53,6 +56,7 @@ public class TopStatAction extends RecursiveAction {
             if (iterator.hasNext()) {
                 do {
                     String playerName = iterator.next();
+                    MyLogger.actionRunning(Thread.currentThread().getName(), playerName, 2);
                     OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
                     if (player != null) {
                         int statistic = 0;

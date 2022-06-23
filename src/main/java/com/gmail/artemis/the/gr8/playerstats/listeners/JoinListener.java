@@ -16,7 +16,7 @@ public class JoinListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent joinEvent) {
         if (!joinEvent.getPlayer().hasPlayedBefore()) {
-            threadManager.startReloadThread(null, false);
+            threadManager.startReloadThread(null);
         }
     }
 }

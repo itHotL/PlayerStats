@@ -5,6 +5,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.Query;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import com.google.common.collect.ImmutableList;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 public class StatThread extends Thread {
 
     private final int threshold;
+
     private final StatRequest request;
     private final ReloadThread reloadThread;
 
@@ -32,8 +34,9 @@ public class StatThread extends Thread {
     private final Main plugin;
 
     //constructor (called on thread creation)
-    public StatThread(BukkitAudiences a, ConfigHandler c, MessageFactory m, Main p, int threshold, StatRequest s, @Nullable ReloadThread r) {
+    public StatThread(BukkitAudiences a, ConfigHandler c, MessageFactory m, Main p, int ID, int threshold, StatRequest s, @Nullable ReloadThread r) {
         this.threshold = threshold;
+
         request = s;
         reloadThread = r;
 
@@ -41,11 +44,16 @@ public class StatThread extends Thread {
         config = c;
         messageFactory = m;
         plugin = p;
+
+        this.setName("StatThread-" + ID);
+        MyLogger.threadCreated(this.getName());
     }
 
     //what the thread will do once started
     @Override
     public void run() throws IllegalStateException, NullPointerException {
+        MyLogger.threadStart(this.getName());
+
         if (messageFactory == null || plugin == null) {
             throw new IllegalStateException("Not all classes off the plugin are running!");
         }
@@ -54,8 +62,10 @@ public class StatThread extends Thread {
         }
         if (reloadThread != null && reloadThread.isAlive()) {
             try {
-                plugin.getLogger().info("Waiting for reloadThread to finish up...");
-                adventure.sender(request.getCommandSender()).sendMessage(messageFactory.stillReloading(request.getCommandSender() instanceof ConsoleCommandSender));
+                MyLogger.waitingForOtherThread(this.getName(), reloadThread.getName());
+                adventure.sender(request.getCommandSender())
+                        .sendMessage(messageFactory
+                                .stillReloading(request.getCommandSender() instanceof ConsoleCommandSender));
                 reloadThread.join();
             } catch (InterruptedException e) {
                 plugin.getLogger().warning(e.toString());
@@ -128,10 +138,11 @@ public class StatThread extends Thread {
         int size = OfflinePlayerHandler.getOfflinePlayerCount() != 0 ? (int) (OfflinePlayerHandler.getOfflinePlayerCount() * 1.05) : 16;
         ConcurrentHashMap<String, Integer> playerStats = new ConcurrentHashMap<>(size);
         ImmutableList<String> playerNames = ImmutableList.copyOf(OfflinePlayerHandler.getOfflinePlayerNames());
-        TopStatAction task = new TopStatAction(threshold, playerNames,
-                request, playerStats);
 
+        TopStatAction task = new TopStatAction(threshold, playerNames, request, playerStats);
+        MyLogger.actionCreated(playerNames.size());
         ForkJoinPool commonPool = ForkJoinPool.commonPool();
+
         try {
             commonPool.invoke(task);
         } catch (ConcurrentModificationException e) {
@@ -140,8 +151,9 @@ public class StatThread extends Thread {
             throw new ConcurrentModificationException(e.toString());
         }
 
+        MyLogger.actionFinished(2);
         ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
-        plugin.logTimeTaken("StatThread", "calculated all stats", time);
+        MyLogger.logTimeTakenDefault("StatThread", "calculated all stats", time);
 
         return playerStats;
     }

@@ -39,19 +39,8 @@ public class Main extends JavaPlugin {
         ConfigHandler config = new ConfigHandler(this);
         LanguageKeyHandler language = new LanguageKeyHandler();
 
-        //then determine if we need a regular MessageFactory or a festive one
-        MessageFactory messageFactory;
-        if (config.useFestiveFormatting()) {
-            if (LocalDate.now().getMonth().equals(Month.JUNE)) {
-                messageFactory = new PrideMessageFactory(config, language);
-            }
-            else {
-                messageFactory = new MessageFactory(config, language);
-            }
-        }
-        else {
-            messageFactory = new MessageFactory(config, language);
-        }
+        //for now always use the PrideMessageFactory (it'll use the regular formatting when needed)
+        MessageFactory messageFactory = new PrideMessageFactory(config, language);
 
         //initialize the threadManager
         ThreadManager threadManager = new ThreadManager(adventure(), config, messageFactory, this);
@@ -79,9 +68,5 @@ public class Main extends JavaPlugin {
             adventure = null;
         }
         this.getLogger().info("Disabled PlayerStats!");
-    }
-
-    public void logTimeTaken(String className, String methodName, long previousTime) {
-        getLogger().info(className + ", " + methodName + ": " + (System.currentTimeMillis() - previousTime) + "ms");
     }
 }
