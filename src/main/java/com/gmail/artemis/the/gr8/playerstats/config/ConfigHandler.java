@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.config;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.enums.Query;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -24,15 +25,27 @@ public class ConfigHandler {
         configVersion = 3.1;
 
         checkConfigVersion();
+        MyLogger.setDebugLevel(debugLevel());
     }
 
-    /** Reloads the config from file, or creates a new file with default values if there is none. */
+    /** Returns the desired debugging level.
+     <p>1 = low (only show unexpected errors)</p>
+     <p>2 = medium (show all encountered exceptions, log main tasks and show time taken)</p>
+     <p>3 = high (log all tasks and time taken)</p>
+     <p>Default: 1</p>*/
+    public int debugLevel() {
+        return config.getInt("debug-level", 1);
+    }
+
+    /** Reloads the config from file, or creates a new file with default values if there is none.
+     Also reads the value for debug-level and passes it on to MyLogger. */
     public boolean reloadConfig() {
         try {
             if (!configFile.exists()) {
                 saveDefaultConfig();
             }
             config = YamlConfiguration.loadConfiguration(configFile);
+            MyLogger.setDebugLevel(debugLevel());
             return true;
         }
         catch (Exception e) {

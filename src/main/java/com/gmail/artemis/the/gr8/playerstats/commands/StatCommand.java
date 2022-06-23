@@ -169,7 +169,7 @@ public class StatCommand implements CommandExecutor {
                     request.setPlayerName(sender.getName());
                     request.setSelection(Query.PLAYER);
                 }
-                else if (OfflinePlayerHandler.isOfflinePlayerName(arg) && request.getPlayerName() == null) {
+                else if (OfflinePlayerHandler.isRelevantPlayer(arg) && request.getPlayerName() == null) {
                     request.setPlayerName(arg);
                     request.setSelection(Query.PLAYER);
                 }

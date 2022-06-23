@@ -68,8 +68,4 @@ public class Main extends JavaPlugin {
         }
         this.getLogger().info("Disabled PlayerStats!");
     }
-
-    public void logTimeTaken(String className, String methodName, long previousTime) {
-        getLogger().info(className + ", " + methodName + ": " + (System.currentTimeMillis() - previousTime) + "ms");
-    }
 }

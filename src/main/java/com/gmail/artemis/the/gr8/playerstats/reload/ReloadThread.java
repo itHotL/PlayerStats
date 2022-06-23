@@ -5,6 +5,7 @@ import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
@@ -13,7 +14,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.ConcurrentModificationException;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
@@ -21,6 +24,7 @@ import java.util.concurrent.ForkJoinPool;
 public class ReloadThread extends Thread {
 
     private final int threshold;
+    private final int reloadThreadID;
 
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
@@ -29,10 +33,11 @@ public class ReloadThread extends Thread {
 
     private final StatThread statThread;
     private final CommandSender sender;
-    private final boolean firstTimeLoading;
 
-    public ReloadThread(BukkitAudiences a, ConfigHandler c, MessageFactory m, Main p, int threshold, boolean firstTime, @Nullable StatThread s, @Nullable CommandSender se) {
+    public ReloadThread(BukkitAudiences a, ConfigHandler c, MessageFactory m, Main p, int threshold, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
         this.threshold = threshold;
+        reloadThreadID = ID;
+
         adventure = a;
         config = c;
         messageFactory = m;
@@ -40,18 +45,21 @@ public class ReloadThread extends Thread {
 
         statThread = s;
         sender = se;
-        firstTimeLoading = firstTime;
+
+        this.setName("ReloadThread-" + reloadThreadID);
+        MyLogger.threadCreated(this.getName());
     }
 
     @Override
     public void run() {
         long time = System.currentTimeMillis();
+        MyLogger.threadStart(this.getName());
 
-        //if reload is triggered by /statreload...
-        if (!firstTimeLoading) {
+        //if reload is triggered by /statreload (aka this thread does not have ID number 1)...
+        if (reloadThreadID != 1) {
             if (statThread != null && statThread.isAlive()) {
                 try {
-                    plugin.getLogger().info("Waiting for statThread to finish up...");
+                    MyLogger.waitingForOtherThread(this.getName(), statThread.getName());
                     statThread.join();
                 } catch (InterruptedException e) {
                     plugin.getLogger().warning(e.toString());
@@ -62,7 +70,7 @@ public class ReloadThread extends Thread {
             if (config.reloadConfig()) {
 
                 try {
-                    OfflinePlayerHandler.updateOfflinePlayerList(getPlayerMap(false));
+                    OfflinePlayerHandler.updateOfflinePlayerList(getPlayerMap());
                 }
                 catch (ConcurrentModificationException e) {
                     plugin.getLogger().warning("The request could not be fully executed due to a ConcurrentModificationException");
@@ -71,7 +79,7 @@ public class ReloadThread extends Thread {
                     }
                 }
 
-                plugin.logTimeTaken("ReloadThread", ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
+                MyLogger.logTimeTakenDefault("ReloadThread", ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
                 if (sender != null) {
                     adventure.sender(sender).sendMessage(messageFactory.reloadedConfig(sender instanceof ConsoleCommandSender));
                 }
@@ -79,26 +87,36 @@ public class ReloadThread extends Thread {
         }
         //during first start-up...
         else {
-            OfflinePlayerHandler.updateOfflinePlayerList(getPlayerMap(true));
-            plugin.logTimeTaken("ReloadThread", ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
+            OfflinePlayerHandler.updateOfflinePlayerList(getPlayerMap());
+            MyLogger.logTimeTakenDefault("ReloadThread", ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
             ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
         }
     }
 
-    private ConcurrentHashMap<String, UUID> getPlayerMap(boolean firstTimeLoading) {
-        OfflinePlayer[] offlinePlayers = Bukkit.getOfflinePlayers();
-
-        int size;
-        if (firstTimeLoading) {
-            size = offlinePlayers.length;
+    private ConcurrentHashMap<String, UUID> getPlayerMap() {
+        long time = System.currentTimeMillis();
+        OfflinePlayer[] offlinePlayers;
+        if (config.whitelistOnly()) {
+            offlinePlayers = Bukkit.getWhitelistedPlayers().toArray(OfflinePlayer[]::new);
+            MyLogger.logTimeTaken("ReloadThread", "getting white-list-only list", time);
+        }
+        else if (config.excludeBanned()) {
+            Set<OfflinePlayer> bannedPlayers = Bukkit.getBannedPlayers();
+            offlinePlayers = Arrays.stream(Bukkit.getOfflinePlayers())
+                    .parallel()
+                    .filter(offlinePlayer -> !bannedPlayers.contains(offlinePlayer)).toArray(OfflinePlayer[]::new);
+            MyLogger.logTimeTaken("ReloadThread", "getting excluding-banned-players list", time);
         }
         else {
-            size = OfflinePlayerHandler.getOfflinePlayerCount() != 0 ? OfflinePlayerHandler.getOfflinePlayerCount() : 16;
+            offlinePlayers = Bukkit.getOfflinePlayers();
+            MyLogger.logTimeTaken("ReloadThread", "getting regular player list", time);
         }
 
+        int size = offlinePlayers != null ? offlinePlayers.length : 16;
         ConcurrentHashMap<String, UUID> playerMap = new ConcurrentHashMap<>(size);
 
-        ReloadAction task = new ReloadAction(threshold, offlinePlayers, config.whitelistOnly(), config.excludeBanned(), config.lastPlayedLimit(), playerMap);
+        ReloadAction task = new ReloadAction(threshold, offlinePlayers, config.lastPlayedLimit(), playerMap);
+        MyLogger.actionCreated((offlinePlayers != null) ? offlinePlayers.length : 0);
         ForkJoinPool commonPool = ForkJoinPool.commonPool();
 
         try {
@@ -106,6 +124,8 @@ public class ReloadThread extends Thread {
         } catch (ConcurrentModificationException e) {
             throw new ConcurrentModificationException(e.toString());
         }
+
+        MyLogger.actionFinished(1);
         return playerMap;
     }
 

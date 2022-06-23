@@ -8,6 +8,12 @@ config-version: 3.1
 #                                #            General              #                                     #
 #                                # ------------------------------- #                                     #
 
+# How much output in console you'll get while PlayerStats is processing
+# 1 = low (only show unexpected errors)
+# 2 = medium (show all encountered exceptions, log main tasks and show time taken)
+# 3 = high (log all tasks and time taken)
+debug-level: 1
+
 # Filtering options to control which players should be included in statistic calculations
 include-whitelist-only: false
 exclude-banned-players: false

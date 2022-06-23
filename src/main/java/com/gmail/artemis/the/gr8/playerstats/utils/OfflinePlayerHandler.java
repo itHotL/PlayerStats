@@ -12,18 +12,23 @@ public class OfflinePlayerHandler {
     private static ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
     private static ArrayList<String> playerNames;
 
+    static{
+        offlinePlayerUUIDs = new ConcurrentHashMap<>();
+        playerNames = new ArrayList<>();
+    }
+
     private OfflinePlayerHandler() {
     }
 
     /** Checks if a given playerName is on the private HashMap of players that should be included in statistic calculations
      @param playerName String, case-sensitive */
-    public static boolean isOfflinePlayerName(String playerName) {
+    public static boolean isRelevantPlayer(String playerName) {
         return offlinePlayerUUIDs.containsKey(playerName);
     }
 
     /** Returns the number of OfflinePlayers that are included in statistic calculations */
     public static int getOfflinePlayerCount() {
-        return offlinePlayerUUIDs != null ? offlinePlayerUUIDs.size() : 0;
+        return offlinePlayerUUIDs.size();
     }
 
     /** Get an ArrayList of names from all OfflinePlayers that should be included in statistic calculations */
