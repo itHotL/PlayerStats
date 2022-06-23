@@ -22,19 +22,29 @@ public class ConfigHandler {
 
         saveDefaultConfig();
         config = YamlConfiguration.loadConfiguration(configFile);
-        configVersion = 3.1;
+        configVersion = 4;
 
         checkConfigVersion();
         MyLogger.setDebugLevel(debugLevel());
     }
 
-    /** Returns the desired debugging level.
-     <p>1 = low (only show unexpected errors)</p>
-     <p>2 = medium (detail all encountered exceptions, log main tasks and show time taken)</p>
-     <p>3 = high (log all tasks and time taken)</p>
-     <p>Default: 1</p>*/
-    public int debugLevel() {
-        return config.getInt("debug-level", 1);
+    /** Checks the number that "config-version" returns to see if the config needs updating, and if so, send it to the Updater.
+     <p>PlayerStats 1.1: "config-version" doesn't exist.</p>
+     <p>PlayerStats 1.2: "config-version" is 2.</p>
+     <p>PlayerStats 1.3: "config-version" is 3. </P>
+     <p>PlayerStats 1.4: "config-version" is 4.</p>*/
+    private void checkConfigVersion() {
+        if (!config.contains("config-version") || config.getDouble("config-version") != configVersion) {
+            new ConfigUpdateHandler(plugin, configFile, configVersion);
+            reloadConfig();
+        }
+    }
+
+    /** Create a config file if none exists yet (from the config.yml in the plugin's resources). */
+    private void saveDefaultConfig() {
+        config = plugin.getConfig();
+        plugin.saveDefaultConfig();
+        configFile = new File(plugin.getDataFolder(), "config.yml");
     }
 
     /** Reloads the config from file, or creates a new file with default values if there is none.
@@ -52,6 +62,15 @@ public class ConfigHandler {
             plugin.getLogger().warning(e.toString());
             return false;
         }
+    }
+
+    /** Returns the desired debugging level.
+     <p>1 = low (only show unexpected errors)</p>
+     <p>2 = medium (detail all encountered exceptions, log main tasks and show time taken)</p>
+     <p>3 = high (log all tasks and time taken)</p>
+     <p>Default: 1</p>*/
+    public int debugLevel() {
+        return config.getInt("debug-level", 1);
     }
 
     /** Returns the config setting for include-whitelist-only.
@@ -249,25 +268,6 @@ public class ConfigHandler {
             default -> {
                 return null;
             }
-        }
-    }
-
-    /** Create a config file if none exists yet (from the config.yml in the plugin's resources). */
-    private void saveDefaultConfig() {
-        config = plugin.getConfig();
-        plugin.saveDefaultConfig();
-        configFile = new File(plugin.getDataFolder(), "config.yml");
-    }
-
-    /** Checks the number that "config-version" returns to see if the config needs updating, and if so, send it to the Updater.
-     <p></p>
-     <p>PlayerStats 1.1: "config-version" doesn't exist.</p>
-     <p>PlayerStats 1.2: "config-version" is 2.</p>
-     <p>PlayerStats 1.3: "config-version" is 3. </P>*/
-    private void checkConfigVersion() {
-        if (!config.contains("config-version") || config.getDouble("config-version") != configVersion) {
-            new ConfigUpdateHandler(plugin, configFile, configVersion);
-            reloadConfig();
         }
     }
 }

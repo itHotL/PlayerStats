@@ -53,12 +53,6 @@ public class StatCommand implements CommandExecutor {
             adventure.sender(sender).sendMessage(messageFactory.usageExamples(sender instanceof ConsoleCommandSender));
             return true;
         }
-        else if (args[0].equalsIgnoreCase("test")) {
-            String selection = (args.length > 1) ? args[1] : null;
-            printTranslatableNames(sender, selection);
-            return true;
-        }
-
         else {  //part 1: collecting all relevant information from the args
             StatRequest request = generateRequest(sender, args);
 
