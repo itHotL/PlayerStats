@@ -4,6 +4,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.Query;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
+import com.gmail.artemis.the.gr8.playerstats.utils.NumberFormatter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -327,7 +328,7 @@ public class MessageFactory {
     }
 
     protected TextComponent statNumberComponent(Query selection, long number) {
-        return getComponent(number + "",
+        return getComponent(NumberFormatter.format(number),
                 getColorFromString(config.getStatNumberFormatting(selection, false)),
                 getStyleFromString(config.getStatNumberFormatting(selection, true)));
     }
