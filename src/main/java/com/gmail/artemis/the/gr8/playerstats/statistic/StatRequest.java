@@ -20,7 +20,6 @@ public class StatRequest {
     private boolean playerFlag;
 
     private Statistic statEnum;
-    private Statistic.Type statType;
     private EntityType entity;
     private Material block;
     private Material item;
@@ -35,17 +34,16 @@ public class StatRequest {
     public void setStatName(String statName) {
         this.statName = statName;
         if (statName != null) {
-            setStatEnumAndType();
+            setStatEnum();
             if (subStatEntry != null) {
                 extractSubStat();
             }
         }
     }
 
-    private void setStatEnumAndType() throws IllegalArgumentException {
+    private void setStatEnum() throws IllegalArgumentException {
         try {
             statEnum = EnumHandler.getStatEnum(statName);
-            statType = statEnum.getType();
         } catch (IllegalArgumentException e) {
             Bukkit.getLogger().warning(e.toString());
         }
@@ -55,7 +53,7 @@ public class StatRequest {
     If the subStatEntry is set to null, any present item/block/entity is set to null again. */
     public void setSubStatEntry(String subStatEntry) {
         this.subStatEntry = subStatEntry;
-        if (subStatEntry != null && statType != null) {
+        if (subStatEntry != null && statEnum != null) {
             extractSubStat();
         }
         else if (subStatEntry == null) {
@@ -66,7 +64,7 @@ public class StatRequest {
     }
 
     private void extractSubStat() {
-        switch (statType) {
+        switch (statEnum.getType()) {
             case ENTITY -> {
                 try {
                     if (EnumHandler.isEntity(subStatEntry)) {
@@ -120,7 +118,7 @@ public class StatRequest {
 
     /** Returns the type of the stored statistic, or null if no statName has been set. */
     public Statistic.Type getStatType() {
-        return statType;
+        return statEnum.getType();
     }
 
     public Statistic getStatEnum() {

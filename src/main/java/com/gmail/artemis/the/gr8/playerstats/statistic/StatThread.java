@@ -128,7 +128,7 @@ public class StatThread extends Thread {
 
     private long getServerTotal() {
         List<Integer> numbers = getAllStats().values().stream().toList();
-        return numbers.parallelStream().mapToInt(Integer::intValue).sum();
+        return numbers.parallelStream().mapToLong(Integer::longValue).sum();
     }
 
     //invokes a bunch of worker pool threads to divide and conquer (get the statistics for all players in the list)

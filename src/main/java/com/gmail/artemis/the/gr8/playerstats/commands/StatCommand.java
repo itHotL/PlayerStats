@@ -39,32 +39,26 @@ public class StatCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (args.length == 0) {  //in case of less than 1 argument, display the help message
+        if (args.length == 0 || args[0].equalsIgnoreCase("help")) {  //in case of less than 1 argument or "help", display the help message
             adventure.sender(sender).sendMessage(messageFactory.helpMsg(sender instanceof ConsoleCommandSender));
-            return true;
         }
-        else if (args[0].equalsIgnoreCase("help")) {
-            adventure.sender(sender).sendMessage(messageFactory.helpMsg(sender instanceof ConsoleCommandSender));
-            return false;
-        }
-
         else if (args[0].equalsIgnoreCase("examples") ||
                 args[0].equalsIgnoreCase("example")) {  //in case of "statistic examples", show examples
             adventure.sender(sender).sendMessage(messageFactory.usageExamples(sender instanceof ConsoleCommandSender));
-            return true;
         }
+
         else {  //part 1: collecting all relevant information from the args
             StatRequest request = generateRequest(sender, args);
 
             if (isValidStatRequest(request)) {  //part 2: sending the information to the StatThread
                 threadManager.startStatThread(request);
-                return true;
             }
             else {  //part 2: or give feedback if request is invalid
                 adventure.sender(sender).sendMessage(getRelevantFeedback(request));
                 return false;
             }
         }
+        return true;
     }
 
     //test method
@@ -172,6 +166,7 @@ public class StatCommand implements CommandExecutor {
         return request;
     }
 
+    //--> separate "fixing" potential broken object from checking if it is valid
     //part 2: check whether all necessary ingredients are present to proceed with a lookup
     private boolean isValidStatRequest(StatRequest request) {
         if (request.getStatName() != null) {
@@ -211,6 +206,7 @@ public class StatCommand implements CommandExecutor {
         request.setSelection(Query.TOP);
     }
 
+    //--> use this method to validate and immediately send feedback
     //call this method when isValidStatRequest has returned false to get a relevant error-message
     private TextComponent getRelevantFeedback(@NotNull StatRequest request) {
         boolean isConsoleSender = request.getCommandSender() instanceof ConsoleCommandSender;
