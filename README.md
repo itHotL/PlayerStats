@@ -39,7 +39,7 @@ top-10 format or individually. Currently tested on all versions between **1.18**
 
 * **Customizable**  
     - You can customize the following (and more!):
-      - Automatically translate statistics to the language of the client that views them:
+      - **Automatically translate** statistics to the language of the client that views them:
         ![Translated](src/main/resources/images/translated.png)
       - Only show statistics for **whitelisted** players
       - Exclude statistics from **banned** players
