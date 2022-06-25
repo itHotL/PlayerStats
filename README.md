@@ -21,7 +21,7 @@ top-10 format or individually. Currently tested on all versions between **1.18**
      - See those same statistics for any **individual player** with `/statistic ... player`
        ![Individual_Stat](src/main/resources/images/individual_stat.png)
      - Or look up the **combined total** of everyone on your server!
-       ![Server_Stat](src/main/resources/images/server_stat.png)
+       ![New_Numbers](src/main/resources/images/new_numbers.png)
      - Guide you through the available options while you type with an extensive **tab-complete** feature
        ![Tab_Complete](src/main/resources/images/tab_complete.png)
 
@@ -39,6 +39,8 @@ top-10 format or individually. Currently tested on all versions between **1.18**
 
 * **Customizable**  
     - You can customize the following (and more!):
+      - Automatically translate statistics to the language of the client that views them:
+        ![Translated](src/main/resources/images/translated.png)
       - Only show statistics for **whitelisted** players
       - Exclude statistics from **banned** players
       - Limit statistics based on when a player **last joined**.  
