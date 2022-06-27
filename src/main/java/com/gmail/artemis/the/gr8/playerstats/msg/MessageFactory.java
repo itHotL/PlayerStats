@@ -91,10 +91,9 @@ public class MessageFactory {
     }
 
     public TextComponent missingSubStatName(Statistic.Type statType, boolean isConsoleSender) {
-        String subStat = getSubStatTypeName(statType) == null ? "sub-statistic" : getSubStatTypeName(statType);
         return pluginPrefix(isConsoleSender)
                 .append(text("Please add a valid ")
-                        .append(text(subStat))
+                        .append(text(getSubStatTypeName(statType)))
                         .append(text(" to look up this statistic!"))
                         .color(msgColor));
     }
@@ -106,13 +105,12 @@ public class MessageFactory {
     }
 
     public TextComponent wrongSubStatType(Statistic.Type statType, String subStatEntry, boolean isConsoleSender) {
-        String subStat = getSubStatTypeName(statType) == null ? "sub-statistic for this statistic" : getSubStatTypeName(statType);
         return pluginPrefix(isConsoleSender)
                 .append(text("\"")
                         .append(text(subStatEntry))
                         .append(text("\""))
                         .append(text(" is not a valid "))
-                        .append(text(subStat))
+                        .append(text(getSubStatTypeName(statType)))
                         .append(text("!"))
                         .color(msgColor));
     }
@@ -431,20 +429,14 @@ public class MessageFactory {
         }
     }
 
-    /** Returns the type of the substatistic in String-format, or null if this statistic is not of type block, item or entity */
+    /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */
     private String getSubStatTypeName(Statistic.Type statType) {
-        String subStat;
-        if (statType == Statistic.Type.BLOCK) {
-            subStat = "block";
-        }
-        else if (statType == Statistic.Type.ITEM) {
-            subStat = "item";
-        }
-        else if (statType == Statistic.Type.ENTITY) {
-            subStat = "entity";
-        }
-        else {
-            subStat = null;
+        String subStat = "sub-statistic";
+        if (statType == null) return subStat;
+        switch (statType) {
+            case BLOCK -> subStat = "block";
+            case ENTITY -> subStat = "entity";
+            case ITEM -> subStat = "item";
         }
         return subStat;
     }
