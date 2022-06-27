@@ -296,6 +296,25 @@ public class MessageFactory {
                 .build();
     }
 
+    protected @Nullable TextComponent subStatNameComponent(Target selection, @Nullable String subStatName) {
+        if (subStatName != null) {
+            TextDecoration style = getStyleFromString(config.getSubStatNameFormatting(selection, true));
+            TextComponent.Builder subStat = text()
+                    .append(text("("))
+                    .append(translatable()
+                            .key(subStatName))
+                    .append(text(")"))
+                    .color(getColorFromString(config.getSubStatNameFormatting(selection, false)));
+
+            subStat.decorations(TextDecoration.NAMES.values(), false);
+            if (style != null) subStat.decoration(style, TextDecoration.State.TRUE);
+            return subStat.build();
+        }
+        else {
+            return null;
+        }
+    }
+
     /** Construct a custom translation for kill_entity with the language key for commands.kill.success.single ("Killed %s").
      @return a TranslatableComponent Builder with the subStat Component as args.*/
     private TranslatableComponent.Builder killEntityComponent(@NotNull TextComponent subStat) {
@@ -315,25 +334,6 @@ public class MessageFactory {
                 .append(translatable()
                         .key("book.byAuthor") //"by %s"
                         .args(subStat));
-    }
-
-    protected @Nullable TextComponent subStatNameComponent(Target selection, @Nullable String subStatName) {
-        if (subStatName != null) {
-            TextDecoration style = getStyleFromString(config.getSubStatNameFormatting(selection, true));
-            TextComponent.Builder subStat = text()
-                    .append(text("("))
-                    .append(translatable()
-                            .key(subStatName))
-                    .append(text(")"))
-                    .color(getColorFromString(config.getSubStatNameFormatting(selection, false)));
-
-            subStat.decorations(TextDecoration.NAMES.values(), false);
-            if (style != null) subStat.decoration(style, TextDecoration.State.TRUE);
-            return subStat.build();
-        }
-        else {
-            return null;
-        }
     }
 
     protected TextComponent statNumberComponent(Target selection, long number) {
@@ -374,7 +374,7 @@ public class MessageFactory {
                 getStyleFromString(config.getDotsFormatting(true)));
     }
 
-    protected TextComponent getComponent(String content, TextColor color, @Nullable TextDecoration style) {
+    private TextComponent getComponent(String content, TextColor color, @Nullable TextDecoration style) {
         return style == null ? text(content).color(color) : text(content).color(color).decoration(style, TextDecoration.State.TRUE);
     }
 
