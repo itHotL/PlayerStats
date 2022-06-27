@@ -4,6 +4,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,15 +63,17 @@ public class MyLogger {
         }
     }
 
-    /** Log the encountered exception to console, including a printStackTrace if DebugLevel is MEDIUM or HIGH.
+    /** Log the encountered exception as a warning to console,
+     with some information about which class/method caught it
+     and with a printStackTrace if DebugLevel is HIGH.
      @param exception The encountered exception
-     @param caughtBy The name of the class/method that caught the exception
-     @param lineNumber The line where the exception is caught */
-    public static void logException(@NotNull Exception exception, String caughtBy, int lineNumber) {
-        String line = (lineNumber == 0) ? "" : " [" + lineNumber + "]";
-        String caught = (debugLevel != DebugLevel.LOW) ? " (" + caughtBy + line + ")" : "";
+     @param caughtBy The name of the class that caught the exception
+     @param additionalInfo e.g. the method-name or line where the exception is caught */
+    public static void logException(@NotNull Exception exception, String caughtBy, @Nullable String additionalInfo) {
+        String extraInfo = (additionalInfo != null) ? " [" + additionalInfo + "]" : "";
+        String info =  " (" + caughtBy + extraInfo + ")";
 
-        logger.info(exception + caught);
+        logger.warning(exception + info);
         if (debugLevel == DebugLevel.HIGH) {
             exception.printStackTrace();
         }

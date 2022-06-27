@@ -60,11 +60,11 @@ public class TopStatAction extends RecursiveAction {
                     OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
                     if (player != null) {
                         int statistic = 0;
-                        switch (request.getStatType()) {
-                            case UNTYPED -> statistic = player.getStatistic(request.getStatEnum());
-                            case ENTITY -> statistic = player.getStatistic(request.getStatEnum(), request.getEntity());
-                            case BLOCK -> statistic = player.getStatistic(request.getStatEnum(), request.getBlock());
-                            case ITEM -> statistic = player.getStatistic(request.getStatEnum(), request.getItem());
+                        switch (request.getStatistic().getType()) {
+                            case UNTYPED -> statistic = player.getStatistic(request.getStatistic());
+                            case ENTITY -> statistic = player.getStatistic(request.getStatistic(), request.getEntity());
+                            case BLOCK -> statistic = player.getStatistic(request.getStatistic(), request.getBlock());
+                            case ITEM -> statistic = player.getStatistic(request.getStatistic(), request.getItem());
                         }
                         if (statistic > 0) {
                             playerStats.put(playerName, statistic);

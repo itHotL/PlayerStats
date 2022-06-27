@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
+import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -45,12 +46,16 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                 String previousArg = args[args.length -2];
 
                 if (EnumHandler.isStatistic(previousArg)) {
-                        tabSuggestions = switch (EnumHandler.getStatType(previousArg)) {
+                    Statistic stat = EnumHandler.getStatEnum(previousArg);
+
+                    if (stat != null) {
+                        tabSuggestions = switch (stat.getType()) {
                             case UNTYPED -> commandOptions;
                             case BLOCK -> getTabSuggestions(EnumHandler.getBlockNames(), currentArg);
                             case ITEM -> getTabSuggestions(EnumHandler.getItemNames(), currentArg);
                             case ENTITY -> getTabSuggestions(EnumHandler.getEntityNames(), currentArg);
                         };
+                    }
                 }
 
                 //if previous arg = "player", suggest playerNames

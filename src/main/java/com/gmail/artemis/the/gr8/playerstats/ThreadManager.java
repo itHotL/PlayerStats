@@ -33,6 +33,7 @@ public class ThreadManager {
 
         statThreadID = 0;
         reloadThreadID = 0;
+        lastRecordedCalcTime = 0;
         startReloadThread(null);
     }
 

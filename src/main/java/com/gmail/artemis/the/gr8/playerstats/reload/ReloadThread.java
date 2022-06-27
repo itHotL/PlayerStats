@@ -12,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -62,7 +63,7 @@ public class ReloadThread extends Thread {
                     MyLogger.waitingForOtherThread(this.getName(), statThread.getName());
                     statThread.join();
                 } catch (InterruptedException e) {
-                    plugin.getLogger().warning(e.toString());
+                    MyLogger.logException(e, "ReloadThread", "run(), trying to join" + statThread.getName());
                     throw new RuntimeException(e);
                 }
             }
@@ -73,7 +74,7 @@ public class ReloadThread extends Thread {
                     OfflinePlayerHandler.updateOfflinePlayerList(getPlayerMap());
                 }
                 catch (ConcurrentModificationException e) {
-                    plugin.getLogger().warning("The request could not be fully executed due to a ConcurrentModificationException");
+                    MyLogger.logException(e, "ReloadThread", "run(), trying to update OfflinePlayerList during a reload");
                     if (sender != null) {
                         adventure.sender(sender).sendMessage(messageFactory.partiallyReloaded(sender instanceof ConsoleCommandSender));
                     }
@@ -87,14 +88,21 @@ public class ReloadThread extends Thread {
         }
         //during first start-up...
         else {
-            OfflinePlayerHandler.updateOfflinePlayerList(getPlayerMap());
-            MyLogger.logTimeTakenDefault("ReloadThread", ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
-            ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
+            try {
+                OfflinePlayerHandler.updateOfflinePlayerList(getPlayerMap());
+                ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
+                MyLogger.logTimeTakenDefault("ReloadThread",
+                        ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
+            }
+            catch (ConcurrentModificationException e) {
+                MyLogger.logException(e, "ReloadThread", "run(), trying to update OfflinePlayerList during first start-up");
+            }
         }
     }
 
-    private ConcurrentHashMap<String, UUID> getPlayerMap() {
+    private @NotNull ConcurrentHashMap<String, UUID> getPlayerMap() throws ConcurrentModificationException {
         long time = System.currentTimeMillis();
+
         OfflinePlayer[] offlinePlayers;
         if (config.whitelistOnly()) {
             offlinePlayers = Bukkit.getWhitelistedPlayers().toArray(OfflinePlayer[]::new);
@@ -117,25 +125,10 @@ public class ReloadThread extends Thread {
 
         ReloadAction task = new ReloadAction(threshold, offlinePlayers, config.lastPlayedLimit(), playerMap);
         MyLogger.actionCreated((offlinePlayers != null) ? offlinePlayers.length : 0);
-        ForkJoinPool commonPool = ForkJoinPool.commonPool();
 
-        try {
-            commonPool.invoke(task);
-        } catch (ConcurrentModificationException e) {
-            throw new ConcurrentModificationException(e.toString());
-        }
-
+        ForkJoinPool.commonPool().invoke(task);
         MyLogger.actionFinished(1);
-        return playerMap;
-    }
 
-    private ConcurrentHashMap<String, UUID> generateFakeExtraPlayers(ConcurrentHashMap<String, UUID> realPlayers, int loops) {
-        ConcurrentHashMap<String, UUID> newPlayerMap = new ConcurrentHashMap<>(realPlayers.size() * loops);
-        for (int i = 0; i < loops; i++) {
-            for (String key : realPlayers.keySet()) {
-                newPlayerMap.put(key + i, realPlayers.get(key));
-            }
-        }
-        return newPlayerMap;
+        return playerMap;
     }
 }

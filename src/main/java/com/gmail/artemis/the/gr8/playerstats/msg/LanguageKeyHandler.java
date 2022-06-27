@@ -1,9 +1,9 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
-import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,65 +19,48 @@ public class LanguageKeyHandler {
         generateStatNameKeys();
     }
 
-    public @Nullable String getStatKey(@NotNull String statName) {
-        try {
-            Statistic stat = EnumHandler.getStatEnum(statName);
-            if (stat.getType() == Statistic.Type.UNTYPED) {
-                return "stat.minecraft." + statNameKeys.get(stat);
-            }
-            else {
-                return "stat_type.minecraft." + statNameKeys.get(stat);
-            }
+    public String getStatKey(@NotNull Statistic statistic) {
+        if (statistic.getType() == Statistic.Type.UNTYPED) {
+            return "stat.minecraft." + statNameKeys.get(statistic);
         }
-        catch (IllegalArgumentException e) {
-            MyLogger.logException(e, "LanguageKeyHandler, getStatKey", 34);
-            return null;
+        else {
+            return "stat_type.minecraft." + statNameKeys.get(statistic);
         }
     }
 
+    /** Get the official Key from the NameSpacedKey for the entityType corresponding to this entityName,
+     or return null if no enum constant can be retrieved.*/
     public @Nullable String getEntityKey(@NotNull String entityName) {
         if (entityName.equalsIgnoreCase("UNKNOWN")) {
             return null;
         }
-        else {
-            try {
-                return "entity.minecraft." + EnumHandler.getEntityEnum(entityName).getKey().getKey();
-            }
-            catch (IllegalArgumentException e) {
-                MyLogger.logException(e, "LanguageKeyHandler, getEntityKey", 48);
-                return null;
-            }
-        }
+        EntityType entity = EnumHandler.getEntityEnum(entityName);
+        return (entity != null) ? "entity.minecraft." + entity.getKey().getKey() : null;
     }
 
+    /** Get the official Key from the NameSpacedKey for the Material corresponding to this itemName,
+     or return null if no enum constant can be retrieved.*/
     public @Nullable String getItemKey(@NotNull String itemName) {
-        try {
-            Material item = EnumHandler.getItemEnum(itemName);
-            if (item.isBlock()) {
-                return "block.minecraft." + item.getKey().getKey();
-            }
-            else {
-                return "item.minecraft." + EnumHandler.getItemEnum(itemName).getKey().getKey();
-            }
-        }
-        catch (IllegalArgumentException e) {
-            MyLogger.logException(e, "LanguageKeyHandler, getItemKey", 65);
+        Material item = EnumHandler.getItemEnum(itemName);
+        if (item == null) {
             return null;
+        }
+        if (item.isBlock()) {
+            return "block.minecraft." + item.getKey().getKey();
+        }
+        else {
+            return "item.minecraft." + item.getKey().getKey();
         }
     }
 
-    public @Nullable String getBlockKey(@NotNull String materialName) {
-        String name = materialName;
-        if (materialName.toLowerCase().contains("wall_banner")) {
-            name = materialName.replace("wall_", "");
+    /** Get the official Key from the NameSpacedKey for the Material corresponding to this blockName,
+     or return null if no enum constant can be retrieved.*/
+    public @Nullable String getBlockKey(@NotNull String blockName) {
+        if (blockName.toLowerCase().contains("wall_banner")) {
+            blockName = blockName.replace("wall_", "");
         }
-        try {
-            return "block.minecraft." + EnumHandler.getBlockEnum(name).getKey().getKey();
-        }
-        catch (IllegalArgumentException e) {
-            MyLogger.logException(e, "LanguageKeyHandler, getBlockKey", 79);
-            return null;
-        }
+        Material block = EnumHandler.getBlockEnum(blockName);
+        return (block != null) ? "block.minecraft." + block.getKey().getKey() : null;
     }
 
     private void generateDefaultKeys() {

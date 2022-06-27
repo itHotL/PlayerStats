@@ -1,7 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.config;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
-import com.gmail.artemis.the.gr8.playerstats.enums.Query;
+import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -22,9 +22,10 @@ public class ConfigHandler {
 
         saveDefaultConfig();
         config = YamlConfiguration.loadConfiguration(configFile);
-        configVersion = 4;
 
+        configVersion = 4;
         checkConfigVersion();
+
         MyLogger.setDebugLevel(debugLevel());
     }
 
@@ -50,16 +51,16 @@ public class ConfigHandler {
     /** Reloads the config from file, or creates a new file with default values if there is none.
      Also reads the value for debug-level and passes it on to MyLogger. */
     public boolean reloadConfig() {
+        if (!configFile.exists()) {
+            saveDefaultConfig();
+        }
         try {
-            if (!configFile.exists()) {
-                saveDefaultConfig();
-            }
             config = YamlConfiguration.loadConfiguration(configFile);
             MyLogger.setDebugLevel(debugLevel());
             return true;
         }
-        catch (Exception e) {
-            plugin.getLogger().warning(e.toString());
+        catch (IllegalArgumentException e) {
+            MyLogger.logException(e, "ConfigHandler", "reloadConfig");
             return false;
         }
     }
@@ -149,9 +150,9 @@ public class ConfigHandler {
      <p>Style: "none"</p>
      <p>Color Top: "green"</p>
      <p>Color Individual/Server: "gold"</p>*/
-    public String getPlayerNameFormatting(Query selection, boolean isStyle) {
+    public String getPlayerNameFormatting(Target selection, boolean isStyle) {
         String def;
-        if (selection == Query.TOP) {
+        if (selection == Target.TOP) {
             def = "green";
         }
         else {
@@ -163,7 +164,7 @@ public class ConfigHandler {
     /** Returns true if playerNames Style is "bold", false if it is not.
      <p>Default: false</p>*/
     public boolean playerNameIsBold() {
-        ConfigurationSection style = getRelevantSection(Query.PLAYER);
+        ConfigurationSection style = getRelevantSection(Target.PLAYER);
 
         if (style != null) {
             String styleString = style.getString("player-names");
@@ -175,14 +176,14 @@ public class ConfigHandler {
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "yellow"</p>*/
-    public String getStatNameFormatting(Query selection, boolean isStyle) {
+    public String getStatNameFormatting(Target selection, boolean isStyle) {
         return getStringFromConfig(selection, isStyle, "yellow", "stat-names");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "#FFD52B"</p>*/
-    public String getSubStatNameFormatting(Query selection, boolean isStyle) {
+    public String getSubStatNameFormatting(Target selection, boolean isStyle) {
         return getStringFromConfig(selection, isStyle, "#FFD52B", "sub-stat-names");
     }
 
@@ -190,9 +191,9 @@ public class ConfigHandler {
      <p>Style: "none"</p>
      <p>Color Top: "#55AAFF"</p>
      <p>Color Individual/Server: "#ADE7FF"</p> */
-    public String getStatNumberFormatting(Query selection, boolean isStyle) {
+    public String getStatNumberFormatting(Target selection, boolean isStyle) {
         String def;
-        if (selection == Query.TOP) {
+        if (selection == Target.TOP) {
             def = "#55AAFF";
         }
         else {
@@ -205,9 +206,9 @@ public class ConfigHandler {
      <p>Style: "none"</p>
      <p>Color Top: "yellow"</p>
      <p>Color Server: "gold"</p>*/
-    public String getTitleFormatting(Query selection, boolean isStyle) {
+    public String getTitleFormatting(Target selection, boolean isStyle) {
         String def;
-        if (selection == Query.TOP) {
+        if (selection == Target.TOP) {
             def = "yellow";
         }
         else {
@@ -220,32 +221,32 @@ public class ConfigHandler {
      <p>Style: "none"</p>
      <p>Color: "gold"</p>*/
     public String getTitleNumberFormatting(boolean isStyle) {
-        return getStringFromConfig(Query.TOP, isStyle, "gold", "title-number");
+        return getStringFromConfig(Target.TOP, isStyle, "gold", "title-number");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "#FFB80E"</p>*/
     public String getServerNameFormatting(boolean isStyle) {
-        return getStringFromConfig(Query.SERVER, isStyle, "#FFB80E", "server-name");
+        return getStringFromConfig(Target.SERVER, isStyle, "#FFB80E", "server-name");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "gold"</p>*/
     public String getRankNumberFormatting(boolean isStyle) {
-        return getStringFromConfig(Query.TOP, isStyle, "gold", "rank-numbers");
+        return getStringFromConfig(Target.TOP, isStyle, "gold", "rank-numbers");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "dark_gray"</p> */
     public String getDotsFormatting(boolean isStyle) {
-        return getStringFromConfig(Query.TOP, isStyle, "dark_gray", "dots");
+        return getStringFromConfig(Target.TOP, isStyle, "dark_gray", "dots");
     }
 
     /** Returns the config value for a color or style option in string-format, the supplied default value, or null if no configSection was found. */
-    private @Nullable String getStringFromConfig(Query selection, boolean isStyle, String def, String pathName){
+    private @Nullable String getStringFromConfig(Target selection, boolean isStyle, String def, String pathName){
         String path = isStyle ? pathName + "-style" : pathName;
         String defaultValue = isStyle ? "none" : def;
 
@@ -254,7 +255,7 @@ public class ConfigHandler {
     }
 
     /** Returns the config section that contains the relevant color or style option. */
-    private @Nullable ConfigurationSection getRelevantSection(Query selection) {
+    private @Nullable ConfigurationSection getRelevantSection(Target selection) {
         switch (selection) {
             case TOP -> {
                 return config.getConfigurationSection("top-list");

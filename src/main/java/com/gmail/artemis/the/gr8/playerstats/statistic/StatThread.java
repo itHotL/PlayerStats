@@ -1,7 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
-import com.gmail.artemis.the.gr8.playerstats.enums.Query;
+import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
@@ -11,6 +11,7 @@ import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -75,12 +76,12 @@ public class StatThread extends Thread {
 
         CommandSender sender = request.getCommandSender();
         boolean isConsoleSencer = sender instanceof ConsoleCommandSender;
+        Statistic statistic = request.getStatistic();
         String playerName = request.getPlayerName();
-        String statName = request.getStatName();
         String subStatEntry = request.getSubStatEntry();
-        Query selection = request.getSelection();
+        Target selection = request.getSelection();
 
-        if (selection == Query.TOP || selection == Query.SERVER) {
+        if (selection == Target.TOP || selection == Target.SERVER) {
             if (ThreadManager.getLastRecordedCalcTime() > 20000) {
                 adventure.sender(sender).sendMessage(messageFactory.waitAMoment(true, isConsoleSencer));
             }
@@ -89,13 +90,13 @@ public class StatThread extends Thread {
             }
 
             try {
-                if (selection == Query.TOP) {
+                if (selection == Target.TOP) {
                     adventure.sender(sender).sendMessage(messageFactory.formatTopStats(
-                            getTopStats(), statName, subStatEntry, sender instanceof ConsoleCommandSender));
+                            getTopStats(), statistic, subStatEntry, sender instanceof ConsoleCommandSender));
                 }
                 else {
                     adventure.sender(sender).sendMessage(messageFactory.formatServerStat(
-                            statName, subStatEntry, getServerTotal()));
+                            statistic, subStatEntry, getServerTotal()));
                 }
 
             } catch (ConcurrentModificationException e) {
@@ -104,15 +105,15 @@ public class StatThread extends Thread {
                 }
             } catch (Exception e) {
                 adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString(), isConsoleSencer));
-                e.printStackTrace();
+                MyLogger.logException(e, "StatThread", "run(), trying to calculate or format a top or server statistic");
             }
         }
 
-        else if (selection == Query.PLAYER) {
+        else if (selection == Target.PLAYER) {
             try {
                 adventure.sender(sender).sendMessage(
                         messageFactory.formatPlayerStat(
-                                playerName, statName, subStatEntry, getIndividualStat()));
+                                playerName, statistic, subStatEntry, getIndividualStat()));
 
             } catch (UnsupportedOperationException | NullPointerException e) {
                 adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString(), isConsoleSencer));
@@ -162,26 +163,18 @@ public class StatThread extends Thread {
     private int getIndividualStat() throws UnsupportedOperationException, NullPointerException {
         OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(request.getPlayerName());
         if (player != null) {
-            switch (request.getStatType()) {
+            switch (request.getStatistic().getType()) {
                 case UNTYPED -> {
-                    return player.getStatistic(request.getStatEnum());
+                    return player.getStatistic(request.getStatistic());
                 }
                 case ENTITY -> {
-                    return player.getStatistic(request.getStatEnum(), request.getEntity());
+                    return player.getStatistic(request.getStatistic(), request.getEntity());
                 }
                 case BLOCK -> {
-                    return player.getStatistic(request.getStatEnum(), request.getBlock());
+                    return player.getStatistic(request.getStatistic(), request.getBlock());
                 }
                 case ITEM -> {
-                    return player.getStatistic(request.getStatEnum(), request.getItem());
-                }
-                default -> {
-                    if (request.getStatType() != null) {
-                        throw new UnsupportedOperationException("PlayerStats is not familiar with this statistic type - please check if you are using the latest version of the plugin!");
-                    }
-                    else {
-                        throw new NullPointerException("Trying to calculate a statistic of which the type is null - is this a valid statistic?");
-                    }
+                    return player.getStatistic(request.getStatistic(), request.getItem());
                 }
             }
         }
