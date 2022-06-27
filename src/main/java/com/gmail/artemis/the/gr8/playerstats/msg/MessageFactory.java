@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.NumberFormatter;
 import net.kyori.adventure.text.Component;
@@ -157,19 +158,22 @@ public class MessageFactory {
                 .append(newline());
     }
 
-    public TextComponent formatPlayerStat(String playerName, Statistic statistic, String subStatEntry, int stat) {
+    public TextComponent formatPlayerStat(int stat, @NotNull StatRequest request) {
+        if (!request.isValid()) return unknownError(request.isConsoleSender());
         return Component.text()
-                .append(playerNameComponent(Target.PLAYER, playerName + ": "))
+                .append(playerNameComponent(Target.PLAYER, request.getPlayerName() + ": "))
                 .append(statNumberComponent(Target.PLAYER, stat))
                 .append(space())
-                .append(statNameComponent(Target.PLAYER, statistic, subStatEntry))
+                .append(statNameComponent(request))
                 .append(space())
                 .build();
     }
 
-    public TextComponent formatTopStats(@NotNull LinkedHashMap<String, Integer> topStats, Statistic statistic, String subStatEntry, boolean isConsoleSender) {
+    public TextComponent formatTopStats(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
+        if (!request.isValid()) return unknownError(request.isConsoleSender());
+
         TextComponent.Builder topList = Component.text();
-        topList.append(getTopStatTitle(topStats.size(), statistic, subStatEntry, isConsoleSender));
+        topList.append(getTopStatTitle(topStats.size(), request));
 
         boolean useDots = config.useDots();
         Set<String> playerNames = topStats.keySet();
@@ -187,7 +191,7 @@ public class MessageFactory {
                 topList.append(space());
 
                 int dots = (int) Math.round((130.0 - font.getWidth(count + ". " + playerName))/2);
-                if (isConsoleSender) {
+                if (request.isConsoleSender()) {
                     dots = (int) Math.round((130.0 - font.getWidth(count + ". " + playerName))/6) + 7;
                 }
                 else if (config.playerNameIsBold()) {
@@ -205,7 +209,8 @@ public class MessageFactory {
         return topList.build();
     }
 
-    public TextComponent formatServerStat(Statistic statistic, String subStatEntry, long stat) {
+    public TextComponent formatServerStat(long stat, @NotNull StatRequest request) {
+        if (!request.isValid()) return unknownError(request.isConsoleSender());
         return Component.text()
                 .append(titleComponent(Target.SERVER, config.getServerTitle()))
                 .append(space())
@@ -213,7 +218,7 @@ public class MessageFactory {
                 .append(space())
                 .append(statNumberComponent(Target.SERVER, stat))
                 .append(space())
-                .append(statNameComponent(Target.SERVER, statistic, subStatEntry))
+                .append(statNameComponent(request))
                 .append(space())
                 .build();
     }
@@ -233,15 +238,15 @@ public class MessageFactory {
                 .append(text(underscores));
     }
 
-    protected TextComponent getTopStatTitle(int topLength, @NotNull Statistic statistic, String subStatEntry, boolean isConsoleSender) {
+    protected TextComponent getTopStatTitle(int topLength, @NotNull StatRequest request) {
         return Component.text()
                 .append(newline())
-                .append(pluginPrefix(isConsoleSender))
+                .append(pluginPrefix(request.isConsoleSender()))
                 .append(titleComponent(Target.TOP, config.getTopStatsTitle()))
                 .append(space())
                 .append(titleNumberComponent(topLength))
                 .append(space())
-                .append(statNameComponent(Target.TOP, statistic, subStatEntry))
+                .append(statNameComponent(request))
                 .append(space())
                 .build();
     }
@@ -252,26 +257,28 @@ public class MessageFactory {
                 getStyleFromString(config.getPlayerNameFormatting(selection, true)));
     }
 
-    protected TranslatableComponent statNameComponent(Target selection, @NotNull Statistic statistic, String subStatName) {
-        TextColor statNameColor = getColorFromString(config.getStatNameFormatting(selection, false));
-        TextDecoration statNameStyle = getStyleFromString(config.getStatNameFormatting(selection, true));
+    protected TranslatableComponent statNameComponent(@NotNull StatRequest request) {
+        if (request.getStatistic() == null) return null;
+        TextColor statNameColor = getColorFromString(config.getStatNameFormatting(request.getSelection(), false));
+        TextDecoration statNameStyle = getStyleFromString(config.getStatNameFormatting(request.getSelection(), true));
 
-        String statName;
+        String statName = request.getStatistic().name();
+        String subStatName = request.getSubStatEntry();
         if (!config.useTranslatableComponents()) {
-            statName = getPrettyName(statistic.name().toLowerCase());
+            statName = getPrettyName(statName);
             subStatName = getPrettyName(subStatName);
         }
         else {
-            statName = language.getStatKey(statistic);
-            switch (statistic.getType()) {
-                case BLOCK -> subStatName = language.getBlockKey(subStatName);
-                case ENTITY -> subStatName = language.getEntityKey(subStatName);
-                case ITEM -> subStatName = language.getItemKey(subStatName);
+            statName = language.getStatKey(request.getStatistic());
+            switch (request.getStatistic().getType()) {
+                case BLOCK -> subStatName = language.getBlockKey(request.getBlock());
+                case ENTITY -> subStatName = language.getEntityKey(request.getEntity());
+                case ITEM -> subStatName = language.getItemKey(request.getItem());
                 case UNTYPED -> {
                 }
             }
         }
-        TextComponent subStat = subStatNameComponent(selection, subStatName);
+        TextComponent subStat = subStatNameComponent(request.getSelection(), subStatName);
         TranslatableComponent.Builder totalName;
 
         if (statName.equalsIgnoreCase("stat_type.minecraft.killed") && subStat != null) {
@@ -291,22 +298,24 @@ public class MessageFactory {
                 .build();
     }
 
-    /** Construct a custom translation for kill_entity */
-    private TranslatableComponent.@NotNull Builder killEntityComponent(TextComponent subStat) {
-        TranslatableComponent.Builder totalName = translatable()
-                .key("commands.kill.success.single");  //"Killed %s"
-
-        if (subStat != null) totalName.args(subStat);
-        return totalName;
+    /** Construct a custom translation for kill_entity with the language key for commands.kill.success.single ("Killed %s").
+     @return a TranslatableComponent Builder with the subStat Component as args.*/
+    private TranslatableComponent.Builder killEntityComponent(@NotNull TextComponent subStat) {
+        return translatable()
+                .key("commands.kill.success.single")  //"Killed %s"
+                .args(subStat);
     }
 
-    /** Construct a custom translation for entity_killed_by */
-    private TranslatableComponent.@NotNull Builder entityKilledByComponent(@NotNull TextComponent subStat) {
+    /** Construct a custom translation for entity_killed_by with the language keys for stat.minecraft.deaths
+     ("Number of Deaths") and book.byAuthor ("by %s").
+     @return a TranslatableComponent Builder with stat.minecraft.deaths as key, with a ChildComponent
+     with book.byAuthor as key and the subStat Component as args.*/
+    private TranslatableComponent.Builder entityKilledByComponent(@NotNull TextComponent subStat) {
         return translatable()
                 .key("stat.minecraft.deaths")  //"Number of Deaths"
                 .append(space())
                 .append(translatable()
-                        .key("book.byAuthor")
+                        .key("book.byAuthor") //"by %s"
                         .args(subStat));
     }
 
@@ -371,10 +380,11 @@ public class MessageFactory {
         return style == null ? text(content).color(color) : text(content).color(color).decoration(style, TextDecoration.State.TRUE);
     }
 
-    /** Replace "_" with " " and capitalize each first letter of the input.*/
+    /** Replace "_" with " " and capitalize each first letter of the input.
+     @param input String to prettify, case-insensitive*/
     private String getPrettyName(String input) {
         if (input == null) return null;
-        StringBuilder capitals = new StringBuilder(input);
+        StringBuilder capitals = new StringBuilder(input.toLowerCase());
         capitals.setCharAt(0, Character.toUpperCase(capitals.charAt(0)));
         while (capitals.indexOf("_") != -1) {
             MyLogger.replacingUnderscores();

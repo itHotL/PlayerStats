@@ -28,39 +28,39 @@ public class LanguageKeyHandler {
         }
     }
 
-    /** Get the official Key from the NameSpacedKey for the entityType corresponding to this entityName,
-     or return null if no enum constant can be retrieved.*/
-    public @Nullable String getEntityKey(@NotNull String entityName) {
-        if (entityName.equalsIgnoreCase("UNKNOWN")) {
-            return null;
+    /** Get the official Key from the NameSpacedKey for this entityType,
+     or return null if no enum constant can be retrieved or entityType is UNKNOWN.*/
+    public @Nullable String getEntityKey(EntityType entity) {
+        if (entity == null || entity == EntityType.UNKNOWN) return null;
+        else {
+            return  "entity.minecraft." + entity.getKey().getKey();
         }
-        EntityType entity = EnumHandler.getEntityEnum(entityName);
-        return (entity != null) ? "entity.minecraft." + entity.getKey().getKey() : null;
     }
 
-    /** Get the official Key from the NameSpacedKey for the Material corresponding to this itemName,
+    /** Get the official Key from the NameSpacedKey for this item Material,
      or return null if no enum constant can be retrieved.*/
-    public @Nullable String getItemKey(@NotNull String itemName) {
-        Material item = EnumHandler.getItemEnum(itemName);
-        if (item == null) {
-            return null;
-        }
-        if (item.isBlock()) {
-            return "block.minecraft." + item.getKey().getKey();
+    public @Nullable String getItemKey(Material item) {
+        if (item == null) return null;
+        else if (item.isBlock()) {
+            return getBlockKey(item);
         }
         else {
             return "item.minecraft." + item.getKey().getKey();
         }
     }
 
-    /** Get the official Key from the NameSpacedKey for the Material corresponding to this blockName,
+    /** Returns the official Key from the NameSpacedKey for the block Material provided,
      or return null if no enum constant can be retrieved.*/
-    public @Nullable String getBlockKey(@NotNull String blockName) {
-        if (blockName.toLowerCase().contains("wall_banner")) {
-            blockName = blockName.replace("wall_", "");
+    public @Nullable String getBlockKey(Material block) {
+        if (block == null) return null;
+        else if (block.toString().toLowerCase().contains("wall_banner")) {  //replace wall_banner with regular banner, since there is no key for wall banners
+            String blockName = block.toString().toLowerCase().replace("wall_", "");
+            Material newBlock = EnumHandler.getBlockEnum(blockName);
+            return (newBlock != null) ? "block.minecraft." + newBlock.getKey().getKey() : null;
         }
-        Material block = EnumHandler.getBlockEnum(blockName);
-        return (block != null) ? "block.minecraft." + block.getKey().getKey() : null;
+        else {
+            return "block.minecraft." + block.getKey().getKey();
+        }
     }
 
     private void generateDefaultKeys() {

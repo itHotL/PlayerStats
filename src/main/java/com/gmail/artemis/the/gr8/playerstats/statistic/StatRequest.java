@@ -4,6 +4,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,14 +22,39 @@ public class StatRequest {
     private Material item;
     private boolean playerFlag;
 
-    //playerFlag is set to false by default, will be set to true if "player" is in the args
+    //make a StatRequest for a given CommandSender with some default values
     public StatRequest(@NotNull CommandSender s) {
         sender = s;
+        selection = Target.TOP;
         playerFlag = false;
     }
 
-    public CommandSender getCommandSender() {
+    /** Returns true if this StatRequest has all the information needed for a Statistic lookup to succeed.*/
+    public boolean isValid() {
+        if (statistic == null) return false;
+        switch (statistic.getType()) {
+            case BLOCK -> {
+                if (block == null) return false;
+            }
+            case ENTITY -> {
+                if (entity == null) return false;
+            }
+            case ITEM -> {
+                if (item == null) return false;
+            }
+            case UNTYPED -> {
+                if (subStatEntry != null) return false;
+            }
+        }  //if target = PLAYER and playerName = null, return false, otherwise return true
+        return selection != Target.PLAYER || playerName != null;
+    }
+
+    public @NotNull CommandSender getCommandSender() {
         return sender;
+    }
+
+    public boolean isConsoleSender() {
+        return sender instanceof ConsoleCommandSender;
     }
 
     public void setStatistic(Statistic statistic) {
@@ -73,7 +99,7 @@ public class StatRequest {
         this.selection = selection;
     }
 
-    public Target getSelection() {
+    public @NotNull Target getSelection() {
         return selection;
     }
 

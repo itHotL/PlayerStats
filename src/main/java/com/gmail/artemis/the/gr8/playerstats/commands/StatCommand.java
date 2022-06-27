@@ -73,21 +73,24 @@ public class StatCommand implements CommandExecutor {
                 }
             }
             //check for selection
-            else if (request.getSelection() == null) {
-                if (arg.equalsIgnoreCase("top")) {
-                    request.setSelection(Target.TOP);
-                }
-                else if (arg.equalsIgnoreCase("server")) {
-                    request.setSelection(Target.SERVER);
-                }
-                else if (arg.equalsIgnoreCase("me") && sender instanceof Player) {
+            else if (arg.equalsIgnoreCase("top")) {
+                request.setSelection(Target.TOP);
+            }
+            else if (arg.equalsIgnoreCase("server")) {
+                request.setSelection(Target.SERVER);
+            }
+            else if (arg.equalsIgnoreCase("me")) {
+                if (sender instanceof Player) {
                     request.setPlayerName(sender.getName());
                     request.setSelection(Target.PLAYER);
                 }
-                else if (OfflinePlayerHandler.isRelevantPlayer(arg) && request.getPlayerName() == null) {
-                    request.setPlayerName(arg);
-                    request.setSelection(Target.PLAYER);
+                else if (sender instanceof ConsoleCommandSender) {
+                    request.setSelection(Target.SERVER);
                 }
+            }
+            else if (OfflinePlayerHandler.isRelevantPlayer(arg) && request.getPlayerName() == null) {
+                request.setPlayerName(arg);
+                request.setSelection(Target.PLAYER);
             }
         }
         patchRequest(request);
@@ -104,6 +107,9 @@ public class StatCommand implements CommandExecutor {
             if (request.playerFlag()) {  //unpack the playerFlag
                 if (type == Statistic.Type.ENTITY && request.getSubStatEntry() == null) {
                     request.setSubStatEntry("player");
+                }
+                else {
+                    request.setSelection(Target.PLAYER);
                 }
             }
 
@@ -124,10 +130,6 @@ public class StatCommand implements CommandExecutor {
                 case UNTYPED -> {  //remove unnecessary subStatEntries
                     if (subStatEntry != null) request.setSubStatEntry(null);
                 }
-            }
-
-            if (request.getSelection() == null) {  //assume top as default
-                request.setSelection(Target.TOP);
             }
         }
     }

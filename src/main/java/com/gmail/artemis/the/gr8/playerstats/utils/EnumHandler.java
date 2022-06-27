@@ -59,12 +59,6 @@ public class EnumHandler {
     private EnumHandler() {
     }
 
-    /** Checks whether the provided string is a valid item
-     @param itemName String, case-insensitive */
-    public static boolean isItem(@NotNull String itemName) {
-        return itemNames.contains(itemName.toLowerCase());
-    }
-
     /** Returns all item names in lowercase */
     public static List<String> getItemNames() {
         return itemNames;
@@ -74,12 +68,10 @@ public class EnumHandler {
      @param itemName String, case-insensitive
      @return Material enum constant, uppercase */
     public static @Nullable Material getItemEnum(String itemName) {
-        return Material.matchMaterial(itemName);
-    }
+        if (itemName == null) return null;
 
-    /** Checks whether the provided string is a valid entity */
-    public static boolean isEntity(@NotNull String entityName) {
-        return entityNames.contains(entityName.toLowerCase());
+        Material item = Material.matchMaterial(itemName);
+        return (item != null && item.isItem()) ? item : null;
     }
 
     /** Returns all entitytype names in lowercase */
@@ -99,12 +91,6 @@ public class EnumHandler {
         }
     }
 
-    /** Checks whether the provided string is a valid block
-     @param materialName String, case-insensitive */
-    public static boolean isBlock(@NotNull String materialName) {
-        return blockNames.contains(materialName.toLowerCase());
-    }
-
     /** Returns all block names in lowercase */
     public static List<String> getBlockNames() {
         return blockNames;
@@ -114,8 +100,10 @@ public class EnumHandler {
      @param materialName String, case-insensitive
      @return Material enum constant, uppercase */
     public static @Nullable Material getBlockEnum(String materialName) {
-        return Material.matchMaterial(materialName);
+        if (materialName == null) return null;
 
+        Material block = Material.matchMaterial(materialName);
+        return (block != null && block.isBlock()) ? block : null;
     }
 
     /** Checks if string is a valid statistic

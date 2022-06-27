@@ -76,9 +76,6 @@ public class StatThread extends Thread {
 
         CommandSender sender = request.getCommandSender();
         boolean isConsoleSencer = sender instanceof ConsoleCommandSender;
-        Statistic statistic = request.getStatistic();
-        String playerName = request.getPlayerName();
-        String subStatEntry = request.getSubStatEntry();
         Target selection = request.getSelection();
 
         if (selection == Target.TOP || selection == Target.SERVER) {
@@ -91,12 +88,10 @@ public class StatThread extends Thread {
 
             try {
                 if (selection == Target.TOP) {
-                    adventure.sender(sender).sendMessage(messageFactory.formatTopStats(
-                            getTopStats(), statistic, subStatEntry, sender instanceof ConsoleCommandSender));
+                    adventure.sender(sender).sendMessage(messageFactory.formatTopStats(getTopStats(), request));
                 }
                 else {
-                    adventure.sender(sender).sendMessage(messageFactory.formatServerStat(
-                            statistic, subStatEntry, getServerTotal()));
+                    adventure.sender(sender).sendMessage(messageFactory.formatServerStat(getServerTotal(), request));
                 }
 
             } catch (ConcurrentModificationException e) {
@@ -112,8 +107,7 @@ public class StatThread extends Thread {
         else if (selection == Target.PLAYER) {
             try {
                 adventure.sender(sender).sendMessage(
-                        messageFactory.formatPlayerStat(
-                                playerName, statistic, subStatEntry, getIndividualStat()));
+                        messageFactory.formatPlayerStat(getIndividualStat(), request));
 
             } catch (UnsupportedOperationException | NullPointerException e) {
                 adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString(), isConsoleSencer));
