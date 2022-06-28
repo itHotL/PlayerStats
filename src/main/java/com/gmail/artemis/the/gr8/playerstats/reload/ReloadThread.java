@@ -3,8 +3,8 @@ package com.gmail.artemis.the.gr8.playerstats.reload;
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -29,19 +29,19 @@ public class ReloadThread extends Thread {
 
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
-    private static MessageFactory messageFactory;
+    private static MessageWriter messageWriter;
     private final Main plugin;
 
     private final StatThread statThread;
     private final CommandSender sender;
 
-    public ReloadThread(BukkitAudiences a, ConfigHandler c, MessageFactory m, Main p, int threshold, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
+    public ReloadThread(BukkitAudiences a, ConfigHandler c, MessageWriter m, Main p, int threshold, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
         this.threshold = threshold;
         reloadThreadID = ID;
 
         adventure = a;
         config = c;
-        messageFactory = m;
+        messageWriter = m;
         plugin = p;
 
         statThread = s;
@@ -76,13 +76,13 @@ public class ReloadThread extends Thread {
                 catch (ConcurrentModificationException e) {
                     MyLogger.logException(e, "ReloadThread", "run(), trying to update OfflinePlayerList during a reload");
                     if (sender != null) {
-                        adventure.sender(sender).sendMessage(messageFactory.partiallyReloaded(sender instanceof ConsoleCommandSender));
+                        adventure.sender(sender).sendMessage(messageWriter.partiallyReloaded(sender instanceof ConsoleCommandSender));
                     }
                 }
 
                 MyLogger.logTimeTakenDefault("ReloadThread", ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
                 if (sender != null) {
-                    adventure.sender(sender).sendMessage(messageFactory.reloadedConfig(sender instanceof ConsoleCommandSender));
+                    adventure.sender(sender).sendMessage(messageWriter.reloadedConfig(sender instanceof ConsoleCommandSender));
                 }
             }
         }

@@ -12,7 +12,7 @@ import java.time.Month;
 import static net.kyori.adventure.text.Component.*;
 
 
-public class PrideMessageFactory extends MessageFactory {
+public class PrideMessageFactory extends MessageWriter {
 
     private static ConfigHandler config;
 

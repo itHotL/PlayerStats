@@ -2,16 +2,15 @@ package com.gmail.artemis.the.gr8.playerstats.statistic;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -31,11 +30,11 @@ public class StatThread extends Thread {
 
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
-    private static MessageFactory messageFactory;
+    private static MessageWriter messageWriter;
     private final Main plugin;
 
     //constructor (called on thread creation)
-    public StatThread(BukkitAudiences a, ConfigHandler c, MessageFactory m, Main p, int ID, int threshold, StatRequest s, @Nullable ReloadThread r) {
+    public StatThread(BukkitAudiences a, ConfigHandler c, MessageWriter m, Main p, int ID, int threshold, StatRequest s, @Nullable ReloadThread r) {
         this.threshold = threshold;
 
         request = s;
@@ -43,7 +42,7 @@ public class StatThread extends Thread {
 
         adventure = a;
         config = c;
-        messageFactory = m;
+        messageWriter = m;
         plugin = p;
 
         this.setName("StatThread-" + ID);
@@ -55,7 +54,7 @@ public class StatThread extends Thread {
     public void run() throws IllegalStateException, NullPointerException {
         MyLogger.threadStart(this.getName());
 
-        if (messageFactory == null || plugin == null) {
+        if (messageWriter == null || plugin == null) {
             throw new IllegalStateException("Not all classes off the plugin are running!");
         }
         if (request == null) {
@@ -65,7 +64,7 @@ public class StatThread extends Thread {
             try {
                 MyLogger.waitingForOtherThread(this.getName(), reloadThread.getName());
                 adventure.sender(request.getCommandSender())
-                        .sendMessage(messageFactory
+                        .sendMessage(messageWriter
                                 .stillReloading(request.getCommandSender() instanceof ConsoleCommandSender));
                 reloadThread.join();
             } catch (InterruptedException e) {
@@ -80,26 +79,26 @@ public class StatThread extends Thread {
 
         if (selection == Target.TOP || selection == Target.SERVER) {
             if (ThreadManager.getLastRecordedCalcTime() > 20000) {
-                adventure.sender(sender).sendMessage(messageFactory.waitAMoment(true, isConsoleSencer));
+                adventure.sender(sender).sendMessage(messageWriter.waitAMoment(true, isConsoleSencer));
             }
             else if (ThreadManager.getLastRecordedCalcTime() > 2000) {
-                adventure.sender(sender).sendMessage(messageFactory.waitAMoment(false, isConsoleSencer));
+                adventure.sender(sender).sendMessage(messageWriter.waitAMoment(false, isConsoleSencer));
             }
 
             try {
                 if (selection == Target.TOP) {
-                    adventure.sender(sender).sendMessage(messageFactory.formatTopStats(getTopStats(), request));
+                    adventure.sender(sender).sendMessage(messageWriter.formatTopStats(getTopStats(), request));
                 }
                 else {
-                    adventure.sender(sender).sendMessage(messageFactory.formatServerStat(getServerTotal(), request));
+                    adventure.sender(sender).sendMessage(messageWriter.formatServerStat(getServerTotal(), request));
                 }
 
             } catch (ConcurrentModificationException e) {
                 if (!isConsoleSencer) {
-                    adventure.sender(sender).sendMessage(messageFactory.unknownError(false));
+                    adventure.sender(sender).sendMessage(messageWriter.unknownError(false));
                 }
             } catch (Exception e) {
-                adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString(), isConsoleSencer));
+                adventure.sender(sender).sendMessage(messageWriter.formatExceptions(e.toString(), isConsoleSencer));
                 MyLogger.logException(e, "StatThread", "run(), trying to calculate or format a top or server statistic");
             }
         }
@@ -107,10 +106,10 @@ public class StatThread extends Thread {
         else if (selection == Target.PLAYER) {
             try {
                 adventure.sender(sender).sendMessage(
-                        messageFactory.formatPlayerStat(getIndividualStat(), request));
+                        messageWriter.formatPlayerStat(getIndividualStat(), request));
 
             } catch (UnsupportedOperationException | NullPointerException e) {
-                adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString(), isConsoleSencer));
+                adventure.sender(sender).sendMessage(messageWriter.formatExceptions(e.toString(), isConsoleSencer));
             }
         }
     }

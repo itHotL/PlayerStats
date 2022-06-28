@@ -6,7 +6,7 @@ import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.LanguageKeyHandler;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
 import com.gmail.artemis.the.gr8.playerstats.msg.PrideMessageFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
@@ -36,15 +36,15 @@ public class Main extends JavaPlugin {
         LanguageKeyHandler language = new LanguageKeyHandler();
 
         //for now always use the PrideMessageFactory (it'll use the regular formatting when needed)
-        MessageFactory messageFactory = new PrideMessageFactory(config, language);
+        MessageWriter messageWriter = new PrideMessageFactory(config, language);
 
         //initialize the threadManager
-        ThreadManager threadManager = new ThreadManager(adventure(), config, messageFactory, this);
+        ThreadManager threadManager = new ThreadManager(adventure(), config, messageWriter, this);
 
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(adventure(), messageFactory, threadManager));
+            statcmd.setExecutor(new StatCommand(adventure(), messageWriter, threadManager));
             statcmd.setTabCompleter(new TabCompleter());
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");

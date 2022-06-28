@@ -5,7 +5,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
@@ -23,23 +23,23 @@ import org.jetbrains.annotations.Nullable;
 public class StatCommand implements CommandExecutor {
 
     private final BukkitAudiences adventure;
-    private final MessageFactory messageFactory;
+    private final MessageWriter messageWriter;
     private final ThreadManager threadManager;
 
-    public StatCommand(BukkitAudiences a, MessageFactory m, ThreadManager t) {
+    public StatCommand(BukkitAudiences a, MessageWriter m, ThreadManager t) {
         adventure = a;
-        messageFactory = m;
+        messageWriter = m;
         threadManager = t;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {  //in case of less than 1 argument or "help", display the help message
-            adventure.sender(sender).sendMessage(messageFactory.helpMsg(sender instanceof ConsoleCommandSender));
+            adventure.sender(sender).sendMessage(messageWriter.helpMsg(sender instanceof ConsoleCommandSender));
         }
         else if (args[0].equalsIgnoreCase("examples") ||
                 args[0].equalsIgnoreCase("example")) {  //in case of "statistic examples", show examples
-            adventure.sender(sender).sendMessage(messageFactory.usageExamples(sender instanceof ConsoleCommandSender));
+            adventure.sender(sender).sendMessage(messageWriter.usageExamples(sender instanceof ConsoleCommandSender));
         }
         else {
             StatRequest request = generateRequest(sender, args);
@@ -143,17 +143,17 @@ public class StatCommand implements CommandExecutor {
     private @Nullable TextComponent checkRequest(StatRequest request) {
         boolean isConsoleSender = request.getCommandSender() instanceof ConsoleCommandSender;
         if (request.getStatistic() == null) {
-            return messageFactory.missingStatName(isConsoleSender);
+            return messageWriter.missingStatName(isConsoleSender);
         }
         Statistic.Type type = request.getStatistic().getType();
         if (request.getSubStatEntry() == null && type != Statistic.Type.UNTYPED) {
-            return messageFactory.missingSubStatName(type, isConsoleSender);
+            return messageWriter.missingSubStatName(type, isConsoleSender);
         }
         else if (!matchingSubStat(request)) {
-            return messageFactory.wrongSubStatType(type, request.getSubStatEntry(), isConsoleSender);
+            return messageWriter.wrongSubStatType(type, request.getSubStatEntry(), isConsoleSender);
         }
         else if (request.getSelection() == Target.PLAYER && request.getPlayerName() == null) {
-            return messageFactory.missingPlayerName(isConsoleSender);
+            return messageWriter.missingPlayerName(isConsoleSender);
         }
         else {
             return null;
