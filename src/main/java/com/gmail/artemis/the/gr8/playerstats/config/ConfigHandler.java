@@ -1,7 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.config;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
-import com.gmail.artemis.the.gr8.playerstats.enums.Query;
+import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -22,36 +22,56 @@ public class ConfigHandler {
 
         saveDefaultConfig();
         config = YamlConfiguration.loadConfiguration(configFile);
-        configVersion = 3.1;
 
+        configVersion = 4;
         checkConfigVersion();
+
         MyLogger.setDebugLevel(debugLevel());
     }
 
-    /** Returns the desired debugging level.
-     <p>1 = low (only show unexpected errors)</p>
-     <p>2 = medium (show all encountered exceptions, log main tasks and show time taken)</p>
-     <p>3 = high (log all tasks and time taken)</p>
-     <p>Default: 1</p>*/
-    public int debugLevel() {
-        return config.getInt("debug-level", 1);
+    /** Checks the number that "config-version" returns to see if the config needs updating, and if so, send it to the Updater.
+     <p>PlayerStats 1.1: "config-version" doesn't exist.</p>
+     <p>PlayerStats 1.2: "config-version" is 2.</p>
+     <p>PlayerStats 1.3: "config-version" is 3. </P>
+     <p>PlayerStats 1.4: "config-version" is 4.</p>*/
+    private void checkConfigVersion() {
+        if (!config.contains("config-version") || config.getDouble("config-version") != configVersion) {
+            new ConfigUpdateHandler(plugin, configFile, configVersion);
+            reloadConfig();
+        }
+    }
+
+    /** Create a config file if none exists yet (from the config.yml in the plugin's resources). */
+    private void saveDefaultConfig() {
+        config = plugin.getConfig();
+        plugin.saveDefaultConfig();
+        configFile = new File(plugin.getDataFolder(), "config.yml");
     }
 
     /** Reloads the config from file, or creates a new file with default values if there is none.
      Also reads the value for debug-level and passes it on to MyLogger. */
     public boolean reloadConfig() {
+        if (!configFile.exists()) {
+            saveDefaultConfig();
+        }
         try {
-            if (!configFile.exists()) {
-                saveDefaultConfig();
-            }
             config = YamlConfiguration.loadConfiguration(configFile);
             MyLogger.setDebugLevel(debugLevel());
             return true;
         }
-        catch (Exception e) {
-            plugin.getLogger().warning(e.toString());
+        catch (IllegalArgumentException e) {
+            MyLogger.logException(e, "ConfigHandler", "reloadConfig");
             return false;
         }
+    }
+
+    /** Returns the desired debugging level.
+     <p>1 = low (only show unexpected errors)</p>
+     <p>2 = medium (detail all encountered exceptions, log main tasks and show time taken)</p>
+     <p>3 = high (log all tasks and time taken)</p>
+     <p>Default: 1</p>*/
+    public int debugLevel() {
+        return config.getInt("debug-level", 1);
     }
 
     /** Returns the config setting for include-whitelist-only.
@@ -130,9 +150,9 @@ public class ConfigHandler {
      <p>Style: "none"</p>
      <p>Color Top: "green"</p>
      <p>Color Individual/Server: "gold"</p>*/
-    public String getPlayerNameFormatting(Query selection, boolean isStyle) {
+    public String getPlayerNameFormatting(Target selection, boolean isStyle) {
         String def;
-        if (selection == Query.TOP) {
+        if (selection == Target.TOP) {
             def = "green";
         }
         else {
@@ -144,7 +164,7 @@ public class ConfigHandler {
     /** Returns true if playerNames Style is "bold", false if it is not.
      <p>Default: false</p>*/
     public boolean playerNameIsBold() {
-        ConfigurationSection style = getRelevantSection(Query.PLAYER);
+        ConfigurationSection style = getRelevantSection(Target.PLAYER);
 
         if (style != null) {
             String styleString = style.getString("player-names");
@@ -156,14 +176,14 @@ public class ConfigHandler {
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "yellow"</p>*/
-    public String getStatNameFormatting(Query selection, boolean isStyle) {
+    public String getStatNameFormatting(Target selection, boolean isStyle) {
         return getStringFromConfig(selection, isStyle, "yellow", "stat-names");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "#FFD52B"</p>*/
-    public String getSubStatNameFormatting(Query selection, boolean isStyle) {
+    public String getSubStatNameFormatting(Target selection, boolean isStyle) {
         return getStringFromConfig(selection, isStyle, "#FFD52B", "sub-stat-names");
     }
 
@@ -171,9 +191,9 @@ public class ConfigHandler {
      <p>Style: "none"</p>
      <p>Color Top: "#55AAFF"</p>
      <p>Color Individual/Server: "#ADE7FF"</p> */
-    public String getStatNumberFormatting(Query selection, boolean isStyle) {
+    public String getStatNumberFormatting(Target selection, boolean isStyle) {
         String def;
-        if (selection == Query.TOP) {
+        if (selection == Target.TOP) {
             def = "#55AAFF";
         }
         else {
@@ -186,9 +206,9 @@ public class ConfigHandler {
      <p>Style: "none"</p>
      <p>Color Top: "yellow"</p>
      <p>Color Server: "gold"</p>*/
-    public String getTitleFormatting(Query selection, boolean isStyle) {
+    public String getTitleFormatting(Target selection, boolean isStyle) {
         String def;
-        if (selection == Query.TOP) {
+        if (selection == Target.TOP) {
             def = "yellow";
         }
         else {
@@ -201,32 +221,32 @@ public class ConfigHandler {
      <p>Style: "none"</p>
      <p>Color: "gold"</p>*/
     public String getTitleNumberFormatting(boolean isStyle) {
-        return getStringFromConfig(Query.TOP, isStyle, "gold", "title-number");
+        return getStringFromConfig(Target.TOP, isStyle, "gold", "title-number");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "#FFB80E"</p>*/
     public String getServerNameFormatting(boolean isStyle) {
-        return getStringFromConfig(Query.SERVER, isStyle, "#FFB80E", "server-name");
+        return getStringFromConfig(Target.SERVER, isStyle, "#FFB80E", "server-name");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "gold"</p>*/
     public String getRankNumberFormatting(boolean isStyle) {
-        return getStringFromConfig(Query.TOP, isStyle, "gold", "rank-numbers");
+        return getStringFromConfig(Target.TOP, isStyle, "gold", "rank-numbers");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "dark_gray"</p> */
     public String getDotsFormatting(boolean isStyle) {
-        return getStringFromConfig(Query.TOP, isStyle, "dark_gray", "dots");
+        return getStringFromConfig(Target.TOP, isStyle, "dark_gray", "dots");
     }
 
     /** Returns the config value for a color or style option in string-format, the supplied default value, or null if no configSection was found. */
-    private @Nullable String getStringFromConfig(Query selection, boolean isStyle, String def, String pathName){
+    private @Nullable String getStringFromConfig(Target selection, boolean isStyle, String def, String pathName){
         String path = isStyle ? pathName + "-style" : pathName;
         String defaultValue = isStyle ? "none" : def;
 
@@ -235,7 +255,7 @@ public class ConfigHandler {
     }
 
     /** Returns the config section that contains the relevant color or style option. */
-    private @Nullable ConfigurationSection getRelevantSection(Query selection) {
+    private @Nullable ConfigurationSection getRelevantSection(Target selection) {
         switch (selection) {
             case TOP -> {
                 return config.getConfigurationSection("top-list");
@@ -249,25 +269,6 @@ public class ConfigHandler {
             default -> {
                 return null;
             }
-        }
-    }
-
-    /** Create a config file if none exists yet (from the config.yml in the plugin's resources). */
-    private void saveDefaultConfig() {
-        config = plugin.getConfig();
-        plugin.saveDefaultConfig();
-        configFile = new File(plugin.getDataFolder(), "config.yml");
-    }
-
-    /** Checks the number that "config-version" returns to see if the config needs updating, and if so, send it to the Updater.
-     <p></p>
-     <p>PlayerStats 1.1: "config-version" doesn't exist.</p>
-     <p>PlayerStats 1.2: "config-version" is 2.</p>
-     <p>PlayerStats 1.3: "config-version" is 3. </P>*/
-    private void checkConfigVersion() {
-        if (!config.contains("config-version") || config.getDouble("config-version") != configVersion) {
-            new ConfigUpdateHandler(plugin, configFile, configVersion);
-            reloadConfig();
         }
     }
 }

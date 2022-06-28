@@ -3,6 +3,8 @@ package com.gmail.artemis.the.gr8.playerstats.utils;
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,8 +24,7 @@ public class MyLogger {
 
     static{
         Plugin plugin = Bukkit.getPluginManager().getPlugin("PlayerStats");
-
-        logger = plugin != null ? plugin.getLogger() : Bukkit.getLogger();
+        logger = (plugin != null) ? plugin.getLogger() : Bukkit.getLogger();
         debugLevel = DebugLevel.LOW;
 
         processedPlayers = new String[10];
@@ -33,6 +34,7 @@ public class MyLogger {
 
     private MyLogger() {
     }
+
 
     /** Accesses the playersIndex to up it by 1 and return its previous value. */
     private static int nextPlayersIndex() {
@@ -46,7 +48,7 @@ public class MyLogger {
 
     /** Sets the desired debugging level.
      <p>1 = low (only show unexpected errors)</p>
-     <p>2 = medium (show all encountered exceptions, log main tasks and show time taken)</p>
+     <p>2 = medium (detail all encountered exceptions, log main tasks and show time taken)</p>
      <p>3 = high (log all tasks and time taken)</p>
      <p>Default: 1</p>*/
     public static void setDebugLevel(int level) {
@@ -58,6 +60,29 @@ public class MyLogger {
         }
         else {
             debugLevel = DebugLevel.LOW;
+        }
+    }
+
+    /** Log the encountered exception as a warning to console,
+     with some information about which class/method caught it
+     and with a printStackTrace if DebugLevel is HIGH.
+     @param exception The encountered exception
+     @param caughtBy The name of the class that caught the exception
+     @param additionalInfo e.g. the method-name or line where the exception is caught */
+    public static void logException(@NotNull Exception exception, String caughtBy, @Nullable String additionalInfo) {
+        String extraInfo = (additionalInfo != null) ? " [" + additionalInfo + "]" : "";
+        String info =  " (" + caughtBy + extraInfo + ")";
+
+        logger.warning(exception + info);
+        if (debugLevel == DebugLevel.HIGH) {
+            exception.printStackTrace();
+        }
+    }
+
+    /** If DebugLevel is MEDIUM or HIGH, logs when the while loop in MessageFactory, getLanguageKey is being run. */
+    public static void replacingUnderscores() {
+        if (debugLevel != DebugLevel.LOW) {
+            logger.info("Replacing underscores and capitalizing names...");
         }
     }
 
@@ -161,6 +186,6 @@ public class MyLogger {
      @param methodName Name or description of the task
      @param startTime Timestamp marking the beginning of the task */
     public static void logTimeTakenDefault(String className, String methodName, long startTime) {
-        logger.info(className + " " + methodName + ":" + (System.currentTimeMillis() - startTime) + "ms");
+        logger.info(className + " " + methodName + ": " + (System.currentTimeMillis() - startTime) + "ms");
     }
 }

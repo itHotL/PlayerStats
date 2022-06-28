@@ -1,9 +1,9 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,64 +19,47 @@ public class LanguageKeyHandler {
         generateStatNameKeys();
     }
 
-    public @Nullable String getStatKey(@NotNull String statName) {
-        try {
-            Statistic stat = EnumHandler.getStatEnum(statName);
-            if (stat.getType() == Statistic.Type.UNTYPED) {
-                return "stat.minecraft." + statNameKeys.get(stat);
-            }
-            else {
-                return "stat_type.minecraft." + statNameKeys.get(stat);
-            }
-        }
-        catch (IllegalArgumentException e) {
-            Bukkit.getLogger().info("PlayerStats, LanguageKeyHandler 33: " + e);
-            return null;
-        }
-    }
-
-    public @Nullable String getEntityKey(@NotNull String entityName) {
-        if (entityName.equalsIgnoreCase("UNKNOWN")) {
-            return null;
+    public String getStatKey(@NotNull Statistic statistic) {
+        if (statistic.getType() == Statistic.Type.UNTYPED) {
+            return "stat.minecraft." + statNameKeys.get(statistic);
         }
         else {
-            try {
-                return "entity.minecraft." + EnumHandler.getEntityEnum(entityName).getKey().getKey();
-            }
-            catch (IllegalArgumentException e) {
-                Bukkit.getLogger().info("PlayerStats, LanguageKeyHandler 47: " + e);
-                return null;
-            }
+            return "stat_type.minecraft." + statNameKeys.get(statistic);
         }
     }
 
-    public @Nullable String getItemKey(@NotNull String itemName) {
-        try {
-            Material item = EnumHandler.getItemEnum(itemName);
-            if (item.isBlock()) {
-                return "block.minecraft." + item.getKey().getKey();
-            }
-            else {
-                return "item.minecraft." + EnumHandler.getItemEnum(itemName).getKey().getKey();
-            }
-        }
-        catch (IllegalArgumentException e) {
-            Bukkit.getLogger().info("PlayerStats, LanguageKeyHandler 64: " + e);
-            return null;
+    /** Get the official Key from the NameSpacedKey for this entityType,
+     or return null if no enum constant can be retrieved or entityType is UNKNOWN.*/
+    public @Nullable String getEntityKey(EntityType entity) {
+        if (entity == null || entity == EntityType.UNKNOWN) return null;
+        else {
+            return  "entity.minecraft." + entity.getKey().getKey();
         }
     }
 
-    public @Nullable String getBlockKey(@NotNull String materialName) {
-        String name = materialName;
-        if (materialName.toLowerCase().contains("wall_banner")) {
-            name = materialName.replace("wall_", "");
+    /** Get the official Key from the NameSpacedKey for this item Material,
+     or return null if no enum constant can be retrieved.*/
+    public @Nullable String getItemKey(Material item) {
+        if (item == null) return null;
+        else if (item.isBlock()) {
+            return getBlockKey(item);
         }
-        try {
-            return "block.minecraft." + EnumHandler.getBlockEnum(name).getKey().getKey();
+        else {
+            return "item.minecraft." + item.getKey().getKey();
         }
-        catch (IllegalArgumentException e) {
-            Bukkit.getLogger().info("PlayerStats, LanguageKeyHandler 78: " + e);
-            return null;
+    }
+
+    /** Returns the official Key from the NameSpacedKey for the block Material provided,
+     or return null if no enum constant can be retrieved.*/
+    public @Nullable String getBlockKey(Material block) {
+        if (block == null) return null;
+        else if (block.toString().toLowerCase().contains("wall_banner")) {  //replace wall_banner with regular banner, since there is no key for wall banners
+            String blockName = block.toString().toLowerCase().replace("wall_", "");
+            Material newBlock = EnumHandler.getBlockEnum(blockName);
+            return (newBlock != null) ? "block.minecraft." + newBlock.getKey().getKey() : null;
+        }
+        else {
+            return "block.minecraft." + block.getKey().getKey();
         }
     }
 
