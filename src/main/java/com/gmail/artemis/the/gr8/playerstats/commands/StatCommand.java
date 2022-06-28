@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
+import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
@@ -8,6 +9,7 @@ import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
@@ -18,6 +20,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static net.kyori.adventure.text.Component.text;
 
 
 public class StatCommand implements CommandExecutor {
@@ -40,6 +44,16 @@ public class StatCommand implements CommandExecutor {
         else if (args[0].equalsIgnoreCase("examples") ||
                 args[0].equalsIgnoreCase("example")) {  //in case of "statistic examples", show examples
             adventure.sender(sender).sendMessage(messageWriter.usageExamples(sender instanceof ConsoleCommandSender));
+        }
+        else if (args[0].equalsIgnoreCase("test")) {
+            TextComponent msg = text("Tier 1").color(PluginColor.GOLD.getColor())
+                            .append(text("Tier 2").color(PluginColor.MEDIUM_GOLD.getColor())
+                                    .append(text("Tier 3").color(TextColor.fromHexString("#FFEA40"))
+                                            .append(text("Tier 4").color(PluginColor.YELLOW.getColor()))
+                                            .append(text("Tier 3?")))
+                                    .append(text("Tier 2?")))
+                    .append(text("Tier 1?"));
+            adventure.sender(sender).sendMessage(msg);
         }
         else {
             StatRequest request = generateRequest(sender, args);

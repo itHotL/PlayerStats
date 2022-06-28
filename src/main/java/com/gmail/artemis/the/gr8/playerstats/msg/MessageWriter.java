@@ -7,7 +7,6 @@ import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
@@ -26,17 +25,9 @@ public class MessageWriter {
     private static ConfigHandler config;
     private static ComponentFactory componentFactory;
 
-    private final TextColor hoverBaseColor;  //light blue - one shade lighter than msgColor
-    private final TextColor accentColor1;  //gold - one shade lighter than standard gold
-    private final TextColor accentColor2;  //yellow - a few shades darker than standard yellow
-
     public MessageWriter(ConfigHandler c, LanguageKeyHandler l) {
         config = c;
         componentFactory = new ComponentFactory(c, l);
-
-        hoverBaseColor = TextColor.fromHexString("#55C6FF");
-        accentColor1 = TextColor.fromHexString("#FFB80E");
-        accentColor2 = TextColor.fromHexString("#FFD52B");
     }
 
     public TextComponent reloadedConfig(boolean isConsoleSender) {
@@ -182,29 +173,33 @@ public class MessageWriter {
     }
 
     public TextComponent usageExamples(boolean isConsoleSender) {
-        TextComponent spaces = text("    "); //4 spaces
-        TextComponent arrow = text("→ ").color(NamedTextColor.GOLD);
-        TextColor accentColor = TextColor.fromHexString("#FFE339");
-
-        if (isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit")) {
-            arrow = text("-> ").color(NamedTextColor.GOLD);
-            accentColor = NamedTextColor.YELLOW;
-        }
+        boolean isBukkitConsole = (isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit"));
+        TextColor mainColor = isBukkitConsole ? PluginColor.GOLD.getConsoleColor() : PluginColor.GOLD.getColor();
+        TextColor accentColor1 = isBukkitConsole ? PluginColor.MEDIUM_GOLD.getConsoleColor() : PluginColor.MEDIUM_GOLD.getColor();
+        TextColor accentColor3 = isBukkitConsole ? PluginColor.LIGHT_YELLOW.getConsoleColor() : PluginColor.LIGHT_YELLOW.getColor();
+        String arrow = isBukkitConsole ? "    -> " : "    → ";  //4 spaces, alt + 26, 1 space
 
         return Component.newline()
                 .append(componentFactory.prefixTitle(isConsoleSender))
                 .append(newline())
-                .append(text("Examples: ").color(NamedTextColor.GOLD))
-                .append(newline())
-                .append(spaces).append(arrow)
-                .append(text("/statistic animals_bred top").color(accentColor))
-                .append(newline())
-                .append(spaces).append(arrow)
-                .append(text("/statistic mine_block diorite me").color(accentColor))
-                .append(newline())
-                .append(spaces).append(arrow)
-                .append(text("/statistic deaths player Artemis_the_gr8").color(accentColor))
-                .append(newline());
+                .append(text("Examples: ").color(mainColor)
+                        .append(newline())
+                        .append(text(arrow))
+                        .append(text("/statistic ").color(mainColor)
+                                .append(text("animals_bred ").color(accentColor1)
+                                        .append(text("top").color(accentColor3))))
+                        .append(newline())
+                        .append(text(arrow))
+                        .append(text("/statistic ").color(mainColor)
+                                .append(text("mine_block diorite ").color(accentColor1)
+                                        .append(text("me").color(accentColor3))))
+                        .append(newline())
+                        .append(text(arrow))
+                        .append(text("/statistic ").color(mainColor)
+                                .append(text("deaths ").color(accentColor1)
+                                        .append(text("player ").color(accentColor3)
+                                                .append(text("Artemis_the_gr8")))))
+                        .append(newline()));
     }
 
     public TextComponent helpMsg(boolean isConsoleSender) {
@@ -219,7 +214,6 @@ public class MessageWriter {
     /** Returns the usage-explanation with hovering text */
     private TextComponent helpMsgHover() {
         String arrow = "    → ";  //4 spaces, alt + 26, 1 space
-
         return Component.newline()
                 .append(componentFactory.prefixTitle(false))
                 .append(newline())
@@ -228,47 +222,44 @@ public class MessageWriter {
                 .append(componentFactory.msgPart("Usage:", null, "/statistic", null))
                 .append(newline())
                 .append(componentFactory.msgPart(arrow, null, null, null)
-                        .append(componentFactory.hoverMsgPart("name", PluginColor.YELLOW,
+                        .append(componentFactory.complexHoverPart("name", PluginColor.YELLOW,
                                 "The name that describes the statistic",
                                 "Example:",
                                 "\"animals_bred\"")))
                 .append(newline())
-                .append(spaces).append(arrow)
-                .append(text("sub-statistic").color(arguments)
-                        .hoverEvent(HoverEvent.showText(
-                                text("Some statistics need an item, block or entity as extra input").color(hoverBaseColor)
-                                        .append(newline())
-                                        .append(text("Example: ").color(accentColor1)
-                                                .append(text("\"mine_block diorite\"").color(accentColor2))))))
+                .append(componentFactory.msgPart(arrow, null, null, null)
+                        .append(componentFactory.complexHoverPart("sub-statistic", PluginColor.YELLOW,
+                                "Some statistics need an item, block or entity as extra input",
+                                "Example:",
+                                "\"mine_block diorite\"")))
                 .append(newline())
-                .append(spaces)
-                .append(text("→").color(NamedTextColor.GOLD)
-                        .hoverEvent(HoverEvent.showText(
-                                text("Choose one").color(TextColor.fromHexString("#6E3485")))))
-                .append(space())
-                .append(text("me").color(arguments)
-                        .hoverEvent(HoverEvent.showText(
-                                text("See your own statistic").color(hoverBaseColor))))
-                .append(text(" | ").color(arguments))
-                .append(text("player").color(arguments)
-                        .hoverEvent(HoverEvent.showText(
-                                text("Choose any player that has played on your server").color(hoverBaseColor))))
-                .append(text(" | ").color(arguments))
-                .append(text("server").color(arguments)
-                        .hoverEvent(HoverEvent.showText(
-                                text("See the combined total for everyone on your server").color(hoverBaseColor))))
-                .append(text(" | ").color(arguments))
-                .append(text("top").color(arguments)
-                        .hoverEvent(HoverEvent.showText(
-                                text("See the top ").color(hoverBaseColor)
-                                        .append(text(config.getTopListMaxSize()).color(hoverBaseColor)))))
+                .append(text("    ").color(PluginColor.YELLOW.getColor())
+                        .append(componentFactory.simpleHoverPart(
+                                "→", PluginColor.GOLD,
+                                "Choose one", PluginColor.DARK_PURPLE))
+                        .append(space())
+                        .append(componentFactory.simpleHoverPart(
+                                "me",
+                                "See your own statistic", PluginColor.LIGHT_BLUE))
+                        .append(text(" | "))
+                        .append(componentFactory.simpleHoverPart(
+                                "player",
+                                "Choose any player that has played on your server", PluginColor.LIGHT_BLUE))
+                        .append(text(" | "))
+                        .append(componentFactory.simpleHoverPart(
+                                "server",
+                                "See the combined total for everyone on your server", PluginColor.LIGHT_BLUE))
+                        .append(text(" | "))
+                        .append(componentFactory.simpleHoverPart(
+                                "top",
+                                "See the top " + config.getTopListMaxSize(), PluginColor.LIGHT_BLUE)))
                 .append(newline())
-                .append(spaces).append(arrow)
-                .append(text("player-name").color(arguments)
-                        .hoverEvent(HoverEvent.showText(
-                                text("In case you typed ").color(hoverBaseColor)
-                                        .append(text("\"player\"").color(accentColor2)
-                                                .append(text(", add the player's name").color(hoverBaseColor))))));
+                .append(componentFactory.msgPart(arrow, null, null, null)
+                        .append(text("player-name").color(PluginColor.YELLOW.getColor())
+                                .hoverEvent(HoverEvent.showText(
+                                        text("In case you typed ").color(PluginColor.LIGHT_BLUE.getColor())
+                                                .append(text("\"player\"").color(PluginColor.MEDIUM_GOLD.getColor()))
+                                                .append(text(", add the player's name"))))));
     }
 
     //TODO create ConsoleComponentFactory for Bukkit
@@ -276,12 +267,10 @@ public class MessageWriter {
     /** Returns the usage-explanation without any hovering text.
     If BukkitVersion is CraftBukkit, this doesn't use unicode symbols or hex colors */
     private TextComponent helpMsgPlain(boolean isConsoleSender) {
-        String arrow = "    →";  //4 spaces, alt + 26
-        String bullet = "        •";  //8 spaces, alt + 7
-        if (isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit")) {
-            arrow = "    ->";
-            bullet = "        *";
-        }
+        boolean isBukkitConsole = (isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit"));
+        String arrow = isBukkitConsole ? "    ->" : "    →";  //4 spaces, alt + 26
+        String bullet = isBukkitConsole ? "        *" : "        •";  //8 spaces, alt + 7
+
         return Component.newline()
                 .append(componentFactory.prefixTitle(isConsoleSender))
                 .append(newline())
@@ -303,6 +292,6 @@ public class MessageWriter {
                 .append(newline())
                 .append(componentFactory.msgPart(bullet, "top:", null, "the top " + config.getTopListMaxSize()))
                 .append(newline())
-                .append(componentFactory.msgPart(arrow, null, "{player-name", null));
+                .append(componentFactory.msgPart(arrow, null, "{player-name}", null));
     }
 }

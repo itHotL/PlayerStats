@@ -34,11 +34,14 @@ public class ConfigUpdateHandler {
         }
     }
 
-    /** Adjusts some of the default colors to migrate from versions 2 or 3 to version 4.*/
+    /** Adjusts some of the default colors to migrate from versions 2 or 3 to version 4.1.*/
     private void updateDefaultColors(YamlConfiguration configuration) {
-        updateColor(configuration, "top-list.title", "yellow", "#FFD52B");
-        updateColor(configuration, "top-list.stat-names", "yellow", "#FFD52B");
+        updateColor(configuration, "top-list.title", "yellow", "#FFEA40");
+        updateColor(configuration, "top-list-title", "#FFD52B", "#FFEA40");
+        updateColor(configuration, "top-list.stat-names", "yellow", "#FFEA40");
+        updateColor(configuration, "top-list-stat-names", "#FFD52B", "#FFEA40");
         updateColor(configuration, "top-list.sub-stat-names", "#FFD52B", "yellow");
+
         updateColor(configuration, "individual-statistics.stat-names", "yellow", "#FFD52B");
         updateColor(configuration, "individual-statistics.sub-stat-names", "#FFD52B", "yellow");
         updateColor(configuration, "total-server.title", "gold", "#55AAFF");

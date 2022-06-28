@@ -7,7 +7,7 @@ import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.LanguageKeyHandler;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
-import com.gmail.artemis.the.gr8.playerstats.msg.PrideMessageFactory;
+import com.gmail.artemis.the.gr8.playerstats.msg.PrideComponentFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
@@ -35,8 +35,8 @@ public class Main extends JavaPlugin {
         ConfigHandler config = new ConfigHandler(this);
         LanguageKeyHandler language = new LanguageKeyHandler();
 
-        //for now always use the PrideMessageFactory (it'll use the regular formatting when needed)
-        MessageWriter messageWriter = new PrideMessageFactory(config, language);
+        //for now always use the PrideComponentFactory (it'll use the regular formatting when needed)
+        MessageWriter messageWriter = new MessageWriter(config, language);
 
         //initialize the threadManager
         ThreadManager threadManager = new ThreadManager(adventure(), config, messageWriter, this);

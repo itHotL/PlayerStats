@@ -12,20 +12,20 @@ import java.time.Month;
 import static net.kyori.adventure.text.Component.*;
 
 
-public class PrideMessageFactory extends MessageWriter {
+public class PrideComponentFactory extends ComponentFactory {
 
     private static ConfigHandler config;
 
-    public PrideMessageFactory(ConfigHandler c, LanguageKeyHandler l) {
+    public PrideComponentFactory(ConfigHandler c, LanguageKeyHandler l) {
         super(c, l);
         config = c;
     }
 
 
     @Override
-    protected TextComponent getPrefixAsTitle(boolean isConsoleSender) {
+    public TextComponent prefixTitle(boolean isConsoleSender) {
         if (cancelRainbow(isConsoleSender)) {
-            return super.getPrefixAsTitle(isConsoleSender);
+            return super.prefixTitle(isConsoleSender);
         }
         else {
             String title = "<rainbow:16>____________    [PlayerStats]    ____________</rainbow>"; //12 underscores
@@ -36,7 +36,7 @@ public class PrideMessageFactory extends MessageWriter {
     }
 
     @Override
-    protected TextComponent pluginPrefix(boolean isConsoleSender) {
+    public TextComponent pluginPrefix(boolean isConsoleSender) {
         if (cancelRainbow(isConsoleSender)) {
             return super.pluginPrefix(isConsoleSender);
         }

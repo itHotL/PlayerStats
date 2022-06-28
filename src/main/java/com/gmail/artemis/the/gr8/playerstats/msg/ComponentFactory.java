@@ -35,7 +35,7 @@ public class ComponentFactory {
     public TextComponent pluginPrefix(boolean isConsoleSender) {
         return text("[")
                 .color(PluginColor.GRAY.getColor())
-                .append(text("PlayerStats").color(PluginColor.DARK_GOLD.getColor()))
+                .append(text("PlayerStats").color(PluginColor.GOLD.getColor()))
                 .append(text("]"))
                 .append(space());
     }
@@ -79,7 +79,7 @@ public class ComponentFactory {
         TextComponent.Builder msg = Component.text();
         if (part1 != null) {
             msg.append(text(part1)
-                    .color(PluginColor.DARK_GOLD.getColor()));
+                    .color(PluginColor.GOLD.getColor()));
             if (part2 != null || part3 != null || part4 != null) {
                 msg.append(space());
             }
@@ -105,6 +105,22 @@ public class ComponentFactory {
         return msg.build();
     }
 
+    public TextComponent simpleHoverPart(String plainText, String hoverText, PluginColor hoverColor) {
+        return simpleHoverPart(plainText, null, hoverText, hoverColor);
+    }
+
+    public TextComponent simpleHoverPart(String plainText, @Nullable PluginColor plainColor, String hoverText, PluginColor hoverColor) {
+        TextComponent.Builder msg = Component.text()
+                .append(text(plainText))
+                .hoverEvent(HoverEvent.showText(
+                        text(hoverText)
+                                .color(hoverColor.getColor())));
+        if (plainColor != null) {
+            msg.color(plainColor.getColor());
+        }
+        return msg.build();
+    }
+
     /** Returns a TextComponent with hover-text that can consist of three different parts,
      divided over two different lines. Each part has its own designated color. If all the
      input Strings are null, it will return an empty Component.
@@ -114,7 +130,7 @@ public class ComponentFactory {
      @param hoverLineTwoA text on the second line, with color DARK_GOLD
      @param hoverLineTwoB text on the second part of the second line, with color MEDIUM_GOLD
      */
-    public TextComponent hoverMsgPart(@NotNull String plainText, @NotNull PluginColor color, @Nullable String hoverLineOne, @Nullable String hoverLineTwoA, @Nullable String hoverLineTwoB) {
+    public TextComponent complexHoverPart(@NotNull String plainText, @NotNull PluginColor color, @Nullable String hoverLineOne, @Nullable String hoverLineTwoA, @Nullable String hoverLineTwoB) {
         TextComponent base = Component.text(plainText).color(color.getColor());
         TextComponent.Builder hoverText = Component.text();
         if (hoverLineOne != null) {
@@ -126,7 +142,7 @@ public class ComponentFactory {
         }
         if (hoverLineTwoA != null) {
             hoverText.append(text(hoverLineTwoA)
-                    .color(PluginColor.DARK_GOLD.getColor()));
+                    .color(PluginColor.GOLD.getColor()));
             if (hoverLineTwoB != null) {
                 hoverText.append(space());
             }

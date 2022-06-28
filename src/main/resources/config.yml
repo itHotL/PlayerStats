@@ -74,13 +74,13 @@ your-server-name: 'this server'
 #                                                         # ------------------------------ #             #
 
 top-list:
-  title: '#FFD52B'
+  title: '#FFEA40'
   title-style: none
 
   title-number: gold
   title-number-style: none
 
-  stat-names: '#FFD52B'
+  stat-names: '#FFEA40'
   stat-names-style: none
 
   sub-stat-names: yellow
