@@ -12,9 +12,12 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Material;
+import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 import static net.kyori.adventure.text.Component.space;
@@ -36,38 +39,30 @@ public class TestStatCommand extends StatCommand {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        if (args.length == 0) {  //in case of less than 1 argument, display the help message
+        if (args.length == 0 || args[0].equalsIgnoreCase("help")) {  //in case of less than 1 argument or "help", display the help message
             adventure.sender(sender).sendMessage(messageFactory.helpMsg(sender instanceof ConsoleCommandSender));
-            return true;
         }
-        else if (args[0].equalsIgnoreCase("help")) {
-            adventure.sender(sender).sendMessage(messageFactory.helpMsg(sender instanceof ConsoleCommandSender));
-            return false;
-        }
-
         else if (args[0].equalsIgnoreCase("examples") ||
                 args[0].equalsIgnoreCase("example")) {  //in case of "statistic examples", show examples
             adventure.sender(sender).sendMessage(messageFactory.usageExamples(sender instanceof ConsoleCommandSender));
-            return true;
         }
         else if (args[0].equalsIgnoreCase("test")) {
             String selection = (args.length > 1) ? args[1] : null;
             printTranslatableNames(sender, selection);
-            return true;
         }
 
         else {  //part 1: collecting all relevant information from the args
-            StatRequest request = super.generateRequest(sender, args);
-
-            if (isValidStatRequest(request)) {  //part 2: sending the information to the StatThread
+            StatRequest request = generateRequest(sender, args);
+            TextComponent issues = checkRequest(request);
+            if (issues == null) {
                 threadManager.startStatThread(request);
-                return true;
             }
-            else {  //part 2: or give feedback if request is invalid
-                adventure.sender(sender).sendMessage(getRelevantFeedback(request));
+            else {
+                adventure.sender(sender).sendMessage(issues);
                 return false;
             }
         }
+        return true;
     }
 
     //test method
@@ -80,7 +75,8 @@ public class TestStatCommand extends StatCommand {
         }
         else if (selection.equalsIgnoreCase("block")) {
             for (String name : EnumHandler.getBlockNames()) {
-                String key = lang.getBlockKey(name);
+                Material block = EnumHandler.getBlockEnum(name);
+                String key = lang.getBlockKey(block);
                 if (key != null) {
                     TranslatableComponent msg = Component.translatable(key)
                             .color(TextColor.fromHexString("#FFB80E"))
@@ -93,7 +89,8 @@ public class TestStatCommand extends StatCommand {
         }
         else if (selection.equalsIgnoreCase("entity")) {
             for (String name : EnumHandler.getEntityNames()) {
-                String key = lang.getEntityKey(name);
+                EntityType entity = EnumHandler.getEntityEnum(name);
+                String key = lang.getEntityKey(entity);
                 if (key != null) {
                     TranslatableComponent msg = Component.translatable(key)
                             .color(TextColor.fromHexString("#FFB80E"))
@@ -106,7 +103,8 @@ public class TestStatCommand extends StatCommand {
         }
         else if (selection.equalsIgnoreCase("item")) {
             for (String name : EnumHandler.getItemNames()) {
-                String key = lang.getItemKey(name);
+                Material item = EnumHandler.getItemEnum(name);
+                String key = lang.getItemKey(item);
                 if (key != null) {
                     TranslatableComponent msg = Component.translatable(key)
                             .color(TextColor.fromHexString("#FFB80E"))
@@ -119,7 +117,11 @@ public class TestStatCommand extends StatCommand {
         }
         else if (selection.equalsIgnoreCase("stat")) {
             for (String name : EnumHandler.getStatNames()) {
-                String key = lang.getStatKey(name);
+                Statistic stat = EnumHandler.getStatEnum(name);
+                String key = null;
+                if (stat != null) {
+                    key = lang.getStatKey(stat);
+                }
                 if (key != null) {
                     TranslatableComponent msg = Component.translatable(key)
                             .color(TextColor.fromHexString("#FFB80E"))

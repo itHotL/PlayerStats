@@ -2,17 +2,12 @@ package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
-import com.gmail.artemis.the.gr8.playerstats.msg.LanguageKeyHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.TranslatableComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
@@ -23,9 +18,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import static net.kyori.adventure.text.Component.space;
-import static net.kyori.adventure.text.Component.text;
 
 
 public class StatCommand implements CommandExecutor {
@@ -49,10 +41,6 @@ public class StatCommand implements CommandExecutor {
                 args[0].equalsIgnoreCase("example")) {  //in case of "statistic examples", show examples
             adventure.sender(sender).sendMessage(messageFactory.usageExamples(sender instanceof ConsoleCommandSender));
         }
-        else if (args[0].equalsIgnoreCase("test")) {
-            String selection = (args.length > 1) ? args[1] : null;
-            printTranslatableNames(sender, selection);
-        }
 
         else {  //part 1: collecting all relevant information from the args
             StatRequest request = generateRequest(sender, args);
@@ -66,72 +54,6 @@ public class StatCommand implements CommandExecutor {
             }
         }
         return true;
-    }
-
-    //test method
-    private void printTranslatableNames(CommandSender sender, String selection) {
-        LanguageKeyHandler lang = new LanguageKeyHandler();
-
-        if (selection == null) {
-            TextComponent msg = Component.text("Include 'block', 'item', 'entity' or 'stat'").color(TextColor.fromHexString("#FFB80E"));
-            adventure.sender(sender).sendMessage(msg);
-        }
-        else if (selection.equalsIgnoreCase("block")) {
-            for (String name : EnumHandler.getBlockNames()) {
-                String key = lang.getBlockKey(name);
-                if (key != null) {
-                    TranslatableComponent msg = Component.translatable(key)
-                            .color(TextColor.fromHexString("#FFB80E"))
-                            .append(space())
-                            .append(text("for blockName: ").color(NamedTextColor.WHITE))
-                            .append(text(name).color(TextColor.fromHexString("#55AAFF")));
-                    adventure.sender(sender).sendMessage(msg);
-                }
-            }
-        }
-        else if (selection.equalsIgnoreCase("entity")) {
-            for (String name : EnumHandler.getEntityNames()) {
-                String key = lang.getEntityKey(name);
-                if (key != null) {
-                    TranslatableComponent msg = Component.translatable(key)
-                            .color(TextColor.fromHexString("#FFB80E"))
-                            .append(space())
-                            .append(text("for entityName: ").color(NamedTextColor.WHITE))
-                            .append(text(name).color(TextColor.fromHexString("#55AAFF")));
-                    adventure.sender(sender).sendMessage(msg);
-                }
-            }
-        }
-        else if (selection.equalsIgnoreCase("item")) {
-            for (String name : EnumHandler.getItemNames()) {
-                String key = lang.getItemKey(name);
-                if (key != null) {
-                    TranslatableComponent msg = Component.translatable(key)
-                            .color(TextColor.fromHexString("#FFB80E"))
-                            .append(space())
-                            .append(text("for itemName: ").color(NamedTextColor.WHITE))
-                            .append(text(name).color(TextColor.fromHexString("#55AAFF")));
-                    adventure.sender(sender).sendMessage(msg);
-                }
-            }
-        }
-        else if (selection.equalsIgnoreCase("stat")) {
-            for (String name : EnumHandler.getStatNames()) {
-                String key = lang.getStatKey(name);
-                if (key != null) {
-                    TranslatableComponent msg = Component.translatable(key)
-                            .color(TextColor.fromHexString("#FFB80E"))
-                            .append(space())
-                            .append(text("for statName: ").color(NamedTextColor.WHITE))
-                            .append(text(name).color(TextColor.fromHexString("#55AAFF")));
-                    adventure.sender(sender).sendMessage(msg);
-                }
-            }
-        }
-        else {
-            TextComponent msg = Component.text("hi :)").color(TextColor.fromHexString("#FFB80E"));
-            adventure.sender(sender).sendMessage(msg);
-        }
     }
 
     /** Create a StatRequest Object with all the relevant information from the args[]. */
@@ -179,7 +101,7 @@ public class StatCommand implements CommandExecutor {
     /** Adjust the StatRequest object if needed: unpack the playerFlag into a subStatEntry,
      try to retrieve the corresponding Enum Constant for any relevant block/entity/item,
      and remove any unnecessary subStatEntries.*/
-    private void patchRequest(StatRequest request) {
+    protected void patchRequest(StatRequest request) {
         if (request.getStatistic() != null) {
             Statistic.Type type = request.getStatistic().getType();
 
@@ -219,7 +141,7 @@ public class StatCommand implements CommandExecutor {
      <p>2. Is a subStat needed, and is a subStat Enum Constant present? (block/entity/item)</p>
      <p>3. If the target is PLAYER, is a valid PlayerName provided? </p>
      @return null if the Request is valid, and an explanation message otherwise. */
-    private @Nullable TextComponent checkRequest(StatRequest request) {
+    protected @Nullable TextComponent checkRequest(StatRequest request) {
         boolean isConsoleSender = request.getCommandSender() instanceof ConsoleCommandSender;
         if (request.getStatistic() == null) {
             return messageFactory.missingStatName(isConsoleSender);

@@ -129,6 +129,19 @@ public class ReloadThread extends Thread {
         ForkJoinPool.commonPool().invoke(task);
         MyLogger.actionFinished(1);
 
-        return playerMap;
+        return generateFakeExtraPlayers(playerMap, 1);
+    }
+
+    //generate fake extra players for PlayerStats, by looping over the real offlinePlayers multiple times
+    private @NotNull ConcurrentHashMap<String, UUID> generateFakeExtraPlayers(@NotNull ConcurrentHashMap<String, UUID> realPlayers, int loops) {
+        if (loops == 0 || loops == 1) return realPlayers;
+
+        ConcurrentHashMap<String, UUID> newPlayerMap = new ConcurrentHashMap<>(realPlayers.size() * loops);
+        for (int i = 0; i < loops; i++) {
+            for (String key : realPlayers.keySet()) {
+                newPlayerMap.put(key + i, realPlayers.get(key));
+            }
+        }
+        return newPlayerMap;
     }
 }
