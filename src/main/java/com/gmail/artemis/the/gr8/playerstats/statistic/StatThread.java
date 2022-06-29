@@ -10,6 +10,7 @@ import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -60,12 +61,15 @@ public class StatThread extends Thread {
         if (request == null) {
             throw new NullPointerException("No statistic request was found!");
         }
+
+        CommandSender sender = request.getCommandSender();
+        boolean isBukkitConsole = sender instanceof ConsoleCommandSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit");
         if (reloadThread != null && reloadThread.isAlive()) {
             try {
                 MyLogger.waitingForOtherThread(this.getName(), reloadThread.getName());
                 adventure.sender(request.getCommandSender())
                         .sendMessage(messageWriter
-                                .stillReloading(request.getCommandSender() instanceof ConsoleCommandSender));
+                                .stillReloading(isBukkitConsole));
                 reloadThread.join();
             } catch (InterruptedException e) {
                 plugin.getLogger().warning(e.toString());
@@ -73,16 +77,14 @@ public class StatThread extends Thread {
             }
         }
 
-        CommandSender sender = request.getCommandSender();
-        boolean isConsoleSencer = sender instanceof ConsoleCommandSender;
         Target selection = request.getSelection();
 
         if (selection == Target.TOP || selection == Target.SERVER) {
             if (ThreadManager.getLastRecordedCalcTime() > 20000) {
-                adventure.sender(sender).sendMessage(messageWriter.waitAMoment(true, isConsoleSencer));
+                adventure.sender(sender).sendMessage(messageWriter.waitAMoment(true, isBukkitConsole));
             }
             else if (ThreadManager.getLastRecordedCalcTime() > 2000) {
-                adventure.sender(sender).sendMessage(messageWriter.waitAMoment(false, isConsoleSencer));
+                adventure.sender(sender).sendMessage(messageWriter.waitAMoment(false, isBukkitConsole));
             }
 
             try {
@@ -94,11 +96,11 @@ public class StatThread extends Thread {
                 }
 
             } catch (ConcurrentModificationException e) {
-                if (!isConsoleSencer) {
+                if (!isBukkitConsole) {
                     adventure.sender(sender).sendMessage(messageWriter.unknownError(false));
                 }
             } catch (Exception e) {
-                adventure.sender(sender).sendMessage(messageWriter.formatExceptions(e.toString(), isConsoleSencer));
+                adventure.sender(sender).sendMessage(messageWriter.formatExceptions(e.toString(), isBukkitConsole));
                 MyLogger.logException(e, "StatThread", "run(), trying to calculate or format a top or server statistic");
             }
         }
@@ -109,7 +111,7 @@ public class StatThread extends Thread {
                         messageWriter.formatPlayerStat(getIndividualStat(), request));
 
             } catch (UnsupportedOperationException | NullPointerException e) {
-                adventure.sender(sender).sendMessage(messageWriter.formatExceptions(e.toString(), isConsoleSencer));
+                adventure.sender(sender).sendMessage(messageWriter.formatExceptions(e.toString(), isBukkitConsole));
             }
         }
     }

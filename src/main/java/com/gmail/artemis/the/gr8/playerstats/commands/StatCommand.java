@@ -10,6 +10,7 @@ import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
@@ -38,18 +39,19 @@ public class StatCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+        boolean isBukkitConsole = sender instanceof ConsoleCommandSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit");
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {  //in case of less than 1 argument or "help", display the help message
             adventure.sender(sender).sendMessage(messageWriter.helpMsg(sender instanceof ConsoleCommandSender));
         }
         else if (args[0].equalsIgnoreCase("examples") ||
                 args[0].equalsIgnoreCase("example")) {  //in case of "statistic examples", show examples
-            adventure.sender(sender).sendMessage(messageWriter.usageExamples(sender instanceof ConsoleCommandSender));
+            adventure.sender(sender).sendMessage(messageWriter.usageExamples(isBukkitConsole));
         }
         else if (args[0].equalsIgnoreCase("test")) {
             TextComponent msg = text("Tier 1").color(PluginColor.GOLD.getColor())
                             .append(text("Tier 2").color(PluginColor.MEDIUM_GOLD.getColor())
                                     .append(text("Tier 3").color(TextColor.fromHexString("#FFEA40"))
-                                            .append(text("Tier 4").color(PluginColor.YELLOW.getColor()))
+                                            .append(text("Tier 4").color(PluginColor.LIGHT_GOLD.getColor()))
                                             .append(text("Tier 3?")))
                                     .append(text("Tier 2?")))
                     .append(text("Tier 1?"));
@@ -57,7 +59,7 @@ public class StatCommand implements CommandExecutor {
         }
         else {
             StatRequest request = generateRequest(sender, args);
-            TextComponent issues = checkRequest(request);
+            TextComponent issues = checkRequest(request, isBukkitConsole);
             if (issues == null) {
                 threadManager.startStatThread(request);
             }
@@ -154,20 +156,19 @@ public class StatCommand implements CommandExecutor {
      <p>2. Is a subStat needed, and is a subStat Enum Constant present? (block/entity/item)</p>
      <p>3. If the target is PLAYER, is a valid PlayerName provided? </p>
      @return null if the Request is valid, and an explanation message otherwise. */
-    private @Nullable TextComponent checkRequest(StatRequest request) {
-        boolean isConsoleSender = request.getCommandSender() instanceof ConsoleCommandSender;
+    private @Nullable TextComponent checkRequest(StatRequest request, boolean isBukkitConsole) {
         if (request.getStatistic() == null) {
-            return messageWriter.missingStatName(isConsoleSender);
+            return messageWriter.missingStatName(isBukkitConsole);
         }
         Statistic.Type type = request.getStatistic().getType();
         if (request.getSubStatEntry() == null && type != Statistic.Type.UNTYPED) {
-            return messageWriter.missingSubStatName(type, isConsoleSender);
+            return messageWriter.missingSubStatName(type, isBukkitConsole);
         }
         else if (!matchingSubStat(request)) {
-            return messageWriter.wrongSubStatType(type, request.getSubStatEntry(), isConsoleSender);
+            return messageWriter.wrongSubStatType(type, request.getSubStatEntry(), isBukkitConsole);
         }
         else if (request.getSelection() == Target.PLAYER && request.getPlayerName() == null) {
-            return messageWriter.missingPlayerName(isConsoleSender);
+            return messageWriter.missingPlayerName(isBukkitConsole);
         }
         else {
             return null;

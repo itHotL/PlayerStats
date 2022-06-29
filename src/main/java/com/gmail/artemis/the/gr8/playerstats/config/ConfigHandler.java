@@ -23,7 +23,7 @@ public class ConfigHandler {
         saveDefaultConfig();
         config = YamlConfiguration.loadConfiguration(configFile);
 
-        configVersion = 4.1;
+        configVersion = 4;
         checkConfigVersion();
 
         MyLogger.setDebugLevel(debugLevel());

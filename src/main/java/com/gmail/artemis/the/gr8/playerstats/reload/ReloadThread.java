@@ -69,6 +69,7 @@ public class ReloadThread extends Thread {
             }
             plugin.getLogger().info("Reloading!");
             if (config.reloadConfig()) {
+                boolean isBukkitConsole = sender instanceof ConsoleCommandSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit");
 
                 try {
                     OfflinePlayerHandler.updateOfflinePlayerList(getPlayerMap());
@@ -76,13 +77,13 @@ public class ReloadThread extends Thread {
                 catch (ConcurrentModificationException e) {
                     MyLogger.logException(e, "ReloadThread", "run(), trying to update OfflinePlayerList during a reload");
                     if (sender != null) {
-                        adventure.sender(sender).sendMessage(messageWriter.partiallyReloaded(sender instanceof ConsoleCommandSender));
+                        adventure.sender(sender).sendMessage(messageWriter.partiallyReloaded(isBukkitConsole));
                     }
                 }
 
                 MyLogger.logTimeTakenDefault("ReloadThread", ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
                 if (sender != null) {
-                    adventure.sender(sender).sendMessage(messageWriter.reloadedConfig(sender instanceof ConsoleCommandSender));
+                    adventure.sender(sender).sendMessage(messageWriter.reloadedConfig(isBukkitConsole));
                 }
             }
         }

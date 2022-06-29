@@ -23,9 +23,9 @@ public class PrideComponentFactory extends ComponentFactory {
 
 
     @Override
-    public TextComponent prefixTitle(boolean isConsoleSender) {
-        if (cancelRainbow(isConsoleSender)) {
-            return super.prefixTitle(isConsoleSender);
+    public TextComponent prefixTitle(boolean isBukkitConsole) {
+        if (cancelRainbow(isBukkitConsole)) {
+            return super.prefixTitle(isBukkitConsole);
         }
         else {
             String title = "<rainbow:16>____________    [PlayerStats]    ____________</rainbow>"; //12 underscores
@@ -61,8 +61,8 @@ public class PrideComponentFactory extends ComponentFactory {
     /** Don't use rainbow formatting if the rainbow Prefix is disabled,
      if festive formatting is disabled or it is not pride month,
      or the commandsender is a Bukkit or Spigot console.*/
-    private boolean cancelRainbow(boolean isConsoleSender) {
+    private boolean cancelRainbow(boolean isBukkitConsole) {
         return !(config.useRainbowPrefix() || (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) ||
-                (isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit"));
+                (isBukkitConsole);
     }
 }
