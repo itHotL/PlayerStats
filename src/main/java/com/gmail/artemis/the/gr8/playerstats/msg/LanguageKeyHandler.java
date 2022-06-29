@@ -12,14 +12,17 @@ import java.util.HashMap;
 
 public class LanguageKeyHandler {
 
-    private final HashMap<Statistic, String> statNameKeys;
+    private final static HashMap<Statistic, String> statNameKeys;
 
-    public LanguageKeyHandler() {
+    static {
         statNameKeys = new HashMap<>();
         generateStatNameKeys();
     }
 
-    public String getStatKey(@NotNull Statistic statistic) {
+    private LanguageKeyHandler() {
+    }
+
+    public static String getStatKey(@NotNull Statistic statistic) {
         if (statistic.getType() == Statistic.Type.UNTYPED) {
             return "stat.minecraft." + statNameKeys.get(statistic);
         }
@@ -30,7 +33,7 @@ public class LanguageKeyHandler {
 
     /** Get the official Key from the NameSpacedKey for this entityType,
      or return null if no enum constant can be retrieved or entityType is UNKNOWN.*/
-    public @Nullable String getEntityKey(EntityType entity) {
+    public static @Nullable String getEntityKey(EntityType entity) {
         if (entity == null || entity == EntityType.UNKNOWN) return null;
         else {
             return  "entity.minecraft." + entity.getKey().getKey();
@@ -39,7 +42,7 @@ public class LanguageKeyHandler {
 
     /** Get the official Key from the NameSpacedKey for this item Material,
      or return null if no enum constant can be retrieved.*/
-    public @Nullable String getItemKey(Material item) {
+    public static @Nullable String getItemKey(Material item) {
         if (item == null) return null;
         else if (item.isBlock()) {
             return getBlockKey(item);
@@ -51,7 +54,7 @@ public class LanguageKeyHandler {
 
     /** Returns the official Key from the NameSpacedKey for the block Material provided,
      or return null if no enum constant can be retrieved.*/
-    public @Nullable String getBlockKey(Material block) {
+    public static @Nullable String getBlockKey(Material block) {
         if (block == null) return null;
         else if (block.toString().toLowerCase().contains("wall_banner")) {  //replace wall_banner with regular banner, since there is no key for wall banners
             String blockName = block.toString().toLowerCase().replace("wall_", "");
@@ -63,11 +66,11 @@ public class LanguageKeyHandler {
         }
     }
 
-    private void generateDefaultKeys() {
+    private static void generateDefaultKeys() {
         Arrays.stream(Statistic.values()).forEach(statistic -> statNameKeys.put(statistic, statistic.toString().toLowerCase()));
     }
 
-    private void generateStatNameKeys() {
+    private static void generateStatNameKeys() {
         //get the enum names for all statistics first
         generateDefaultKeys();
 

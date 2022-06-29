@@ -12,7 +12,7 @@ public class OfflinePlayerHandler {
     private static ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
     private static ArrayList<String> playerNames;
 
-    static{
+    static {
         offlinePlayerUUIDs = new ConcurrentHashMap<>();
         playerNames = new ArrayList<>();
     }

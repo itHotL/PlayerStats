@@ -2,18 +2,15 @@ package com.gmail.artemis.the.gr8.playerstats.statistic;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.Statistic;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,11 +28,11 @@ public class StatThread extends Thread {
 
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
-    private static MessageFactory messageFactory;
+    private static MessageWriter messageWriter;
     private final Main plugin;
 
     //constructor (called on thread creation)
-    public StatThread(BukkitAudiences a, ConfigHandler c, MessageFactory m, Main p, int ID, int threshold, StatRequest s, @Nullable ReloadThread r) {
+    public StatThread(BukkitAudiences a, ConfigHandler c, MessageWriter m, Main p, int ID, int threshold, StatRequest s, @Nullable ReloadThread r) {
         this.threshold = threshold;
 
         request = s;
@@ -43,7 +40,7 @@ public class StatThread extends Thread {
 
         adventure = a;
         config = c;
-        messageFactory = m;
+        messageWriter = m;
         plugin = p;
 
         this.setName("StatThread-" + ID);
@@ -55,67 +52,55 @@ public class StatThread extends Thread {
     public void run() throws IllegalStateException, NullPointerException {
         MyLogger.threadStart(this.getName());
 
-        if (messageFactory == null || plugin == null) {
+        if (messageWriter == null || plugin == null) {
             throw new IllegalStateException("Not all classes off the plugin are running!");
         }
         if (request == null) {
             throw new NullPointerException("No statistic request was found!");
         }
+
         if (reloadThread != null && reloadThread.isAlive()) {
             try {
                 MyLogger.waitingForOtherThread(this.getName(), reloadThread.getName());
                 adventure.sender(request.getCommandSender())
-                        .sendMessage(messageFactory
-                                .stillReloading(request.getCommandSender() instanceof ConsoleCommandSender));
+                        .sendMessage(messageWriter
+                                .stillReloading(request.isBukkitConsoleSender()));
                 reloadThread.join();
+
             } catch (InterruptedException e) {
-                plugin.getLogger().warning(e.toString());
+                MyLogger.logException(e, "StatThread", "Trying to join" + reloadThread.getName());
                 throw new RuntimeException(e);
             }
         }
 
-        CommandSender sender = request.getCommandSender();
-        boolean isConsoleSencer = sender instanceof ConsoleCommandSender;
         Target selection = request.getSelection();
-
-        if (selection == Target.TOP || selection == Target.SERVER) {
-            if (ThreadManager.getLastRecordedCalcTime() > 20000) {
-                adventure.sender(sender).sendMessage(messageFactory.waitAMoment(true, isConsoleSencer));
+        if (selection == Target.PLAYER) {
+            adventure.sender(request.getCommandSender()).sendMessage(
+                    messageWriter.formatPlayerStat(getIndividualStat(), request));
+        }
+        else  {
+            if (ThreadManager.getLastRecordedCalcTime() > 2000) {
+                adventure.sender(request.getCommandSender()).sendMessage(
+                        messageWriter.waitAMoment(ThreadManager.getLastRecordedCalcTime() > 20000, request.isBukkitConsoleSender()));
             }
-            else if (ThreadManager.getLastRecordedCalcTime() > 2000) {
-                adventure.sender(sender).sendMessage(messageFactory.waitAMoment(false, isConsoleSencer));
-            }
-
             try {
                 if (selection == Target.TOP) {
-                    adventure.sender(sender).sendMessage(messageFactory.formatTopStats(getTopStats(), request));
+                    adventure.sender(request.getCommandSender()).sendMessage(
+                            messageWriter.formatTopStats(getTopStats(), request));
+                } else {
+                    adventure.sender(request.getCommandSender()).sendMessage(
+                            messageWriter.formatServerStat(getServerTotal(), request));
                 }
-                else {
-                    adventure.sender(sender).sendMessage(messageFactory.formatServerStat(getServerTotal(), request));
-                }
-
             } catch (ConcurrentModificationException e) {
-                if (!isConsoleSencer) {
-                    adventure.sender(sender).sendMessage(messageFactory.unknownError(false));
+                if (!request.isConsoleSender()) {
+                    adventure.sender(request.getCommandSender()).sendMessage(
+                            messageWriter.unknownError(false));
                 }
-            } catch (Exception e) {
-                adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString(), isConsoleSencer));
-                MyLogger.logException(e, "StatThread", "run(), trying to calculate or format a top or server statistic");
-            }
-        }
-
-        else if (selection == Target.PLAYER) {
-            try {
-                adventure.sender(sender).sendMessage(
-                        messageFactory.formatPlayerStat(getIndividualStat(), request));
-
-            } catch (UnsupportedOperationException | NullPointerException e) {
-                adventure.sender(sender).sendMessage(messageFactory.formatExceptions(e.toString(), isConsoleSencer));
             }
         }
     }
 
-    private LinkedHashMap<String, Integer> getTopStats() throws ConcurrentModificationException, NullPointerException {
+    private LinkedHashMap<String, Integer> getTopStats() throws ConcurrentModificationException {
         return getAllStats().entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(config.getTopListMaxSize()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
@@ -127,7 +112,7 @@ public class StatThread extends Thread {
     }
 
     //invokes a bunch of worker pool threads to divide and conquer (get the statistics for all players in the list)
-    private @NotNull ConcurrentHashMap<String, Integer> getAllStats() throws ConcurrentModificationException, NullPointerException {
+    private @NotNull ConcurrentHashMap<String, Integer> getAllStats() throws ConcurrentModificationException {
         long time = System.currentTimeMillis();
 
         int size = OfflinePlayerHandler.getOfflinePlayerCount() != 0 ? (int) (OfflinePlayerHandler.getOfflinePlayerCount() * 1.05) : 16;
@@ -141,20 +126,21 @@ public class StatThread extends Thread {
         try {
             commonPool.invoke(task);
         } catch (ConcurrentModificationException e) {
-            plugin.getLogger().warning("The request could not be executed due to a ConcurrentModificationException. " +
-                    "This likely happened because Bukkit hasn't fully initialized all player-data yet. Try again and it should be fine!");
+            MyLogger.logMsg("The request could not be executed due to a ConcurrentModificationException. " +
+                    "This likely happened because Bukkit hasn't fully initialized all player-data yet. Try again and it should be fine!", true);
             throw new ConcurrentModificationException(e.toString());
         }
 
         MyLogger.actionFinished(2);
         ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
-        MyLogger.logTimeTakenDefault("StatThread", "calculated all stats", time);
+        MyLogger.logTimeTaken("StatThread", "calculated all stats", time);
 
         return playerStats;
     }
 
-    //gets the actual statistic data for an individual player
-    private int getIndividualStat() throws UnsupportedOperationException, NullPointerException {
+    /** Gets the statistic data for an individual player. If somehow the player
+     cannot be found, this returns 0.*/
+    private int getIndividualStat() {
         OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(request.getPlayerName());
         if (player != null) {
             switch (request.getStatistic().getType()) {
@@ -172,6 +158,6 @@ public class StatThread extends Thread {
                 }
             }
         }
-        throw new NullPointerException("The player you are trying to request either does not exist, or is not on the list for statistic lookups!");
+        return 0;
     }
 }

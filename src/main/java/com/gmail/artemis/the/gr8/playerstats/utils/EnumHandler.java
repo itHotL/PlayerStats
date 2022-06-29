@@ -21,7 +21,7 @@ public class EnumHandler {
     private final static List<String> entitySubStatNames;
     private final static List<String> subStatNames;
 
-    static{
+    static {
         blockNames = Arrays.stream(Material.values())
                 .filter(Material::isBlock)
                 .map(Material::toString)

@@ -4,7 +4,6 @@ import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -12,20 +11,20 @@ import java.time.Month;
 import static net.kyori.adventure.text.Component.*;
 
 
-public class PrideMessageFactory extends MessageFactory {
+public class PrideComponentFactory extends ComponentFactory {
 
     private static ConfigHandler config;
 
-    public PrideMessageFactory(ConfigHandler c, LanguageKeyHandler l) {
-        super(c, l);
+    public PrideComponentFactory(ConfigHandler c) {
+        super(c);
         config = c;
     }
 
 
     @Override
-    protected TextComponent getPrefixAsTitle(boolean isConsoleSender) {
-        if (cancelRainbow(isConsoleSender)) {
-            return super.getPrefixAsTitle(isConsoleSender);
+    public TextComponent prefixTitle(boolean isBukkitConsole) {
+        if (cancelRainbow(isBukkitConsole)) {
+            return super.prefixTitle(isBukkitConsole);
         }
         else {
             String title = "<rainbow:16>____________    [PlayerStats]    ____________</rainbow>"; //12 underscores
@@ -36,7 +35,7 @@ public class PrideMessageFactory extends MessageFactory {
     }
 
     @Override
-    protected TextComponent pluginPrefix(boolean isConsoleSender) {
+    public TextComponent pluginPrefix(boolean isConsoleSender) {
         if (cancelRainbow(isConsoleSender)) {
             return super.pluginPrefix(isConsoleSender);
         }
@@ -61,8 +60,8 @@ public class PrideMessageFactory extends MessageFactory {
     /** Don't use rainbow formatting if the rainbow Prefix is disabled,
      if festive formatting is disabled or it is not pride month,
      or the commandsender is a Bukkit or Spigot console.*/
-    private boolean cancelRainbow(boolean isConsoleSender) {
-        return !(config.useRainbowPrefix() || (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) ||
-                (isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit"));
+    private boolean cancelRainbow(boolean isBukkitConsole) {
+        return !(config.useRainbowMode() || (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) ||
+                (isBukkitConsole);
     }
 }

@@ -1,10 +1,10 @@
 package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageFactory;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.CommandSender;
@@ -19,16 +19,16 @@ public class ThreadManager {
     private final Main plugin;
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
-    private static MessageFactory messageFactory;
+    private static MessageWriter messageWriter;
 
     private ReloadThread reloadThread;
     private StatThread statThread;
     private static long lastRecordedCalcTime;
 
-    public ThreadManager(BukkitAudiences a, ConfigHandler c, MessageFactory m, Main p) {
+    public ThreadManager(BukkitAudiences a, ConfigHandler c, MessageWriter m, Main p) {
         adventure = a;
         config = c;
-        messageFactory = m;
+        messageWriter = m;
         plugin = p;
 
         statThreadID = 0;
@@ -41,7 +41,7 @@ public class ThreadManager {
         if (reloadThread == null || !reloadThread.isAlive()) {
             reloadThreadID += 1;
 
-            reloadThread = new ReloadThread(adventure, config, messageFactory, plugin, threshold, reloadThreadID, statThread, sender);
+            reloadThread = new ReloadThread(adventure, config, messageWriter, threshold, reloadThreadID, statThread, sender);
             reloadThread.start();
         }
         else {
@@ -52,7 +52,7 @@ public class ThreadManager {
     public void startStatThread(StatRequest request) {
         statThreadID += 1;
 
-        statThread = new StatThread(adventure, config, messageFactory, plugin, statThreadID, threshold, request, reloadThread);
+        statThread = new StatThread(adventure, config, messageWriter, plugin, statThreadID, threshold, request, reloadThread);
         statThread.start();
     }
 

@@ -34,7 +34,7 @@ public class ConfigUpdateHandler {
         }
     }
 
-    /** Adjusts some of the default colors to migrate from versions 2 or 3 to version 4.*/
+    /** Adjusts some of the default colors to migrate from versions 2 or 3 to version 4.1.*/
     private void updateDefaultColors(YamlConfiguration configuration) {
         updateColor(configuration, "top-list.title", "yellow", "#FFD52B");
         updateColor(configuration, "top-list.stat-names", "yellow", "#FFD52B");

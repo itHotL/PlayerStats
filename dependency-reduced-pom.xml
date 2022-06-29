@@ -23,21 +23,30 @@
             <goals>
               <goal>shade</goal>
             </goals>
-            <configuration>
-              <transformers>
-                <transformer>
-                  <mainClass>com.gmail.artemis.the.gr8.playerstats.Main</mainClass>
-                </transformer>
-              </transformers>
-              <artifactSet>
-                <excludes>
-                  <exclude>org.jetbrains:annotations</exclude>
-                  <exclude>META-INF/versions/**</exclude>
-                </excludes>
-              </artifactSet>
-            </configuration>
           </execution>
         </executions>
+        <configuration>
+          <transformers>
+            <transformer>
+              <mainClass>com.gmail.artemis.the.gr8.playerstats.Main</mainClass>
+            </transformer>
+          </transformers>
+          <artifactSet>
+            <excludes>
+              <exclude>org.jetbrains:annotations</exclude>
+            </excludes>
+          </artifactSet>
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>META-INF/versions/**</exclude>
+                <exclude>META-INF/maven/com.tchristofferson/**</exclude>
+                <exclude>images/**</exclude>
+              </excludes>
+            </filter>
+          </filters>
+        </configuration>
       </plugin>
     </plugins>
   </build>
