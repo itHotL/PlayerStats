@@ -10,10 +10,7 @@ import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +21,6 @@ import java.util.stream.Collectors;
 
 public class StatThread extends Thread {
 
-    private volatile boolean keepRunning = true;
     private final int threshold;
 
     private final StatRequest request;
@@ -51,12 +47,6 @@ public class StatThread extends Thread {
         MyLogger.threadCreated(this.getName());
     }
 
-    public void stopThread() {
-        MyLogger.logMsg("stopThread() is being executed by: " + Thread.currentThread().getName(), false);
-        keepRunning = false;
-        MyLogger.logMsg("StatThread has been forced to stop!", true);
-    }
-
     //what the thread will do once started
     @Override
     public void run() throws IllegalStateException, NullPointerException {
@@ -69,54 +59,45 @@ public class StatThread extends Thread {
             throw new NullPointerException("No statistic request was found!");
         }
 
-        CommandSender sender = request.getCommandSender();
-        boolean isBukkitConsole = sender instanceof ConsoleCommandSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit");
         if (reloadThread != null && reloadThread.isAlive()) {
             try {
                 MyLogger.waitingForOtherThread(this.getName(), reloadThread.getName());
                 adventure.sender(request.getCommandSender())
                         .sendMessage(messageWriter
-                                .stillReloading(isBukkitConsole));
+                                .stillReloading(request.isBukkitConsoleSender()));
                 reloadThread.join();
 
-                //TODO Add timeout after which it checks again and potentially aborts mission
             } catch (InterruptedException e) {
                 MyLogger.logException(e, "StatThread", "Trying to join" + reloadThread.getName());
                 throw new RuntimeException(e);
             }
         }
 
-        //TODO Evaluate if this really does something
-        while (keepRunning) {
-            Target selection = request.getSelection();
-            if (selection == Target.PLAYER) {
-                adventure.sender(sender).sendMessage(
-                        messageWriter.formatPlayerStat(getIndividualStat(), request));
-            }
-            else  {
-                if (ThreadManager.getLastRecordedCalcTime() > 2000) {
-                    adventure.sender(sender).sendMessage(
-                            messageWriter.waitAMoment(ThreadManager.getLastRecordedCalcTime() > 20000, isBukkitConsole));
-                }
-                try {
-                    if (selection == Target.TOP) {
-                        adventure.sender(sender).sendMessage(
-                                messageWriter.formatTopStats(getTopStats(), request));
-                    } else {
-                        adventure.sender(sender).sendMessage(
-                                messageWriter.formatServerStat(getServerTotal(), request));
-                    }
-                } catch (ConcurrentModificationException e) {
-                    if (!isBukkitConsole) {
-                        adventure.sender(sender).sendMessage(
-                                messageWriter.unknownError(false));
-                    }
-                }
-            }
-            return;
+        Target selection = request.getSelection();
+        if (selection == Target.PLAYER) {
+            adventure.sender(request.getCommandSender()).sendMessage(
+                    messageWriter.formatPlayerStat(getIndividualStat(), request));
         }
-        MyLogger.logMsg("(" + Thread.currentThread().getName() + ") shutting down...", false);
-        adventure.sender(sender).sendMessage(messageWriter.interruptedRequest());
+        else  {
+            if (ThreadManager.getLastRecordedCalcTime() > 2000) {
+                adventure.sender(request.getCommandSender()).sendMessage(
+                        messageWriter.waitAMoment(ThreadManager.getLastRecordedCalcTime() > 20000, request.isBukkitConsoleSender()));
+            }
+            try {
+                if (selection == Target.TOP) {
+                    adventure.sender(request.getCommandSender()).sendMessage(
+                            messageWriter.formatTopStats(getTopStats(), request));
+                } else {
+                    adventure.sender(request.getCommandSender()).sendMessage(
+                            messageWriter.formatServerStat(getServerTotal(), request));
+                }
+            } catch (ConcurrentModificationException e) {
+                if (!request.isConsoleSender()) {
+                    adventure.sender(request.getCommandSender()).sendMessage(
+                            messageWriter.unknownError(false));
+                }
+            }
+        }
     }
 
     private LinkedHashMap<String, Integer> getTopStats() throws ConcurrentModificationException {

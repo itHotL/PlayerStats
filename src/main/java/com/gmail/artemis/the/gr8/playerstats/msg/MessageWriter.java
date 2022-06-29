@@ -30,7 +30,6 @@ public class MessageWriter {
         getComponentFactory();
     }
 
-    //TODO Make ReloadThread do an update
     public static void updateComponentFactory() {
         getComponentFactory();
     }
@@ -55,25 +54,10 @@ public class MessageWriter {
                         "your request will be processed when it is done!", isBukkitConsole);
     }
 
-    public TextComponent partiallyReloaded(boolean isBukkitConsole) {
-        return componentFactory.msg(
-                "The reload process was interrupted. " +
-                        "If you notice unexpected behavior, " +
-                        "please reload PlayerStats again to fix it!", isBukkitConsole);
-    }
-
-    public TextComponent interruptedRequest() {
-        return componentFactory.msg("Your request was interrupted, please try again in a moment!", false);
-    }
-
     public TextComponent waitAMoment(boolean longWait, boolean isBukkitConsole) {
         String msg = longWait ? "Calculating statistics, this may take a minute..." :
                 "Calculating statistics, this may take a few moments...";
         return componentFactory.msg(msg, isBukkitConsole);
-    }
-
-    public TextComponent formatExceptions(@NotNull String exception, boolean isBukkitConsole) {
-        return componentFactory.msg(exception, isBukkitConsole);
     }
 
     public TextComponent missingStatName(boolean isBukkitConsole) {

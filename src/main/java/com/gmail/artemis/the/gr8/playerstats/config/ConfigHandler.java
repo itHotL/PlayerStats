@@ -56,14 +56,12 @@ public class ConfigHandler {
         }
         try {
             config = YamlConfiguration.loadConfiguration(configFile);
+            return true;
         }
         catch (IllegalArgumentException e) {
             MyLogger.logException(e, "ConfigHandler", "reloadConfig");
             return false;
         }
-        //TODO Move this to ReloadThread
-        MyLogger.setDebugLevel(getDebugLevel());
-        return true;
     }
 
     /** Returns the desired debugging level.
