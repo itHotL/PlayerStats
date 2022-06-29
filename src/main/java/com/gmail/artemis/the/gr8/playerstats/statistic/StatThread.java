@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 public class StatThread extends Thread {
 
+    private volatile boolean keepRunning = true;
     private final int threshold;
 
     private final StatRequest request;
@@ -50,6 +51,12 @@ public class StatThread extends Thread {
         MyLogger.threadCreated(this.getName());
     }
 
+    public void stopThread() {
+        MyLogger.logMsg("stopThread() is being executed by: " + Thread.currentThread().getName(), false);
+        keepRunning = false;
+        MyLogger.logMsg("StatThread has been forced to stop!", true);
+    }
+
     //what the thread will do once started
     @Override
     public void run() throws IllegalStateException, NullPointerException {
@@ -71,52 +78,48 @@ public class StatThread extends Thread {
                         .sendMessage(messageWriter
                                 .stillReloading(isBukkitConsole));
                 reloadThread.join();
+
+                //TODO Add timeout after which it checks again and potentially aborts mission
             } catch (InterruptedException e) {
-                plugin.getLogger().warning(e.toString());
+                MyLogger.logException(e, "StatThread", "Trying to join" + reloadThread.getName());
                 throw new RuntimeException(e);
             }
         }
 
-        Target selection = request.getSelection();
-
-        if (selection == Target.TOP || selection == Target.SERVER) {
-            if (ThreadManager.getLastRecordedCalcTime() > 20000) {
-                adventure.sender(sender).sendMessage(messageWriter.waitAMoment(true, isBukkitConsole));
-            }
-            else if (ThreadManager.getLastRecordedCalcTime() > 2000) {
-                adventure.sender(sender).sendMessage(messageWriter.waitAMoment(false, isBukkitConsole));
-            }
-
-            try {
-                if (selection == Target.TOP) {
-                    adventure.sender(sender).sendMessage(messageWriter.formatTopStats(getTopStats(), request));
-                }
-                else {
-                    adventure.sender(sender).sendMessage(messageWriter.formatServerStat(getServerTotal(), request));
-                }
-
-            } catch (ConcurrentModificationException e) {
-                if (!isBukkitConsole) {
-                    adventure.sender(sender).sendMessage(messageWriter.unknownError(false));
-                }
-            } catch (Exception e) {
-                adventure.sender(sender).sendMessage(messageWriter.formatExceptions(e.toString(), isBukkitConsole));
-                MyLogger.logException(e, "StatThread", "run(), trying to calculate or format a top or server statistic");
-            }
-        }
-
-        else if (selection == Target.PLAYER) {
-            try {
+        //TODO Evaluate if this really does something
+        while (keepRunning) {
+            Target selection = request.getSelection();
+            if (selection == Target.PLAYER) {
                 adventure.sender(sender).sendMessage(
                         messageWriter.formatPlayerStat(getIndividualStat(), request));
-
-            } catch (UnsupportedOperationException | NullPointerException e) {
-                adventure.sender(sender).sendMessage(messageWriter.formatExceptions(e.toString(), isBukkitConsole));
             }
+            else  {
+                if (ThreadManager.getLastRecordedCalcTime() > 2000) {
+                    adventure.sender(sender).sendMessage(
+                            messageWriter.waitAMoment(ThreadManager.getLastRecordedCalcTime() > 20000, isBukkitConsole));
+                }
+                try {
+                    if (selection == Target.TOP) {
+                        adventure.sender(sender).sendMessage(
+                                messageWriter.formatTopStats(getTopStats(), request));
+                    } else {
+                        adventure.sender(sender).sendMessage(
+                                messageWriter.formatServerStat(getServerTotal(), request));
+                    }
+                } catch (ConcurrentModificationException e) {
+                    if (!isBukkitConsole) {
+                        adventure.sender(sender).sendMessage(
+                                messageWriter.unknownError(false));
+                    }
+                }
+            }
+            return;
         }
+        MyLogger.logMsg("(" + Thread.currentThread().getName() + ") shutting down...", false);
+        adventure.sender(sender).sendMessage(messageWriter.interruptedRequest());
     }
 
-    private LinkedHashMap<String, Integer> getTopStats() throws ConcurrentModificationException, NullPointerException {
+    private LinkedHashMap<String, Integer> getTopStats() throws ConcurrentModificationException {
         return getAllStats().entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(config.getTopListMaxSize()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
@@ -128,7 +131,7 @@ public class StatThread extends Thread {
     }
 
     //invokes a bunch of worker pool threads to divide and conquer (get the statistics for all players in the list)
-    private @NotNull ConcurrentHashMap<String, Integer> getAllStats() throws ConcurrentModificationException, NullPointerException {
+    private @NotNull ConcurrentHashMap<String, Integer> getAllStats() throws ConcurrentModificationException {
         long time = System.currentTimeMillis();
 
         int size = OfflinePlayerHandler.getOfflinePlayerCount() != 0 ? (int) (OfflinePlayerHandler.getOfflinePlayerCount() * 1.05) : 16;
@@ -142,20 +145,21 @@ public class StatThread extends Thread {
         try {
             commonPool.invoke(task);
         } catch (ConcurrentModificationException e) {
-            plugin.getLogger().warning("The request could not be executed due to a ConcurrentModificationException. " +
-                    "This likely happened because Bukkit hasn't fully initialized all player-data yet. Try again and it should be fine!");
+            MyLogger.logMsg("The request could not be executed due to a ConcurrentModificationException. " +
+                    "This likely happened because Bukkit hasn't fully initialized all player-data yet. Try again and it should be fine!", true);
             throw new ConcurrentModificationException(e.toString());
         }
 
         MyLogger.actionFinished(2);
         ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
-        MyLogger.logTimeTakenDefault("StatThread", "calculated all stats", time);
+        MyLogger.logTimeTaken("StatThread", "calculated all stats", time);
 
         return playerStats;
     }
 
-    //gets the actual statistic data for an individual player
-    private int getIndividualStat() throws UnsupportedOperationException, NullPointerException {
+    /** Gets the statistic data for an individual player. If somehow the player
+     cannot be found, this returns 0.*/
+    private int getIndividualStat() {
         OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(request.getPlayerName());
         if (player != null) {
             switch (request.getStatistic().getType()) {
@@ -173,6 +177,6 @@ public class StatThread extends Thread {
                 }
             }
         }
-        throw new NullPointerException("The player you are trying to request either does not exist, or is not on the list for statistic lookups!");
+        return 0;
     }
 }

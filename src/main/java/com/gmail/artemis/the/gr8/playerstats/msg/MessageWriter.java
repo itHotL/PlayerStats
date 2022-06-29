@@ -25,9 +25,23 @@ public class MessageWriter {
     private static ConfigHandler config;
     private static ComponentFactory componentFactory;
 
-    public MessageWriter(ConfigHandler c, LanguageKeyHandler l) {
+    public MessageWriter(ConfigHandler c) {
         config = c;
-        componentFactory = new ComponentFactory(c, l);
+        getComponentFactory();
+    }
+
+    //TODO Make ReloadThread do an update
+    public static void updateComponentFactory() {
+        getComponentFactory();
+    }
+
+    private static void getComponentFactory() {
+        if (config.useFestiveFormatting() || config.useRainbowMode()) {
+            componentFactory = new PrideComponentFactory(config);
+        }
+        else {
+            componentFactory = new ComponentFactory(config);
+        }
     }
 
     public TextComponent reloadedConfig(boolean isBukkitConsole) {
@@ -37,7 +51,7 @@ public class MessageWriter {
 
     public TextComponent stillReloading(boolean isBukkitConsole) {
         return componentFactory.msg(
-                "The plugin is still (re)loading, " +
+                "The plugin is (re)loading, " +
                         "your request will be processed when it is done!", isBukkitConsole);
     }
 
@@ -46,6 +60,10 @@ public class MessageWriter {
                 "The reload process was interrupted. " +
                         "If you notice unexpected behavior, " +
                         "please reload PlayerStats again to fix it!", isBukkitConsole);
+    }
+
+    public TextComponent interruptedRequest() {
+        return componentFactory.msg("Your request was interrupted, please try again in a moment!", false);
     }
 
     public TextComponent waitAMoment(boolean longWait, boolean isBukkitConsole) {

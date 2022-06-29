@@ -26,7 +26,7 @@ public class ConfigHandler {
         configVersion = 4;
         checkConfigVersion();
 
-        MyLogger.setDebugLevel(debugLevel());
+        MyLogger.setDebugLevel(getDebugLevel());
     }
 
     /** Checks the number that "config-version" returns to see if the config needs updating, and if so, send it to the Updater.
@@ -56,13 +56,14 @@ public class ConfigHandler {
         }
         try {
             config = YamlConfiguration.loadConfiguration(configFile);
-            MyLogger.setDebugLevel(debugLevel());
-            return true;
         }
         catch (IllegalArgumentException e) {
             MyLogger.logException(e, "ConfigHandler", "reloadConfig");
             return false;
         }
+        //TODO Move this to ReloadThread
+        MyLogger.setDebugLevel(getDebugLevel());
+        return true;
     }
 
     /** Returns the desired debugging level.
@@ -70,7 +71,7 @@ public class ConfigHandler {
      <p>2 = medium (detail all encountered exceptions, log main tasks and show time taken)</p>
      <p>3 = high (log all tasks and time taken)</p>
      <p>Default: 1</p>*/
-    public int debugLevel() {
+    public int getDebugLevel() {
         return config.getInt("debug-level", 1);
     }
 
@@ -88,7 +89,7 @@ public class ConfigHandler {
 
     /** Returns the number of maximum days since a player has last been online.
      <p>Default: 0 (which signals not to use this limit)</p>*/
-    public int lastPlayedLimit() {
+    public int getLastPlayedLimit() {
         return config.getInt("number-of-days-since-last-joined", 0);
     }
 
@@ -112,7 +113,7 @@ public class ConfigHandler {
 
     /** Whether to use rainbow colors for the [PlayerStats] prefix rather than the default gold/purple.
      <p>Default: false</p> */
-    public boolean useRainbowPrefix() {
+    public boolean useRainbowMode() {
         return config.getBoolean("rainbow-mode", false);
     }
 

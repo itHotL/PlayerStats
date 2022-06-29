@@ -4,7 +4,6 @@ import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.Bukkit;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -16,8 +15,8 @@ public class PrideComponentFactory extends ComponentFactory {
 
     private static ConfigHandler config;
 
-    public PrideComponentFactory(ConfigHandler c, LanguageKeyHandler l) {
-        super(c, l);
+    public PrideComponentFactory(ConfigHandler c) {
+        super(c);
         config = c;
     }
 
@@ -62,7 +61,7 @@ public class PrideComponentFactory extends ComponentFactory {
      if festive formatting is disabled or it is not pride month,
      or the commandsender is a Bukkit or Spigot console.*/
     private boolean cancelRainbow(boolean isBukkitConsole) {
-        return !(config.useRainbowPrefix() || (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) ||
+        return !(config.useRainbowMode() || (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) ||
                 (isBukkitConsole);
     }
 }

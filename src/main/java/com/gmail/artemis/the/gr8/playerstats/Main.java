@@ -31,12 +31,11 @@ public class Main extends JavaPlugin {
         //initialize the Adventure library
         adventure = BukkitAudiences.create(this);
 
-        //first get an instance of the ConfigHandler and LanguageKeyHandler
+        //first get an instance of the ConfigHandler
         ConfigHandler config = new ConfigHandler(this);
-        LanguageKeyHandler language = new LanguageKeyHandler();
 
         //for now always use the PrideComponentFactory (it'll use the regular formatting when needed)
-        MessageWriter messageWriter = new MessageWriter(config, language);
+        MessageWriter messageWriter = new MessageWriter(config);
 
         //initialize the threadManager
         ThreadManager threadManager = new ThreadManager(adventure(), config, messageWriter, this);

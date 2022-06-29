@@ -41,7 +41,7 @@ public class ThreadManager {
         if (reloadThread == null || !reloadThread.isAlive()) {
             reloadThreadID += 1;
 
-            reloadThread = new ReloadThread(adventure, config, messageWriter, plugin, threshold, reloadThreadID, statThread, sender);
+            reloadThread = new ReloadThread(adventure, config, messageWriter, threshold, reloadThreadID, statThread, sender);
             reloadThread.start();
         }
         else {

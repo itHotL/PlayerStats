@@ -21,15 +21,15 @@ import org.jetbrains.annotations.Nullable;
 import static net.kyori.adventure.text.Component.*;
 import static net.kyori.adventure.text.Component.text;
 
-/** Constructs Components with  */
+/** Creates Components with the desired formatting. This class can put Strings
+ into formatted Components with TextColor and TextDecoration, and turn
+ certain Strings into appropriate LanguageKeys to return a TranslatableComponent.*/
 public class ComponentFactory {
 
     private static ConfigHandler config;
-    private final LanguageKeyHandler language;
 
-    public ComponentFactory(ConfigHandler c, LanguageKeyHandler l) {
+    public ComponentFactory(ConfigHandler c) {
         config = c;
-        language = l;
     }
 
     /** Returns [PlayerStats] followed by a single space. */
@@ -188,11 +188,11 @@ public class ComponentFactory {
             subStatName = getPrettyName(subStatName);
         }
         else {
-            statName = language.getStatKey(request.getStatistic());
+            statName = LanguageKeyHandler.getStatKey(request.getStatistic());
             switch (request.getStatistic().getType()) {
-                case BLOCK -> subStatName = language.getBlockKey(request.getBlock());
-                case ENTITY -> subStatName = language.getEntityKey(request.getEntity());
-                case ITEM -> subStatName = language.getItemKey(request.getItem());
+                case BLOCK -> subStatName = LanguageKeyHandler.getBlockKey(request.getBlock());
+                case ENTITY -> subStatName = LanguageKeyHandler.getEntityKey(request.getEntity());
+                case ITEM -> subStatName = LanguageKeyHandler.getItemKey(request.getItem());
                 case UNTYPED -> {
                 }
             }

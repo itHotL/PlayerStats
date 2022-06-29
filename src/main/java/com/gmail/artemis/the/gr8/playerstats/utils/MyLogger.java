@@ -22,7 +22,7 @@ public class MyLogger {
     private static final AtomicInteger playersIndex;
     private static ConcurrentHashMap<String, Integer> threadNames;
 
-    static{
+    static {
         Plugin plugin = Bukkit.getPluginManager().getPlugin("PlayerStats");
         logger = (plugin != null) ? plugin.getLogger() : Bukkit.getLogger();
         debugLevel = DebugLevel.LOW;
@@ -33,17 +33,6 @@ public class MyLogger {
     }
 
     private MyLogger() {
-    }
-
-
-    /** Accesses the playersIndex to up it by 1 and return its previous value. */
-    private static int nextPlayersIndex() {
-        return playersIndex.getAndIncrement();
-    }
-
-    /** Returns true if the playersIndex is 10, or any subsequent increment of 10. */
-    private static boolean incrementOfTen() {
-        return (playersIndex.get() == 10 || (playersIndex.get() > 10 && playersIndex.get() % 10 == 0));
     }
 
     /** Sets the desired debugging level.
@@ -60,6 +49,30 @@ public class MyLogger {
         }
         else {
             debugLevel = DebugLevel.LOW;
+        }
+    }
+
+    public static void logMsg(String content, boolean logAsWarning) {
+           logMsg(content, DebugLevel.LOW, logAsWarning);
+    }
+
+    public static void logMsg(String content, DebugLevel logThreshold) {
+        logMsg(content, logThreshold, false);
+    }
+
+    public static void logMsg(String content, DebugLevel logThreshold, boolean logAsWarning) {
+        switch (logThreshold) {
+            case LOW -> log(content, logAsWarning);
+            case MEDIUM -> {
+                if (debugLevel != DebugLevel.LOW) {
+                    log(content, logAsWarning);
+                }
+            }
+            case HIGH -> {
+                if (debugLevel == DebugLevel.HIGH) {
+                    log(content, logAsWarning);
+                }
+            }
         }
     }
 
@@ -171,21 +184,54 @@ public class MyLogger {
         }
     }
 
-    /** Output to console how long a certain task has taken if DebugLevel is MEDIUM or HIGH.
-     @param className Name of the class executing the task
-     @param methodName Name or description of the task
-     @param startTime Timestamp marking the beginning of the task */
-    public static void logTimeTaken(String className, String methodName, long startTime) {
-        if (debugLevel != DebugLevel.LOW) {
-            logger.info(className + " " + methodName + ": " + (System.currentTimeMillis() - startTime) + "ms");
-        }
-    }
-
     /** Output to console how long a certain task has taken (regardless of DebugLevel).
      @param className Name of the class executing the task
      @param methodName Name or description of the task
      @param startTime Timestamp marking the beginning of the task */
-    public static void logTimeTakenDefault(String className, String methodName, long startTime) {
+    public static void logTimeTaken(String className, String methodName, long startTime) {
+        logTimeTaken(className, methodName, startTime, DebugLevel.LOW);
+    }
+
+    /** Output to console how long a certain task has taken if DebugLevel is equal to or higher than the specified threshold.
+     @param className Name of the class executing the task
+     @param methodName Name or description of the task
+     @param startTime Timestamp marking the beginning of the task
+     @param logThreshold the DebugLevel threshold  */
+    public static void logTimeTaken(String className, String methodName, long startTime, DebugLevel logThreshold) {
+        switch (logThreshold) {
+            case LOW -> printTime(className, methodName, startTime);
+            case MEDIUM -> {
+                if (debugLevel != DebugLevel.LOW) {
+                    printTime(className, methodName, startTime);
+                }
+            }
+            case HIGH -> {
+                if (debugLevel == DebugLevel.HIGH) {
+                    printTime(className, methodName, startTime);
+                }
+            }
+        }
+    }
+
+    private static void log(String content, boolean logAsWarning) {
+        if (logAsWarning) {
+            logger.warning(content);
+        } else {
+            logger.info(content);
+        }
+    }
+
+    private static void printTime(String className, String methodName, long startTime) {
         logger.info(className + " " + methodName + ": " + (System.currentTimeMillis() - startTime) + "ms");
+    }
+
+    /** Accesses the playersIndex to up it by 1 and return its previous value. */
+    private static int nextPlayersIndex() {
+        return playersIndex.getAndIncrement();
+    }
+
+    /** Returns true if the playersIndex is 10, or any subsequent increment of 10. */
+    private static boolean incrementOfTen() {
+        return (playersIndex.get() == 10 || (playersIndex.get() > 10 && playersIndex.get() % 10 == 0));
     }
 }
