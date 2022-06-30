@@ -93,7 +93,7 @@ public class MessageWriter {
         if (!request.isValid()) return unknownError(request.isBukkitConsoleSender());
         return Component.text()
                 .append(componentFactory.playerName( request.getPlayerName() + ": ", Target.PLAYER))
-                .append(componentFactory.statNumber(stat, Target.PLAYER))
+                .append(componentFactory.statNumber(stat, request.getStatistic(), Target.PLAYER))
                 .append(space())
                 .append(componentFactory.statName(request))
                 .append(space())
@@ -143,7 +143,7 @@ public class MessageWriter {
             else {
                 topList.append(componentFactory.playerName(":", Target.TOP));
             }
-            topList.append(space()).append(componentFactory.statNumber(topStats.get(playerName), Target.TOP));
+            topList.append(space()).append(componentFactory.statNumber(topStats.get(playerName), request.getStatistic(), Target.TOP));
         }
         return topList.build();
     }
@@ -155,7 +155,7 @@ public class MessageWriter {
                 .append(space())
                 .append(componentFactory.serverName(config.getServerName()))
                 .append(space())
-                .append(componentFactory.statNumber(stat, Target.SERVER))
+                .append(componentFactory.statNumber(stat, request.getStatistic(), Target.SERVER))
                 .append(space())
                 .append(componentFactory.statName(request))
                 .append(space())

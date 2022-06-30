@@ -5,7 +5,6 @@ import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
-import com.gmail.artemis.the.gr8.playerstats.utils.NumberFormatter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -15,6 +14,7 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.util.Index;
 import org.bukkit.Bukkit;
+import org.bukkit.Statistic;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,9 +27,14 @@ import static net.kyori.adventure.text.Component.text;
 public class ComponentFactory {
 
     private static ConfigHandler config;
+    private final LanguageKeyHandler languageKeyHandler;
+    private final NumberFormatter format;
 
     public ComponentFactory(ConfigHandler c) {
         config = c;
+
+        languageKeyHandler = new LanguageKeyHandler();
+        format = new NumberFormatter();
     }
 
     /** Returns [PlayerStats] followed by a single space. */
@@ -188,11 +193,11 @@ public class ComponentFactory {
             subStatName = getPrettyName(subStatName);
         }
         else {
-            statName = LanguageKeyHandler.getStatKey(request.getStatistic());
+            statName = languageKeyHandler.getStatKey(request.getStatistic());
             switch (request.getStatistic().getType()) {
-                case BLOCK -> subStatName = LanguageKeyHandler.getBlockKey(request.getBlock());
-                case ENTITY -> subStatName = LanguageKeyHandler.getEntityKey(request.getEntity());
-                case ITEM -> subStatName = LanguageKeyHandler.getItemKey(request.getItem());
+                case BLOCK -> subStatName = languageKeyHandler.getBlockKey(request.getBlock());
+                case ENTITY -> subStatName = languageKeyHandler.getEntityKey(request.getEntity());
+                case ITEM -> subStatName = languageKeyHandler.getItemKey(request.getItem());
                 case UNTYPED -> {
                 }
             }
@@ -263,8 +268,9 @@ public class ComponentFactory {
                         .args(subStat));
     }
 
-    public TextComponent statNumber(long number, Target selection) {
-        return createComponent(NumberFormatter.format(number),
+    //TODO Add hoverComponent with full number
+    public TextComponent statNumber(long number, Statistic statistic, Target selection) {
+        return createComponent(format.format(statistic, number),
                 getColorFromString(config.getStatNumberFormatting(selection, false)),
                 getStyleFromString(config.getStatNumberFormatting(selection, true)));
     }
