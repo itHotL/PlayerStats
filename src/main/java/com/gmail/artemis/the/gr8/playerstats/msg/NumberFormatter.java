@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
+import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import org.bukkit.Statistic;
 
 import java.text.DecimalFormat;
@@ -15,15 +16,14 @@ public class NumberFormatter {
     }
 
     //TODO deal with unit name after number (add "blocks", etc in appropriate places)
-    public String format(Statistic statistic, long number) {
-        String statName = statistic.toString().toLowerCase();
-        if (statName.contains("one_cm")) {
+    public String format(String statName, long number) {
+        if (EnumHandler.isDistanceStatistic(statName)) {
             return formatDistance(number);  //language-key: "soundCategory.block": "Blocks",
         }
-        else if (statName.contains("damage")) {
+        else if (EnumHandler.isDamageStatistic(statName)) {
             return formatDamage(number);
         }
-        else if (statName.contains("time") || statName.contains("one_minute")) {
+        else if (EnumHandler.isTimeStatistic(statName)) {
             return formatTime(number);
         }
         else {

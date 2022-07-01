@@ -14,7 +14,6 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.util.Index;
 import org.bukkit.Bukkit;
-import org.bukkit.Statistic;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -178,16 +177,16 @@ public class ComponentFactory {
         return base.hoverEvent(HoverEvent.showText(hoverText.build()));
     }
 
-
-    public TextComponent playerName(String playerName, Target selection) {
-        return createComponent(playerName,
+    public TextComponent.Builder playerNameBuilder(String playerName, Target selection) {
+        return getComponentBuilder(playerName,
                 getColorFromString(config.getPlayerNameFormatting(selection, false)),
                 getStyleFromString(config.getPlayerNameFormatting(selection, true)));
     }
 
-    public TranslatableComponent statName(@NotNull StatRequest request) {
-        String statName = request.getStatistic().name();
+    public TranslatableComponent statNameComponent(@NotNull StatRequest request) {
+        String statName = request.getStatistic().toString().toLowerCase();
         String subStatName = request.getSubStatEntry();
+
         if (!config.useTranslatableComponents()) {
             statName = getPrettyName(statName);
             subStatName = getPrettyName(subStatName);
@@ -202,33 +201,29 @@ public class ComponentFactory {
                 }
             }
         }
-       return statName(statName, subStatName, request.getSelection());
-    }
+        TranslatableComponent.Builder totalStatNameBuilder;
+        TextComponent subStat = subStatNameComponent(subStatName, request.getSelection());
+        TextColor statNameColor = getColorFromString(config.getStatNameFormatting(request.getSelection(), false));
+        TextDecoration statNameStyle = getStyleFromString(config.getStatNameFormatting(request.getSelection(), true));
 
-    private TranslatableComponent statName(@NotNull String statKey, String subStatKey, @NotNull Target selection) {
-        TranslatableComponent.Builder totalName;
-        TextComponent subStat = subStatName(subStatKey, selection);
-        TextColor statNameColor = getColorFromString(config.getStatNameFormatting(selection, false));
-        TextDecoration statNameStyle = getStyleFromString(config.getStatNameFormatting(selection, true));
-
-        if (statKey.equalsIgnoreCase("stat_type.minecraft.killed") && subStat != null) {
-            totalName = killEntity(subStat);
+        if (statName.equalsIgnoreCase("stat_type.minecraft.killed") && subStat != null) {
+            totalStatNameBuilder = killEntityBuilder(subStat);
         }
-        else if (statKey.equalsIgnoreCase("stat_type.minecraft.killed_by") && subStat != null) {
-            totalName = entityKilledBy(subStat);
+        else if (statName.equalsIgnoreCase("stat_type.minecraft.killed_by") && subStat != null) {
+            totalStatNameBuilder = entityKilledByBuilder(subStat);
         }
         else {
-            totalName = translatable().key(statKey);
-            if (subStat != null) totalName.append(space()).append(subStat);
+            totalStatNameBuilder = translatable().key(statName);
+            if (subStat != null) totalStatNameBuilder.append(space()).append(subStat);
         }
 
-        if (statNameStyle != null) totalName.decoration(statNameStyle, TextDecoration.State.TRUE);
-        return totalName
+        if (statNameStyle != null) totalStatNameBuilder.decoration(statNameStyle, TextDecoration.State.TRUE);
+        return totalStatNameBuilder
                 .color(statNameColor)
                 .build();
     }
 
-    private @Nullable TextComponent subStatName(@Nullable String subStatName, Target selection) {
+    private @Nullable TextComponent subStatNameComponent(@Nullable String subStatName, Target selection) {
         if (subStatName != null) {
             TextDecoration style = getStyleFromString(config.getSubStatNameFormatting(selection, true));
             TextComponent.Builder subStat = text()
@@ -249,7 +244,7 @@ public class ComponentFactory {
 
     /** Construct a custom translation for kill_entity with the language key for commands.kill.success.single ("Killed %s").
      @return a TranslatableComponent Builder with the subStat Component as args.*/
-    private TranslatableComponent.Builder killEntity(@NotNull TextComponent subStat) {
+    private TranslatableComponent.Builder killEntityBuilder(@NotNull TextComponent subStat) {
         return translatable()
                 .key("commands.kill.success.single")  //"Killed %s"
                 .args(subStat);
@@ -259,7 +254,7 @@ public class ComponentFactory {
      ("Number of Deaths") and book.byAuthor ("by %s").
      @return a TranslatableComponent Builder with stat.minecraft.deaths as key, with a ChildComponent
      with book.byAuthor as key and the subStat Component as args.*/
-    private TranslatableComponent.Builder entityKilledBy(@NotNull TextComponent subStat) {
+    private TranslatableComponent.Builder entityKilledByBuilder(@NotNull TextComponent subStat) {
         return translatable()
                 .key("stat.minecraft.deaths")  //"Number of Deaths"
                 .append(space())
@@ -268,47 +263,77 @@ public class ComponentFactory {
                         .args(subStat));
     }
 
+    public @Nullable TextComponent statUnitComponent(String statName, Target selection) {
+        if (!statName.toLowerCase().contains("one_cm")) {
+            return null;
+        }
+        String key;
+        if (!config.useTranslatableComponents()) {
+            key = "Blocks";
+        } else {
+            key = languageKeyHandler.getDistanceKey();
+        }
+        return text()
+                .append(text("["))
+                        .append(translatable(key))
+                .append(text("]"))
+                .color(getColorFromString(config.getSubStatNameFormatting(selection, false)))
+                .decorate(TextDecoration.ITALIC)
+                .build();
+    }
+
     //TODO Add hoverComponent with full number
-    public TextComponent statNumber(long number, Statistic statistic, Target selection) {
-        return createComponent(format.format(statistic, number),
+    public TextComponent statNumberComponent(long number, String statName, Target selection) {
+        return getComponent(format.format(statName, number),
                 getColorFromString(config.getStatNumberFormatting(selection, false)),
                 getStyleFromString(config.getStatNumberFormatting(selection, true)));
     }
 
-    public TextComponent title(String content, Target selection) {
-        return createComponent(content,
+    public TextComponent titleComponent(String content, Target selection) {
+        return getComponent(content,
                 getColorFromString(config.getTitleFormatting(selection, false)),
                 getStyleFromString(config.getTitleFormatting(selection, true)));
     }
 
-    public TextComponent titleNumber(int number) {
-        return createComponent(number + "",
+    public TextComponent titleNumberComponent(int number) {
+        return getComponent(number + "",
                 getColorFromString(config.getTitleNumberFormatting(false)),
                 getStyleFromString(config.getTitleNumberFormatting(true)));
     }
 
-    public TextComponent serverName(String serverName) {
+    public TextComponent serverNameComponent(String serverName) {
         TextComponent colon = text(":").color(getColorFromString(config.getServerNameFormatting(false)));
-        return createComponent(serverName,
+        return getComponent(serverName,
                 getColorFromString(config.getServerNameFormatting(false)),
                 getStyleFromString(config.getServerNameFormatting(true)))
                 .append(colon);
     }
 
-    public TextComponent rankingNumber(String number) {
-        return createComponent(number,
+    public TextComponent rankingNumberComponent(String number) {
+        return getComponent(number,
                 getColorFromString(config.getRankNumberFormatting(false)),
                 getStyleFromString(config.getRankNumberFormatting(true)));
     }
 
-    public TextComponent dots(String dots) {
-        return createComponent(dots,
+    public TextComponent.Builder dotsBuilder() {
+        return getComponentBuilder(null,
                 getColorFromString(config.getDotsFormatting(false)),
                 getStyleFromString(config.getDotsFormatting(true)));
     }
 
-    private TextComponent createComponent(String content, TextColor color, @Nullable TextDecoration style) {
-        return style == null ? text(content).color(color) : text(content).color(color).decoration(style, TextDecoration.State.TRUE);
+    private TextComponent getComponent(String content, TextColor color, @Nullable TextDecoration style) {
+        return getComponentBuilder(content, color, style).build();
+    }
+
+    private TextComponent.Builder getComponentBuilder(@Nullable String content, TextColor color, @Nullable TextDecoration style) {
+        TextComponent.Builder builder = text();
+        if (content != null) {
+            builder.append(text(content));
+        }
+        if (style != null) {
+            builder.decorate(style);
+        }
+        return builder.color(color);
     }
 
     /** Replace "_" with " " and capitalize each first letter of the input.
@@ -361,5 +386,4 @@ public class ComponentFactory {
             return styles.value(configString);
         }
     }
-
 }

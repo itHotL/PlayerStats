@@ -112,6 +112,18 @@ public class EnumHandler {
         return statNames.contains(statName.toLowerCase());
     }
 
+    public static boolean isDistanceStatistic(@NotNull String statName) {
+        return statName.toLowerCase().contains("one_cm");
+    }
+
+    public static boolean isDamageStatistic(@NotNull String statName) {
+        return statName.toLowerCase().contains("damage");
+    }
+
+    public static boolean isTimeStatistic(@NotNull String statName) {
+        return statName.toLowerCase().contains("time") || statName.toLowerCase().contains("one_minute");
+    }
+
     /** Returns the names of all general statistics in lowercase */
     public static List<String> getStatNames() {
         return statNames;

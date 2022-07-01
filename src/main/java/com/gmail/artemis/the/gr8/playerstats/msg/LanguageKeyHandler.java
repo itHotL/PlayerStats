@@ -63,6 +63,10 @@ public class LanguageKeyHandler {
         }
     }
 
+    public String getDistanceKey() {
+        return "soundCategory.block";
+    }
+
     private void generateDefaultKeys() {
         Arrays.stream(Statistic.values()).forEach(statistic -> statNameKeys.put(statistic, statistic.toString().toLowerCase()));
     }

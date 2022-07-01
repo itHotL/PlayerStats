@@ -90,27 +90,24 @@ public class MessageWriter {
 
 
     public TextComponent formatPlayerStat(int stat, @NotNull StatRequest request) {
-        if (!request.isValid()) return unknownError(request.isBukkitConsoleSender());
         return Component.text()
-                .append(componentFactory.playerName( request.getPlayerName() + ": ", Target.PLAYER))
-                .append(componentFactory.statNumber(stat, request.getStatistic(), Target.PLAYER))
+                .append(componentFactory.playerNameBuilder( request.getPlayerName() + ": ", Target.PLAYER))
+                .append(componentFactory.statNumberComponent(stat, request.getStatistic().toString(), Target.PLAYER))
                 .append(space())
-                .append(componentFactory.statName(request))
+                .append(componentFactory.statNameComponent(request))
                 .append(space())
                 .build();
     }
 
     public TextComponent formatTopStats(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
-        if (!request.isValid()) return unknownError(request.isBukkitConsoleSender());
-
         TextComponent.Builder topList = Component.text()
                 .append(newline())
                 .append(componentFactory.pluginPrefix(request.isBukkitConsoleSender()))
-                .append(componentFactory.title(config.getTopStatsTitle(), Target.TOP))
+                .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP))
                 .append(space())
-                .append(componentFactory.titleNumber(topStats.size()))
+                .append(componentFactory.titleNumberComponent(topStats.size()))
                 .append(space())
-                .append(componentFactory.statName(request));
+                .append(componentFactory.statNameComponent(request));
 
         boolean useDots = config.useDots();
         boolean boldNames = config.playerNameIsBold();
@@ -120,46 +117,52 @@ public class MessageWriter {
 
         int count = 0;
         for (String playerName : playerNames) {
+            TextComponent.Builder playerNameBuilder = componentFactory.playerNameBuilder(playerName, Target.TOP);
             count = count+1;
 
             topList.append(newline())
-                    .append(componentFactory.rankingNumber(count + ". "))
-                    .append(componentFactory.playerName(playerName, Target.TOP));
+                    .append(componentFactory.rankingNumberComponent(count + ". "))
+                    .append(playerNameBuilder);
 
             if (useDots) {
+                TextComponent.Builder dotsBuilder = componentFactory.dotsBuilder();
                 topList.append(space());
-
-                int dots = (int) Math.round((130.0 - font.getWidth(count + ". " + playerName))/2);
+                int dots;
                 if (request.isConsoleSender()) {
                     dots = (int) Math.round((130.0 - font.getWidth(count + ". " + playerName))/6) + 7;
-                }
-                else if (boldNames) {
+                } else if (!boldNames) {
+                    dots = (int) Math.round((130.0 - font.getWidth(count + ". " + playerName))/2);
+                } else {
                     dots = (int) Math.round((130.0 - font.getWidth(count + ". ") - (font.getWidth(playerName) * 1.19))/2);
                 }
                 if (dots >= 1) {
-                    topList.append(componentFactory.dots(".".repeat(dots)));
+                    topList.append(dotsBuilder.append(text((".".repeat(dots)))).build());
                 }
             }
             else {
-                topList.append(componentFactory.playerName(":", Target.TOP));
+                topList.append(playerNameBuilder.append(text(":")));
             }
-            topList.append(space()).append(componentFactory.statNumber(topStats.get(playerName), request.getStatistic(), Target.TOP));
+            topList.append(space()).append(componentFactory.statNumberComponent(topStats.get(playerName), request.getStatistic().toString(), Target.TOP));
         }
         return topList.build();
     }
 
     public TextComponent formatServerStat(long stat, @NotNull StatRequest request) {
-        if (!request.isValid()) return unknownError(request.isBukkitConsoleSender());
-        return Component.text()
-                .append(componentFactory.title(config.getServerTitle(), Target.SERVER))
+        TextComponent.Builder builder = Component.text()
+                .append(componentFactory.titleComponent(config.getServerTitle(), Target.SERVER))
                 .append(space())
-                .append(componentFactory.serverName(config.getServerName()))
+                .append(componentFactory.serverNameComponent(config.getServerName()))
                 .append(space())
-                .append(componentFactory.statNumber(stat, request.getStatistic(), Target.SERVER))
+                .append(componentFactory.statNumberComponent(stat, request.getStatistic().toString(), Target.SERVER))
                 .append(space())
-                .append(componentFactory.statName(request))
-                .append(space())
-                .build();
+                .append(componentFactory.statNameComponent(request));
+
+        TextComponent statUnit = componentFactory.statUnitComponent(request.getStatistic().toString(), Target.SERVER);
+        if (statUnit != null) {
+            builder.append(space())
+                    .append(statUnit);
+        }
+        return builder.build();
     }
 
     /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */
