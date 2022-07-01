@@ -4,11 +4,10 @@ import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
-import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -37,7 +36,7 @@ public class ComponentFactory {
     }
 
     /** Returns [PlayerStats] followed by a single space. */
-    public TextComponent pluginPrefix(boolean isBukkitConsole) {
+    public TextComponent pluginPrefixComponent(boolean isBukkitConsole) {
         return text("[")
                 .color(PluginColor.GRAY.getColor())
                 .append(text("PlayerStats").color(PluginColor.GOLD.getColor()))
@@ -46,135 +45,26 @@ public class ComponentFactory {
     }
 
     /** Returns [PlayerStats] surrounded by underscores on both sides. */
-    public TextComponent prefixTitle(boolean isBukkitConsole) {
+    public TextComponent prefixTitleComponent(boolean isBukkitConsole) {
         String underscores = "____________";  //12 underscores for both console and in-game
         TextColor underscoreColor = isBukkitConsole ?
                 PluginColor.DARK_PURPLE.getConsoleColor() : PluginColor.DARK_PURPLE.getColor();
 
         return text(underscores).color(underscoreColor)
                 .append(text("    "))  //4 spaces
-                .append(pluginPrefix(isBukkitConsole))
+                .append(pluginPrefixComponent(isBukkitConsole))
                 .append(text("   "))  //3 spaces (since prefix already has one)
                 .append(text(underscores));
     }
 
     /** Returns a TextComponent with the input String as content, with color Gray and decoration Italic.*/
-    public TextComponent subTitle(String content) {
+    public TextComponent subTitleComponent(String content) {
         return text(content).color(PluginColor.GRAY.getColor()).decorate(TextDecoration.ITALIC);
     }
 
     /** Returns a TextComponents that represents a full message, with [PlayerStats] prepended. */
-    public TextComponent msg(String msg, boolean isBukkitConsole) {
-        return pluginPrefix(isBukkitConsole)
-                .append(text(msg)
-                        .color(PluginColor.MEDIUM_BLUE.getColor()));
-    }
-
-    /** Returns a plain TextComponent that represents a single message line.
-     A space will be inserted after part1, part2 and part3.
-     Each message part has its own designated color.
-     @param part1 color DARK_GOLD
-     @param part2 color MEDIUM_GOLD
-     @param part3 color YELLOW
-     @param part4 color GRAY
-     */
-    public TextComponent msgPart(@Nullable String part1, @Nullable String part2, @Nullable String part3, @Nullable String part4) {
-        return msgPart(part1, part2, part3, part4, false);
-    }
-
-    /** Returns a plain TextComponent that represents a single message line.
-     A space will be inserted after part1, part2 and part3.
-     Each message part has its own designated color.
-     if isBukkitConsole is true, the colors will be the nearest ChatColor to the below colors.
-     @param part1 color DARK_GOLD
-     @param part2 color MEDIUM_GOLD
-     @param part3 color YELLOW
-     @param part4 color GRAY
-     */
-    public TextComponent msgPart(@Nullable String part1, @Nullable String part2, @Nullable String part3, @Nullable String part4, boolean isBukkitConsole) {
-        TextComponent.Builder msg = Component.text();
-        if (part1 != null) {
-            TextColor pluginColor = isBukkitConsole ? PluginColor.GOLD.getConsoleColor() : PluginColor.GOLD.getColor();
-            msg.append(text(part1)
-                            .color(pluginColor))
-                    .append(space());
-        }
-        if (part2 != null) {
-            TextColor pluginColor = isBukkitConsole ? PluginColor.MEDIUM_GOLD.getConsoleColor() : PluginColor.MEDIUM_GOLD.getColor();
-            msg.append(text(part2)
-                            .color(pluginColor))
-                    .append(space());
-        }
-        if (part3 != null) {
-            TextColor pluginColor = isBukkitConsole ? PluginColor.LIGHT_GOLD.getConsoleColor() : PluginColor.LIGHT_GOLD.getColor();
-            msg.append(text(part3)
-                            .color(pluginColor))
-                    .append(space());
-        }
-        if (part4 != null) {
-            TextColor pluginColor = isBukkitConsole ? PluginColor.GRAY.getConsoleColor() : PluginColor.GRAY.getColor();
-            msg.append(text(part4)
-                    .color(pluginColor));
-        }
-        return msg.build();
-    }
-
-    /** Returns a TextComponent with a single line of hover-text in the specified color.
-     @param plainText the base message
-     @param hoverText the hovering text
-     @param hoverColor color of the hovering text */
-    public TextComponent simpleHoverPart(String plainText, String hoverText, PluginColor hoverColor) {
-        return simpleHoverPart(plainText, null, hoverText, hoverColor);
-    }
-
-    /** Returns a TextComponent with a single line of hover-text in the specified color.
-     If a PluginColor is provided for the plainText, the base color is set as well.
-     @param plainText the base message
-     @param plainColor color of the base message
-     @param hoverText the hovering text
-     @param hoverColor color of the hovering text */
-    public TextComponent simpleHoverPart(String plainText, @Nullable PluginColor plainColor, String hoverText, PluginColor hoverColor) {
-        TextComponent.Builder msg = Component.text()
-                .append(text(plainText))
-                .hoverEvent(HoverEvent.showText(
-                        text(hoverText)
-                                .color(hoverColor.getColor())));
-        if (plainColor != null) {
-            msg.color(plainColor.getColor());
-        }
-        return msg.build();
-    }
-
-    /** Returns a TextComponent with hover-text that can consist of three different parts,
-     divided over two different lines. Each part has its own designated color. If all the
-     input Strings are null, it will return an empty Component.
-     @param plainText the non-hovering part
-     @param color the color for the non-hovering part
-     @param hoverLineOne text on the first line, with color LIGHT_BLUE
-     @param hoverLineTwoA text on the second line, with color GOLD
-     @param hoverLineTwoB text on the second part of the second line, with color LIGHT_GOLD
-     */
-    public TextComponent complexHoverPart(@NotNull String plainText, @NotNull PluginColor color, String hoverLineOne, String hoverLineTwoA, String hoverLineTwoB) {
-        TextComponent base = Component.text(plainText).color(color.getColor());
-        TextComponent.Builder hoverText = Component.text();
-        if (hoverLineOne != null) {
-            hoverText.append(text(hoverLineOne)
-                    .color(PluginColor.LIGHT_BLUE.getColor()));
-            if (hoverLineTwoA != null || hoverLineTwoB != null) {
-                hoverText.append(newline());
-            }
-        }
-        if (hoverLineTwoA != null) {
-            hoverText.append(text(hoverLineTwoA)
-                    .color(PluginColor.GOLD.getColor()));
-            if (hoverLineTwoB != null) {
-                hoverText.append(space());
-            }
-        }
-        if (hoverLineTwoB != null) {
-            hoverText.append(text(hoverLineTwoB).color(PluginColor.LIGHT_GOLD.getColor()));
-        }
-        return base.hoverEvent(HoverEvent.showText(hoverText.build()));
+    public TextComponent messageComponent() {
+        return text().color(PluginColor.MEDIUM_BLUE.getColor()).build();
     }
 
     public TextComponent.Builder playerNameBuilder(String playerName, Target selection) {
@@ -183,63 +73,72 @@ public class ComponentFactory {
                 getStyleFromString(config.getPlayerNameFormatting(selection, true)));
     }
 
-    public TranslatableComponent statNameComponent(@NotNull StatRequest request) {
-        String statName = request.getStatistic().toString().toLowerCase();
-        String subStatName = request.getSubStatEntry();
+    /** @param prettyStatName a statName with underscores removed and each word capitalized
+     @param prettySubStatName if present, a subStatName with underscores removed and each word capitalized*/
+    public TextComponent statNameTextComponent(String prettyStatName, @Nullable String prettySubStatName, Target selection) {
+        return getComponent(prettyStatName,
+                getColorFromString(config.getStatNameFormatting(selection, false)),
+                getStyleFromString(config.getStatNameFormatting(selection, true)))
+                .append(subStatNameTextComponent(prettySubStatName, selection));
+    }
 
-        if (!config.useTranslatableComponents()) {
-            statName = getPrettyName(statName);
-            subStatName = getPrettyName(subStatName);
+    /** Returns a TextComponent for the subStatName, or an empty component.*/
+    private TextComponent subStatNameTextComponent(@Nullable String prettySubStatName, Target selection) {
+        if (prettySubStatName == null) {
+            return Component.empty();
+        } else {
+            return getComponent(prettySubStatName,
+                    getColorFromString(config.getSubStatNameFormatting(selection, false)),
+                    getStyleFromString(config.getSubStatNameFormatting(selection, true)));
+        }
+    }
+
+    /** Returns a TextComponent with TranslatableComponent as a child.*/
+    public TextComponent statNameTransComponent(@NotNull StatRequest request) {
+        TextComponent.Builder totalStatNameBuilder = getComponentBuilder(null,
+                getColorFromString(config.getStatNameFormatting(request.getSelection(), false)),
+                getStyleFromString(config.getStatNameFormatting(request.getSelection(), true)));
+        TextComponent subStat = subStatNameTransComponent(request);
+
+        String statName = languageKeyHandler.getStatKey(request.getStatistic());
+        if (statName.equalsIgnoreCase("stat_type.minecraft.killed")) {
+            return totalStatNameBuilder.append(killEntityBuilder(subStat)).build();
+        }
+        else if (statName.equalsIgnoreCase("stat_type.minecraft.killed_by")) {
+            return totalStatNameBuilder.append(entityKilledByBuilder(subStat)).build();
         }
         else {
-            statName = languageKeyHandler.getStatKey(request.getStatistic());
+            return totalStatNameBuilder.append(translatable()
+                    .key(statName))
+                    .append(space().decorations(TextDecoration.NAMES.values(), false))
+                    .append(subStat)
+                    .build();
+        }
+    }
+
+    /** Returns a TranslatableComponent for the subStatName, or an empty component.*/
+    private TextComponent subStatNameTransComponent(@NotNull StatRequest request) {
+        if (request.getSubStatEntry() != null) {
+            String subStatName = request.getSubStatEntry();
             switch (request.getStatistic().getType()) {
                 case BLOCK -> subStatName = languageKeyHandler.getBlockKey(request.getBlock());
                 case ENTITY -> subStatName = languageKeyHandler.getEntityKey(request.getEntity());
                 case ITEM -> subStatName = languageKeyHandler.getItemKey(request.getItem());
-                case UNTYPED -> {
+                default -> {
                 }
             }
+            if (subStatName != null) {
+                return getComponentBuilder(null,
+                        getColorFromString(config.getSubStatNameFormatting(request.getSelection(), false)),
+                        getStyleFromString(config.getSubStatNameFormatting(request.getSelection(), true)))
+                        .append(text("("))
+                        .append(translatable()
+                                .key(subStatName))
+                        .append(text(")"))
+                        .build();
+            }
         }
-        TranslatableComponent.Builder totalStatNameBuilder;
-        TextComponent subStat = subStatNameComponent(subStatName, request.getSelection());
-        TextColor statNameColor = getColorFromString(config.getStatNameFormatting(request.getSelection(), false));
-        TextDecoration statNameStyle = getStyleFromString(config.getStatNameFormatting(request.getSelection(), true));
-
-        if (statName.equalsIgnoreCase("stat_type.minecraft.killed") && subStat != null) {
-            totalStatNameBuilder = killEntityBuilder(subStat);
-        }
-        else if (statName.equalsIgnoreCase("stat_type.minecraft.killed_by") && subStat != null) {
-            totalStatNameBuilder = entityKilledByBuilder(subStat);
-        }
-        else {
-            totalStatNameBuilder = translatable().key(statName);
-            if (subStat != null) totalStatNameBuilder.append(space()).append(subStat);
-        }
-
-        if (statNameStyle != null) totalStatNameBuilder.decoration(statNameStyle, TextDecoration.State.TRUE);
-        return totalStatNameBuilder
-                .color(statNameColor)
-                .build();
-    }
-
-    private @Nullable TextComponent subStatNameComponent(@Nullable String subStatName, Target selection) {
-        if (subStatName != null) {
-            TextDecoration style = getStyleFromString(config.getSubStatNameFormatting(selection, true));
-            TextComponent.Builder subStat = text()
-                    .append(text("("))
-                    .append(translatable()
-                            .key(subStatName))
-                    .append(text(")"))
-                    .color(getColorFromString(config.getSubStatNameFormatting(selection, false)));
-
-            subStat.decorations(TextDecoration.NAMES.values(), false);
-            if (style != null) subStat.decoration(style, TextDecoration.State.TRUE);
-            return subStat.build();
-        }
-        else {
-            return null;
-        }
+        return Component.empty();
     }
 
     /** Construct a custom translation for kill_entity with the language key for commands.kill.success.single ("Killed %s").
@@ -263,22 +162,17 @@ public class ComponentFactory {
                         .args(subStat));
     }
 
-    public @Nullable TextComponent statUnitComponent(String statName, Target selection) {
+    public TextComponent statUnitComponent(String statName, Target selection) {
         if (!statName.toLowerCase().contains("one_cm")) {
-            return null;
+            return Component.empty();
         }
-        String key;
-        if (!config.useTranslatableComponents()) {
-            key = "Blocks";
-        } else {
-            key = languageKeyHandler.getDistanceKey();
-        }
-        return text()
+        String key = config.useTranslatableComponents() ? languageKeyHandler.getDistanceKey() : "Blocks";
+        return getComponentBuilder(null,
+                getColorFromString(config.getSubStatNameFormatting(selection, false)),
+                getStyleFromString(config.getSubStatNameFormatting(selection, true)))
                 .append(text("["))
                         .append(translatable(key))
                 .append(text("]"))
-                .color(getColorFromString(config.getSubStatNameFormatting(selection, false)))
-                .decorate(TextDecoration.ITALIC)
                 .build();
     }
 
@@ -326,30 +220,16 @@ public class ComponentFactory {
     }
 
     private TextComponent.Builder getComponentBuilder(@Nullable String content, TextColor color, @Nullable TextDecoration style) {
-        TextComponent.Builder builder = text();
+        TextComponent.Builder builder = text()
+                .decorations(TextDecoration.NAMES.values(), false)
+                .color(color);
         if (content != null) {
             builder.append(text(content));
         }
         if (style != null) {
             builder.decorate(style);
         }
-        return builder.color(color);
-    }
-
-    /** Replace "_" with " " and capitalize each first letter of the input.
-     @param input String to prettify, case-insensitive*/
-    private String getPrettyName(String input) {
-        if (input == null) return null;
-        StringBuilder capitals = new StringBuilder(input.toLowerCase());
-        capitals.setCharAt(0, Character.toUpperCase(capitals.charAt(0)));
-        while (capitals.indexOf("_") != -1) {
-            MyLogger.replacingUnderscores();
-
-            int index = capitals.indexOf("_");
-            capitals.setCharAt(index + 1, Character.toUpperCase(capitals.charAt(index + 1)));
-            capitals.setCharAt(index, ' ');
-        }
-        return capitals.toString();
+        return builder;
     }
 
     private TextColor getColorFromString(String configString) {

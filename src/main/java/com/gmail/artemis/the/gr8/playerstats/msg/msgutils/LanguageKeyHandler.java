@@ -1,4 +1,4 @@
-package com.gmail.artemis.the.gr8.playerstats.msg;
+package com.gmail.artemis.the.gr8.playerstats.msg.msgutils;
 
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import org.bukkit.Material;
