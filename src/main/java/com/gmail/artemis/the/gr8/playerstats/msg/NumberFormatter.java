@@ -1,7 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
-import org.bukkit.Statistic;
 
 import java.text.DecimalFormat;
 
@@ -15,7 +14,6 @@ public class NumberFormatter {
         format.setGroupingSize(3);
     }
 
-    //TODO deal with unit name after number (add "blocks", etc in appropriate places)
     public String format(String statName, long number) {
         if (EnumHandler.isDistanceStatistic(statName)) {
             return formatDistance(number);  //language-key: "soundCategory.block": "Blocks",

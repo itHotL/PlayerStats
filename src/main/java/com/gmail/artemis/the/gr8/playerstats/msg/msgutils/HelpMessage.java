@@ -22,6 +22,7 @@ public class HelpMessage implements TextComponent {
     private final ComponentFactory componentFactory;
     private final TextComponent helpMessage;
     boolean isBukkitConsole;
+    TextColor GRAY;
     TextColor DARK_PURPLE;
     TextColor GOLD;
     TextColor MEDIUM_GOLD;
@@ -50,41 +51,39 @@ public class HelpMessage implements TextComponent {
 
         return Component.newline()
                 .append(componentFactory.prefixTitleComponent(isBukkitConsole))
-                .append(Component.newline())
-                .append(text("Type \"/statistic examples\" to see examples!").color(NamedTextColor.GRAY).decorate(TextDecoration.ITALIC))
-                .append(Component.newline())
-                .append(text("Usage: ").color(NamedTextColor.GOLD))
+                .append(newline())
+                .append(text("Type \"/statistic examples\" to see examples!").color(GRAY).decorate(TextDecoration.ITALIC))
+                .append(newline())
+                .append(text("Usage:").color(GOLD)).append(space())
                 .append(text("/statistic").color(LIGHT_GOLD))
-                .append(Component.newline())
-                .append(spaces).append(arrow)
+                .append(newline())
+                .append(spaces).append(arrow).append(space())
                 .append(text("name").color(LIGHT_GOLD))
-                .append(Component.newline())
-                .append(spaces).append(arrow)
-                .append(text("{sub-statistic}").color(LIGHT_GOLD))
-                .append(Component.space())
-                .append(text("(a block, item or entity)").color(NamedTextColor.GRAY))
-                .append(Component.newline())
-                .append(spaces).append(arrow)
+                .append(newline())
+                .append(spaces).append(arrow).append(space())
+                .append(text("{sub-statistic}").color(LIGHT_GOLD)).append(space())
+                .append(text("(a block, item or entity)").color(GRAY))
+                .append(newline())
+                .append(spaces).append(arrow).append(space())
                 .append(text("me | player | server | top").color(LIGHT_GOLD))
-                .append(Component.newline())
-                .append(spaces).append(spaces).append(bullet)
-                .append(text("me:").color(MEDIUM_GOLD))
-                .append(Component.space()).append(text("your own statistic").color(NamedTextColor.GRAY))
-                .append(Component.newline())
-                .append(spaces).append(spaces).append(bullet)
-                .append(text("player:").color(MEDIUM_GOLD))
-                .append(Component.space()).append(text("choose a player").color(NamedTextColor.GRAY))
-                .append(Component.newline())
-                .append(spaces).append(spaces).append(bullet)
-                .append(text("server:").color(MEDIUM_GOLD))
-                .append(Component.space()).append(text("everyone on the server combined").color(NamedTextColor.GRAY))
-                .append(Component.newline())
-                .append(spaces).append(spaces).append(bullet)
-                .append(text("top:").color(MEDIUM_GOLD))
-                .append(Component.space()).append(text("the top").color(NamedTextColor.GRAY)
-                        .append(Component.space()).append(text(listSize)))
-                .append(Component.newline())
-                .append(spaces).append(arrow)
+                .append(newline())
+                .append(spaces).append(spaces).append(bullet).append(space())
+                .append(text("me:").color(MEDIUM_GOLD)).append(space())
+                .append(text("your own statistic").color(GRAY))
+                .append(newline())
+                .append(spaces).append(spaces).append(bullet).append(space())
+                .append(text("player:").color(MEDIUM_GOLD)).append(space())
+                .append(text("choose a player").color(GRAY))
+                .append(newline())
+                .append(spaces).append(spaces).append(bullet).append(space())
+                .append(text("server:").color(MEDIUM_GOLD)).append(space())
+                .append(text("everyone on the server combined").color(GRAY))
+                .append(newline())
+                .append(spaces).append(spaces).append(bullet).append(space())
+                .append(text("top:").color(MEDIUM_GOLD)).append(space())
+                .append(text("the top").color(GRAY).append(space()).append(text(listSize)))
+                .append(newline())
+                .append(spaces).append(arrow).append(space())
                 .append(text("{player-name}").color(LIGHT_GOLD));
     }
 
@@ -94,32 +93,30 @@ public class HelpMessage implements TextComponent {
 
         return Component.newline()
                 .append(componentFactory.prefixTitleComponent(false))
-                .append(Component.newline())
+                .append(newline())
                 .append(componentFactory.subTitleComponent("Hover over the arguments for more information!"))
-                .append(Component.newline())
-                .append(text("Usage:").color(GOLD))
-                .append(Component.space())
+                .append(newline())
+                .append(text("Usage:").color(GOLD)).append(space())
                 .append(text("/statistic").color(LIGHT_GOLD))
-                .append(Component.newline())
-                .append(spaces).append(arrow).append(Component.space())
+                .append(newline())
+                .append(spaces).append(arrow).append(space())
                 .append(text("name").color(LIGHT_GOLD)
                         .hoverEvent(HoverEvent.showText(text("The name that describes the statistic").color(LIGHT_BLUE)
-                                .append(Component.newline())
+                                .append(newline())
                                 .append(text("Example: ").color(GOLD))
                                 .append(text("\"animals_bred\"").color(LIGHT_GOLD)))))
-                .append(Component.newline())
-                .append(spaces).append(arrow).append(Component.space())
+                .append(newline())
+                .append(spaces).append(arrow).append(space())
                 .append(text("sub-statistic").color(LIGHT_GOLD)
                         .hoverEvent(HoverEvent.showText(
                                 text("Some statistics need an item, block or entity as extra input").color(LIGHT_BLUE)
-                                        .append(Component.newline())
+                                        .append(newline())
                                         .append(text("Example: ").color(GOLD)
                                                 .append(text("\"mine_block diorite\"").color(LIGHT_GOLD))))))
-                .append(Component.newline())
-                .append(spaces).append(arrow)
-                .hoverEvent(HoverEvent.showText(
-                        text("Choose one").color(DARK_PURPLE)))
-                .append(Component.space())
+                .append(newline())
+                .append(spaces).append(arrow
+                        .hoverEvent(HoverEvent.showText(
+                                text("Choose one").color(DARK_PURPLE)))).append(space())
                 .append(text("me").color(LIGHT_GOLD)
                         .hoverEvent(HoverEvent.showText(
                                 text("See your own statistic").color(LIGHT_BLUE))))
@@ -134,25 +131,27 @@ public class HelpMessage implements TextComponent {
                 .append(text(" | ").color(LIGHT_GOLD))
                 .append(text("top").color(LIGHT_GOLD)
                         .hoverEvent(HoverEvent.showText(
-                                text("See the top ").color(LIGHT_BLUE)
-                                        .append(text(listSize).color(LIGHT_BLUE)))))
-                .append(Component.newline())
-                .append(spaces).append(arrow)
+                                text("See the top").color(LIGHT_BLUE).append(space())
+                                        .append(text(listSize)))))
+                .append(newline())
+                .append(spaces).append(arrow).append(space())
                 .append(text("player-name").color(LIGHT_GOLD)
                         .hoverEvent(HoverEvent.showText(
-                                text("In case you typed ").color(LIGHT_BLUE)
-                                        .append(text("\"player\"").color(LIGHT_GOLD)
-                                                .append(text(", add the player's name").color(LIGHT_BLUE))))));
+                                text("In case you typed").color(LIGHT_BLUE).append(space())
+                                        .append(text("\"player\"").color(LIGHT_GOLD))
+                                                .append(text(", add the player's name")))));
     }
 
     private void getPluginColors(boolean isBukkitConsole) {
         if (isBukkitConsole) {
+            GRAY = PluginColor.GRAY.getConsoleColor();
             DARK_PURPLE = PluginColor.DARK_PURPLE.getConsoleColor();
             GOLD = PluginColor.GOLD.getConsoleColor();
             MEDIUM_GOLD = PluginColor.MEDIUM_GOLD.getConsoleColor();
             LIGHT_GOLD = PluginColor.LIGHT_GOLD.getConsoleColor();
             LIGHT_BLUE = PluginColor.LIGHT_BLUE.getConsoleColor();
         } else {
+            GRAY = PluginColor.GRAY.getColor();
             DARK_PURPLE = PluginColor.DARK_PURPLE.getColor();
             GOLD = PluginColor.GOLD.getColor();
             MEDIUM_GOLD = PluginColor.MEDIUM_GOLD.getColor();
@@ -194,5 +193,13 @@ public class HelpMessage implements TextComponent {
     @Override
     public @NotNull TextComponent style(@NotNull Style style) {
         return helpMessage.style(style);
+    }
+
+    private TextComponent space() {
+        return Component.space();
+    }
+
+    private TextComponent newline() {
+        return Component.newline();
     }
 }

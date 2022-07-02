@@ -108,18 +108,20 @@ public class MessageWriter {
                 .append(componentFactory.statNumberComponent(stat, request.getStatistic().toString(), Target.PLAYER))
                 .append(space())
                 .append(getStatNameComponent(request))
+                .append(space())
+                .append(componentFactory.statUnitComponent(request.getStatistic().toString(), Target.PLAYER))
                 .build();
     }
 
     public TextComponent formatTopStats(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
         TextComponent.Builder topList = Component.text()
                 .append(newline())
-                .append(componentFactory.pluginPrefixComponent(request.isBukkitConsoleSender()))
-                .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP))
+                .append(componentFactory.pluginPrefixComponent(request.isBukkitConsoleSender())).append(space())
+                .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
+                .append(componentFactory.titleNumberComponent(topStats.size())).append(space())
+                .append(getStatNameComponent(request))
                 .append(space())
-                .append(componentFactory.titleNumberComponent(topStats.size()))
-                .append(space())
-                .append(getStatNameComponent(request));
+                .append(componentFactory.statUnitComponent(request.getStatistic().toString(), Target.TOP));
 
         boolean useDots = config.useDots();
         boolean boldNames = config.playerNameIsBold();
@@ -224,7 +226,7 @@ public class MessageWriter {
 
     public TextComponent helpMsg(boolean isConsoleSender) {
         return new HelpMessage(componentFactory,
-                config.useHoverText(),
+                config.useHoverText() && !isConsoleSender,
                 isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit"),
                 config.getTopListMaxSize());
     }

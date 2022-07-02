@@ -53,7 +53,7 @@ public class PrideComponentFactory extends ComponentFactory {
                                 "<#01c1a7>a</#01c1a7>" +
                                 "<#0690d4>t</#0690d4>" +
                                 "<#205bf3>s</#205bf3>" +
-                                "<#6c15fa>] </#6c15fa>"))
+                                "<#6c15fa>]</#6c15fa>"))
                 .build();
     }
 

@@ -35,13 +35,12 @@ public class ComponentFactory {
         format = new NumberFormatter();
     }
 
-    /** Returns [PlayerStats] followed by a single space. */
+    /** Returns [PlayerStats]. */
     public TextComponent pluginPrefixComponent(boolean isBukkitConsole) {
         return text("[")
                 .color(PluginColor.GRAY.getColor())
                 .append(text("PlayerStats").color(PluginColor.GOLD.getColor()))
-                .append(text("]"))
-                .append(space());
+                .append(text("]"));
     }
 
     /** Returns [PlayerStats] surrounded by underscores on both sides. */
@@ -53,7 +52,7 @@ public class ComponentFactory {
         return text(underscores).color(underscoreColor)
                 .append(text("    "))  //4 spaces
                 .append(pluginPrefixComponent(isBukkitConsole))
-                .append(text("   "))  //3 spaces (since prefix already has one)
+                .append(text("    "))  //4 spaces
                 .append(text(underscores));
     }
 
@@ -87,9 +86,14 @@ public class ComponentFactory {
         if (prettySubStatName == null) {
             return Component.empty();
         } else {
-            return getComponent(prettySubStatName,
+            return Component.empty()
+                    .append(space().decorations(TextDecoration.NAMES.values(), false))
+                    .append(getComponentBuilder(null,
                     getColorFromString(config.getSubStatNameFormatting(selection, false)),
-                    getStyleFromString(config.getSubStatNameFormatting(selection, true)));
+                    getStyleFromString(config.getSubStatNameFormatting(selection, true)))
+                            .append(text("("))
+                            .append(text(prettySubStatName))
+                            .append(text(")")));
         }
     }
 
@@ -110,7 +114,6 @@ public class ComponentFactory {
         else {
             return totalStatNameBuilder.append(translatable()
                     .key(statName))
-                    .append(space().decorations(TextDecoration.NAMES.values(), false))
                     .append(subStat)
                     .build();
         }
@@ -128,14 +131,15 @@ public class ComponentFactory {
                 }
             }
             if (subStatName != null) {
-                return getComponentBuilder(null,
+                return Component.empty()
+                        .append(space().decorations(TextDecoration.NAMES.values(), false))
+                        .append(getComponentBuilder(null,
                         getColorFromString(config.getSubStatNameFormatting(request.getSelection(), false)),
                         getStyleFromString(config.getSubStatNameFormatting(request.getSelection(), true)))
                         .append(text("("))
                         .append(translatable()
                                 .key(subStatName))
-                        .append(text(")"))
-                        .build();
+                        .append(text(")")));  //apparently Builders within Components don't need to be built
             }
         }
         return Component.empty();
