@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.config;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
+import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -23,7 +24,7 @@ public class ConfigHandler {
         saveDefaultConfig();
         config = YamlConfiguration.loadConfiguration(configFile);
 
-        configVersion = 4;
+        configVersion = 5;
         checkConfigVersion();
 
         MyLogger.setDebugLevel(getDebugLevel());
@@ -89,6 +90,17 @@ public class ConfigHandler {
      <p>Default: 0 (which signals not to use this limit)</p>*/
     public int getLastPlayedLimit() {
         return config.getInt("number-of-days-since-last-joined", 0);
+    }
+
+    public Unit getDistanceUnit() {
+        String unit = config.getString("distance-unit", "blocks");
+        if (unit.equalsIgnoreCase("cm")) {
+            return Unit.CM;
+        } else if (unit.equalsIgnoreCase("km")) {
+            return Unit.KM;
+        } else {
+            return Unit.BLOCK;
+        }
     }
 
     /** Whether to use TranslatableComponents for statistic, block, item and entity names.

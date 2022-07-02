@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------------------------------ #
 #                                     PlayerStats Configuration                                          #
 # ------------------------------------------------------------------------------------------------------ #
-config-version: 4
+config-version: 5
 
 
 #                                # ------------------------------- #                                     #
@@ -26,6 +26,10 @@ number-of-days-since-last-joined: 0
 #                                # ------------------------------- #                                     #
 #                                #        Format & Display         #                                     #
 #                                # ------------------------------- #                                     #
+
+# The unit to display certain statistics in.
+# Minecraft measures distance in cm. PlayerStats supports the following units: blocks, cm, m (= blocks), km
+distance-unit: blocks
 
 # Display all statistic, block, item and entity names in the client language of the receiving player
 # The actual translation is handled by the Minecraft language files and happens automatically

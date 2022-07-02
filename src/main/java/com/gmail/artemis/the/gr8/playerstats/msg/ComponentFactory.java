@@ -32,7 +32,7 @@ public class ComponentFactory {
         config = c;
 
         languageKeyHandler = new LanguageKeyHandler();
-        format = new NumberFormatter();
+        format = new NumberFormatter(config);
     }
 
     /** Returns [PlayerStats]. */
@@ -75,10 +75,17 @@ public class ComponentFactory {
     /** @param prettyStatName a statName with underscores removed and each word capitalized
      @param prettySubStatName if present, a subStatName with underscores removed and each word capitalized*/
     public TextComponent statNameTextComponent(String prettyStatName, @Nullable String prettySubStatName, Target selection) {
-        return getComponent(prettyStatName,
+        TextComponent.Builder totalStatNameBuilder =  getComponentBuilder(prettyStatName,
                 getColorFromString(config.getStatNameFormatting(selection, false)),
-                getStyleFromString(config.getStatNameFormatting(selection, true)))
-                .append(subStatNameTextComponent(prettySubStatName, selection));
+                getStyleFromString(config.getStatNameFormatting(selection, true)));
+        TextComponent subStat = subStatNameTextComponent(prettySubStatName, selection);
+
+        if (!subStat.equals(Component.empty())) {
+                totalStatNameBuilder
+                        .append(space().decorations(TextDecoration.NAMES.values(), false))
+                        .append(subStatNameTextComponent(prettySubStatName, selection));
+        }
+        return totalStatNameBuilder.build();
     }
 
     /** Returns a TextComponent for the subStatName, or an empty component.*/
@@ -86,14 +93,13 @@ public class ComponentFactory {
         if (prettySubStatName == null) {
             return Component.empty();
         } else {
-            return Component.empty()
-                    .append(space().decorations(TextDecoration.NAMES.values(), false))
-                    .append(getComponentBuilder(null,
+            return getComponentBuilder(null,
                     getColorFromString(config.getSubStatNameFormatting(selection, false)),
                     getStyleFromString(config.getSubStatNameFormatting(selection, true)))
                             .append(text("("))
                             .append(text(prettySubStatName))
-                            .append(text(")")));
+                            .append(text(")"))
+                    .build();
         }
     }
 
@@ -112,10 +118,13 @@ public class ComponentFactory {
             return totalStatNameBuilder.append(entityKilledByBuilder(subStat)).build();
         }
         else {
-            return totalStatNameBuilder.append(translatable()
-                    .key(statName))
-                    .append(subStat)
-                    .build();
+            totalStatNameBuilder.append(translatable().key(statName));
+            if (!subStat.equals(Component.empty())) {
+                totalStatNameBuilder.append(
+                        space().decorations(TextDecoration.NAMES.values(), false)
+                                .append(subStat));
+            }
+            return totalStatNameBuilder.build();
         }
     }
 
@@ -131,15 +140,14 @@ public class ComponentFactory {
                 }
             }
             if (subStatName != null) {
-                return Component.empty()
-                        .append(space().decorations(TextDecoration.NAMES.values(), false))
-                        .append(getComponentBuilder(null,
+                return getComponentBuilder(null,
                         getColorFromString(config.getSubStatNameFormatting(request.getSelection(), false)),
                         getStyleFromString(config.getSubStatNameFormatting(request.getSelection(), true)))
                         .append(text("("))
                         .append(translatable()
                                 .key(subStatName))
-                        .append(text(")")));  //apparently Builders within Components don't need to be built
+                        .append(text(")"))
+                        .build();
             }
         }
         return Component.empty();
@@ -170,7 +178,12 @@ public class ComponentFactory {
         if (!statName.toLowerCase().contains("one_cm")) {
             return Component.empty();
         }
-        String key = config.useTranslatableComponents() ? languageKeyHandler.getDistanceKey() : "Blocks";
+        String key;
+        switch (config.getDistanceUnit()) {
+            case CM -> key = "cm";
+            case KM -> key = "km";
+            default -> key = config.useTranslatableComponents() ? languageKeyHandler.getDistanceKey() : "Blocks";
+        }
         return getComponentBuilder(null,
                 getColorFromString(config.getSubStatNameFormatting(selection, false)),
                 getStyleFromString(config.getSubStatNameFormatting(selection, true)))
