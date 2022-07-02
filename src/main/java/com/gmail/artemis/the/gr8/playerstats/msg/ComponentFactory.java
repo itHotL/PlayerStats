@@ -8,9 +8,11 @@ import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.util.HSVLike;
 import net.kyori.adventure.util.Index;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
@@ -174,14 +176,16 @@ public class ComponentFactory {
                         .args(subStat));
     }
 
+    //TODO Make this dark gray (or at least darker than statNumber, and at least for time statistics)
     public TextComponent statUnitComponent(String statName, Target selection) {
-        if (!statName.toLowerCase().contains("one_cm")) {
+        if (!statName.toLowerCase().contains("one_cm") && !statName.toLowerCase().contains("damage")) {
             return Component.empty();
         }
         String key;
         switch (config.getDistanceUnit()) {
             case CM -> key = "cm";
             case KM -> key = "km";
+            case MILE -> key = "Miles";
             default -> key = config.useTranslatableComponents() ? languageKeyHandler.getDistanceKey() : "Blocks";
         }
         return getComponentBuilder(null,
@@ -195,9 +199,17 @@ public class ComponentFactory {
 
     //TODO Add hoverComponent with full number
     public TextComponent statNumberComponent(long number, String statName, Target selection) {
-        return getComponent(format.format(statName, number),
-                getColorFromString(config.getStatNumberFormatting(selection, false)),
-                getStyleFromString(config.getStatNumberFormatting(selection, true)));
+        TextColor baseColor = getColorFromString(config.getStatNumberFormatting(selection, false));
+        TextDecoration style = getStyleFromString(config.getStatNumberFormatting(selection, true));
+        TextComponent.Builder statNumber = getComponentBuilder(format.formatMainNumber(statName, number), baseColor, style);
+
+        if (config.useHoverText()) {
+            statNumber.hoverEvent(HoverEvent.showText(getComponent(format.formatHoverNumber(statName, number),
+                    getLighterColor(baseColor), style)
+                    .append(space())
+                    .append(statUnitComponent(statName, selection))));
+        }
+        return statNumber.build();
     }
 
     public TextComponent titleComponent(String content, Target selection) {
@@ -269,6 +281,12 @@ public class ComponentFactory {
     private TextColor getTextColorByName(String textColor) {
         Index<String, NamedTextColor> names = NamedTextColor.NAMES;
         return names.value(textColor);
+    }
+
+    private TextColor getLighterColor(TextColor color) {
+        HSVLike oldColor = HSVLike.fromRGB(color.red(), color.green(), color.blue());
+        HSVLike newColor = HSVLike.hsvLike(oldColor.h(), 0.45F, oldColor.v());
+        return TextColor.color(newColor);
     }
 
     private @Nullable TextDecoration getStyleFromString(@NotNull String configString) {

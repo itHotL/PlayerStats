@@ -28,8 +28,13 @@ number-of-days-since-last-joined: 0
 #                                # ------------------------------- #                                     #
 
 # The unit to display certain statistics in.
-# Minecraft measures distance in cm. PlayerStats supports the following units: blocks, cm, m (= blocks), km
+# Minecraft measures distance in cm. PlayerStats supports the following units: blocks, cm, m (= blocks), miles & km
 distance-unit: blocks
+distance-unit-hover-text: km
+
+# Minecraft measures damage in 0.5 hearts (1HP). PlayerStats supports the following units: hp, hearts
+damage-unit: hearts
+damage-unit-hover-text: hp
 
 # Display all statistic, block, item and entity names in the client language of the receiving player
 # The actual translation is handled by the Minecraft language files and happens automatically

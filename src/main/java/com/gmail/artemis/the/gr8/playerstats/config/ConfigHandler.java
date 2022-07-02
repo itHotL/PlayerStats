@@ -93,14 +93,19 @@ public class ConfigHandler {
     }
 
     public Unit getDistanceUnit() {
-        String unit = config.getString("distance-unit", "blocks");
-        if (unit.equalsIgnoreCase("cm")) {
-            return Unit.CM;
-        } else if (unit.equalsIgnoreCase("km")) {
-            return Unit.KM;
-        } else {
-            return Unit.BLOCK;
-        }
+        return getUnitFromString(config.getString("distance-unit", "blocks"), Unit.BLOCK);
+    }
+
+    public Unit getDistanceUnitHoverText() {
+        return getUnitFromString(config.getString("distance-unit-hover-text", "km"), Unit.KM);
+    }
+
+    public Unit getDamageUnit() {
+        return getUnitFromString(config.getString("damage-unit", "hearts"), Unit.HEART);
+    }
+
+    public Unit getDamageUnitHoverText() {
+        return getUnitFromString(config.getString("damage-unit-hover-text", "hp"), Unit.HP);
     }
 
     /** Whether to use TranslatableComponents for statistic, block, item and entity names.
@@ -263,6 +268,32 @@ public class ConfigHandler {
 
         ConfigurationSection section = getRelevantSection(selection);
         return section != null ? section.getString(path, defaultValue) : null;
+    }
+
+    private Unit getUnitFromString(String unitString, Unit defaultUnit) {
+        switch (unitString.toLowerCase()) {
+            case "cm" -> {
+                return Unit.CM;
+            }
+            case "m", "block", "blocks" -> {
+                return Unit.BLOCK;
+            }
+            case "mile", "miles" -> {
+                return Unit.MILE;
+            }
+            case "km" -> {
+                return Unit.KM;
+            }
+            case "hp" -> {
+                return Unit.HP;
+            }
+            case "heart", "hearts" -> {
+                return Unit.HEART;
+            }
+            default -> {
+                return defaultUnit;
+            }
+        }
     }
 
     /** Returns the config section that contains the relevant color or style option. */
