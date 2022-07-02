@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.ExampleMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.HelpMessage;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
@@ -24,9 +25,11 @@ public class MessageWriter {
 
     private static ConfigHandler config;
     private static ComponentFactory componentFactory;
+    private final NumberFormatter formatter;
 
     public MessageWriter(ConfigHandler c) {
         config = c;
+        formatter = new NumberFormatter(config);
         getComponentFactory();
     }
 
@@ -125,6 +128,7 @@ public class MessageWriter {
 
         boolean useDots = config.useDots();
         boolean boldNames = config.playerNameIsBold();
+        boolean useHover = config.useHoverText();
 
         Set<String> playerNames = topStats.keySet();
         MinecraftFont font = new MinecraftFont();
@@ -159,8 +163,12 @@ public class MessageWriter {
                         .append(text(":"))
                         .build());
             }
-            topList.append(space())
-                    .append(componentFactory.statNumberComponent(topStats.get(playerName), request.getStatistic().toString(), Target.TOP));
+            topList.append(space());
+            if (useHover) {
+                topList.append(
+                        //componentFactory.statNumberHoverComponent(
+                       // formatter.formatMainNumber(request.getStatistic().toString(), topStats.get(playerName)), Target.TOP));
+            }
         }
         return topList.build();
     }
@@ -192,6 +200,27 @@ public class MessageWriter {
         }
     }
 
+    private Component getStatNumberComponent(String statName, long statNumber) {
+        Unit.getType(statName);
+        if (config.useHoverText()) {
+            return componentFactory.statNumberHoverComponent(formatter.formatMainNumber(statName, statNumber),
+                    formatter.formatHoverNumber(statName, statNumber),
+                    //something like config.getUnit that calls a bunch of smaller specific getUnit methods)
+        }
+    }
+
+    /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */
+    private String getSubStatTypeName(Statistic.Type statType) {
+        String subStat = "sub-statistic";
+        if (statType == null) return subStat;
+        switch (statType) {
+            case BLOCK -> subStat = "block";
+            case ENTITY -> subStat = "entity";
+            case ITEM -> subStat = "item";
+        }
+        return subStat;
+    }
+
     /** Replace "_" with " " and capitalize each first letter of the input.
      @param input String to prettify, case-insensitive*/
     private String getPrettyName(String input) {
@@ -206,18 +235,6 @@ public class MessageWriter {
             capitals.setCharAt(index, ' ');
         }
         return capitals.toString();
-    }
-
-    /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */
-    private String getSubStatTypeName(Statistic.Type statType) {
-        String subStat = "sub-statistic";
-        if (statType == null) return subStat;
-        switch (statType) {
-            case BLOCK -> subStat = "block";
-            case ENTITY -> subStat = "entity";
-            case ITEM -> subStat = "item";
-        }
-        return subStat;
     }
 
     public TextComponent usageExamples(boolean isBukkitConsole) {

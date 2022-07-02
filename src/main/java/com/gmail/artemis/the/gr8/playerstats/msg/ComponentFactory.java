@@ -3,6 +3,7 @@ package com.gmail.artemis.the.gr8.playerstats.msg;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
+import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import net.kyori.adventure.text.Component;
@@ -28,13 +29,11 @@ public class ComponentFactory {
 
     private static ConfigHandler config;
     private final LanguageKeyHandler languageKeyHandler;
-    private final NumberFormatter format;
 
     public ComponentFactory(ConfigHandler c) {
         config = c;
 
         languageKeyHandler = new LanguageKeyHandler();
-        format = new NumberFormatter(config);
     }
 
     /** Returns [PlayerStats]. */
@@ -176,40 +175,48 @@ public class ComponentFactory {
                         .args(subStat));
     }
 
-    //TODO Make this dark gray (or at least darker than statNumber, and at least for time statistics)
-    public TextComponent statUnitComponent(String statName, Target selection) {
-        if (!statName.toLowerCase().contains("one_cm") && !statName.toLowerCase().contains("damage")) {
-            return Component.empty();
-        }
-        String key;
-        switch (config.getDistanceUnit()) {
-            case CM -> key = "cm";
-            case KM -> key = "km";
-            case MILE -> key = "Miles";
-            default -> key = config.useTranslatableComponents() ? languageKeyHandler.getDistanceKey() : "Blocks";
-        }
-        return getComponentBuilder(null,
-                getColorFromString(config.getSubStatNameFormatting(selection, false)),
-                getStyleFromString(config.getSubStatNameFormatting(selection, true)))
-                .append(text("["))
-                        .append(translatable(key))
-                .append(text("]"))
-                .build();
+    //TODO Add hoverComponent with full number
+    public TextComponent.Builder statNumberComponent(String number, Target selection) {
+        return getComponentBuilder(number,
+                getColorFromString(config.getStatNumberFormatting(selection, false)),
+                getStyleFromString(config.getStatNumberFormatting(selection, true)));
     }
 
-    //TODO Add hoverComponent with full number
-    public TextComponent statNumberComponent(long number, String statName, Target selection) {
+    public TextComponent statNumberHoverComponent(String mainNumber, String hoverNumber, Unit hoverUnit, Target selection, boolean isTranslatable) {
         TextColor baseColor = getColorFromString(config.getStatNumberFormatting(selection, false));
         TextDecoration style = getStyleFromString(config.getStatNumberFormatting(selection, true));
-        TextComponent.Builder statNumber = getComponentBuilder(format.formatMainNumber(statName, number), baseColor, style);
-
-        if (config.useHoverText()) {
-            statNumber.hoverEvent(HoverEvent.showText(getComponent(format.formatHoverNumber(statName, number),
-                    getLighterColor(baseColor), style)
-                    .append(space())
-                    .append(statUnitComponent(statName, selection))));
+        TextComponent.Builder hoverText = getComponentBuilder(hoverNumber, getLighterColor(baseColor), style);
+        if (isTranslatable) {
+            String unitKey = languageKeyHandler.getUnitKey(hoverUnit);
+            if (unitKey == null) {
+                unitKey = hoverUnit.getName();
+            }
+            hoverText.append(space())
+                    .append(translatable().key(unitKey));
         }
-        return statNumber.build();
+        else {
+            hoverText.append(space())
+                    .append(text(hoverUnit.getName()));
+        }
+        return getComponent(mainNumber, baseColor, style).hoverEvent(HoverEvent.showText(hoverText));
+    }
+
+    //TODO Make this dark gray (or at least darker than statNumber, and at least for time statistics)
+    public TextComponent statUnitComponent(Unit statUnit, Target selection, boolean isTranslatable) {
+        TextComponent.Builder statUnitBuilder = getComponentBuilder(null,
+                getColorFromString(config.getSubStatNameFormatting(selection, false)),
+                getStyleFromString(config.getSubStatNameFormatting(selection, true)))
+                .append(text("["));
+        if (isTranslatable) {
+            String unitKey = languageKeyHandler.getUnitKey(statUnit);
+            if (unitKey == null) {
+                unitKey = statUnit.getName();
+            }
+            statUnitBuilder.append(translatable().key(unitKey));
+        } else {
+            statUnitBuilder.append(text(statUnit.getName()));
+        }
+        return statUnitBuilder.append(text("]")).build();
     }
 
     public TextComponent titleComponent(String content, Target selection) {

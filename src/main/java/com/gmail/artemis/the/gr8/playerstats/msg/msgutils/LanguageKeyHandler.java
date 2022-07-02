@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.msg.msgutils;
 
+import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -63,8 +64,12 @@ public class LanguageKeyHandler {
         }
     }
 
-    public String getDistanceKey() {
-        return "soundCategory.block";
+    public @Nullable String getUnitKey(Unit unit) {
+        if (unit == Unit.BLOCK) {
+            return "soundCategory.block";
+        } else {
+            return null;
+        }
     }
 
     private void generateDefaultKeys() {
