@@ -69,16 +69,16 @@ public class ComponentFactory {
 
     public TextComponent.Builder playerNameBuilder(String playerName, Target selection) {
         return getComponentBuilder(playerName,
-                getColorFromString(config.getPlayerNameFormatting(selection, false)),
-                getStyleFromString(config.getPlayerNameFormatting(selection, true)));
+                getColorFromString(config.getPlayerNameDecoration(selection, false)),
+                getStyleFromString(config.getPlayerNameDecoration(selection, true)));
     }
 
     /** @param prettyStatName a statName with underscores removed and each word capitalized
      @param prettySubStatName if present, a subStatName with underscores removed and each word capitalized*/
     public TextComponent statNameTextComponent(String prettyStatName, @Nullable String prettySubStatName, Target selection) {
         TextComponent.Builder totalStatNameBuilder =  getComponentBuilder(prettyStatName,
-                getColorFromString(config.getStatNameFormatting(selection, false)),
-                getStyleFromString(config.getStatNameFormatting(selection, true)));
+                getColorFromString(config.getStatNameDecoration(selection, false)),
+                getStyleFromString(config.getStatNameDecoration(selection, true)));
         TextComponent subStat = subStatNameTextComponent(prettySubStatName, selection);
 
         if (!subStat.equals(Component.empty())) {
@@ -95,8 +95,8 @@ public class ComponentFactory {
             return Component.empty();
         } else {
             return getComponentBuilder(null,
-                    getColorFromString(config.getSubStatNameFormatting(selection, false)),
-                    getStyleFromString(config.getSubStatNameFormatting(selection, true)))
+                    getColorFromString(config.getSubStatNameDecoration(selection, false)),
+                    getStyleFromString(config.getSubStatNameDecoration(selection, true)))
                             .append(text("("))
                             .append(text(prettySubStatName))
                             .append(text(")"))
@@ -107,8 +107,8 @@ public class ComponentFactory {
     /** Returns a TextComponent with TranslatableComponent as a child.*/
     public TextComponent statNameTransComponent(@NotNull StatRequest request) {
         TextComponent.Builder totalStatNameBuilder = getComponentBuilder(null,
-                getColorFromString(config.getStatNameFormatting(request.getSelection(), false)),
-                getStyleFromString(config.getStatNameFormatting(request.getSelection(), true)));
+                getColorFromString(config.getStatNameDecoration(request.getSelection(), false)),
+                getStyleFromString(config.getStatNameDecoration(request.getSelection(), true)));
         TextComponent subStat = subStatNameTransComponent(request);
 
         String statName = languageKeyHandler.getStatKey(request.getStatistic());
@@ -142,8 +142,8 @@ public class ComponentFactory {
             }
             if (subStatName != null) {
                 return getComponentBuilder(null,
-                        getColorFromString(config.getSubStatNameFormatting(request.getSelection(), false)),
-                        getStyleFromString(config.getSubStatNameFormatting(request.getSelection(), true)))
+                        getColorFromString(config.getSubStatNameDecoration(request.getSelection(), false)),
+                        getStyleFromString(config.getSubStatNameDecoration(request.getSelection(), true)))
                         .append(text("("))
                         .append(translatable()
                                 .key(subStatName))
@@ -178,13 +178,13 @@ public class ComponentFactory {
     //TODO Add hoverComponent with full number
     public TextComponent.Builder statNumberComponent(String number, Target selection) {
         return getComponentBuilder(number,
-                getColorFromString(config.getStatNumberFormatting(selection, false)),
-                getStyleFromString(config.getStatNumberFormatting(selection, true)));
+                getColorFromString(config.getStatNumberDecoration(selection, false)),
+                getStyleFromString(config.getStatNumberDecoration(selection, true)));
     }
 
     public TextComponent statNumberHoverComponent(String mainNumber, String hoverNumber, Unit hoverUnit, Target selection, boolean isTranslatable) {
-        TextColor baseColor = getColorFromString(config.getStatNumberFormatting(selection, false));
-        TextDecoration style = getStyleFromString(config.getStatNumberFormatting(selection, true));
+        TextColor baseColor = getColorFromString(config.getStatNumberDecoration(selection, false));
+        TextDecoration style = getStyleFromString(config.getStatNumberDecoration(selection, true));
         TextComponent.Builder hoverText = getComponentBuilder(hoverNumber, getLighterColor(baseColor), style);
         if (isTranslatable) {
             String unitKey = languageKeyHandler.getUnitKey(hoverUnit);
@@ -203,10 +203,10 @@ public class ComponentFactory {
 
     //TODO Make this dark gray (or at least darker than statNumber, and at least for time statistics)
     public TextComponent statUnitComponent(Unit statUnit, Target selection, boolean isTranslatable) {
-        if (statUnit.type() != Unit.Type.UNTYPED) {
+        if (statUnit.getType() != Unit.Type.UNTYPED) {
             TextComponent.Builder statUnitBuilder = getComponentBuilder(null,
-                    getColorFromString(config.getSubStatNameFormatting(selection, false)),
-                    getStyleFromString(config.getSubStatNameFormatting(selection, true)))
+                    getColorFromString(config.getSubStatNameDecoration(selection, false)),
+                    getStyleFromString(config.getSubStatNameDecoration(selection, true)))
                     .append(text("["));
             if (isTranslatable) {
                 String unitKey = languageKeyHandler.getUnitKey(statUnit);
@@ -226,34 +226,34 @@ public class ComponentFactory {
 
     public TextComponent titleComponent(String content, Target selection) {
         return getComponent(content,
-                getColorFromString(config.getTitleFormatting(selection, false)),
-                getStyleFromString(config.getTitleFormatting(selection, true)));
+                getColorFromString(config.getTitleDecoration(selection, false)),
+                getStyleFromString(config.getTitleDecoration(selection, true)));
     }
 
     public TextComponent titleNumberComponent(int number) {
         return getComponent(number + "",
-                getColorFromString(config.getTitleNumberFormatting(false)),
-                getStyleFromString(config.getTitleNumberFormatting(true)));
+                getColorFromString(config.getTitleNumberDecoration(false)),
+                getStyleFromString(config.getTitleNumberDecoration(true)));
     }
 
     public TextComponent serverNameComponent(String serverName) {
-        TextComponent colon = text(":").color(getColorFromString(config.getServerNameFormatting(false)));
+        TextComponent colon = text(":").color(getColorFromString(config.getServerNameDecoration(false)));
         return getComponent(serverName,
-                getColorFromString(config.getServerNameFormatting(false)),
-                getStyleFromString(config.getServerNameFormatting(true)))
+                getColorFromString(config.getServerNameDecoration(false)),
+                getStyleFromString(config.getServerNameDecoration(true)))
                 .append(colon);
     }
 
     public TextComponent rankingNumberComponent(String number) {
         return getComponent(number,
-                getColorFromString(config.getRankNumberFormatting(false)),
-                getStyleFromString(config.getRankNumberFormatting(true)));
+                getColorFromString(config.getRankNumberDecoration(false)),
+                getStyleFromString(config.getRankNumberDecoration(true)));
     }
 
     public TextComponent.Builder dotsBuilder() {
         return getComponentBuilder(null,
-                getColorFromString(config.getDotsFormatting(false)),
-                getStyleFromString(config.getDotsFormatting(true)));
+                getColorFromString(config.getDotsDecoration(false)),
+                getStyleFromString(config.getDotsDecoration(true)));
     }
 
     private TextComponent getComponent(String content, TextColor color, @Nullable TextDecoration style) {

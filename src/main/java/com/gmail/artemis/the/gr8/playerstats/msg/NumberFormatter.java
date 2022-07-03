@@ -18,7 +18,7 @@ public class NumberFormatter {
      (number-of-times, time-, damage- or distance-based) according to the
      corresponding config settings, and adds commas in groups of 3.*/
     public String format(long number, Unit statUnit) {
-        switch (statUnit.type()) {
+        switch (statUnit.getType()) {
             case DISTANCE -> {
                 return formatDistance(number, statUnit);
             }
@@ -73,27 +73,25 @@ public class NumberFormatter {
 
         if (leftover >= 86400) {
             double days = leftover / 60 / 60 / 24;
-            if (days > 999) {
-                output.append(format.format(Math.round(days)));
-            }
-            else {
-                output.append(days);
-            }
-            output.append("D ");
+            output.append(format.format(Math.round(days)))
+                    .append("D ");
             leftover = leftover % (60 * 60 * 24);
         }
         if (leftover >= 3600) {
             double hours = leftover / 60 / 60;
-            output.append(hours).append("H ");
+            output.append(format.format(Math.round(hours)))
+                    .append("H ");
             leftover = leftover % (60 * 60);
         }
         if (leftover >= 60) {
             double minutes = leftover / 60;
-            output.append(minutes).append("M ");
+            output.append(format.format(Math.round(minutes)))
+                    .append("M ");
             leftover = leftover % 60;
         }
         if (leftover > 0) {
-            output.append(leftover).append("S");
+            output.append(format.format(Math.round(leftover)))
+                    .append("S");
         }
         return output.toString();
     }

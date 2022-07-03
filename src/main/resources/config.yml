@@ -10,7 +10,7 @@ config-version: 5
 
 # How much output you'll get in the server console while PlayerStats is processing
 # 1 = low (only show unexpected errors)
-# 2 = medium (detail all encountered exceptions, log main tasks and show time taken)
+# 2 = medium (log main tasks and time taken)
 # 3 = high (log all tasks and time taken)
 debug-level: 1
 
@@ -27,21 +27,31 @@ number-of-days-since-last-joined: 0
 #                                #        Format & Display         #                                     #
 #                                # ------------------------------- #                                     #
 
-# The unit to display certain statistics in.
-# Minecraft measures distance in cm. PlayerStats supports the following units: blocks, cm, m (= blocks), miles & km
-distance-unit: blocks
-distance-unit-hover-text: km
-
-# Minecraft measures damage in 0.5 hearts (1HP). PlayerStats supports the following units: hp, hearts
-damage-unit: hearts
-damage-unit-hover-text: hp
-
 # Display all statistic, block, item and entity names in the client language of the receiving player
 # The actual translation is handled by the Minecraft language files and happens automatically
 translate-to-client-language: true
 
-# Use hover-text for additional info in the usage explanation
+# Use hover-text for additional info about statistic numbers
 enable-hover-text: true
+
+# The unit to display certain statistics in.
+# Minecraft measures distance in cm. PlayerStats supports: blocks, cm, m (= blocks), miles, km
+distance-unit: blocks
+distance-unit-for-hover-text: km
+
+# Minecraft measures damage in 0.5 hearts (1HP). PlayerStats supports: hp, hearts
+damage-unit: hearts
+damage-unit-for-hover-text: hp
+
+# Minecraft measures time in ticks. PlayerStats supports: weeks, days, hours, minutes, seconds, ticks
+# Below you can choose a range between the maximum and minimum unit you want to see
+# If the max and min are the same, only that unit will be displayed
+# For example, 5.000.000 ticks would become "4D", "3D 21H 27M 40S", "69H 27M 40S", "4168M", etc.
+max-time-unit: hours
+min-time-unit: seconds
+
+max-time-unit-for-hover-text: days
+min-time-unit-for-hover-text: seconds
 
 # Automatically use themed formatting for the duration of certain holidays or festivals
 enable-festive-formatting: true

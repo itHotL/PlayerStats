@@ -28,27 +28,8 @@ public enum Unit {
         this.type = type;
     }
 
-    public Type type() {
+    public Type getType() {
         return type;
-    }
-
-    public static @NotNull Type getType(Statistic statistic) {
-        return getType(statistic.toString());
-    }
-
-    /** Returns the Unit.Type of this Statistic, which can be Untyped, Distance, Damage, or Time.
-     @param statName the name of the Statistic enum constant in String*/
-    public static @NotNull Type getType(String statName) {
-        String name = statName.toLowerCase();
-        if (name.contains("one_cm")) {
-            return Type.DISTANCE;
-        } else if (name.contains("damage")) {
-            return Type.DAMAGE;
-        } else if (name.contains("time") || name.contains("one_minute")) {
-            return Type.TIME;
-        } else {
-            return Type.UNTYPED;
-        }
     }
 
     /** Returns a pretty name belonging to this enum constant. If the Unit is
@@ -68,34 +49,97 @@ public enum Unit {
                 return "km";
             }
             case HP -> {
-                 return "HP";
+                return "HP";
             }
             case HEART -> {
-                 return "Hearts";
+                return "Hearts";
             }
             case TICK -> {
-                 return "ticks";
+                return "ticks";
             }
             case SECOND -> {
-                 return "seconds";
+                return "seconds";
             }
             case MINUTE -> {
-                 return "minutes";
+                return "minutes";
             }
             case DAY -> {
-                 return "days";
+                return "days";
             }
             case HOUR -> {
-                 return "hours";
+                return "hours";
             }
             case WEEK -> {
-                 return "weeks";
+                return "weeks";
             }
             case NUMBER -> {
                 return "";
             }
             default ->
-                throw new NullPointerException("Trying to get the name of an enum constant that does not exist!");
+                    throw new NullPointerException("Trying to get the name of an enum constant that does not exist!");
+        }
+    }
+
+    public Unit fromString(String unitName) {
+        switch (unitName.toLowerCase()) {
+            case "cm" -> {
+                return Unit.CM;
+            }
+            case "m", "block", "blocks" -> {
+                return Unit.BLOCK;
+            }
+            case "mile", "miles" -> {
+                return Unit.MILE;
+            }
+            case "km" -> {
+                return Unit.KM;
+            }
+            case "hp" -> {
+                return Unit.HP;
+            }
+            case "heart", "hearts" -> {
+                return Unit.HEART;
+            }
+            case "week", "weeks" -> {
+                return Unit.WEEK;
+            }
+            case "day", "days" -> {
+                return Unit.DAY;
+            }
+            case "hour", "hours" -> {
+                return Unit.HOUR;
+            }
+            case "minute", "minutes", "min" -> {
+                return Unit.MINUTE;
+            }
+            case "second", "seconds", "sec" -> {
+                return Unit.SECOND;
+            }
+            case "tick", "ticks" -> {
+                return Unit.TICK;
+            }
+            default -> {
+                return Unit.NUMBER;
+            }
+        }
+    }
+
+    public static @NotNull Type fromStatistic(Statistic statistic) {
+        return fromStatName(statistic.toString());
+    }
+
+    /** Returns the Unit.Type of this Statistic, which can be Untyped, Distance, Damage, or Time.
+     @param statName the name of the Statistic enum constant in String*/
+    public static @NotNull Type fromStatName(String statName) {
+        String name = statName.toLowerCase();
+        if (name.contains("one_cm")) {
+            return Type.DISTANCE;
+        } else if (name.contains("damage")) {
+            return Type.DAMAGE;
+        } else if (name.contains("time") || name.contains("one_minute")) {
+            return Type.TIME;
+        } else {
+            return Type.UNTYPED;
         }
     }
 

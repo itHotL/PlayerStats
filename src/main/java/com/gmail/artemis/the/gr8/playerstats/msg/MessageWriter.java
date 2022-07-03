@@ -113,7 +113,7 @@ public class MessageWriter {
                 .append(getStatNameComponent(request))
                 .append(space())
                 .append(componentFactory.statUnitComponent(
-                        config.getStatUnit(Unit.getType(request.getStatistic()), false),
+                        config.getStatUnit(Unit.fromStatistic(request.getStatistic()), false),
                         Target.PLAYER,
                         config.useTranslatableComponents()))
                 .build();
@@ -128,7 +128,7 @@ public class MessageWriter {
                 .append(getStatNameComponent(request))
                 .append(space())
                 .append(componentFactory.statUnitComponent(
-                        config.getStatUnit(Unit.getType(request.getStatistic()), false),
+                        config.getStatUnit(Unit.fromStatistic(request.getStatistic()), false),
                         Target.TOP,
                         config.useTranslatableComponents()));
 
@@ -184,7 +184,7 @@ public class MessageWriter {
                 .append(getStatNameComponent(request))
                 .append(space())
                 .append(componentFactory.statUnitComponent(
-                        config.getStatUnit(Unit.getType(request.getStatistic()), false),
+                        config.getStatUnit(Unit.fromStatistic(request.getStatistic()), false),
                         Target.SERVER,
                         config.useTranslatableComponents()))
                 .build();
@@ -204,7 +204,7 @@ public class MessageWriter {
     }
 
     private TextComponent getStatNumberComponent(Statistic statistic, long statNumber, Target selection) {
-        Unit.Type type = Unit.getType(statistic);
+        Unit.Type type = Unit.fromStatistic(statistic);
         Unit baseUnit = config.getStatUnit(type, false);
         String prettyNumber = formatter.format(statNumber, baseUnit);
         if (config.useHoverText() && type != Unit.Type.UNTYPED) {
