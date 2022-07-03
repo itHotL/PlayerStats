@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.enums;
 
+import org.bukkit.Statistic;
 import org.jetbrains.annotations.NotNull;
 
 public enum Unit {
@@ -17,10 +18,26 @@ public enum Unit {
     DAY (Type.TIME),
     WEEK (Type.TIME);
 
+    private final Type type;
 
-    Unit(Type type) {
+    Unit() {
+        this(Type.UNTYPED);
     }
 
+    Unit(Type type) {
+        this.type = type;
+    }
+
+    public Type type() {
+        return type;
+    }
+
+    public static @NotNull Type getType(Statistic statistic) {
+        return getType(statistic.toString());
+    }
+
+    /** Returns the Unit.Type of this Statistic, which can be Untyped, Distance, Damage, or Time.
+     @param statName the name of the Statistic enum constant in String*/
     public static @NotNull Type getType(String statName) {
         String name = statName.toLowerCase();
         if (name.contains("one_cm")) {
@@ -34,7 +51,9 @@ public enum Unit {
         }
     }
 
-    public @NotNull String getName() {
+    /** Returns a pretty name belonging to this enum constant. If the Unit is
+     NUMBER, it will return an empty String. */
+    public @NotNull String getName() throws NullPointerException {
         switch (this) {
             case CM -> {
                 return "cm";
@@ -72,18 +91,21 @@ public enum Unit {
             case WEEK -> {
                  return "weeks";
             }
+            case NUMBER -> {
+                return "";
+            }
             default ->
                 throw new NullPointerException("Trying to get the name of an enum constant that does not exist!");
         }
     }
 
-    public static enum Type{
+    public enum Type{
         DAMAGE, //7 statistics
         DISTANCE, //15 statistics
         TIME, //5 statistics
         UNTYPED;
 
-        private Type() {
+        Type() {
         }
     }
 }

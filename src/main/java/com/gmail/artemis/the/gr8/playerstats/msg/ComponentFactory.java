@@ -203,20 +203,25 @@ public class ComponentFactory {
 
     //TODO Make this dark gray (or at least darker than statNumber, and at least for time statistics)
     public TextComponent statUnitComponent(Unit statUnit, Target selection, boolean isTranslatable) {
-        TextComponent.Builder statUnitBuilder = getComponentBuilder(null,
-                getColorFromString(config.getSubStatNameFormatting(selection, false)),
-                getStyleFromString(config.getSubStatNameFormatting(selection, true)))
-                .append(text("["));
-        if (isTranslatable) {
-            String unitKey = languageKeyHandler.getUnitKey(statUnit);
-            if (unitKey == null) {
-                unitKey = statUnit.getName();
+        if (statUnit.type() != Unit.Type.UNTYPED) {
+            TextComponent.Builder statUnitBuilder = getComponentBuilder(null,
+                    getColorFromString(config.getSubStatNameFormatting(selection, false)),
+                    getStyleFromString(config.getSubStatNameFormatting(selection, true)))
+                    .append(text("["));
+            if (isTranslatable) {
+                String unitKey = languageKeyHandler.getUnitKey(statUnit);
+                if (unitKey == null) {
+                    unitKey = statUnit.getName();
+                }
+                statUnitBuilder.append(translatable().key(unitKey));
+            } else {
+                statUnitBuilder.append(text(statUnit.getName()));
             }
-            statUnitBuilder.append(translatable().key(unitKey));
-        } else {
-            statUnitBuilder.append(text(statUnit.getName()));
+            return statUnitBuilder.append(text("]")).build();
         }
-        return statUnitBuilder.append(text("]")).build();
+        else {
+            return Component.empty();
+        }
     }
 
     public TextComponent titleComponent(String content, Target selection) {

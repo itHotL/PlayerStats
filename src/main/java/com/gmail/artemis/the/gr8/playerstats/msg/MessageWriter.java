@@ -29,7 +29,7 @@ public class MessageWriter {
 
     public MessageWriter(ConfigHandler c) {
         config = c;
-        formatter = new NumberFormatter(config);
+        formatter = new NumberFormatter();
         getComponentFactory();
     }
 
@@ -108,11 +108,14 @@ public class MessageWriter {
                 .append(componentFactory.playerNameBuilder(request.getPlayerName(), Target.PLAYER)
                         .append(text(":"))
                         .append(space()))
-                .append(componentFactory.statNumberComponent(stat, request.getStatistic().toString(), Target.PLAYER))
+                .append(getStatNumberComponent(request.getStatistic(), stat, Target.PLAYER))
                 .append(space())
                 .append(getStatNameComponent(request))
                 .append(space())
-                .append(componentFactory.statUnitComponent(request.getStatistic().toString(), Target.PLAYER))
+                .append(componentFactory.statUnitComponent(
+                        config.getStatUnit(Unit.getType(request.getStatistic()), false),
+                        Target.PLAYER,
+                        config.useTranslatableComponents()))
                 .build();
     }
 
@@ -124,11 +127,13 @@ public class MessageWriter {
                 .append(componentFactory.titleNumberComponent(topStats.size())).append(space())
                 .append(getStatNameComponent(request))
                 .append(space())
-                .append(componentFactory.statUnitComponent(request.getStatistic().toString(), Target.TOP));
+                .append(componentFactory.statUnitComponent(
+                        config.getStatUnit(Unit.getType(request.getStatistic()), false),
+                        Target.TOP,
+                        config.useTranslatableComponents()));
 
         boolean useDots = config.useDots();
         boolean boldNames = config.playerNameIsBold();
-        boolean useHover = config.useHoverText();
 
         Set<String> playerNames = topStats.keySet();
         MinecraftFont font = new MinecraftFont();
@@ -155,20 +160,15 @@ public class MessageWriter {
                 }
                 if (dots >= 1) {
                     topList.append(dotsBuilder
-                            .append(text((".".repeat(dots))))
-                            .build());
+                            .append(text((".".repeat(dots)))));
                 }
             } else {
                 topList.append(playerNameBuilder
-                        .append(text(":"))
-                        .build());
+                        .append(text(":")));
             }
-            topList.append(space());
-            if (useHover) {
-                topList.append(
-                        //componentFactory.statNumberHoverComponent(
-                       // formatter.formatMainNumber(request.getStatistic().toString(), topStats.get(playerName)), Target.TOP));
-            }
+            topList.append(space())
+                    .append(getStatNumberComponent(request.getStatistic(), topStats.get(playerName), Target.TOP));
+
         }
         return topList.build();
     }
@@ -179,17 +179,20 @@ public class MessageWriter {
                 .append(space())
                 .append(componentFactory.serverNameComponent(config.getServerName()))
                 .append(space())
-                .append(componentFactory.statNumberComponent(stat, request.getStatistic().toString(), Target.SERVER))
+                .append(getStatNumberComponent(request.getStatistic(), stat, Target.SERVER))
                 .append(space())
                 .append(getStatNameComponent(request))
                 .append(space())
-                .append(componentFactory.statUnitComponent(request.getStatistic().toString(), Target.SERVER))
+                .append(componentFactory.statUnitComponent(
+                        config.getStatUnit(Unit.getType(request.getStatistic()), false),
+                        Target.SERVER,
+                        config.useTranslatableComponents()))
                 .build();
     }
 
     /** Depending on the config settings, return either a TranslatableComponent representing
      the statName (and potential subStatName), or a TextComponent with capitalized English names.*/
-    private Component getStatNameComponent(StatRequest request) {
+    private TextComponent getStatNameComponent(StatRequest request) {
         if (config.useTranslatableComponents()) {
             return componentFactory.statNameTransComponent(request);
         } else {
@@ -200,12 +203,18 @@ public class MessageWriter {
         }
     }
 
-    private Component getStatNumberComponent(String statName, long statNumber) {
-        Unit.getType(statName);
-        if (config.useHoverText()) {
-            return componentFactory.statNumberHoverComponent(formatter.formatMainNumber(statName, statNumber),
-                    formatter.formatHoverNumber(statName, statNumber),
-                    //something like config.getUnit that calls a bunch of smaller specific getUnit methods)
+    private TextComponent getStatNumberComponent(Statistic statistic, long statNumber, Target selection) {
+        Unit.Type type = Unit.getType(statistic);
+        Unit baseUnit = config.getStatUnit(type, false);
+        String prettyNumber = formatter.format(statNumber, baseUnit);
+        if (config.useHoverText() && type != Unit.Type.UNTYPED) {
+            Unit hoverUnit = config.getStatUnit(type, true);
+            return componentFactory.statNumberHoverComponent(
+                    prettyNumber,
+                    formatter.format(statNumber, hoverUnit),
+                    hoverUnit, selection, config.useTranslatableComponents());
+        } else {
+            return componentFactory.statNumberComponent(prettyNumber, selection).build();
         }
     }
 

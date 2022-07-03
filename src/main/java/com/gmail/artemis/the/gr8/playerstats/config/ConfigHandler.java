@@ -92,19 +92,33 @@ public class ConfigHandler {
         return config.getInt("number-of-days-since-last-joined", 0);
     }
 
-    public Unit getDistanceUnit() {
+    public Unit getStatUnit(Unit.Type unitType, boolean isHoverText) {
+        switch (unitType) {
+            case DISTANCE -> {
+                return isHoverText ? getDistanceUnitHoverText() : getDistanceUnit();
+            }
+            case DAMAGE -> {
+                return isHoverText ? getDamageUnitHoverText() : getDamageUnit();
+            }
+            default -> {
+                return Unit.NUMBER;
+            }
+        }
+    }
+
+    private Unit getDistanceUnit() {
         return getUnitFromString(config.getString("distance-unit", "blocks"), Unit.BLOCK);
     }
 
-    public Unit getDistanceUnitHoverText() {
+    private Unit getDistanceUnitHoverText() {
         return getUnitFromString(config.getString("distance-unit-hover-text", "km"), Unit.KM);
     }
 
-    public Unit getDamageUnit() {
+    private Unit getDamageUnit() {
         return getUnitFromString(config.getString("damage-unit", "hearts"), Unit.HEART);
     }
 
-    public Unit getDamageUnitHoverText() {
+    private Unit getDamageUnitHoverText() {
         return getUnitFromString(config.getString("damage-unit-hover-text", "hp"), Unit.HP);
     }
 
