@@ -20,10 +20,6 @@ public enum Unit {
 
     private final Type type;
 
-    Unit() {
-        this(Type.UNTYPED);
-    }
-
     Unit(Type type) {
         this.type = type;
     }
@@ -80,7 +76,7 @@ public enum Unit {
         }
     }
 
-    public Unit fromString(String unitName) {
+    public static @NotNull Unit fromString(String unitName) {
         switch (unitName.toLowerCase()) {
             case "cm" -> {
                 return Unit.CM;

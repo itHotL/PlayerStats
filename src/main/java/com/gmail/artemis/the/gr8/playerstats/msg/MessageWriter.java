@@ -5,6 +5,7 @@ import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.ExampleMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.HelpMessage;
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
@@ -25,11 +26,13 @@ public class MessageWriter {
 
     private static ConfigHandler config;
     private static ComponentFactory componentFactory;
+    private final LanguageKeyHandler languageKeyHandler;
     private final NumberFormatter formatter;
 
     public MessageWriter(ConfigHandler c) {
         config = c;
         formatter = new NumberFormatter();
+        languageKeyHandler = new LanguageKeyHandler();
         getComponentFactory();
     }
 
@@ -111,11 +114,7 @@ public class MessageWriter {
                 .append(getStatNumberComponent(request.getStatistic(), stat, Target.PLAYER))
                 .append(space())
                 .append(getStatNameComponent(request))
-                .append(space())
-                .append(componentFactory.statUnitComponent(
-                        config.getStatUnit(Unit.fromStatistic(request.getStatistic()), false),
-                        Target.PLAYER,
-                        config.useTranslatableComponents()))
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection()))
                 .build();
     }
 
@@ -126,11 +125,7 @@ public class MessageWriter {
                 .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
                 .append(componentFactory.titleNumberComponent(topStats.size())).append(space())
                 .append(getStatNameComponent(request))
-                .append(space())
-                .append(componentFactory.statUnitComponent(
-                        config.getStatUnit(Unit.fromStatistic(request.getStatistic()), false),
-                        Target.TOP,
-                        config.useTranslatableComponents()));
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection()));
 
         boolean useDots = config.useDots();
         boolean boldNames = config.playerNameIsBold();
@@ -182,11 +177,7 @@ public class MessageWriter {
                 .append(getStatNumberComponent(request.getStatistic(), stat, Target.SERVER))
                 .append(space())
                 .append(getStatNameComponent(request))
-                .append(space())
-                .append(componentFactory.statUnitComponent(
-                        config.getStatUnit(Unit.fromStatistic(request.getStatistic()), false),
-                        Target.SERVER,
-                        config.useTranslatableComponents()))
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection()))  //space is provided by statUnit
                 .build();
     }
 
@@ -194,8 +185,20 @@ public class MessageWriter {
      the statName (and potential subStatName), or a TextComponent with capitalized English names.*/
     private TextComponent getStatNameComponent(StatRequest request) {
         if (config.useTranslatableComponents()) {
-            return componentFactory.statNameTransComponent(request);
-        } else {
+            String statKey = languageKeyHandler.getStatKey(request.getStatistic());
+            String subStatKey = request.getSubStatEntry();
+            if (subStatKey != null) {
+                switch (request.getStatistic().getType()) {
+                    case BLOCK -> subStatKey = languageKeyHandler.getBlockKey(request.getBlock());
+                    case ENTITY -> subStatKey = languageKeyHandler.getEntityKey(request.getEntity());
+                    case ITEM -> subStatKey = languageKeyHandler.getItemKey(request.getItem());
+                    default -> {
+                    }
+                }
+            }
+            return componentFactory.statNameTransComponent(statKey, subStatKey, request.getSelection());
+        }
+        else {
             return componentFactory.statNameTextComponent(
                     getPrettyName(request.getStatistic().toString()),
                     getPrettyName(request.getSubStatEntry()),
@@ -205,17 +208,67 @@ public class MessageWriter {
 
     private TextComponent getStatNumberComponent(Statistic statistic, long statNumber, Target selection) {
         Unit.Type type = Unit.fromStatistic(statistic);
-        Unit baseUnit = config.getStatUnit(type, false);
-        String prettyNumber = formatter.format(statNumber, baseUnit);
-        if (config.useHoverText() && type != Unit.Type.UNTYPED) {
-            Unit hoverUnit = config.getStatUnit(type, true);
-            return componentFactory.statNumberHoverComponent(
-                    prettyNumber,
-                    formatter.format(statNumber, hoverUnit),
-                    hoverUnit, selection, config.useTranslatableComponents());
-        } else {
+        Unit statUnit;
+        switch (type) {
+            case DISTANCE -> statUnit = Unit.fromString(config.getDistanceUnit(false));
+            case DAMAGE -> statUnit = Unit.fromString(config.getDamageUnit(false));
+            case TIME -> {
+                return getTimeNumberComponent(statNumber, selection);
+            }
+            default -> statUnit = Unit.NUMBER;
+        }
+        String prettyNumber = formatter.format(statNumber, statUnit);
+        if (!config.useHoverText() || statUnit == Unit.NUMBER) {
             return componentFactory.statNumberComponent(prettyNumber, selection).build();
         }
+        Unit hoverUnit = type == Unit.Type.DISTANCE ? Unit.fromString(config.getDistanceUnit(true)) :
+                Unit.fromString(config.getDamageUnit(true));
+        String prettyHoverNumber = formatter.format(statNumber, hoverUnit);
+        if (config.useTranslatableComponents()) {
+            String unitKey = languageKeyHandler.getUnitKey(hoverUnit);
+            if (unitKey == null) {
+                unitKey = hoverUnit.getName();
+            }
+            return componentFactory.statNumberHoverComponent(prettyNumber, prettyHoverNumber, null, unitKey, selection);
+        }
+        else {
+            return componentFactory.statNumberHoverComponent(prettyNumber, prettyHoverNumber, hoverUnit.getName(), null, selection);
+        }
+    }
+
+    private TextComponent getTimeNumberComponent(long statNumber, Target selection) {
+        Unit max = Unit.fromString(config.getTimeUnit(false));
+        Unit min = Unit.fromString(config.getTimeUnit(false, true));
+        String mainNumber = formatter.format(statNumber, max, min);
+        if (!config.useHoverText()) {
+            return componentFactory.statNumberComponent(mainNumber, selection).build();
+        } else {
+            Unit hoverMax = Unit.fromString(config.getTimeUnit(true));
+            Unit hoverMin = Unit.fromString(config.getTimeUnit(true, true));
+            return componentFactory.statNumberHoverComponent(mainNumber,
+                    formatter.format(statNumber, hoverMax, hoverMin),
+                    null, null, selection);  //Time does not support translatable text,
+        }                                                            //because the unit and number are so tightly interwoven.
+    }
+
+    private TextComponent getStatUnitComponent(Statistic statistic, Target selection) {
+        Unit statUnit;
+        switch (Unit.fromStatistic(statistic)) {
+            case DAMAGE -> statUnit = Unit.fromString(config.getDamageUnit(false));
+            case DISTANCE -> statUnit = Unit.fromString(config.getDistanceUnit(false));
+            default -> {
+                return Component.empty();
+            }
+        }
+        if (config.useTranslatableComponents()) {
+            String unitKey = languageKeyHandler.getUnitKey(statUnit);
+            if (unitKey != null) {
+                return Component.space()
+                        .append(componentFactory.statUnitComponent(null, unitKey, selection));
+            }
+        }
+        return Component.space()
+                .append(componentFactory.statUnitComponent(statUnit.getName(), null, selection));
     }
 
     /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */

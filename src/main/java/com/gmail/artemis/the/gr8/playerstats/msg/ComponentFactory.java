@@ -3,9 +3,6 @@ package com.gmail.artemis.the.gr8.playerstats.msg;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
-import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
-import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -28,12 +25,9 @@ import static net.kyori.adventure.text.Component.text;
 public class ComponentFactory {
 
     private static ConfigHandler config;
-    private final LanguageKeyHandler languageKeyHandler;
 
     public ComponentFactory(ConfigHandler c) {
         config = c;
-
-        languageKeyHandler = new LanguageKeyHandler();
     }
 
     /** Returns [PlayerStats]. */
@@ -105,21 +99,20 @@ public class ComponentFactory {
     }
 
     /** Returns a TextComponent with TranslatableComponent as a child.*/
-    public TextComponent statNameTransComponent(@NotNull StatRequest request) {
+    public TextComponent statNameTransComponent(String statKey, String subStatKey, Target selection) {
         TextComponent.Builder totalStatNameBuilder = getComponentBuilder(null,
-                getColorFromString(config.getStatNameDecoration(request.getSelection(), false)),
-                getStyleFromString(config.getStatNameDecoration(request.getSelection(), true)));
-        TextComponent subStat = subStatNameTransComponent(request);
+                getColorFromString(config.getStatNameDecoration(selection, false)),
+                getStyleFromString(config.getStatNameDecoration(selection, true)));
 
-        String statName = languageKeyHandler.getStatKey(request.getStatistic());
-        if (statName.equalsIgnoreCase("stat_type.minecraft.killed")) {
+        TextComponent subStat = subStatNameTransComponent(subStatKey, selection);
+        if (statKey.equalsIgnoreCase("stat_type.minecraft.killed")) {
             return totalStatNameBuilder.append(killEntityBuilder(subStat)).build();
         }
-        else if (statName.equalsIgnoreCase("stat_type.minecraft.killed_by")) {
+        else if (statKey.equalsIgnoreCase("stat_type.minecraft.killed_by")) {
             return totalStatNameBuilder.append(entityKilledByBuilder(subStat)).build();
         }
         else {
-            totalStatNameBuilder.append(translatable().key(statName));
+            totalStatNameBuilder.append(translatable().key(statKey));
             if (!subStat.equals(Component.empty())) {
                 totalStatNameBuilder.append(
                         space().decorations(TextDecoration.NAMES.values(), false)
@@ -130,26 +123,16 @@ public class ComponentFactory {
     }
 
     /** Returns a TranslatableComponent for the subStatName, or an empty component.*/
-    private TextComponent subStatNameTransComponent(@NotNull StatRequest request) {
-        if (request.getSubStatEntry() != null) {
-            String subStatName = request.getSubStatEntry();
-            switch (request.getStatistic().getType()) {
-                case BLOCK -> subStatName = languageKeyHandler.getBlockKey(request.getBlock());
-                case ENTITY -> subStatName = languageKeyHandler.getEntityKey(request.getEntity());
-                case ITEM -> subStatName = languageKeyHandler.getItemKey(request.getItem());
-                default -> {
-                }
-            }
-            if (subStatName != null) {
-                return getComponentBuilder(null,
-                        getColorFromString(config.getSubStatNameDecoration(request.getSelection(), false)),
-                        getStyleFromString(config.getSubStatNameDecoration(request.getSelection(), true)))
-                        .append(text("("))
-                        .append(translatable()
-                                .key(subStatName))
-                        .append(text(")"))
-                        .build();
-            }
+    private TextComponent subStatNameTransComponent(String subStatKey, Target selection) {
+        if (subStatKey != null) {
+            return getComponentBuilder(null,
+                    getColorFromString(config.getSubStatNameDecoration(selection, false)),
+                    getStyleFromString(config.getSubStatNameDecoration(selection, true)))
+                    .append(text("("))
+                    .append(translatable()
+                            .key(subStatKey))
+                    .append(text(")"))
+                    .build();
         }
         return Component.empty();
     }
@@ -176,46 +159,40 @@ public class ComponentFactory {
     }
 
     //TODO Add hoverComponent with full number
-    public TextComponent.Builder statNumberComponent(String number, Target selection) {
-        return getComponentBuilder(number,
+    public TextComponent.Builder statNumberComponent(String prettyNumber, Target selection) {
+        return getComponentBuilder(prettyNumber,
                 getColorFromString(config.getStatNumberDecoration(selection, false)),
                 getStyleFromString(config.getStatNumberDecoration(selection, true)));
     }
 
-    public TextComponent statNumberHoverComponent(String mainNumber, String hoverNumber, Unit hoverUnit, Target selection, boolean isTranslatable) {
+    public TextComponent statNumberHoverComponent(String mainNumber, String hoverNumber, @Nullable String hoverUnitName, @Nullable String hoverUnitKey, Target selection) {
         TextColor baseColor = getColorFromString(config.getStatNumberDecoration(selection, false));
         TextDecoration style = getStyleFromString(config.getStatNumberDecoration(selection, true));
+
         TextComponent.Builder hoverText = getComponentBuilder(hoverNumber, getLighterColor(baseColor), style);
-        if (isTranslatable) {
-            String unitKey = languageKeyHandler.getUnitKey(hoverUnit);
-            if (unitKey == null) {
-                unitKey = hoverUnit.getName();
-            }
+        if (hoverUnitKey != null) {
             hoverText.append(space())
-                    .append(translatable().key(unitKey));
+                    .append(translatable().key(hoverUnitKey));
         }
-        else {
+        else if (hoverUnitName != null) {
             hoverText.append(space())
-                    .append(text(hoverUnit.getName()));
+                    .append(text(hoverUnitName));
         }
         return getComponent(mainNumber, baseColor, style).hoverEvent(HoverEvent.showText(hoverText));
     }
 
     //TODO Make this dark gray (or at least darker than statNumber, and at least for time statistics)
-    public TextComponent statUnitComponent(Unit statUnit, Target selection, boolean isTranslatable) {
-        if (statUnit.getType() != Unit.Type.UNTYPED) {
+    public TextComponent statUnitComponent(String unitName, String unitKey, Target selection) {
+        if (!(unitName == null && unitKey == null)) {
             TextComponent.Builder statUnitBuilder = getComponentBuilder(null,
                     getColorFromString(config.getSubStatNameDecoration(selection, false)),
                     getStyleFromString(config.getSubStatNameDecoration(selection, true)))
                     .append(text("["));
-            if (isTranslatable) {
-                String unitKey = languageKeyHandler.getUnitKey(statUnit);
-                if (unitKey == null) {
-                    unitKey = statUnit.getName();
-                }
-                statUnitBuilder.append(translatable().key(unitKey));
+            if (unitKey != null) {
+                statUnitBuilder.append(translatable()
+                        .key(unitKey));
             } else {
-                statUnitBuilder.append(text(statUnit.getName()));
+                statUnitBuilder.append(text(unitName));
             }
             return statUnitBuilder.append(text("]")).build();
         }

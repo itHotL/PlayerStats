@@ -18,19 +18,24 @@ public class NumberFormatter {
      (number-of-times, time-, damage- or distance-based) according to the
      corresponding config settings, and adds commas in groups of 3.*/
     public String format(long number, Unit statUnit) {
-        switch (statUnit.getType()) {
-            case DISTANCE -> {
-                return formatDistance(number, statUnit);
+        return format(number, statUnit, null);
+    }
+
+    public String format(long number, Unit statUnit, Unit timeMinimumUnit) {
+        if (timeMinimumUnit == null) {
+            switch (statUnit.getType()) {
+                case DISTANCE -> {
+                    return formatDistance(number, statUnit);
+                }
+                case DAMAGE -> {
+                    return formatDamage(number, statUnit);
+                }
+                default -> {
+                    return format.format(number);
+                }
             }
-            case DAMAGE -> {
-                return formatDamage(number, statUnit);
-            }
-            case TIME -> {
-                return formatTime(number, statUnit);
-            }
-            default -> {
-                return format.format(number);
-            }
+        } else {
+            return formatTime(number, statUnit, timeMinimumUnit);
         }
     }
 
@@ -63,8 +68,9 @@ public class NumberFormatter {
         }
     }
 
+    //TODO work in min-max
     /** The unit of time-based statistics is ticks by default.*/
-    private String formatTime(long number, Unit statUnit) {  //5 statistics
+    private String formatTime(long number, Unit statUnit, Unit timeMinimumUnit) {  //5 statistics
         if (number == 0) {
             return "-";
         }
@@ -74,24 +80,24 @@ public class NumberFormatter {
         if (leftover >= 86400) {
             double days = leftover / 60 / 60 / 24;
             output.append(format.format(Math.round(days)))
-                    .append("D ");
+                    .append("d ");
             leftover = leftover % (60 * 60 * 24);
         }
         if (leftover >= 3600) {
             double hours = leftover / 60 / 60;
             output.append(format.format(Math.round(hours)))
-                    .append("H ");
+                    .append("h ");
             leftover = leftover % (60 * 60);
         }
         if (leftover >= 60) {
             double minutes = leftover / 60;
             output.append(format.format(Math.round(minutes)))
-                    .append("M ");
+                    .append("m ");
             leftover = leftover % 60;
         }
         if (leftover > 0) {
             output.append(format.format(Math.round(leftover)))
-                    .append("S");
+                    .append("s");
         }
         return output.toString();
     }
