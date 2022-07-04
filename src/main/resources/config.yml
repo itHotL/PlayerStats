@@ -43,15 +43,21 @@ distance-unit-for-hover-text: km
 damage-unit: hearts
 damage-unit-for-hover-text: hp
 
-# Minecraft measures time in ticks. PlayerStats supports: weeks, days, hours, minutes, seconds, ticks
-# Below you can choose a range between the maximum and minimum unit you want to see
-# If the max and min are the same, only that unit will be displayed
-# For example, 5.000.000 ticks would become "4D", "3D 21H 27M 40S", "69H 27M 40S", "4168M", etc.
-max-time-unit: hours
-min-time-unit: seconds
+# Minecraft measures time in ticks. With the below settings, PlayerStats will:
+# Auto-detect the best maximum unit to use (weeks/days/hours/minutes/seconds) for your players' statistics
+# Show a specified amount of additional smaller units (example: "x days" would become "x days, y hours, z minutes")
+auto-detect-biggest-time-unit: true
+number-of-extra-units: 1
+auto-detect-biggest-time-unit-for-hover-text: false
+number-of-extra-units-for-hover-text: 0
 
-max-time-unit-for-hover-text: days
-min-time-unit-for-hover-text: seconds
+# If you don't want the unit to be auto-detected, set the auto-detect settings to false and specify your own range here
+# If the max and min are the same, only that unit will be displayed
+# PlayerStats supports: days, hours, minutes, seconds (and ticks if you want the original number)
+biggest-time-unit: days
+smallest-time-unit: hours
+biggest-time-unit-for-hover-text: hours
+smallest-time-unit-for-hover-text: seconds
 
 # Automatically use themed formatting for the duration of certain holidays or festivals
 enable-festive-formatting: true

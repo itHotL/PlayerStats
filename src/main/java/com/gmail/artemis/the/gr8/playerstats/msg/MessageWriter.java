@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
+import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
@@ -127,21 +128,23 @@ public class MessageWriter {
                 .append(getStatNameComponent(request))
                 .append(getStatUnitComponent(request.getStatistic(), request.getSelection()));
 
+        ArrayList<Unit> timeUnits = null;
+        if (Unit.getTypeFromStatistic(request.getStatistic()) == Unit.Type.TIME) {
+            timeUnits = getTimeUnitRange(topStats.values().iterator().next());
+        }
         boolean useDots = config.useDots();
         boolean boldNames = config.playerNameIsBold();
 
-        Set<String> playerNames = topStats.keySet();
         MinecraftFont font = new MinecraftFont();
+        Set<String> playerNames = topStats.keySet();
 
         int count = 0;
         for (String playerName : playerNames) {
             TextComponent.Builder playerNameBuilder = componentFactory.playerNameBuilder(playerName, Target.TOP);
-            count = count+1;
-
+            count++;
             topList.append(newline())
                     .append(componentFactory.rankingNumberComponent(count + ". "))
                     .append(playerNameBuilder);
-
             if (useDots) {
                 topList.append(space());
                 TextComponent.Builder dotsBuilder = componentFactory.dotsBuilder();
@@ -154,16 +157,16 @@ public class MessageWriter {
                     dots = (int) Math.round((130.0 - font.getWidth(count + ". ") - (font.getWidth(playerName) * 1.19))/2);
                 }
                 if (dots >= 1) {
-                    topList.append(dotsBuilder
-                            .append(text((".".repeat(dots)))));
+                    topList.append(dotsBuilder.append(text((".".repeat(dots)))));
                 }
             } else {
-                topList.append(playerNameBuilder
-                        .append(text(":")));
+                topList.append(playerNameBuilder.append(text(":")));
             }
-            topList.append(space())
-                    .append(getStatNumberComponent(request.getStatistic(), topStats.get(playerName), Target.TOP));
-
+            if (timeUnits != null) {
+                topList.append(space()).append(getTimeNumberComponent(topStats.get(playerName), request.getSelection(), timeUnits));
+            } else {
+                topList.append(space()).append(getStatNumberComponent(request.getStatistic(), topStats.get(playerName), Target.TOP));
+            }
         }
         return topList.build();
     }
@@ -207,53 +210,90 @@ public class MessageWriter {
     }
 
     private TextComponent getStatNumberComponent(Statistic statistic, long statNumber, Target selection) {
-        Unit.Type type = Unit.fromStatistic(statistic);
+        Unit.Type type = Unit.getTypeFromStatistic(statistic);
         Unit statUnit;
         switch (type) {
             case DISTANCE -> statUnit = Unit.fromString(config.getDistanceUnit(false));
             case DAMAGE -> statUnit = Unit.fromString(config.getDamageUnit(false));
             case TIME -> {
-                return getTimeNumberComponent(statNumber, selection);
+                return getTimeNumberComponent(statNumber, selection, getTimeUnitRange(statNumber));
             }
             default -> statUnit = Unit.NUMBER;
         }
         String prettyNumber = formatter.format(statNumber, statUnit);
         if (!config.useHoverText() || statUnit == Unit.NUMBER) {
-            return componentFactory.statNumberComponent(prettyNumber, selection).build();
+            return componentFactory.statNumberBuilder(prettyNumber, selection).build();
         }
         Unit hoverUnit = type == Unit.Type.DISTANCE ? Unit.fromString(config.getDistanceUnit(true)) :
                 Unit.fromString(config.getDamageUnit(true));
         String prettyHoverNumber = formatter.format(statNumber, hoverUnit);
+        MyLogger.logMsg("mainNumber: " + prettyNumber + "\n" + "hoverNumber: " + prettyHoverNumber, DebugLevel.HIGH);
         if (config.useTranslatableComponents()) {
             String unitKey = languageKeyHandler.getUnitKey(hoverUnit);
             if (unitKey == null) {
-                unitKey = hoverUnit.getName();
+                unitKey = hoverUnit.getLabel();
             }
             return componentFactory.statNumberHoverComponent(prettyNumber, prettyHoverNumber, null, unitKey, selection);
         }
         else {
-            return componentFactory.statNumberHoverComponent(prettyNumber, prettyHoverNumber, hoverUnit.getName(), null, selection);
+            return componentFactory.statNumberHoverComponent(prettyNumber, prettyHoverNumber, hoverUnit.getLabel(), null, selection);
         }
     }
 
-    private TextComponent getTimeNumberComponent(long statNumber, Target selection) {
-        Unit max = Unit.fromString(config.getTimeUnit(false));
-        Unit min = Unit.fromString(config.getTimeUnit(false, true));
-        String mainNumber = formatter.format(statNumber, max, min);
-        if (!config.useHoverText()) {
-            return componentFactory.statNumberComponent(mainNumber, selection).build();
-        } else {
-            Unit hoverMax = Unit.fromString(config.getTimeUnit(true));
-            Unit hoverMin = Unit.fromString(config.getTimeUnit(true, true));
-            return componentFactory.statNumberHoverComponent(mainNumber,
-                    formatter.format(statNumber, hoverMax, hoverMin),
-                    null, null, selection);  //Time does not support translatable text,
-        }                                                            //because the unit and number are so tightly interwoven.
+    private TextComponent getTimeNumberComponent(long statNumber, Target selection, ArrayList<Unit> unitRange) {
+        if (unitRange.size() <= 1 || (config.useHoverText() && unitRange.size() <= 3)) {
+            MyLogger.logMsg(
+                    "There is something wrong with the time-units you specified, please check your config!",
+                    true);
+            return componentFactory.statNumberBuilder("-", selection).build();
+        }
+        else {
+            String mainNumber = formatter.format(statNumber, unitRange.get(0), unitRange.get(1));
+            if (!config.useHoverText()) {
+                return componentFactory.statNumberBuilder(mainNumber, selection).build();
+            } else {
+                String hoverNumber = formatter.format(statNumber, unitRange.get(2), unitRange.get(3));
+                MyLogger.logMsg("mainNumber: " + mainNumber + ", hoverNumber: " + hoverNumber, DebugLevel.HIGH);
+                return componentFactory.statNumberHoverComponent(mainNumber, hoverNumber,
+                        null, null, selection);  //Time does not support translatable text,
+            }                                                            //because the unit and number are so tightly interwoven.
+        }
+    }
+
+    /** Get an ArrayList consisting of 2 or 4 timeUnits. The order of items is:
+     <p>0. maxUnit</p>
+     <p>1. minUnit</p>
+     <p>2. maxHoverUnit</p>
+     <p>3. minHoverUnit</p>*/
+    private ArrayList<Unit> getTimeUnitRange(long statNumber) {
+        ArrayList<Unit> unitRange = new ArrayList<>();
+        if (!config.autoDetectTimeUnit(false)) {
+            unitRange.add(Unit.fromString(config.getTimeUnit(false)));
+            unitRange.add(Unit.fromString(config.getTimeUnit(false, true)));
+        }
+        else {
+            Unit bigUnit = Unit.getMostSuitableUnit(Unit.Type.TIME, statNumber);
+            unitRange.add(bigUnit);
+            unitRange.add(bigUnit.getSmallerUnit(config.getNumberOfExtraTimeUnits(false)));
+        }
+        if (config.useHoverText()) {
+            if (!config.autoDetectTimeUnit(true)) {
+                unitRange.add(Unit.fromString(config.getTimeUnit(true)));
+                unitRange.add(Unit.fromString(config.getTimeUnit(true, true)));
+            }
+            else {
+                Unit bigHoverUnit = Unit.getMostSuitableUnit(Unit.Type.TIME, statNumber);
+                unitRange.add(bigHoverUnit);
+                unitRange.add(bigHoverUnit.getSmallerUnit(config.getNumberOfExtraTimeUnits(true)));
+            }
+        }
+        MyLogger.logMsg("total selected unitRange for this statistic: " + unitRange, DebugLevel.MEDIUM);
+        return unitRange;
     }
 
     private TextComponent getStatUnitComponent(Statistic statistic, Target selection) {
         Unit statUnit;
-        switch (Unit.fromStatistic(statistic)) {
+        switch (Unit.getTypeFromStatistic(statistic)) {
             case DAMAGE -> statUnit = Unit.fromString(config.getDamageUnit(false));
             case DISTANCE -> statUnit = Unit.fromString(config.getDistanceUnit(false));
             default -> {
@@ -268,7 +308,7 @@ public class MessageWriter {
             }
         }
         return Component.space()
-                .append(componentFactory.statUnitComponent(statUnit.getName(), null, selection));
+                .append(componentFactory.statUnitComponent(statUnit.getLabel(), null, selection));
     }
 
     /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */

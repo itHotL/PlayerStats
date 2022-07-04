@@ -104,7 +104,6 @@ public class ConfigHandler {
         return config.getBoolean("enable-hover-text", true);
     }
 
-    //TODO Test these default units
     public String getDistanceUnit(boolean isHoverText) {
         return getUnitString(isHoverText, "blocks", "km", "distance-unit");
     }
@@ -113,19 +112,37 @@ public class ConfigHandler {
         return getUnitString(isHoverText, "hearts", "hp", "damage-unit");
     }
 
+    public boolean autoDetectTimeUnit(boolean isHoverText) {
+        String path = "auto-detect-biggest-time-unit";
+        if (isHoverText) {
+            path = path + "-for-hover-text";
+        }
+        boolean defaultValue = !isHoverText;
+        return config.getBoolean(path, defaultValue);
+    }
+
+    public int getNumberOfExtraTimeUnits(boolean isHoverText) {
+        String path = "number-of-extra-units";
+        if (isHoverText) {
+            path = path + "-for-hover-text";
+        }
+        int defaultValue = isHoverText ? 0 : 1;
+        return config.getInt(path, defaultValue);
+    }
+
     /** By default, getTimeUnit will return the maxUnit. If the optional minUnit flag is specified,
      the minimum unit will be returned instead. */
     public String getTimeUnit(boolean isHoverText) {
         return getTimeUnit(isHoverText, false);
     }
 
-    /** By default, getTimeUnit will return the maxUnit. If the optional minUnit flag is specified,
+    /** By default, getTimeUnit will return the maxUnit. If the optional smallUnit flag is specified,
      the minimum unit will be returned instead. */
-    public String getTimeUnit(boolean isHoverText, boolean minUnit) {
-        if (minUnit) {
-            return getUnitString(isHoverText, "seconds", "min-time-unit");
+    public String getTimeUnit(boolean isHoverText, boolean smallUnit) {
+        if (smallUnit) {
+            return getUnitString(isHoverText, "hours", "seconds", "smallest-time-unit");
         }
-        return getUnitString(isHoverText, "hours", "days", "max-time-unit");
+        return getUnitString(isHoverText, "days", "hours", "biggest-time-unit");
     }
 
     /** Whether to use festive formatting, such as pride colors.
@@ -267,15 +284,6 @@ public class ConfigHandler {
      <p>Color: "dark_gray"</p> */
     public String getDotsDecoration(boolean getStyle) {
         return getDecorationString(Target.TOP, getStyle, "dark_gray", "dots");
-    }
-
-    /** Returns a String representing the Unit that should be used for a certain Unit.Type.
-     If no String can be retrieved from the config, the supplied defaultValue will be returned.
-     @param isHoverText if true, the unit for hovering text is returned, otherwise the unit for plain text
-     @param defaultValue the default unit for plain text
-     @param pathName the config path to retrieve the value from*/
-    private String getUnitString(boolean isHoverText, String defaultValue, String pathName) {
-        return getUnitString(isHoverText, defaultValue, null, pathName);
     }
 
     /** Returns a String representing the Unit that should be used for a certain Unit.Type.

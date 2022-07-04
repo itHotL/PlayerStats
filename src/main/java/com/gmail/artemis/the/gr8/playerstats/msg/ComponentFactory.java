@@ -159,7 +159,7 @@ public class ComponentFactory {
     }
 
     //TODO Add hoverComponent with full number
-    public TextComponent.Builder statNumberComponent(String prettyNumber, Target selection) {
+    public TextComponent.Builder statNumberBuilder(String prettyNumber, Target selection) {
         return getComponentBuilder(prettyNumber,
                 getColorFromString(config.getStatNumberDecoration(selection, false)),
                 getStyleFromString(config.getStatNumberDecoration(selection, true)));

@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
+
 import java.text.DecimalFormat;
 
 public class NumberFormatter {
@@ -20,8 +21,8 @@ public class NumberFormatter {
         return format(number, statUnit, null);
     }
 
-    public String format(long number, Unit statUnit, Unit timeMinimumUnit) {
-        if (timeMinimumUnit == null) {
+    public String format(long number, Unit statUnit, Unit smallTimeUnit) {
+        if (smallTimeUnit == null) {
             switch (statUnit.getType()) {
                 case DISTANCE -> {
                     return formatDistance(number, statUnit);
@@ -34,7 +35,7 @@ public class NumberFormatter {
                 }
             }
         } else {
-            return formatTime(number, statUnit, timeMinimumUnit);
+            return formatTime(number, statUnit, smallTimeUnit);
         }
     }
 
@@ -56,7 +57,7 @@ public class NumberFormatter {
                 return format.format(number);
             }
             case MILE -> {
-                return format.format(Math.round(number / 160900.0));  //to get from CM to Miles
+                return format.format(Math.round(number / 160934.4));  //to get from CM to Miles
             }
             case KM -> {
                 return format.format(Math.round(number / 100000.0));  //divide by 100 to get M, divide by 1000 to get KM
@@ -67,33 +68,24 @@ public class NumberFormatter {
         }
     }
 
-    //TODO Fix spaces
     /** The unit of time-based statistics is ticks by default.*/
-    private String formatTime(long number, Unit maxUnit, Unit minUnit) {  //5 statistics
+    private String formatTime(long number, Unit bigUnit, Unit smallUnit) {  //5 statistics
         if (number == 0) {
             return "-";
         }
-        StringBuilder output = new StringBuilder();
-        int max = maxUnit.getTimeInSeconds();
-        int min = minUnit.getTimeInSeconds();
+        if (bigUnit == Unit.TICK && smallUnit == Unit.TICK || bigUnit == Unit.NUMBER || smallUnit == Unit.NUMBER) {
+            return format.format(number);
+        }
 
+        StringBuilder output = new StringBuilder();
+        double max = bigUnit.getSeconds();
+        double min = smallUnit.getSeconds();
         double leftover = number / 20.0;
 
-        if (isInRange(max, min, 604800) && leftover >= 604800) {
-            double weeks = leftover / 7 / 60 / 60 / 24;
-            leftover = leftover % (7 * 60 * 60 * 24);
-            if (minUnit == Unit.WEEK && leftover >= 302400) {
-                weeks++;
-                return output.append(format.format(Math.round(weeks)))
-                        .append("w").toString();
-            }
-            output.append(format.format(Math.round(weeks)))
-                    .append("w ");
-        }
         if (isInRange(max, min, 86400) && leftover >= 86400) {
             double days = leftover / 60 / 60 / 24;
             leftover = leftover % (60 * 60 * 24);
-            if (minUnit == Unit.DAY) {
+            if (smallUnit == Unit.DAY && leftover >= 43200) {
                 days++;
                 return output.append(format.format(Math.round(days)))
                         .append("d").toString();
@@ -104,7 +96,7 @@ public class NumberFormatter {
         if (isInRange(max, min, 3600) && leftover >= 3600) {
             double hours = leftover / 60 / 60;
             leftover = leftover % (60 * 60);
-            if (minUnit == Unit.HOUR) {
+            if (smallUnit == Unit.HOUR && leftover >= 1800) {
                 hours++;
                 return output.append(format.format(Math.round(hours)))
                         .append("h").toString();
@@ -115,7 +107,7 @@ public class NumberFormatter {
         if (isInRange(max, min, 60) && leftover >= 60) {
             double minutes = leftover / 60;
             leftover = leftover % 60;
-            if (minUnit == Unit.MINUTE) {
+            if (smallUnit == Unit.MINUTE && leftover >= 30) {
                 minutes++;
                 return output.append(format.format(Math.round(minutes)))
                         .append("m").toString();
@@ -130,7 +122,7 @@ public class NumberFormatter {
         return output.toString();
     }
 
-    private boolean isInRange(int maxUnit, int minUnit, int unitToEvaluate) {
-        return maxUnit >= unitToEvaluate && unitToEvaluate >= minUnit;
+    private boolean isInRange(double bigUnit, double smallUnit, double unitToEvaluate) {
+        return bigUnit >= unitToEvaluate && unitToEvaluate >= smallUnit;
     }
 }
