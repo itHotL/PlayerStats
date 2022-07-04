@@ -12,20 +12,31 @@ public enum Unit {
     HP (Type.DAMAGE),
     HEART (Type.DAMAGE),
     TICK (Type.TIME),
-    SECOND (Type.TIME),
-    MINUTE (Type.TIME),
-    HOUR (Type.TIME),
-    DAY (Type.TIME),
-    WEEK (Type.TIME);
+    SECOND (Type.TIME, 1),
+    MINUTE (Type.TIME, 60),
+    HOUR (Type.TIME, 3600),
+    DAY (Type.TIME, 86400),
+    WEEK (Type.TIME, 604800);
 
     private final Type type;
+    private final int seconds;
 
     Unit(Type type) {
+        this(type, -1);
+    }
+
+    Unit(Type type, int seconds) {
         this.type = type;
+        this.seconds = seconds;
     }
 
     public Type getType() {
         return type;
+    }
+
+    /** Returns the given Unit in seconds, or -1 if the Unit is not a TimeUnit.*/
+    public int getTimeInSeconds() {
+        return this.seconds;
     }
 
     /** Returns a pretty name belonging to this enum constant. If the Unit is

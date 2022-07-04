@@ -1,7 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
-
 import java.text.DecimalFormat;
 
 public class NumberFormatter {
@@ -68,37 +67,62 @@ public class NumberFormatter {
         }
     }
 
-    //TODO work in min-max
+    //TODO Fix spaces
     /** The unit of time-based statistics is ticks by default.*/
-    private String formatTime(long number, Unit statUnit, Unit timeMinimumUnit) {  //5 statistics
+    private String formatTime(long number, Unit maxUnit, Unit minUnit) {  //5 statistics
         if (number == 0) {
             return "-";
         }
         StringBuilder output = new StringBuilder();
+        int max = maxUnit.getTimeInSeconds();
+        int min = minUnit.getTimeInSeconds();
+
         double leftover = number / 20.0;
 
-        if (leftover >= 86400) {
+        if (isInRange(max, min, 604800) && leftover >= 604800) {
+            double weeks = leftover / 7 / 60 / 60 / 24;
+            leftover = leftover % (7 * 60 * 60 * 24);
+            if (maxUnit == Unit.WEEK && leftover >= 302400) {
+                weeks++;
+            }
+            output.append(format.format(Math.round(weeks)))
+                    .append("w ");
+        }
+        if (isInRange(max, min, 86400) && leftover >= 86400) {
             double days = leftover / 60 / 60 / 24;
+            leftover = leftover % (60 * 60 * 24);
+            if (maxUnit == Unit.DAY) {
+                days++;
+            }
             output.append(format.format(Math.round(days)))
                     .append("d ");
-            leftover = leftover % (60 * 60 * 24);
         }
-        if (leftover >= 3600) {
+        if (isInRange(max, min, 3600) && leftover >= 3600) {
             double hours = leftover / 60 / 60;
+            leftover = leftover % (60 * 60);
+            if (maxUnit == Unit.HOUR) {
+                hours++;
+            }
             output.append(format.format(Math.round(hours)))
                     .append("h ");
-            leftover = leftover % (60 * 60);
         }
-        if (leftover >= 60) {
+        if (isInRange(max, min, 60) && leftover >= 60) {
             double minutes = leftover / 60;
+            leftover = leftover % 60;
+            if (maxUnit == Unit.MINUTE) {
+                minutes++;
+            }
             output.append(format.format(Math.round(minutes)))
                     .append("m ");
-            leftover = leftover % 60;
         }
-        if (leftover > 0) {
+        if (isInRange(max, min, 1) && leftover > 0) {
             output.append(format.format(Math.round(leftover)))
                     .append("s");
         }
         return output.toString();
+    }
+
+    private boolean isInRange(int maxUnit, int minUnit, int unitToEvaluate) {
+        return maxUnit >= unitToEvaluate && unitToEvaluate >= minUnit;
     }
 }
