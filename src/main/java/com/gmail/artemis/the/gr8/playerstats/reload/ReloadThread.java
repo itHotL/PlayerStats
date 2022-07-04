@@ -111,9 +111,9 @@ public class ReloadThread extends Thread {
         MyLogger.actionCreated((offlinePlayers != null) ? offlinePlayers.length : 0);
         ForkJoinPool.commonPool().invoke(task);
         MyLogger.actionFinished(1);
-        MyLogger.logTimeTaken("ReloadThread",
-                ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
 
         OfflinePlayerHandler.updateOfflinePlayerList(playerMap);
+        MyLogger.logTimeTaken("ReloadThread",
+                ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
     }
 }

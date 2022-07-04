@@ -22,9 +22,9 @@ public class PrideComponentFactory extends ComponentFactory {
 
 
     @Override
-    public TextComponent prefixTitle(boolean isBukkitConsole) {
+    public TextComponent prefixTitleComponent(boolean isBukkitConsole) {
         if (cancelRainbow(isBukkitConsole)) {
-            return super.prefixTitle(isBukkitConsole);
+            return super.prefixTitleComponent(isBukkitConsole);
         }
         else {
             String title = "<rainbow:16>____________    [PlayerStats]    ____________</rainbow>"; //12 underscores
@@ -35,9 +35,9 @@ public class PrideComponentFactory extends ComponentFactory {
     }
 
     @Override
-    public TextComponent pluginPrefix(boolean isConsoleSender) {
+    public TextComponent pluginPrefixComponent(boolean isConsoleSender) {
         if (cancelRainbow(isConsoleSender)) {
-            return super.pluginPrefix(isConsoleSender);
+            return super.pluginPrefixComponent(isConsoleSender);
         }
         return text()
                 .append(MiniMessage.miniMessage()
@@ -53,7 +53,7 @@ public class PrideComponentFactory extends ComponentFactory {
                                 "<#01c1a7>a</#01c1a7>" +
                                 "<#0690d4>t</#0690d4>" +
                                 "<#205bf3>s</#205bf3>" +
-                                "<#6c15fa>] </#6c15fa>"))
+                                "<#6c15fa>]</#6c15fa>"))
                 .build();
     }
 

@@ -52,6 +52,10 @@ public class MyLogger {
         }
     }
 
+    public static void logMsg(String content) {
+        logMsg(content, DebugLevel.LOW, false);
+    }
+
     public static void logMsg(String content, boolean logAsWarning) {
            logMsg(content, DebugLevel.LOW, logAsWarning);
     }
@@ -129,7 +133,7 @@ public class MyLogger {
         if (debugLevel != DebugLevel.LOW) {
             threadNames = new ConcurrentHashMap<>();
             playersIndex.set(0);
-            logger.info("Initial Action created for " + taskLength + " Players. Start Index is " + playersIndex.get() + ". Processing...");
+            logger.info("Initial Action created for " + taskLength + " Players. Processing...");
         }
     }
 
@@ -161,7 +165,7 @@ public class MyLogger {
                 }
                 processedPlayers[nextPlayersIndex() % 10] = playerName;
             }
-            else if (debugLevel == DebugLevel.MEDIUM) {
+            else if (debugLevel == DebugLevel.MEDIUM || debugLevel == DebugLevel.HIGH && thread == 2) {
                 nextPlayersIndex();
             }
         }
@@ -179,8 +183,10 @@ public class MyLogger {
         if (debugLevel != DebugLevel.LOW) {
             logger.info("Finished Recursive Action! In total " +
                     threadNames.size() + " Threads were used to process " +
-                    playersIndex.get() + " Players: " +
-                    Collections.list(threadNames.keys()));
+                    playersIndex.get() + " Players.");
+        }
+        if (debugLevel == DebugLevel.HIGH) {
+            logger.info(Collections.list(threadNames.keys()).toString());
         }
     }
 

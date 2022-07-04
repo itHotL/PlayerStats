@@ -15,7 +15,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
 
     private final List<String> commandOptions;
 
-
+    //TODO add "example" to the list
     public TabCompleter() {
         commandOptions = new ArrayList<>();
         commandOptions.add("top");

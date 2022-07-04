@@ -23,7 +23,7 @@ public class ConfigHandler {
         saveDefaultConfig();
         config = YamlConfiguration.loadConfiguration(configFile);
 
-        configVersion = 4;
+        configVersion = 5;
         checkConfigVersion();
 
         MyLogger.setDebugLevel(getDebugLevel());
@@ -91,16 +91,58 @@ public class ConfigHandler {
         return config.getInt("number-of-days-since-last-joined", 0);
     }
 
-    /** Whether to use TranslatableComponents for statistic, block, item and entity names.
+    /** Whether to use TranslatableComponents wherever possible.
+     Currently supported: statistic, block, item and entity names.
      <p>Default: true</p>*/
     public boolean useTranslatableComponents() {
         return config.getBoolean("translate-to-client-language", true);
     }
 
-    /** Whether to use HoverComponents in the usage explanation.
+    /** Whether to use HoverComponents for additional information.
      <p>Default: true</p>*/
     public boolean useHoverText() {
         return config.getBoolean("enable-hover-text", true);
+    }
+
+    public String getDistanceUnit(boolean isHoverText) {
+        return getUnitString(isHoverText, "blocks", "km", "distance-unit");
+    }
+
+    public String getDamageUnit(boolean isHoverText) {
+        return getUnitString(isHoverText, "hearts", "hp", "damage-unit");
+    }
+
+    public boolean autoDetectTimeUnit(boolean isHoverText) {
+        String path = "auto-detect-biggest-time-unit";
+        if (isHoverText) {
+            path = path + "-for-hover-text";
+        }
+        boolean defaultValue = !isHoverText;
+        return config.getBoolean(path, defaultValue);
+    }
+
+    public int getNumberOfExtraTimeUnits(boolean isHoverText) {
+        String path = "number-of-extra-units";
+        if (isHoverText) {
+            path = path + "-for-hover-text";
+        }
+        int defaultValue = isHoverText ? 0 : 1;
+        return config.getInt(path, defaultValue);
+    }
+
+    /** By default, getTimeUnit will return the maxUnit. If the optional minUnit flag is specified,
+     the minimum unit will be returned instead. */
+    public String getTimeUnit(boolean isHoverText) {
+        return getTimeUnit(isHoverText, false);
+    }
+
+    /** By default, getTimeUnit will return the maxUnit. If the optional smallUnit flag is specified,
+     the minimum unit will be returned instead. */
+    public String getTimeUnit(boolean isHoverText, boolean smallUnit) {
+        if (smallUnit) {
+            return getUnitString(isHoverText, "hours", "seconds", "smallest-time-unit");
+        }
+        return getUnitString(isHoverText, "days", "hours", "biggest-time-unit");
     }
 
     /** Whether to use festive formatting, such as pride colors.
@@ -149,7 +191,7 @@ public class ConfigHandler {
      <p>Style: "none"</p>
      <p>Color Top: "green"</p>
      <p>Color Individual/Server: "gold"</p>*/
-    public String getPlayerNameFormatting(Target selection, boolean isStyle) {
+    public String getPlayerNameDecoration(Target selection, boolean getStyle) {
         String def;
         if (selection == Target.TOP) {
             def = "green";
@@ -157,7 +199,7 @@ public class ConfigHandler {
         else {
             def = "gold";
         }
-        return getStringFromConfig(selection, isStyle, def, "player-names");
+        return getDecorationString(selection, getStyle, def, "player-names");
     }
 
     /** Returns true if playerNames Style is "bold", false if it is not.
@@ -175,22 +217,22 @@ public class ConfigHandler {
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "yellow"</p>*/
-    public String getStatNameFormatting(Target selection, boolean isStyle) {
-        return getStringFromConfig(selection, isStyle, "yellow", "stat-names");
+    public String getStatNameDecoration(Target selection, boolean getStyle) {
+        return getDecorationString(selection, getStyle, "yellow", "stat-names");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "#FFD52B"</p>*/
-    public String getSubStatNameFormatting(Target selection, boolean isStyle) {
-        return getStringFromConfig(selection, isStyle, "#FFD52B", "sub-stat-names");
+    public String getSubStatNameDecoration(Target selection, boolean getStyle) {
+        return getDecorationString(selection, getStyle, "#FFD52B", "sub-stat-names");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color Top: "#55AAFF"</p>
      <p>Color Individual/Server: "#ADE7FF"</p> */
-    public String getStatNumberFormatting(Target selection, boolean isStyle) {
+    public String getStatNumberDecoration(Target selection, boolean getStyle) {
         String def;
         if (selection == Target.TOP) {
             def = "#55AAFF";
@@ -198,14 +240,14 @@ public class ConfigHandler {
         else {
             def = "#ADE7FF";
         }
-        return getStringFromConfig(selection, isStyle, def,"stat-numbers");
+        return getDecorationString(selection, getStyle, def,"stat-numbers");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color Top: "yellow"</p>
      <p>Color Server: "gold"</p>*/
-    public String getTitleFormatting(Target selection, boolean isStyle) {
+    public String getTitleDecoration(Target selection, boolean getStyle) {
         String def;
         if (selection == Target.TOP) {
             def = "yellow";
@@ -213,41 +255,62 @@ public class ConfigHandler {
         else {
             def = "gold";
         }
-        return getStringFromConfig(selection, isStyle, def, "title");
+        return getDecorationString(selection, getStyle, def, "title");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "gold"</p>*/
-    public String getTitleNumberFormatting(boolean isStyle) {
-        return getStringFromConfig(Target.TOP, isStyle, "gold", "title-number");
+    public String getTitleNumberDecoration(boolean getStyle) {
+        return getDecorationString(Target.TOP, getStyle, "gold", "title-number");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "#FFB80E"</p>*/
-    public String getServerNameFormatting(boolean isStyle) {
-        return getStringFromConfig(Target.SERVER, isStyle, "#FFB80E", "server-name");
+    public String getServerNameDecoration(boolean getStyle) {
+        return getDecorationString(Target.SERVER, getStyle, "#FFB80E", "server-name");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "gold"</p>*/
-    public String getRankNumberFormatting(boolean isStyle) {
-        return getStringFromConfig(Target.TOP, isStyle, "gold", "rank-numbers");
+    public String getRankNumberDecoration(boolean getStyle) {
+        return getDecorationString(Target.TOP, getStyle, "gold", "rank-numbers");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "dark_gray"</p> */
-    public String getDotsFormatting(boolean isStyle) {
-        return getStringFromConfig(Target.TOP, isStyle, "dark_gray", "dots");
+    public String getDotsDecoration(boolean getStyle) {
+        return getDecorationString(Target.TOP, getStyle, "dark_gray", "dots");
     }
 
-    /** Returns the config value for a color or style option in string-format, the supplied default value, or null if no configSection was found. */
-    private @Nullable String getStringFromConfig(Target selection, boolean isStyle, String def, String pathName){
-        String path = isStyle ? pathName + "-style" : pathName;
-        String defaultValue = isStyle ? "none" : def;
+    /** Returns a String representing the Unit that should be used for a certain Unit.Type.
+     If no String can be retrieved from the config, the supplied defaultValue will be returned.
+     If the defaultValue is different for hoverText, an optional String defaultHoverValue can be supplied.
+     @param isHoverText if true, the unit for hovering text is returned, otherwise the unit for plain text
+     @param defaultValue the default unit for plain text
+     @param defaultHoverValue the default unit for hovering text
+     @param pathName the config path to retrieve the value from*/
+    private String getUnitString(boolean isHoverText, String defaultValue, String defaultHoverValue, String pathName) {
+        String path = isHoverText ? pathName + "-for-hover-text" : pathName;
+        String def = defaultValue;
+        if (isHoverText && defaultHoverValue != null) {
+            def = defaultHoverValue;
+        }
+        return config.getString(path, def);
+    }
+
+    /** Returns the config value for a color or style option in string-format, the supplied default value,
+     or null if no configSection was found.
+     @param selection the Target this decoration is meant for (Player, Server or Top)
+     @param getStyle if true, the result will be a style String, otherwise a color String
+     @param defaultColor the default color to return if the config value cannot be found (for style, the default is always "none")
+     @param pathName the config path to retrieve the value from*/
+    private @Nullable String getDecorationString(Target selection, boolean getStyle, String defaultColor, String pathName){
+        String path = getStyle ? pathName + "-style" : pathName;
+        String defaultValue = getStyle ? "none" : defaultColor;
 
         ConfigurationSection section = getRelevantSection(selection);
         return section != null ? section.getString(path, defaultValue) : null;
