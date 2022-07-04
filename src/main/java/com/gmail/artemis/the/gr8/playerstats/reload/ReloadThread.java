@@ -13,12 +13,12 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
+import java.util.function.Predicate;
 
 public class ReloadThread extends Thread {
 
@@ -91,10 +91,17 @@ public class ReloadThread extends Thread {
                     "retrieved whitelist", time, DebugLevel.MEDIUM);
         }
         else if (config.excludeBanned()) {
-            Set<OfflinePlayer> bannedPlayers = Bukkit.getBannedPlayers();
-            offlinePlayers = Arrays.stream(Bukkit.getOfflinePlayers())
-                    .parallel()
-                    .filter(offlinePlayer -> !bannedPlayers.contains(offlinePlayer)).toArray(OfflinePlayer[]::new);
+            if (Bukkit.getPluginManager().getPlugin("LiteBans") != null) {
+                offlinePlayers = Arrays.stream(Bukkit.getOfflinePlayers())
+                        .parallel()
+                        .filter(Predicate.not(OfflinePlayer::isBanned))
+                        .toArray(OfflinePlayer[]::new);
+            } else {
+                Set<OfflinePlayer> bannedPlayers = Bukkit.getBannedPlayers();
+                offlinePlayers = Arrays.stream(Bukkit.getOfflinePlayers())
+                        .parallel()
+                        .filter(offlinePlayer -> !bannedPlayers.contains(offlinePlayer)).toArray(OfflinePlayer[]::new);
+            }
             MyLogger.logTimeTaken("ReloadThread",
                     "retrieved banlist", time, DebugLevel.MEDIUM);
         }
