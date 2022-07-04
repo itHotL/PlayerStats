@@ -83,40 +83,38 @@ public class NumberFormatter {
         double leftover = number / 20.0;
 
         if (isInRange(max, min, 86400) && leftover >= 86400) {
-            double days = leftover / 60 / 60 / 24;
-            leftover = leftover % (60 * 60 * 24);
+            double days = Math.floor(leftover / 86400);
+            leftover = leftover % (86400);
             if (smallUnit == Unit.DAY && leftover >= 43200) {
-                days++;
-                return output.append(format.format(Math.round(days)))
+                return output.append(format.format(days+1))
                         .append("d").toString();
             }
-            output.append(format.format(Math.round(days)))
+            output.append(format.format(days))
                     .append("d ");
         }
         if (isInRange(max, min, 3600) && leftover >= 3600) {
-            double hours = leftover / 60 / 60;
+            double hours = Math.floor(leftover / 60 / 60);
             leftover = leftover % (60 * 60);
             if (smallUnit == Unit.HOUR && leftover >= 1800) {
-                hours++;
-                return output.append(format.format(Math.round(hours)))
+                return output.append(format.format(hours+1))
                         .append("h").toString();
             }
-            output.append(format.format(Math.round(hours)))
+            output.append(format.format(hours))
                     .append("h ");
         }
         if (isInRange(max, min, 60) && leftover >= 60) {
-            double minutes = leftover / 60;
+            double minutes = Math.floor(leftover / 60);
             leftover = leftover % 60;
             if (smallUnit == Unit.MINUTE && leftover >= 30) {
-                minutes++;
-                return output.append(format.format(Math.round(minutes)))
+                return output.append(format.format(minutes+1))
                         .append("m").toString();
             }
-            output.append(format.format(Math.round(minutes)))
+            output.append(format.format(minutes))
                     .append("m ");
         }
         if (isInRange(max, min, 1) && leftover > 0) {
-            output.append(format.format(Math.round(leftover)))
+            double seconds = Math.ceil(leftover);
+            output.append(format.format(seconds))
                     .append("s");
         }
         return output.toString();
