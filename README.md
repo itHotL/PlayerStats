@@ -44,7 +44,8 @@ top-10 format or individually. Currently tested on all versions between **1.18**
     - You can customize the following (and more!):
       - Choose which **range of units** you want to display your time-, damage- and distance-based statistics in:
         ![Time_Format](src/main/resources/images/time_format.png)
-      - **Automatically translate** statistics to the language of the client that views them:
+      - **Automatically translate** statistics to the language of the client that views them
+      - Use festive formatting, or enable rainbow mode whenever!
         ![Translated](src/main/resources/images/translated.png)   
       - Only show statistics for **whitelisted** players
       - Exclude statistics from **banned** players
