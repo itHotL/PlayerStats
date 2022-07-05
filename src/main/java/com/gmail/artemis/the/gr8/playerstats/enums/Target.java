@@ -1,6 +1,5 @@
 package com.gmail.artemis.the.gr8.playerstats.enums;
 
-public enum Query {
+public enum Target {
     PLAYER, SERVER, TOP
 }
-

@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.OfflinePlayer;
@@ -31,6 +32,8 @@ public class TopStatAction extends RecursiveAction {
 
         this.request = statRequest;
         this.playerStats = playerStats;
+
+        MyLogger.subActionCreated(Thread.currentThread().getName());
     }
 
     @Override
@@ -47,36 +50,26 @@ public class TopStatAction extends RecursiveAction {
         }
     }
 
-    private void getStatsDirectly() throws UnsupportedOperationException {
-        try {
-            Iterator<String> iterator = playerNames.iterator();
-            if (iterator.hasNext()) {
-                do {
-                    String playerName = iterator.next();
-                    OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
-                    if (player != null) {
-                        int statistic = 0;
-                        switch (request.getStatType()) {
-                            case UNTYPED:
-                                statistic = player.getStatistic(request.getStatEnum());
-                                break;
-                            case ENTITY:
-                                statistic = player.getStatistic(request.getStatEnum(), request.getEntity());
-                                break;
-                            case BLOCK:
-                                statistic = player.getStatistic(request.getStatEnum(), request.getBlock());
-                                break;
-                            case ITEM:
-                                statistic = player.getStatistic(request.getStatEnum(), request.getItem());
-                                break;
-                        }
-                        if (statistic > 0) {
-                            playerStats.put(playerName, statistic);
-                        }
+    private void getStatsDirectly() {
+        Iterator<String> iterator = playerNames.iterator();
+        if (iterator.hasNext()) {
+            do {
+                String playerName = iterator.next();
+                MyLogger.actionRunning(Thread.currentThread().getName(), playerName, 2);
+                OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(playerName);
+                if (player != null) {
+                    int statistic = 0;
+                    switch (request.getStatistic().getType()) {
+                        case UNTYPED -> statistic = player.getStatistic(request.getStatistic());
+                        case ENTITY -> statistic = player.getStatistic(request.getStatistic(), request.getEntity());
+                        case BLOCK -> statistic = player.getStatistic(request.getStatistic(), request.getBlock());
+                        case ITEM -> statistic = player.getStatistic(request.getStatistic(), request.getItem());
                     }
-                } while (iterator.hasNext());
-            }
-        } catch (NoSuchElementException ignored) {
+                    if (statistic > 0) {
+                        playerStats.put(playerName, statistic);
+                    }
+                }
+            } while (iterator.hasNext());
         }
     }
 }

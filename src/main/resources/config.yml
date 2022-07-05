@@ -1,12 +1,18 @@
 # ------------------------------------------------------------------------------------------------------ #
 #                                     PlayerStats Configuration                                          #
 # ------------------------------------------------------------------------------------------------------ #
-config-version: 3
+config-version: 5
 
 
 #                                # ------------------------------- #                                     #
 #                                #            General              #                                     #
 #                                # ------------------------------- #                                     #
+
+# How much output you'll get in the server console while PlayerStats is processing
+# 1 = low (only show unexpected errors)
+# 2 = medium (log main tasks and time taken)
+# 3 = high (log all tasks and time taken)
+debug-level: 1
 
 # Filtering options to control which players should be included in statistic calculations
 include-whitelist-only: false
@@ -21,26 +27,55 @@ number-of-days-since-last-joined: 0
 #                                #        Format & Display         #                                     #
 #                                # ------------------------------- #                                     #
 
-# Whether to use special themed formatting for the duration of certain holidays or festivals
-# The festive formatting automatically stops when the holiday/event is over
-# Changing this setting requires a server restart to take effect!
-enable-festive-formatting: true
-rainbow-phase:
+# Display all statistic, block, item and entity names in the client language of the receiving player
+# The actual translation is handled by the Minecraft language files and happens automatically
+translate-to-client-language: true
 
-# Use hover-text for additional info in the usage explanation (set "false" to disable)
+# Use hover-text for additional info about statistic numbers
 enable-hover-text: true
 
-# If true, the stat-numbers in the top list will be aligned with dots
+# The unit to display certain statistics in.
+# Minecraft measures distance in cm. PlayerStats supports: blocks, cm, m (= blocks), miles, km
+distance-unit: blocks
+distance-unit-for-hover-text: km
+
+# Minecraft measures damage in 0.5 hearts (1HP). PlayerStats supports: hp, hearts
+damage-unit: hearts
+damage-unit-for-hover-text: hp
+
+# Minecraft measures time in ticks. With the below settings, PlayerStats will:
+# Auto-detect the best maximum unit to use (weeks/days/hours/minutes/seconds) for your players' statistics
+# Show a specified amount of additional smaller units (example: "x days" would become "x days, y hours, z minutes")
+auto-detect-biggest-time-unit: true
+number-of-extra-units: 1
+auto-detect-biggest-time-unit-for-hover-text: false
+number-of-extra-units-for-hover-text: 0
+
+# If you don't want the unit to be auto-detected, set the auto-detect settings to false and specify your own range here
+# If the max and min are the same, only that unit will be displayed
+# PlayerStats supports: days, hours, minutes, seconds (and ticks if you want the original number)
+biggest-time-unit: days
+smallest-time-unit: hours
+biggest-time-unit-for-hover-text: hours
+smallest-time-unit-for-hover-text: seconds
+
+# Automatically use themed formatting for the duration of certain holidays or festivals
+enable-festive-formatting: true
+
+# Always use rainbow for the [PlayerStats] prefix instead of the default gold/purple
+rainbow-mode: false
+
+# Align the stat-numbers in the top list with dots
 use-dots: true
 
 # The maximum number of results displayed in the top list
 top-list-max-size: 10
 
-# The title above the top list (the x is translated to the list-max-size, by default 10)
-top-list-title: 'Top [x]'
+# The title above the top list (this will become 'Top 10 animals bred', for example)
+top-list-title: 'Top'
 
-# The text you want displayed for a total-on-this-server statistic
-# This will be put on the same line ('Total on this server: [x] animals bred', for example)
+# The title in front of a total-on-this-server statistic
+# This will become 'Total on My Awesome Server: [n] animals bred', for example
 total-server-stat-title: 'Total on'
 your-server-name: 'this server'
 
@@ -48,6 +83,11 @@ your-server-name: 'this server'
 #                                # ------------------------------- #                                     #
 #                                #          Color & Style          #                                     #
 #                                # ------------------------------- #                                     #
+
+# How much lighter the color of a hovering number should be compared to the plain number
+# Below number represents a percentage between 0 and 100
+hover-text-amount-lighter: 40
+
 
 # The colors below can be Chat Colors or hex codes (format: '#xxxxxx' <-- including quotation marks!)
 
@@ -62,17 +102,18 @@ your-server-name: 'this server'
 #                                                         #     gray          dark_gray    #             #
 #                                                         #     black           white      #             #
 #                                                         # ------------------------------ #             #
+
 top-list:
-  title: yellow
+  title: '#FFEA40'
   title-style: none
 
   title-number: gold
   title-number-style: none
 
-  stat-names: yellow
+  stat-names: '#FFEA40'
   stat-names-style: none
 
-  sub-stat-names: '#FFD52B'
+  sub-stat-names: yellow
   sub-stat-names-style: none
 
   rank-numbers: gold
@@ -92,10 +133,10 @@ individual-statistics:
   player-names: gold
   player-names-style: none
 
-  stat-names: yellow
+  stat-names: '#FFD52B'
   stat-names-style: none
 
-  sub-stat-names: '#FFD52B'
+  sub-stat-names: yellow
   sub-stat-names-style: none
 
   stat-numbers: '#ADE7FF'
@@ -103,16 +144,16 @@ individual-statistics:
 
 
 total-server:
-  title: gold
+  title: '#55AAFF'
   title-style: none
 
-  server-name: gold
+  server-name: '#55AAFF'
   server-name-style: none
 
-  stat-names: yellow
+  stat-names: '#FFD52B'
   stat-names-style: none
 
-  sub-stat-names: '#FFD52B'
+  sub-stat-names: yellow
   sub-stat-names-style: none
 
   stat-numbers: '#ADE7FF'
