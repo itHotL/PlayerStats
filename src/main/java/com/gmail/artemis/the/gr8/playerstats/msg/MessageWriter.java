@@ -116,7 +116,7 @@ public class MessageWriter {
                 .append(space())
                 .append(getStatNameComponent(request))
                 .append(getStatUnitComponent(request.getStatistic(), request.getSelection()))
-                .build();
+                .build();  //space is provided by statUnitComponent
     }
 
     public TextComponent formatTopStats(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
@@ -125,7 +125,7 @@ public class MessageWriter {
                 .append(componentFactory.pluginPrefixComponent(request.isBukkitConsoleSender())).append(space())
                 .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
                 .append(componentFactory.titleNumberComponent(topStats.size())).append(space())
-                .append(getStatNameComponent(request))
+                .append(getStatNameComponent(request))  //space is provided by statUnitComponent
                 .append(getStatUnitComponent(request.getStatistic(), request.getSelection()));
 
         ArrayList<Unit> timeUnits = null;
@@ -227,7 +227,7 @@ public class MessageWriter {
         Unit hoverUnit = type == Unit.Type.DISTANCE ? Unit.fromString(config.getDistanceUnit(true)) :
                 Unit.fromString(config.getDamageUnit(true));
         String prettyHoverNumber = formatter.format(statNumber, hoverUnit);
-        MyLogger.logMsg("mainNumber: " + prettyNumber + "\n" + "hoverNumber: " + prettyHoverNumber, DebugLevel.HIGH);
+        MyLogger.logMsg("mainNumber: " + prettyNumber + ", hoverNumber: " + prettyHoverNumber, DebugLevel.HIGH);
         if (config.useTranslatableComponents()) {
             String unitKey = languageKeyHandler.getUnitKey(hoverUnit);
             if (unitKey == null) {
