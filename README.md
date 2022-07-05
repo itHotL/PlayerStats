@@ -17,13 +17,16 @@ top-10 format or individually. Currently tested on all versions between **1.18**
      - Explain **how to use** the plugin with `/statistic`
        ![Usage](src/main/resources/images/usage.png)
      - Show you the **top 10** on your server for all possible statistics with `/statistic ... top`
-       ![Top_10](src/main/resources/images/top_10_4.png)
+       ![Top_10](src/main/resources/images/top_10.png)
      - See those same statistics for any **individual player** with `/statistic ... player`
        ![Individual_Stat](src/main/resources/images/individual_stat.png)
      - Or look up the **combined total** of everyone on your server!
        ![New_Numbers](src/main/resources/images/new_numbers.png)
      - Guide you through the available options while you type with an extensive **tab-complete** feature
        ![Tab_Complete](src/main/resources/images/tab_complete.png)
+     - See the output in a readable format that makes sense in the Minecraft world, with more information in hover-text:
+       ![Distance_Format](src/main/resources/images/distance_format.png)
+       ![Damage_Format](src/main/resources/images/damage_format.png)
 
 * **No set-up required**
    - PlayerStats will work correctly regardless of how long your server has already existed - it doesn't 
@@ -39,8 +42,10 @@ top-10 format or individually. Currently tested on all versions between **1.18**
 
 * **Customizable**  
     - You can customize the following (and more!):
+      - Choose which **range of units** you want to display your time-, damage- and distance-based statistics in:
+        ![Time_Format](src/main/resources/images/time_format.png)
       - **Automatically translate** statistics to the language of the client that views them:
-        ![Translated](src/main/resources/images/translated.png)
+        ![Translated](src/main/resources/images/translated.png)   
       - Only show statistics for **whitelisted** players
       - Exclude statistics from **banned** players
       - Limit statistics based on when a player **last joined**.  
@@ -48,7 +53,7 @@ top-10 format or individually. Currently tested on all versions between **1.18**
         whose statistics aren't of particular interest to your current player-base.
         On top of that, limiting the amount of players shown in the top 10 will greatly increase performance speed.
       - The **colors** you want the output to be
-      - You can go for default Minecraft chat colors, or use **hex colors**
+      - You can go for default Minecraft chat colors, or use **hex colors**!
       - Whether you want the output to have additional **style**, such as italics 
     - You can configure the following **permissions**:
       - `playerstats.stat` for using the general command (true for everyone by default)
