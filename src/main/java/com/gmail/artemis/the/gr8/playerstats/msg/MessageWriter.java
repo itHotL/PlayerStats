@@ -112,10 +112,10 @@ public class MessageWriter {
                 .append(componentFactory.playerNameBuilder(request.getPlayerName(), Target.PLAYER)
                         .append(text(":"))
                         .append(space()))
-                .append(getStatNumberComponent(request.getStatistic(), stat, Target.PLAYER))
+                .append(getStatNumberComponent(request.getStatistic(), stat, Target.PLAYER, request.isConsoleSender()))
                 .append(space())
                 .append(getStatNameComponent(request))
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection()))
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))
                 .build();  //space is provided by statUnitComponent
     }
 
@@ -126,7 +126,7 @@ public class MessageWriter {
                 .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
                 .append(componentFactory.titleNumberComponent(topStats.size())).append(space())
                 .append(getStatNameComponent(request))  //space is provided by statUnitComponent
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection()));
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()));
 
         ArrayList<Unit> timeUnits = null;
         if (Unit.getTypeFromStatistic(request.getStatistic()) == Unit.Type.TIME) {
@@ -143,10 +143,11 @@ public class MessageWriter {
             TextComponent.Builder playerNameBuilder = componentFactory.playerNameBuilder(playerName, Target.TOP);
             count++;
             topList.append(newline())
-                    .append(componentFactory.rankingNumberComponent(count + ". "))
-                    .append(playerNameBuilder);
+                    .append(componentFactory.rankingNumberComponent(count + "."))
+                    .append(space());
             if (useDots) {
-                topList.append(space());
+                topList.append(playerNameBuilder)
+                        .append(space());
                 TextComponent.Builder dotsBuilder = componentFactory.dotsBuilder();
                 int dots;
                 if (request.isConsoleSender()) {
@@ -165,7 +166,7 @@ public class MessageWriter {
             if (timeUnits != null) {
                 topList.append(space()).append(getTimeNumberComponent(topStats.get(playerName), request.getSelection(), timeUnits));
             } else {
-                topList.append(space()).append(getStatNumberComponent(request.getStatistic(), topStats.get(playerName), Target.TOP));
+                topList.append(space()).append(getStatNumberComponent(request.getStatistic(), topStats.get(playerName), Target.TOP, request.isConsoleSender()));
             }
         }
         return topList.build();
@@ -177,10 +178,10 @@ public class MessageWriter {
                 .append(space())
                 .append(componentFactory.serverNameComponent(config.getServerName()))
                 .append(space())
-                .append(getStatNumberComponent(request.getStatistic(), stat, Target.SERVER))
+                .append(getStatNumberComponent(request.getStatistic(), stat, Target.SERVER, request.isConsoleSender()))
                 .append(space())
                 .append(getStatNameComponent(request))
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection()))  //space is provided by statUnit
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnit
                 .build();
     }
 
@@ -209,7 +210,7 @@ public class MessageWriter {
         }
     }
 
-    private TextComponent getStatNumberComponent(Statistic statistic, long statNumber, Target selection) {
+    private TextComponent getStatNumberComponent(Statistic statistic, long statNumber, Target selection, boolean isConsoleSender) {
         Unit.Type type = Unit.getTypeFromStatistic(statistic);
         Unit statUnit;
         switch (type) {
@@ -222,22 +223,25 @@ public class MessageWriter {
         }
         String prettyNumber = formatter.format(statNumber, statUnit);
         if (!config.useHoverText() || statUnit == Unit.NUMBER) {
-            return componentFactory.statNumberBuilder(prettyNumber, selection).build();
+            return componentFactory.statNumberComponent(prettyNumber, selection);
         }
         Unit hoverUnit = type == Unit.Type.DISTANCE ? Unit.fromString(config.getDistanceUnit(true)) :
                 Unit.fromString(config.getDamageUnit(true));
         String prettyHoverNumber = formatter.format(statNumber, hoverUnit);
         MyLogger.logMsg("mainNumber: " + prettyNumber + ", hoverNumber: " + prettyHoverNumber, DebugLevel.HIGH);
+
+        if (hoverUnit == Unit.HEART) {
+            return componentFactory.damageNumberHoverComponent(
+                    prettyNumber, prettyHoverNumber,
+                    componentFactory.heartComponent(isConsoleSender, true), selection);
+        }
         if (config.useTranslatableComponents()) {
             String unitKey = languageKeyHandler.getUnitKey(hoverUnit);
-            if (unitKey == null) {
-                unitKey = hoverUnit.getLabel();
+            if (unitKey != null) {
+                return componentFactory.statNumberHoverComponent(prettyNumber, prettyHoverNumber, null, unitKey, selection);
             }
-            return componentFactory.statNumberHoverComponent(prettyNumber, prettyHoverNumber, null, unitKey, selection);
         }
-        else {
-            return componentFactory.statNumberHoverComponent(prettyNumber, prettyHoverNumber, hoverUnit.getLabel(), null, selection);
-        }
+        return componentFactory.statNumberHoverComponent(prettyNumber, prettyHoverNumber, hoverUnit.getLabel(), null, selection);
     }
 
     private TextComponent getTimeNumberComponent(long statNumber, Target selection, ArrayList<Unit> unitRange) {
@@ -245,18 +249,18 @@ public class MessageWriter {
             MyLogger.logMsg(
                     "There is something wrong with the time-units you specified, please check your config!",
                     true);
-            return componentFactory.statNumberBuilder("-", selection).build();
+            return componentFactory.statNumberComponent("-", selection);
         }
         else {
             String mainNumber = formatter.format(statNumber, unitRange.get(0), unitRange.get(1));
             if (!config.useHoverText()) {
-                return componentFactory.statNumberBuilder(mainNumber, selection).build();
+                return componentFactory.statNumberComponent(mainNumber, selection);
             } else {
                 String hoverNumber = formatter.format(statNumber, unitRange.get(2), unitRange.get(3));
                 MyLogger.logMsg("mainNumber: " + mainNumber + ", hoverNumber: " + hoverNumber, DebugLevel.HIGH);
                 return componentFactory.statNumberHoverComponent(mainNumber, hoverNumber,
-                        null, null, selection);  //Time does not support translatable text,
-            }                                                            //because the unit and number are so tightly interwoven.
+                        null, null, selection);
+            }
         }
     }
 
@@ -291,7 +295,7 @@ public class MessageWriter {
         return unitRange;
     }
 
-    private TextComponent getStatUnitComponent(Statistic statistic, Target selection) {
+    private TextComponent getStatUnitComponent(Statistic statistic, Target selection, boolean isConsoleSender) {
         Unit statUnit;
         switch (Unit.getTypeFromStatistic(statistic)) {
             case DAMAGE -> statUnit = Unit.fromString(config.getDamageUnit(false));
@@ -307,8 +311,13 @@ public class MessageWriter {
                         .append(componentFactory.statUnitComponent(null, unitKey, selection));
             }
         }
+        String statName = statUnit.getLabel();
+        if (statUnit == Unit.HEART) {  //console can do u2665, u2764 looks better in-game
+            return Component.space()
+                    .append(componentFactory.heartComponent(isConsoleSender, false));
+        }
         return Component.space()
-                .append(componentFactory.statUnitComponent(statUnit.getLabel(), null, selection));
+                .append(componentFactory.statUnitComponent(statName, null, selection));
     }
 
     /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */

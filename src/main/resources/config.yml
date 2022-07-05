@@ -84,6 +84,11 @@ your-server-name: 'this server'
 #                                #          Color & Style          #                                     #
 #                                # ------------------------------- #                                     #
 
+# How much lighter the color of a hovering number should be compared to the plain number
+# Below number represents a percentage between 0 and 100
+hover-text-amount-lighter: 40
+
+
 # The colors below can be Chat Colors or hex codes (format: '#xxxxxx' <-- including quotation marks!)
 
 #             # -------- Styles --------- #               # -------- Chat Colors --------- #             #

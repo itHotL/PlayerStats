@@ -187,6 +187,13 @@ public class ConfigHandler {
         return config.getString("your-server-name", "this server");
     }
 
+    /** Returns an integer between 0 and 100 that represents how much lighter a hoverColor should be.
+     So 20 would mean 20% lighter.
+     <p>Default: 20</p>*/
+    public int getHoverTextAmountLighter() {
+        return config.getInt("hover-text-amount-lighter", 20);
+    }
+
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
      <p>Style: "none"</p>
      <p>Color Top: "green"</p>

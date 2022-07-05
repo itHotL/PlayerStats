@@ -3,6 +3,7 @@ package com.gmail.artemis.the.gr8.playerstats.msg;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
+import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -158,18 +159,30 @@ public class ComponentFactory {
                         .args(subStat));
     }
 
-    public TextComponent.Builder statNumberBuilder(String prettyNumber, Target selection) {
-        return getComponentBuilder(prettyNumber,
+    public TextComponent statNumberComponent(String prettyNumber, Target selection) {
+        return getComponent(prettyNumber,
                 getColorFromString(config.getStatNumberDecoration(selection, false)),
                 getStyleFromString(config.getStatNumberDecoration(selection, true)));
     }
 
+    public TextComponent damageNumberHoverComponent(String mainNumber, String hoverNumber, TextComponent heart, Target selection) {
+        return statNumberHoverComponent(mainNumber, hoverNumber, null, null, heart, selection);
+    }
+
     public TextComponent statNumberHoverComponent(String mainNumber, String hoverNumber, @Nullable String hoverUnitName, @Nullable String hoverUnitKey, Target selection) {
+        return statNumberHoverComponent(mainNumber, hoverNumber, hoverUnitName, hoverUnitKey, null, selection);
+    }
+
+    private TextComponent statNumberHoverComponent(String mainNumber, String hoverNumber, @Nullable String hoverUnitName, @Nullable String hoverUnitKey, @Nullable TextComponent heart, Target selection) {
         TextColor baseColor = getColorFromString(config.getStatNumberDecoration(selection, false));
         TextDecoration style = getStyleFromString(config.getStatNumberDecoration(selection, true));
 
         TextComponent.Builder hoverText = getComponentBuilder(hoverNumber, getLighterColor(baseColor), style);
-        if (hoverUnitKey != null) {
+        if (heart != null) {
+            hoverText.append(space())
+                    .append(heart);
+        }
+        else if (hoverUnitKey != null) {
             hoverText.append(space())
                     .append(translatable().key(hoverUnitKey));
         }
@@ -180,7 +193,6 @@ public class ComponentFactory {
         return getComponent(mainNumber, baseColor, style).hoverEvent(HoverEvent.showText(hoverText));
     }
 
-    //TODO Make this dark gray (or at least darker than statNumber, and at least for time statistics)
     public TextComponent statUnitComponent(String unitName, String unitKey, Target selection) {
         if (!(unitName == null && unitKey == null)) {
             TextComponent.Builder statUnitBuilder = getComponentBuilder(null,
@@ -198,6 +210,28 @@ public class ComponentFactory {
         else {
             return Component.empty();
         }
+    }
+
+    public TextComponent heartComponent(boolean isConsoleSender, boolean isHoverUnit) {
+        TextColor heartColor = TextColor.fromHexString("#FF1313");
+        char heart = isConsoleSender ? '\u2665' : '\u2764';
+        if (isHoverUnit) {
+            return Component.text(heart).color(heartColor);
+        }
+        TextComponent.Builder heartComponent = Component.text()
+                .content(String.valueOf(heart))
+                .color(heartColor);
+        if (config.useHoverText()) {
+            heartComponent.hoverEvent(HoverEvent.showText(
+                    text(Unit.HEART.getLabel())
+                            .color(PluginColor.LIGHT_GOLD.getColor())
+                            .decorate(TextDecoration.ITALIC)));
+        }
+        return Component.text().color(PluginColor.GRAY.getColor())
+                .append(text("["))
+                .append(heartComponent)
+                .append(text("]"))
+                .build();
     }
 
     public TextComponent titleComponent(String content, Target selection) {
@@ -272,8 +306,9 @@ public class ComponentFactory {
     }
 
     private TextColor getLighterColor(TextColor color) {
+        float multiplier = (float) ((100 - config.getHoverTextAmountLighter()) / 100.0);
         HSVLike oldColor = HSVLike.fromRGB(color.red(), color.green(), color.blue());
-        HSVLike newColor = HSVLike.hsvLike(oldColor.h(), 0.45F, oldColor.v());
+        HSVLike newColor = HSVLike.hsvLike(oldColor.h(), oldColor.s() * multiplier, oldColor.v());
         return TextColor.color(newColor);
     }
 
