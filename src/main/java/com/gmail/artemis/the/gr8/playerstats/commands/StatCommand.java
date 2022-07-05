@@ -117,20 +117,24 @@ public class StatCommand implements CommandExecutor {
 
             String subStatEntry = request.getSubStatEntry();
             switch (type) {  //attempt to convert relevant subStatEntries into their corresponding Enum Constant
-                case BLOCK -> {
+                case BLOCK: {
                     Material block = EnumHandler.getBlockEnum(subStatEntry);
                     if (block != null) request.setBlock(block);
+                    break;
                 }
-                case ENTITY -> {
+                case ENTITY: {
                     EntityType entity = EnumHandler.getEntityEnum(subStatEntry);
                     if (entity != null) request.setEntity(entity);
+                    break;
                 }
-                case ITEM -> {
+                case ITEM: {
                     Material item = EnumHandler.getItemEnum(subStatEntry);
                     if (item != null) request.setItem(item);
+                    break;
                 }
-                case UNTYPED -> {  //remove unnecessary subStatEntries
+                case UNTYPED: {  //remove unnecessary subStatEntries
                     if (subStatEntry != null) request.setSubStatEntry(null);
+                    break;
                 }
             }
         }
@@ -164,16 +168,16 @@ public class StatCommand implements CommandExecutor {
     private boolean matchingSubStat(StatRequest request) {
         Statistic.Type type = request.getStatistic().getType();
         switch (type) {
-            case BLOCK -> {
+            case BLOCK: {
                 return request.getBlock() != null;
             }
-            case ENTITY -> {
+            case ENTITY: {
                 return request.getEntity() != null;
             }
-            case ITEM -> {
+            case ITEM: {
                 return request.getItem() != null;
             }
-            default -> {
+            default: {
                 return true;
             }
         }

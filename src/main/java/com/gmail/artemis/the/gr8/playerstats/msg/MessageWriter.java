@@ -148,7 +148,6 @@ public class MessageWriter {
             if (useDots) {
                 topList.append(playerNameBuilder)
                         .append(space());
-                TextComponent.Builder dotsBuilder = componentFactory.dotsBuilder();
                 int dots;
                 if (request.isConsoleSender()) {
                     dots = (int) Math.round((130.0 - font.getWidth(count + ". " + playerName))/6) + 7;
@@ -158,7 +157,9 @@ public class MessageWriter {
                     dots = (int) Math.round((130.0 - font.getWidth(count + ". ") - (font.getWidth(playerName) * 1.19))/2);
                 }
                 if (dots >= 1) {
-                    topList.append(dotsBuilder.append(text((".".repeat(dots)))));
+                    for (int i = 0; i <= dots; i++) {
+                        topList.append(componentFactory.dotsComponent());
+                    }
                 }
             } else {
                 topList.append(playerNameBuilder.append(text(":")));
@@ -193,10 +194,13 @@ public class MessageWriter {
             String subStatKey = request.getSubStatEntry();
             if (subStatKey != null) {
                 switch (request.getStatistic().getType()) {
-                    case BLOCK -> subStatKey = languageKeyHandler.getBlockKey(request.getBlock());
-                    case ENTITY -> subStatKey = languageKeyHandler.getEntityKey(request.getEntity());
-                    case ITEM -> subStatKey = languageKeyHandler.getItemKey(request.getItem());
-                    default -> {
+                    case BLOCK: subStatKey = languageKeyHandler.getBlockKey(request.getBlock());
+                    break;
+                    case ENTITY: subStatKey = languageKeyHandler.getEntityKey(request.getEntity());
+                    break;
+                    case ITEM: subStatKey = languageKeyHandler.getItemKey(request.getItem());
+                    break;
+                    default: {
                     }
                 }
             }
@@ -214,12 +218,14 @@ public class MessageWriter {
         Unit.Type type = Unit.getTypeFromStatistic(statistic);
         Unit statUnit;
         switch (type) {
-            case DISTANCE -> statUnit = Unit.fromString(config.getDistanceUnit(false));
-            case DAMAGE -> statUnit = Unit.fromString(config.getDamageUnit(false));
-            case TIME -> {
+            case DISTANCE: statUnit = Unit.fromString(config.getDistanceUnit(false));
+            break;
+            case DAMAGE: statUnit = Unit.fromString(config.getDamageUnit(false));
+            break;
+            case TIME: {
                 return getTimeNumberComponent(statNumber, selection, getTimeUnitRange(statNumber));
             }
-            default -> statUnit = Unit.NUMBER;
+            default: statUnit = Unit.NUMBER;
         }
         String prettyNumber = formatter.format(statNumber, statUnit);
         if (!config.useHoverText() || statUnit == Unit.NUMBER) {
@@ -298,9 +304,11 @@ public class MessageWriter {
     private TextComponent getStatUnitComponent(Statistic statistic, Target selection, boolean isConsoleSender) {
         Unit statUnit;
         switch (Unit.getTypeFromStatistic(statistic)) {
-            case DAMAGE -> statUnit = Unit.fromString(config.getDamageUnit(false));
-            case DISTANCE -> statUnit = Unit.fromString(config.getDistanceUnit(false));
-            default -> {
+            case DAMAGE: statUnit = Unit.fromString(config.getDamageUnit(false));
+            break;
+            case DISTANCE: statUnit = Unit.fromString(config.getDistanceUnit(false));
+            break;
+            default: {
                 return Component.empty();
             }
         }
@@ -325,9 +333,12 @@ public class MessageWriter {
         String subStat = "sub-statistic";
         if (statType == null) return subStat;
         switch (statType) {
-            case BLOCK -> subStat = "block";
-            case ENTITY -> subStat = "entity";
-            case ITEM -> subStat = "item";
+            case BLOCK: subStat = "block";
+            break;
+            case ENTITY: subStat = "entity";
+            break;
+            case ITEM: subStat = "item";
+            break;
         }
         return subStat;
     }

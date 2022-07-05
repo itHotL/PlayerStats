@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
-import java.util.function.Predicate;
 
 public class ReloadThread extends Thread {
 
@@ -86,7 +85,8 @@ public class ReloadThread extends Thread {
 
         OfflinePlayer[] offlinePlayers;
         if (config.whitelistOnly()) {
-            offlinePlayers = Bukkit.getWhitelistedPlayers().toArray(OfflinePlayer[]::new);
+            offlinePlayers =
+                    Bukkit.getWhitelistedPlayers().toArray(new OfflinePlayer[0]);
             MyLogger.logTimeTaken("ReloadThread",
                     "retrieved whitelist", time, DebugLevel.MEDIUM);
         }
@@ -94,7 +94,7 @@ public class ReloadThread extends Thread {
             if (Bukkit.getPluginManager().getPlugin("LiteBans") != null) {
                 offlinePlayers = Arrays.stream(Bukkit.getOfflinePlayers())
                         .parallel()
-                        .filter(Predicate.not(OfflinePlayer::isBanned))
+                        .filter(player -> !player.isBanned())
                         .toArray(OfflinePlayer[]::new);
             } else {
                 Set<OfflinePlayer> bannedPlayers = Bukkit.getBannedPlayers();

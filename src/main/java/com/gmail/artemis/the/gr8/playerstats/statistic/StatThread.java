@@ -107,7 +107,7 @@ public class StatThread extends Thread {
     }
 
     private long getServerTotal() {
-        List<Integer> numbers = getAllStats().values().stream().toList();
+        List<Integer> numbers = new ArrayList<>(getAllStats().values());
         return numbers.parallelStream().mapToLong(Integer::longValue).sum();
     }
 
@@ -144,16 +144,16 @@ public class StatThread extends Thread {
         OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(request.getPlayerName());
         if (player != null) {
             switch (request.getStatistic().getType()) {
-                case UNTYPED -> {
+                case UNTYPED: {
                     return player.getStatistic(request.getStatistic());
                 }
-                case ENTITY -> {
+                case ENTITY: {
                     return player.getStatistic(request.getStatistic(), request.getEntity());
                 }
-                case BLOCK -> {
+                case BLOCK: {
                     return player.getStatistic(request.getStatistic(), request.getBlock());
                 }
-                case ITEM -> {
+                case ITEM: {
                     return player.getStatistic(request.getStatistic(), request.getItem());
                 }
             }

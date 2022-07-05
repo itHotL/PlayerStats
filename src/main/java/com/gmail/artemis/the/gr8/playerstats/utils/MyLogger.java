@@ -66,17 +66,20 @@ public class MyLogger {
 
     public static void logMsg(String content, DebugLevel logThreshold, boolean logAsWarning) {
         switch (logThreshold) {
-            case LOW -> log(content, logAsWarning);
-            case MEDIUM -> {
+            case LOW: log(content, logAsWarning);
+            break;
+            case MEDIUM: {
                 if (debugLevel != DebugLevel.LOW) {
                     log(content, logAsWarning);
                 }
             }
-            case HIGH -> {
+            break;
+            case HIGH: {
                 if (debugLevel == DebugLevel.HIGH) {
                     log(content, logAsWarning);
                 }
             }
+            break;
         }
     }
 
@@ -205,17 +208,20 @@ public class MyLogger {
      @param logThreshold the DebugLevel threshold  */
     public static void logTimeTaken(String className, String methodName, long startTime, DebugLevel logThreshold) {
         switch (logThreshold) {
-            case LOW -> printTime(className, methodName, startTime);
-            case MEDIUM -> {
+            case LOW: printTime(className, methodName, startTime);
+            break;
+            case MEDIUM: {
                 if (debugLevel != DebugLevel.LOW) {
                     printTime(className, methodName, startTime);
                 }
             }
-            case HIGH -> {
+            break;
+            case HIGH: {
                 if (debugLevel == DebugLevel.HIGH) {
                     printTime(className, methodName, startTime);
                 }
             }
+            break;
         }
     }
 

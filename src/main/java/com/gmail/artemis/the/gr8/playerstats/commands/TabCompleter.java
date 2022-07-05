@@ -49,12 +49,16 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                     Statistic stat = EnumHandler.getStatEnum(previousArg);
 
                     if (stat != null) {
-                        tabSuggestions = switch (stat.getType()) {
-                            case UNTYPED -> commandOptions;
-                            case BLOCK -> getTabSuggestions(EnumHandler.getBlockNames(), currentArg);
-                            case ITEM -> getTabSuggestions(EnumHandler.getItemNames(), currentArg);
-                            case ENTITY -> getTabSuggestions(EnumHandler.getEntityNames(), currentArg);
-                        };
+                        switch (stat.getType()) {
+                            case UNTYPED: tabSuggestions = commandOptions;
+                            break;
+                            case BLOCK: tabSuggestions = getTabSuggestions(EnumHandler.getBlockNames(), currentArg);
+                            break;
+                            case ITEM: tabSuggestions = getTabSuggestions(EnumHandler.getItemNames(), currentArg);
+                            break;
+                            case ENTITY: tabSuggestions = getTabSuggestions(EnumHandler.getEntityNames(), currentArg);
+                            break;
+                        }
                     }
                 }
 

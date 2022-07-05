@@ -38,7 +38,7 @@ public enum Unit {
 
     public Unit getSmallerUnit(int stepsSmaller) {
         switch (this) {
-            case DAY -> {
+            case DAY: {
                 if (stepsSmaller >= 3) {
                     return Unit.SECOND;
                 } else if (stepsSmaller == 2) {
@@ -49,7 +49,7 @@ public enum Unit {
                     return this;
                 }
             }
-            case HOUR -> {
+            case HOUR: {
                 if (stepsSmaller >= 2) {
                     return Unit.SECOND;
                 } else if (stepsSmaller == 1) {
@@ -58,14 +58,14 @@ public enum Unit {
                     return this;
                 }
             }
-            case MINUTE -> {
+            case MINUTE: {
                 if (stepsSmaller >= 1) {
                     return Unit.SECOND;
                 } else {
                     return this;
                 }
             }
-            case KM -> {
+            case KM: {
                 if (stepsSmaller >= 2) {
                     return Unit.CM;
                 } else if (stepsSmaller == 1) {
@@ -74,21 +74,21 @@ public enum Unit {
                     return this;
                 }
             }
-            case BLOCK -> {
+            case BLOCK: {
                 if (stepsSmaller >= 1) {
                     return Unit.CM;
                 } else {
                     return this;
                 }
             }
-            case HEART -> {
+            case HEART: {
                 if (stepsSmaller >= 1) {
                     return Unit.HP;
                 } else {
                     return this;
                 }
             }
-            default -> {
+            default: {
                 return this;
             }
         }
@@ -96,22 +96,22 @@ public enum Unit {
 
     public double getSeconds() {
         switch (this) {
-            case DAY -> {
+            case DAY: {
                 return 86400;
             }
-            case HOUR -> {
+            case HOUR: {
                 return 3600;
             }
-            case MINUTE -> {
+            case MINUTE: {
                 return 60;
             }
-            case SECOND -> {
+            case SECOND: {
                 return 1;
             }
-            case TICK -> {
+            case TICK: {
                 return 1 / 20.0;
             }
-            default -> {
+            default: {
                 return -1;
             }
         }
@@ -123,18 +123,48 @@ public enum Unit {
     public static @NotNull Unit fromString(@NotNull String unitName) {
         Unit unit;
         switch (unitName.toLowerCase()) {
-            case "cm" -> unit = Unit.CM;
-            case "m", "block", "blocks" -> unit = Unit.BLOCK;
-            case "mile", "miles" -> unit = Unit.MILE;
-            case "km" -> unit = Unit.KM;
-            case "hp" -> unit = Unit.HP;
-            case "heart", "hearts" -> unit = Unit.HEART;
-            case "day", "days" -> unit = Unit.DAY;
-            case "hour", "hours" -> unit = Unit.HOUR;
-            case "minute", "minutes", "min" -> unit = Unit.MINUTE;
-            case "second", "seconds", "sec" -> unit = Unit.SECOND;
-            case "tick", "ticks" -> unit = Unit.TICK;
-            default -> unit = Unit.NUMBER;
+            case "cm": unit = Unit.CM;
+            break;
+            case "m":
+            case "block":
+            case "blocks":
+                unit = Unit.BLOCK;
+                break;
+            case "mile":
+            case "miles":
+                unit = Unit.MILE;
+                break;
+            case "km": unit = Unit.KM;
+                break;
+            case "hp": unit = Unit.HP;
+                break;
+            case "heart":
+            case "hearts":
+                unit = Unit.HEART;
+                break;
+            case "day":
+            case "days":
+                unit = Unit.DAY;
+                break;
+            case "hour":
+            case "hours":
+                unit = Unit.HOUR;
+            break;
+            case "minute":
+            case "minutes":
+            case "min":
+                unit = Unit.MINUTE;
+                break;
+            case "sec":
+            case "seconds":
+            case "second":
+                unit = Unit.SECOND;
+                break;
+            case "tick":
+            case "ticks":
+                unit = Unit.TICK;
+                break;
+            default: unit = Unit.NUMBER;
         }
         return unit;
     }
@@ -159,7 +189,7 @@ public enum Unit {
      @param number the statistic number as returned by Player.getStatistic()*/
     public static Unit getMostSuitableUnit(Unit.Type type, long number) {
         switch (type) {
-            case TIME -> {
+            case TIME: {
                 long statNumber = number / 20;
                 if (statNumber >= 86400) {
                     return Unit.DAY;
@@ -171,17 +201,17 @@ public enum Unit {
                     return Unit.SECOND;
                 }
             }
-            case DISTANCE -> {
+            case DISTANCE: {
                 if (number >= 100000) {
                     return Unit.KM;
                 } else {
                     return Unit.BLOCK;
                 }
             }
-            case DAMAGE -> {
+            case DAMAGE: {
                 return Unit.HEART;
             }
-            default -> {
+            default: {
                 return Unit.NUMBER;
             }
         }

@@ -24,13 +24,13 @@ public class NumberFormatter {
     public String format(long number, Unit statUnit, Unit smallTimeUnit) {
         if (smallTimeUnit == null) {
             switch (statUnit.getType()) {
-                case DISTANCE -> {
+                case DISTANCE: {
                     return formatDistance(number, statUnit);
                 }
-                case DAMAGE -> {
+                case DAMAGE: {
                     return formatDamage(number, statUnit);
                 }
-                default -> {
+                default: {
                     return format.format(number);
                 }
             }
@@ -53,16 +53,16 @@ public class NumberFormatter {
      and turns it into km or leaves it as cm otherwise, depending on the config settings. */
     private String formatDistance(long number, Unit statUnit) {  //15 statistics
         switch (statUnit) {
-            case CM -> {
+            case CM: {
                 return format.format(number);
             }
-            case MILE -> {
+            case MILE: {
                 return format.format(Math.round(number / 160934.4));  //to get from CM to Miles
             }
-            case KM -> {
+            case KM: {
                 return format.format(Math.round(number / 100000.0));  //divide by 100 to get M, divide by 1000 to get KM
             }
-            default -> {
+            default: {
                 return format.format(Math.round(number / 100.0));
             }
         }

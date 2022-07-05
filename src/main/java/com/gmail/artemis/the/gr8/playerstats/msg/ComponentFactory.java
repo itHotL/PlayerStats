@@ -260,8 +260,8 @@ public class ComponentFactory {
                 getStyleFromString(config.getRankNumberDecoration(true)));
     }
 
-    public TextComponent.Builder dotsBuilder() {
-        return getComponentBuilder(null,
+    public TextComponent.Builder dotsComponent() {
+        return getComponentBuilder(".",
                 getColorFromString(config.getDotsDecoration(false)),
                 getStyleFromString(config.getDotsDecoration(true)));
     }
