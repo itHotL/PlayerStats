@@ -73,6 +73,10 @@ public class ConfigHandler {
         return config.getInt("debug-level", 1);
     }
 
+    public boolean limitStatRequests() {
+        return config.getBoolean("only-allow-one-lookup-at-a-time-per-player", true);
+    }
+
     /** Returns the config setting for include-whitelist-only.
      <p>Default: false</p>*/
     public boolean whitelistOnly() {

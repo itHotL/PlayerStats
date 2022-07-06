@@ -99,6 +99,13 @@ public class MessageWriter {
                 "\"" + subStatEntry + "\" is not a valid " + getSubStatTypeName(statType) + "!"));
     }
 
+    public TextComponent requestAlreadyRunning(boolean isBukkitConsole) {
+        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+                .append(space())
+                .append(componentFactory.messageComponent().content(
+                        "Please wait for your previous lookup to finish!"));
+    }
+
     public TextComponent unknownError(boolean isBukkitConsole) {
         return componentFactory.pluginPrefixComponent(isBukkitConsole)
                 .append(space())

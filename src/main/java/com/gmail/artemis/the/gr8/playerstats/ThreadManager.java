@@ -9,6 +9,8 @@ import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.CommandSender;
 
+import java.util.HashMap;
+
 
 public class ThreadManager {
 
@@ -21,8 +23,9 @@ public class ThreadManager {
     private static ConfigHandler config;
     private static MessageWriter messageWriter;
 
-    private ReloadThread reloadThread;
-    private StatThread statThread;
+    private ReloadThread lastActiveReloadThread;
+    private StatThread lastActiveStatThread;
+    private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
     public ThreadManager(BukkitAudiences a, ConfigHandler c, MessageWriter m, Main p) {
@@ -31,6 +34,7 @@ public class ThreadManager {
         messageWriter = m;
         plugin = p;
 
+        statThreads = new HashMap<>();
         statThreadID = 0;
         reloadThreadID = 0;
         lastRecordedCalcTime = 0;
@@ -38,22 +42,31 @@ public class ThreadManager {
     }
 
     public void startReloadThread(CommandSender sender) {
-        if (reloadThread == null || !reloadThread.isAlive()) {
+        if (lastActiveReloadThread == null || !lastActiveReloadThread.isAlive()) {
             reloadThreadID += 1;
 
-            reloadThread = new ReloadThread(adventure, config, messageWriter, threshold, reloadThreadID, statThread, sender);
-            reloadThread.start();
+            lastActiveReloadThread = new ReloadThread(adventure, config, messageWriter, threshold, reloadThreadID, lastActiveStatThread, sender);
+            lastActiveReloadThread.start();
         }
         else {
-            MyLogger.threadAlreadyRunning(reloadThread.getName());
+            MyLogger.threadAlreadyRunning(lastActiveReloadThread.getName());
         }
     }
 
     public void startStatThread(StatRequest request) {
         statThreadID += 1;
+        String cmdSender = request.getCommandSender().getName();
 
-        statThread = new StatThread(adventure, config, messageWriter, plugin, statThreadID, threshold, request, reloadThread);
-        statThread.start();
+        if (config.limitStatRequests() && statThreads.containsKey(cmdSender)) {
+            Thread runningThread = statThreads.get(cmdSender);
+            if (runningThread.isAlive()) {
+                adventure.sender(request.getCommandSender()).sendMessage(messageWriter.requestAlreadyRunning(request.isBukkitConsoleSender()));
+            } else {
+                startNewStatThread(request);
+            }
+        } else {
+            startNewStatThread(request);
+        }
     }
 
     /** Store the duration in milliseconds of the last top-stat-lookup
@@ -66,5 +79,11 @@ public class ThreadManager {
      (or of loading the offline-player-list if no look-ups have been done yet). */
     public static long getLastRecordedCalcTime() {
         return lastRecordedCalcTime;
+    }
+
+    private void startNewStatThread(StatRequest request) {
+        lastActiveStatThread = new StatThread(adventure, config, messageWriter, plugin, statThreadID, threshold, request, lastActiveReloadThread);
+        statThreads.put(request.getCommandSender().getName(), lastActiveStatThread);
+        lastActiveStatThread.start();
     }
 }
