@@ -43,7 +43,7 @@ public class StatThread extends Thread {
         messageWriter = m;
         plugin = p;
 
-        this.setName("StatThread-" + ID);
+        this.setName("StatThread-" + request.getCommandSender().getName() + "-" + ID);
         MyLogger.threadCreated(this.getName());
     }
 
