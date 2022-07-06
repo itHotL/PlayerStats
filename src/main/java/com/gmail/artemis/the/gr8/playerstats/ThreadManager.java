@@ -57,7 +57,7 @@ public class ThreadManager {
         statThreadID += 1;
         String cmdSender = request.getCommandSender().getName();
 
-        if (statThreads.containsKey(cmdSender)) {
+        if (config.limitStatRequests() && statThreads.containsKey(cmdSender)) {
             Thread runningThread = statThreads.get(cmdSender);
             if (runningThread.isAlive()) {
                 adventure.sender(request.getCommandSender()).sendMessage(messageWriter.requestAlreadyRunning(request.isBukkitConsoleSender()));
