@@ -17,6 +17,7 @@ public class EnumHandler {
     private final static List<String> blockNames;
     private final static List<String> entityNames;
     private final static List<String> itemNames;
+    private final static List<Material> items;
     private final static List<String> statNames;
     private final static List<String> entitySubStatNames;
     private final static List<String> subStatNames;
@@ -26,24 +27,28 @@ public class EnumHandler {
                 .filter(Material::isBlock)
                 .map(Material::toString)
                 .map(String::toLowerCase)
-                .toList();
+                .collect(Collectors.toList());
 
         entityNames = Arrays.stream(EntityType.values())
                 .map(EntityType::toString)
                 .map(String::toLowerCase)
                 .filter(entityName -> !entityName.equalsIgnoreCase("unknown"))
-                .toList();
+                .collect(Collectors.toList());
 
         itemNames = Arrays.stream(Material.values())
                 .filter(Material::isItem)
                 .map(Material::toString)
                 .map(String::toLowerCase)
-                .toList();
+                .collect(Collectors.toList());
+
+        items = Arrays.stream(Material.values())
+                .filter(Material::isItem)
+                .collect(Collectors.toList());
 
         statNames = Arrays.stream(Statistic.values())
                 .map(Statistic::toString)
                 .map(String::toLowerCase)
-                .toList();
+                .collect(Collectors.toList());
 
         entitySubStatNames = Arrays.stream(Statistic.values())
                 .filter(statistic -> statistic.getType().equals(Statistic.Type.ENTITY))
@@ -53,13 +58,17 @@ public class EnumHandler {
 
         subStatNames = Stream.of(blockNames, entityNames, itemNames)
                 .flatMap(Collection::stream)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private EnumHandler() {
     }
 
     /** Returns all item names in lowercase */
+    public static List<Material> getItems() {
+        return items;
+    }
+
     public static List<String> getItemNames() {
         return itemNames;
     }
@@ -110,18 +119,6 @@ public class EnumHandler {
      @param statName String, case-insensitive */
     public static boolean isStatistic(@NotNull String statName) {
         return statNames.contains(statName.toLowerCase());
-    }
-
-    public static boolean isDistanceStatistic(@NotNull String statName) {
-        return statName.toLowerCase().contains("one_cm");
-    }
-
-    public static boolean isDamageStatistic(@NotNull String statName) {
-        return statName.toLowerCase().contains("damage");
-    }
-
-    public static boolean isTimeStatistic(@NotNull String statName) {
-        return statName.toLowerCase().contains("time") || statName.toLowerCase().contains("one_minute");
     }
 
     /** Returns the names of all general statistics in lowercase */
