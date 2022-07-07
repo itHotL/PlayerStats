@@ -10,6 +10,7 @@ import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -85,8 +86,9 @@ public class StatThread extends Thread {
             }
             try {
                 if (selection == Target.TOP) {
-                    adventure.sender(request.getCommandSender()).sendMessage(
-                            messageWriter.formatTopStats(getTopStats(), request));
+                    TextComponent statResult = messageWriter.formatTopStats(getTopStats(), request);
+
+                    adventure.sender(request.getCommandSender()).sendMessage(statResult);
                 } else {
                     adventure.sender(request.getCommandSender()).sendMessage(
                             messageWriter.formatServerStat(getServerTotal(), request));

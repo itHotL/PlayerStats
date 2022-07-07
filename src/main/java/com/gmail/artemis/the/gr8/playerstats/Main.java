@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.commands.ReloadCommand;
+import com.gmail.artemis.the.gr8.playerstats.commands.ShareCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
@@ -46,6 +47,8 @@ public class Main extends JavaPlugin {
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
         if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));
+        PluginCommand sharecmd = this.getCommand("statisticshare");
+        if (sharecmd != null) sharecmd.setExecutor(new ShareCommand());
 
         //register the listener
         Bukkit.getPluginManager().registerEvents(new JoinListener(threadManager), this);
