@@ -23,17 +23,11 @@ public class NumberFormatter {
 
     public String format(long number, Unit statUnit, Unit smallTimeUnit) {
         if (smallTimeUnit == null) {
-            switch (statUnit.getType()) {
-                case DISTANCE -> {
-                    return formatDistance(number, statUnit);
-                }
-                case DAMAGE -> {
-                    return formatDamage(number, statUnit);
-                }
-                default -> {
-                    return format.format(number);
-                }
-            }
+            return switch (statUnit.getType()) {
+                case DISTANCE -> formatDistance(number, statUnit);
+                case DAMAGE -> formatDamage(number, statUnit);
+                default -> format.format(number);
+            };
         } else {
             return formatTime(number, statUnit, smallTimeUnit);
         }

@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
+import com.gmail.artemis.the.gr8.playerstats.commands.cmdutils.TabCompleteHelper;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import org.bukkit.Statistic;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 public class TabCompleter implements org.bukkit.command.TabCompleter {
 
     private final List<String> commandOptions;
+    private final TabCompleteHelper tabCompleteHelper;
 
     //TODO add "example" to the list
     public TabCompleter() {
@@ -22,6 +24,8 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
         commandOptions.add("player");
         commandOptions.add("server");
         commandOptions.add("me");
+
+        tabCompleteHelper = new TabCompleteHelper();
     }
 
     //args[0] = statistic                                                                        (length = 1)
@@ -49,18 +53,13 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                     Statistic stat = EnumHandler.getStatEnum(previousArg);
 
                     if (stat != null) {
-                        tabSuggestions = switch (stat.getType()) {
-                            case UNTYPED -> commandOptions;
-                            case BLOCK -> getTabSuggestions(EnumHandler.getBlockNames(), currentArg);
-                            case ITEM -> getTabSuggestions(EnumHandler.getItemNames(), currentArg);
-                            case ENTITY -> getTabSuggestions(EnumHandler.getEntityNames(), currentArg);
-                        };
+                        tabSuggestions = getTabSuggestions(getRelevantList(stat), currentArg);
                     }
                 }
 
                 //if previous arg = "player", suggest playerNames
                 else if (previousArg.equalsIgnoreCase("player")) {
-                    if (args.length >= 3 && EnumHandler.getEntitySubStatNames().contains(args[args.length-3].toLowerCase())) {
+                    if (args.length >= 3 && EnumHandler.getEntityTypeStatNames().contains(args[args.length-3].toLowerCase())) {
                         tabSuggestions = commandOptions;
                     }
                     else {
@@ -81,5 +80,28 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
         return completeList.stream()
                 .filter(item -> item.toLowerCase().contains(currentArg.toLowerCase()))
                 .collect(Collectors.toList());
+    }
+
+    private List<String> getRelevantList(Statistic stat) {
+        switch (stat.getType()) {
+            case BLOCK -> {
+                return tabCompleteHelper.getAllBlockNames();
+            }
+            case ITEM -> {
+                if (stat == Statistic.BREAK_ITEM) {
+                    return tabCompleteHelper.getItemBrokenSuggestions();
+                } else if (stat == Statistic.CRAFT_ITEM) {
+                    return tabCompleteHelper.getAllItemNames();  //TODO fix
+                } else {
+                    return tabCompleteHelper.getAllItemNames();
+                }
+            }
+            case ENTITY -> {
+                return tabCompleteHelper.getEntityKilledSuggestions();
+            }
+            default -> {
+                return commandOptions;
+            }
+        }
     }
 }

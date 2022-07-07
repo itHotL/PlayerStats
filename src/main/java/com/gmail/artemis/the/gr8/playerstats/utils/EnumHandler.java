@@ -17,9 +17,8 @@ public class EnumHandler {
     private final static List<String> blockNames;
     private final static List<String> entityNames;
     private final static List<String> itemNames;
-    private final static List<Material> items;
     private final static List<String> statNames;
-    private final static List<String> entitySubStatNames;
+    private final static List<String> entityTypeStatNames;
     private final static List<String> subStatNames;
 
     static {
@@ -41,8 +40,9 @@ public class EnumHandler {
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
 
-        items = Arrays.stream(Material.values())
-                .filter(Material::isItem)
+        subStatNames = Stream.of(blockNames, entityNames, itemNames)
+                .flatMap(Collection::stream)
+                .distinct()
                 .collect(Collectors.toList());
 
         statNames = Arrays.stream(Statistic.values())
@@ -50,23 +50,14 @@ public class EnumHandler {
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
 
-        entitySubStatNames = Arrays.stream(Statistic.values())
+        entityTypeStatNames = Arrays.stream(Statistic.values())
                 .filter(statistic -> statistic.getType().equals(Statistic.Type.ENTITY))
                 .map(Statistic::toString)
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
-
-        subStatNames = Stream.of(blockNames, entityNames, itemNames)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
     }
 
     private EnumHandler() {
-    }
-
-    /** Returns all item names in lowercase */
-    public static List<Material> getItems() {
-        return items;
     }
 
     public static List<String> getItemNames() {
@@ -144,7 +135,7 @@ public class EnumHandler {
     }
 
     /** Returns all statistics that have type entities, in lowercase */
-    public static List<String> getEntitySubStatNames() {
-        return entitySubStatNames;
+    public static List<String> getEntityTypeStatNames() {
+        return entityTypeStatNames;
     }
 }

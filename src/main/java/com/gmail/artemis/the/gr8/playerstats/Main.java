@@ -5,8 +5,10 @@ import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.commands.cmdutils.TabCompleteHelper;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
@@ -39,6 +41,7 @@ public class Main extends JavaPlugin {
         //initialize the threadManager
         ThreadManager threadManager = new ThreadManager(adventure(), config, messageWriter, this);
         TabCompleteHelper tab = new TabCompleteHelper();
+        Bukkit.getLogger().info(tab.getEntityKilledSuggestions().toString());
 
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
