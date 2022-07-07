@@ -24,23 +24,21 @@ public class ReloadThread extends Thread {
 
     private final int threshold;
     private final int reloadThreadID;
+    private final StatThread statThread;
 
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
     private static MessageWriter messageWriter;
-
-    private final StatThread statThread;
     private final CommandSender sender;
 
     public ReloadThread(BukkitAudiences a, ConfigHandler c, MessageWriter m, int threshold, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
         this.threshold = threshold;
         reloadThreadID = ID;
+        statThread = s;
 
         adventure = a;
         config = c;
         messageWriter = m;
-
-        statThread = s;
         sender = se;
 
         this.setName("ReloadThread-" + reloadThreadID);

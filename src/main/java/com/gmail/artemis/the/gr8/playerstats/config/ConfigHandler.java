@@ -73,8 +73,23 @@ public class ConfigHandler {
         return config.getInt("debug-level", 1);
     }
 
+    /** Returns true if command-senders should be limited to one stat-request at a time.
+     <p>Default: true</p>*/
     public boolean limitStatRequests() {
         return config.getBoolean("only-allow-one-lookup-at-a-time-per-player", true);
+    }
+
+    /** Returns true if stat-sharing is allowed.
+     <p>Default: true</p>*/
+    public boolean enableStatSharing() {
+        return config.getBoolean("enable-stat-sharing", true);
+    }
+
+    /** Returns the number of minutes a command-sender has to wait before being able to
+     share another stat-result.
+     <p>Default: 0</p>*/
+    public int getStatShareLimit() {
+        return config.getInt("sharing-time-limit", 0);
     }
 
     /** Returns the config setting for include-whitelist-only.
@@ -108,14 +123,20 @@ public class ConfigHandler {
         return config.getBoolean("enable-hover-text", true);
     }
 
+    /** Returns the unit that should be used for distance-related statistics.
+     <p>Default: Blocks for plain text, km for hover-text</p>*/
     public String getDistanceUnit(boolean isHoverText) {
         return getUnitString(isHoverText, "blocks", "km", "distance-unit");
     }
 
+    /** Returns the unit that should be used for damage-based statistics.
+     <p>Default: Hearts for plain text, HP for hover-text.</p>*/
     public String getDamageUnit(boolean isHoverText) {
         return getUnitString(isHoverText, "hearts", "hp", "damage-unit");
     }
 
+    /** Whether PlayerStats should automatically detect the most suitable unit to use for time-based statistics.
+     <p>Default: true</p>*/
     public boolean autoDetectTimeUnit(boolean isHoverText) {
         String path = "auto-detect-biggest-time-unit";
         if (isHoverText) {
@@ -125,6 +146,8 @@ public class ConfigHandler {
         return config.getBoolean(path, defaultValue);
     }
 
+    /** How many additional units should be displayed next to the most suitable largest unit for time-based statistics.
+     <p>Default: 1 for plain text, 0 for hover-text</p>*/
     public int getNumberOfExtraTimeUnits(boolean isHoverText) {
         String path = "number-of-extra-units";
         if (isHoverText) {
@@ -134,14 +157,16 @@ public class ConfigHandler {
         return config.getInt(path, defaultValue);
     }
 
-    /** By default, getTimeUnit will return the maxUnit. If the optional minUnit flag is specified,
-     the minimum unit will be returned instead. */
+    /** Returns the unit that should be used for time-based statistics.
+     (this will return the largest unit that should be used).
+     <p>Default: days for plain text, hours for hover-text</p>*/
     public String getTimeUnit(boolean isHoverText) {
         return getTimeUnit(isHoverText, false);
     }
 
-    /** By default, getTimeUnit will return the maxUnit. If the optional smallUnit flag is specified,
-     the minimum unit will be returned instead. */
+    /** Returns the unit that should be used for time-based statistics. If the optional smallUnit flag is true,
+     this will return the smallest unit (and otherwise the largest).
+     <p>Default: hours for plain text, seconds for hover-text</p>*/
     public String getTimeUnit(boolean isHoverText, boolean smallUnit) {
         if (smallUnit) {
             return getUnitString(isHoverText, "hours", "seconds", "smallest-time-unit");

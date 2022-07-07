@@ -3,14 +3,15 @@ package com.gmail.artemis.the.gr8.playerstats;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
+import com.gmail.artemis.the.gr8.playerstats.statistic.ShareQueue;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
-
 
 public class ThreadManager {
 
@@ -18,21 +19,21 @@ public class ThreadManager {
     private int statThreadID;
     private int reloadThreadID;
 
-    private final Main plugin;
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
     private static MessageWriter messageWriter;
+    private final ShareQueue shareQueue;
 
     private ReloadThread lastActiveReloadThread;
     private StatThread lastActiveStatThread;
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    public ThreadManager(BukkitAudiences a, ConfigHandler c, MessageWriter m, Main p) {
+    public ThreadManager(BukkitAudiences a, ConfigHandler c, MessageWriter m, @Nullable ShareQueue s) {
         adventure = a;
         config = c;
         messageWriter = m;
-        plugin = p;
+        shareQueue = s;
 
         statThreads = new HashMap<>();
         statThreadID = 0;
@@ -82,7 +83,7 @@ public class ThreadManager {
     }
 
     private void startNewStatThread(StatRequest request) {
-        lastActiveStatThread = new StatThread(adventure, config, messageWriter, plugin, statThreadID, threshold, request, lastActiveReloadThread);
+        lastActiveStatThread = new StatThread(adventure, config, messageWriter, statThreadID, threshold, request, lastActiveReloadThread);
         statThreads.put(request.getCommandSender().getName(), lastActiveStatThread);
         lastActiveStatThread.start();
     }

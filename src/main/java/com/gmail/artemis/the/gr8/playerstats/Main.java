@@ -7,12 +7,12 @@ import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
+import com.gmail.artemis.the.gr8.playerstats.statistic.ShareQueue;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-
 
 public class Main extends JavaPlugin {
 
@@ -30,14 +30,12 @@ public class Main extends JavaPlugin {
         //initialize the Adventure library
         adventure = BukkitAudiences.create(this);
 
-        //first get an instance of the ConfigHandler
+        //first get an instance of all the classes that need to be passed along to different classes
         ConfigHandler config = new ConfigHandler(this);
-
-        //for now always use the PrideComponentFactory (it'll use the regular formatting when needed)
         MessageWriter messageWriter = new MessageWriter(config);
 
         //initialize the threadManager
-        ThreadManager threadManager = new ThreadManager(adventure(), config, messageWriter, this);
+        ThreadManager threadManager = new ThreadManager(adventure(), config, messageWriter);
 
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");

@@ -9,10 +9,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ShareQueue {
 
+    private volatile long timeThreshold;
     private final ConcurrentHashMap<String, TextComponent> statResults;
     private final ConcurrentHashMap<String, Instant> shareTimestamp;
 
-    public ShareQueue() {
+    public ShareQueue(long timeThreshold) {
+        this.timeThreshold = timeThreshold;
         statResults = new ConcurrentHashMap<>();
         shareTimestamp = new ConcurrentHashMap<>();
     }
