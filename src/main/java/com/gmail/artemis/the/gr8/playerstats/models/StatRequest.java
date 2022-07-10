@@ -1,4 +1,4 @@
-package com.gmail.artemis.the.gr8.playerstats.statistic;
+package com.gmail.artemis.the.gr8.playerstats.models;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import org.bukkit.Bukkit;

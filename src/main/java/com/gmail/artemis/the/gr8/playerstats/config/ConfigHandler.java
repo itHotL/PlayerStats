@@ -85,11 +85,11 @@ public class ConfigHandler {
         return config.getBoolean("enable-stat-sharing", true);
     }
 
-    /** Returns the number of minutes a command-sender has to wait before being able to
+    /** Returns the number of minutes a player has to wait before being able to
      share another stat-result.
      <p>Default: 0</p>*/
-    public int getStatShareLimit() {
-        return config.getInt("sharing-time-limit", 0);
+    public int getStatShareWaitingTime() {
+        return config.getInt("waiting-time-before-sharing-again", 0);
     }
 
     /** Returns the config setting for include-whitelist-only.
@@ -176,13 +176,13 @@ public class ConfigHandler {
 
     /** Whether to use festive formatting, such as pride colors.
      <p>Default: true</p> */
-    public boolean useFestiveFormatting() {
+    public boolean enableFestiveFormatting() {
         return config.getBoolean("enable-festive-formatting", true);
     }
 
     /** Whether to use rainbow colors for the [PlayerStats] prefix rather than the default gold/purple.
      <p>Default: false</p> */
-    public boolean useRainbowMode() {
+    public boolean enableRainbowMode() {
         return config.getBoolean("rainbow-mode", false);
     }
 

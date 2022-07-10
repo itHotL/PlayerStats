@@ -21,9 +21,9 @@ only-allow-one-lookup-at-a-time-per-player: true
 # Whether statistics can be shared with everyone in chat
 enable-stat-sharing: true
 
-# How often players can share statistics in chat. You can specify a waiting time (in minutes) below,
-# or leave this setting on 0 to not use any time-limit
-sharing-time-limit: 0
+# How often players can share statistics in chat (use this if you want to limit chat spam)
+# Leave this on 0 to disable the cool-down, or specify the number of minutes you want players to wait
+waiting-time-before-sharing-again: 0
 
 # Filtering options to control which players should be included in statistic calculations
 include-whitelist-only: false

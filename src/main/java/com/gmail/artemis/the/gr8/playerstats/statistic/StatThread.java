@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
+import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
@@ -23,21 +24,18 @@ public class StatThread extends Thread {
 
     private final int threshold;
     private final ReloadThread reloadThread;
-    private final ShareQueue shareQueue;
+    private final ShareManager shareManager;
 
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
     private static MessageWriter messageWriter;
     private final StatRequest request;
 
-    public StatThread(BukkitAudiences a, ConfigHandler c, MessageWriter m, int ID, int threshold, StatRequest s, @Nullable ReloadThread r) {
-        this(a, c, m, ID, threshold, s, r, null);
-    }
 
-    public StatThread(BukkitAudiences a, ConfigHandler c, MessageWriter m, int ID, int threshold, StatRequest s, @Nullable ReloadThread r, @Nullable ShareQueue q) {
+    public StatThread(BukkitAudiences a, ConfigHandler c, MessageWriter m, int ID, int threshold, StatRequest s, @Nullable ReloadThread r, @Nullable ShareManager sm) {
         this.threshold = threshold;
         reloadThread = r;
-        shareQueue = q;
+        shareManager = sm;
 
         adventure = a;
         config = c;
@@ -65,7 +63,7 @@ public class StatThread extends Thread {
                 reloadThread.join();
 
             } catch (InterruptedException e) {
-                MyLogger.logException(e, "StatThread", "Trying to join" + reloadThread.getName());
+                MyLogger.logException(e, "StatThread", "Trying to join " + reloadThread.getName());
                 throw new RuntimeException(e);
             }
         }
@@ -85,7 +83,9 @@ public class StatThread extends Thread {
             } else {
                 statResult = messageWriter.formatServerStat(getServerTotal(), request);
             }
-
+            if (shareManager.isEnabled()) {
+                UUID shareCode = shareManager.saveStatResult(request.getCommandSender().getName(), statResult);
+            }
             adventure.sender(request.getCommandSender()).sendMessage(statResult);
         }
         catch (ConcurrentModificationException e) {
@@ -103,7 +103,7 @@ public class StatThread extends Thread {
     }
 
     private long getServerTotal() {
-        List<Integer> numbers = getAllStats().values().stream().toList();
+        List<Integer> numbers = getAllStats().values().parallelStream().toList();
         return numbers.parallelStream().mapToLong(Integer::longValue).sum();
     }
 
@@ -111,7 +111,7 @@ public class StatThread extends Thread {
     private @NotNull ConcurrentHashMap<String, Integer> getAllStats() throws ConcurrentModificationException {
         long time = System.currentTimeMillis();
 
-        int size = OfflinePlayerHandler.getOfflinePlayerCount() != 0 ? (int) (OfflinePlayerHandler.getOfflinePlayerCount() * 1.05) : 16;
+        int size = OfflinePlayerHandler.getOfflinePlayerCount() != 0 ? OfflinePlayerHandler.getOfflinePlayerCount() : 16;
         ConcurrentHashMap<String, Integer> playerStats = new ConcurrentHashMap<>(size);
         ImmutableList<String> playerNames = ImmutableList.copyOf(OfflinePlayerHandler.getOfflinePlayerNames());
 

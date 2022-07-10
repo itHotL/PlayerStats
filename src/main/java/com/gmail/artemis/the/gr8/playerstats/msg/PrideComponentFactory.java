@@ -61,7 +61,7 @@ public class PrideComponentFactory extends ComponentFactory {
      if festive formatting is disabled or it is not pride month,
      or the commandsender is a Bukkit or Spigot console.*/
     private boolean cancelRainbow(boolean isBukkitConsole) {
-        return !(config.useRainbowMode() || (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) ||
+        return !(config.enableRainbowMode() || (config.enableFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) ||
                 (isBukkitConsole);
     }
 }

@@ -3,13 +3,12 @@ package com.gmail.artemis.the.gr8.playerstats;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
-import com.gmail.artemis.the.gr8.playerstats.statistic.ShareQueue;
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.statistic.ShareManager;
+import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.CommandSender;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 
@@ -22,23 +21,24 @@ public class ThreadManager {
     private final BukkitAudiences adventure;
     private static ConfigHandler config;
     private static MessageWriter messageWriter;
-    private final ShareQueue shareQueue;
+    private final ShareManager shareManager;
 
     private ReloadThread lastActiveReloadThread;
     private StatThread lastActiveStatThread;
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    public ThreadManager(BukkitAudiences a, ConfigHandler c, MessageWriter m, @Nullable ShareQueue s) {
+    public ThreadManager(BukkitAudiences a, ConfigHandler c, MessageWriter m) {
         adventure = a;
         config = c;
         messageWriter = m;
-        shareQueue = s;
+        shareManager = new ShareManager(config);
 
         statThreads = new HashMap<>();
         statThreadID = 0;
         reloadThreadID = 0;
         lastRecordedCalcTime = 0;
+
         startReloadThread(null);
     }
 
@@ -83,7 +83,7 @@ public class ThreadManager {
     }
 
     private void startNewStatThread(StatRequest request) {
-        lastActiveStatThread = new StatThread(adventure, config, messageWriter, statThreadID, threshold, request, lastActiveReloadThread);
+        lastActiveStatThread = new StatThread(adventure, config, messageWriter, statThreadID, threshold, request, lastActiveReloadThread, shareManager);
         statThreads.put(request.getCommandSender().getName(), lastActiveStatThread);
         lastActiveStatThread.start();
     }

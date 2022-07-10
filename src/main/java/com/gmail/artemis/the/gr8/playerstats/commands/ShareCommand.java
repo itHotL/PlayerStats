@@ -9,6 +9,8 @@ public class ShareCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, String label, String[] args) {
+        //TODO use UUID code as arg to share the appropriate statResult
+
         return false;
     }
 }

@@ -55,7 +55,7 @@ public class ReloadThread extends Thread {
                 MyLogger.waitingForOtherThread(this.getName(), statThread.getName());
                 statThread.join();
             } catch (InterruptedException e) {
-                MyLogger.logException(e, "ReloadThread", "run(), trying to join" + statThread.getName());
+                MyLogger.logException(e, "ReloadThread", "run(), trying to join " + statThread.getName());
                 throw new RuntimeException(e);
             }
         }

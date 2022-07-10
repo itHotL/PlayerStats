@@ -7,7 +7,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.ExampleMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.HelpMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -42,7 +42,7 @@ public class MessageWriter {
     }
 
     private static void getComponentFactory() {
-        if (config.useFestiveFormatting() || config.useRainbowMode()) {
+        if (config.enableFestiveFormatting() || config.enableRainbowMode()) {
             componentFactory = new PrideComponentFactory(config);
         }
         else {

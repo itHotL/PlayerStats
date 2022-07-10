@@ -3,7 +3,7 @@ package com.gmail.artemis.the.gr8.playerstats.commands;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
