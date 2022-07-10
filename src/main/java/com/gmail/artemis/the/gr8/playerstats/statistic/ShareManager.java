@@ -26,6 +26,7 @@ public class ShareManager {
         isEnabled = config.enableStatSharing();
         waitingTime = config.getStatShareWaitingTime();
         if (isEnabled) {
+            resultID = new AtomicInteger();
             statResults = new ConcurrentHashMap<>();
             shareTimeStamp = new ConcurrentHashMap<>();
         }

@@ -28,11 +28,11 @@ public class ThreadManager {
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    public ThreadManager(BukkitAudiences a, ConfigHandler c, MessageWriter m) {
+    public ThreadManager(BukkitAudiences a, ConfigHandler c, MessageWriter m, ShareManager s) {
         adventure = a;
         config = c;
         messageWriter = m;
-        shareManager = new ShareManager(config);
+        shareManager = s;
 
         statThreads = new HashMap<>();
         statThreadID = 0;

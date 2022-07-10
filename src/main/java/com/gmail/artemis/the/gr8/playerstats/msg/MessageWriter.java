@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
+import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
@@ -11,9 +12,12 @@ import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.bukkit.map.MinecraftFont;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -190,6 +194,13 @@ public class MessageWriter {
                 .append(getStatNameComponent(request))
                 .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnit
                 .build();
+    }
+
+    public TextComponent addShareButton(TextComponent component, UUID shareCode) {
+        return component.append(newline())
+                .append(text("[SHARE]").color(PluginColor.LIGHT_BLUE.getColor())
+                        .clickEvent(ClickEvent.runCommand("/statshare " + shareCode))
+                        .hoverEvent(HoverEvent.showText(text("CLICK ME").color(PluginColor.LIGHT_GOLD.getColor()))));
     }
 
     /** Depending on the config settings, return either a TranslatableComponent representing

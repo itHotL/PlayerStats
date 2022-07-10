@@ -7,7 +7,7 @@ import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
-import com.gmail.artemis.the.gr8.playerstats.statistic.ShareQueue;
+import com.gmail.artemis.the.gr8.playerstats.statistic.ShareManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
@@ -33,9 +33,10 @@ public class Main extends JavaPlugin {
         //first get an instance of all the classes that need to be passed along to different classes
         ConfigHandler config = new ConfigHandler(this);
         MessageWriter messageWriter = new MessageWriter(config);
+        ShareManager shareManager = new ShareManager(config);
 
         //initialize the threadManager
-        ThreadManager threadManager = new ThreadManager(adventure(), config, messageWriter);
+        ThreadManager threadManager = new ThreadManager(adventure(), config, messageWriter, shareManager);
 
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
@@ -46,7 +47,7 @@ public class Main extends JavaPlugin {
         PluginCommand reloadcmd = this.getCommand("statisticreload");
         if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));
         PluginCommand sharecmd = this.getCommand("statisticshare");
-        if (sharecmd != null) sharecmd.setExecutor(new ShareCommand());
+        if (sharecmd != null) sharecmd.setExecutor(new ShareCommand(adventure(), shareManager));
 
         //register the listener
         Bukkit.getPluginManager().registerEvents(new JoinListener(threadManager), this);
