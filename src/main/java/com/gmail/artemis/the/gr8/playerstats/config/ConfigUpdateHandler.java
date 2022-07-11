@@ -26,7 +26,7 @@ public class ConfigUpdateHandler {
         }
     }
 
-    /** Adjusts the value for "top-list" to migrate the config file from versions 1 or 2 to version 3.*/
+    /** Adjusts the value for "top-list" to migrate the config file from versions 1 or 2 to version 3 and above.*/
     private void updateTopListDefault(YamlConfiguration configuration) {
         String oldTitle = configuration.getString("top-list-title");
         if (oldTitle != null && oldTitle.equalsIgnoreCase("Top [x]")) {
@@ -34,7 +34,7 @@ public class ConfigUpdateHandler {
         }
     }
 
-    /** Adjusts some of the default colors to migrate from versions 2 or 3 to version 4.1.*/
+    /** Adjusts some of the default colors to migrate from versions 2 or 3 to version 4 and above.*/
     private void updateDefaultColors(YamlConfiguration configuration) {
         updateColor(configuration, "top-list.title", "yellow", "#FFD52B");
         updateColor(configuration, "top-list.stat-names", "yellow", "#FFD52B");

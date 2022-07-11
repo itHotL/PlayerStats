@@ -20,7 +20,7 @@ public class ConfigHandler {
 
     public ConfigHandler(Main p) {
         plugin = p;
-        configVersion = 5;
+        configVersion = 6;
 
         saveDefaultConfig();
         config = YamlConfiguration.loadConfiguration(configFile);
