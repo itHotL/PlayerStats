@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.reload;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
@@ -23,27 +24,30 @@ import java.util.function.Predicate;
 
 public class ReloadThread extends Thread {
 
-    private final int reloadThreadID;
-    private final StatThread statThread;
-
-    private static BukkitAudiences adventure;
     private static ConfigHandler config;
     private final MessageWriter messageWriter;
     private final OfflinePlayerHandler offlinePlayerHandler;
+
+    private static BukkitAudiences adventure;
+    private static ShareManager shareManager;
+
+    private final int reloadThreadID;
+    private final StatThread statThread;
 
     private final CommandSender sender;
 
 
     public ReloadThread(ConfigHandler c, MessageWriter m, OfflinePlayerHandler o, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
-        reloadThreadID = ID;
-        statThread = s;
-
         config = c;
         messageWriter = m;
-        sender = se;
+        offlinePlayerHandler = o;
 
         adventure = Main.adventure();
-        offlinePlayerHandler = o;
+        shareManager = ShareManager.getInstance(c);
+
+        reloadThreadID = ID;
+        statThread = s;
+        sender = se;
 
         this.setName("ReloadThread-" + reloadThreadID);
         MyLogger.threadCreated(this.getName());
@@ -66,9 +70,7 @@ public class ReloadThread extends Thread {
 
         if (reloadThreadID != 1 && config.reloadConfig()) {  //during a reload
             MyLogger.logMsg("Reloading!", false);
-            MyLogger.setDebugLevel(config.getDebugLevel());
-            MessageWriter.updateComponentFactory();
-            loadOfflinePlayers();
+            reloadEverything();
 
             boolean isBukkitConsole = sender instanceof ConsoleCommandSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit");
             if (sender != null) {
@@ -78,12 +80,19 @@ public class ReloadThread extends Thread {
         }
         else {  //during first start-up
             MyLogger.setDebugLevel(config.getDebugLevel());
-            loadOfflinePlayers();
+            offlinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
             ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
         }
     }
 
-    private void loadOfflinePlayers() {
+    private void reloadEverything() {
+        MyLogger.setDebugLevel(config.getDebugLevel());
+        MessageWriter.updateComponentFactory();
+        offlinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
+        shareManager.updateSettings(config);
+    }
+
+    private ConcurrentHashMap<String, UUID> loadOfflinePlayers() {
         long time = System.currentTimeMillis();
 
         OfflinePlayer[] offlinePlayers;
@@ -121,8 +130,8 @@ public class ReloadThread extends Thread {
         ForkJoinPool.commonPool().invoke(task);
         MyLogger.actionFinished(1);
 
-        offlinePlayerHandler.updateOfflinePlayerList(playerMap);
         MyLogger.logTimeTaken("ReloadThread",
                 ("loaded " + offlinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
+        return playerMap;
     }
 }

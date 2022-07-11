@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
@@ -49,7 +50,6 @@ public class StatThread extends Thread {
         MyLogger.threadCreated(this.getName());
     }
 
-    //what the thread will do once started
     @Override
     public void run() throws IllegalStateException, NullPointerException {
         MyLogger.threadStart(this.getName());
@@ -60,9 +60,8 @@ public class StatThread extends Thread {
         if (reloadThread != null && reloadThread.isAlive()) {
             try {
                 MyLogger.waitingForOtherThread(this.getName(), reloadThread.getName());
-                adventure.sender(request.getCommandSender())
-                        .sendMessage(messageWriter
-                                .stillReloading(request.isBukkitConsoleSender()));
+                adventure.sender(request.getCommandSender()).sendMessage(
+                                messageWriter.stillReloading(request.isBukkitConsoleSender()));
                 reloadThread.join();
 
             } catch (InterruptedException e) {
@@ -72,20 +71,20 @@ public class StatThread extends Thread {
         }
 
         Target selection = request.getSelection();
-        if (ThreadManager.getLastRecordedCalcTime() > 2000) {
+        long lastCalc = ThreadManager.getLastRecordedCalcTime();
+        if (lastCalc > 2000) {
             adventure.sender(request.getCommandSender()).sendMessage(
-                    messageWriter.waitAMoment(ThreadManager.getLastRecordedCalcTime() > 20000, request.isBukkitConsoleSender()));
+                    messageWriter.waitAMoment(lastCalc > 20000, request.isBukkitConsoleSender()));
         }
 
         TextComponent statResult;
         try {
-            if (selection == Target.PLAYER) {
-                statResult = messageWriter.formatPlayerStat(getIndividualStat(), request);
-            } else if (selection == Target.TOP) {
-                statResult = messageWriter.formatTopStats(getTopStats(), request);
-            } else {
-                statResult = messageWriter.formatServerStat(getServerTotal(), request);
-            }
+            statResult = switch (selection) {
+                case PLAYER -> messageWriter.formatPlayerStat(getIndividualStat(), request);
+                case TOP -> messageWriter.formatTopStats(getTopStats(), request);
+                case SERVER -> messageWriter.formatServerStat(getServerTotal(), request);
+            };
+
             if (shareManager.isEnabled()) {
                 UUID shareCode = shareManager.saveStatResult(request.getCommandSender().getName(), statResult);
                 statResult = messageWriter.addShareButton(statResult, shareCode);

@@ -1,7 +1,9 @@
-package com.gmail.artemis.the.gr8.playerstats.statistic;
+package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.models.StatResult;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.TextComponent;
 
 import javax.annotation.Nullable;
@@ -13,12 +15,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ShareManager {
+public final class ShareManager {
 
     private static volatile ShareManager instance;
 
-    private boolean isEnabled;
-    private int waitingTime;
+    private static boolean isEnabled;
+    private static int waitingTime;
 
     private volatile AtomicInteger resultID;  //always starts with value 0
     private ConcurrentHashMap<UUID, StatResult> statResults = null;
@@ -65,7 +67,7 @@ public class ShareManager {
     }
 
     public boolean isEnabled() {
-        return this.isEnabled;
+        return isEnabled;
     }
 
     public UUID saveStatResult(String playerName, TextComponent statResult) {
@@ -109,6 +111,7 @@ public class ShareManager {
                     .parallelStream()
                     .min(Comparator.comparing(StatResult::ID))
                     .orElseThrow().uuid();
+            MyLogger.logMsg("Removing old stat no. " + statResults.get(uuid) + " for player " + playerName, DebugLevel.MEDIUM);
             statResults.remove(uuid);
         }
     }

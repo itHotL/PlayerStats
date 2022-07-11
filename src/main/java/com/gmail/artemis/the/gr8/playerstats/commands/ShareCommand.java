@@ -1,7 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
-import com.gmail.artemis.the.gr8.playerstats.statistic.ShareManager;
+import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
