@@ -59,7 +59,8 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
 
                 //if previous arg = "player", suggest playerNames
                 else if (previousArg.equalsIgnoreCase("player")) {
-                    if (args.length >= 3 && EnumHandler.getEntityTypeStatNames().contains(args[args.length-3].toLowerCase())) {
+                    //if args.length-3 is kill_entity or entity_killed_by
+                    if (args.length >= 3 && EnumHandler.isEntityStatistic(args[args.length-3])) {
                         tabSuggestions = commandOptions;
                     }
                     else {

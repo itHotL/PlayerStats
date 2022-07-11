@@ -4,16 +4,14 @@ import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
-import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.ExampleMessage;
-import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.HelpMessage;
-import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.*;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
-import org.bukkit.map.MinecraftFont;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -82,7 +80,7 @@ public class MessageWriter {
         return componentFactory.pluginPrefixComponent(isBukkitConsole)
                 .append(space())
                 .append(componentFactory.messageComponent().content(
-                "Please add a valid " + getSubStatTypeName(statType) + " to look up this statistic!"));
+                "Please add a valid " + EnumHandler.getSubStatTypeName(statType) + " to look up this statistic!"));
     }
 
     public TextComponent missingPlayerName(boolean isBukkitConsole) {
@@ -96,7 +94,7 @@ public class MessageWriter {
         return componentFactory.pluginPrefixComponent(isBukkitConsole)
                 .append(space())
                 .append(componentFactory.messageComponent().content(
-                "\"" + subStatEntry + "\" is not a valid " + getSubStatTypeName(statType) + "!"));
+                "\"" + subStatEntry + "\" is not a valid " + EnumHandler.getSubStatTypeName(statType) + "!"));
     }
 
     public TextComponent requestAlreadyRunning(boolean isBukkitConsole) {
@@ -135,46 +133,28 @@ public class MessageWriter {
                 .append(getStatNameComponent(request))  //space is provided by statUnitComponent
                 .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()));
 
-        ArrayList<Unit> timeUnits = null;
-        if (Unit.getTypeFromStatistic(request.getStatistic()) == Unit.Type.TIME) {
-            timeUnits = getTimeUnitRange(topStats.values().iterator().next());
-        }
         boolean useDots = config.useDots();
         boolean boldNames = config.playerNameIsBold();
-
-        MinecraftFont font = new MinecraftFont();
         Set<String> playerNames = topStats.keySet();
 
         int count = 0;
         for (String playerName : playerNames) {
             TextComponent.Builder playerNameBuilder = componentFactory.playerNameBuilder(playerName, Target.TOP);
-            count++;
             topList.append(newline())
-                    .append(componentFactory.rankingNumberComponent(count + "."))
+                    .append(componentFactory.rankingNumberComponent(++count + "."))
                     .append(space());
             if (useDots) {
                 topList.append(playerNameBuilder)
                         .append(space());
-                TextComponent.Builder dotsBuilder = componentFactory.dotsBuilder();
-                int dots;
-                if (request.isConsoleSender()) {
-                    dots = (int) Math.round((130.0 - font.getWidth(count + ". " + playerName))/6) + 7;
-                } else if (!boldNames) {
-                    dots = (int) Math.round((130.0 - font.getWidth(count + ". " + playerName))/2);
-                } else {
-                    dots = (int) Math.round((130.0 - font.getWidth(count + ". ") - (font.getWidth(playerName) * 1.19))/2);
-                }
+                int dots = FontUtils.getNumberOfDotsToAlign(count + ". " + playerName, request.isConsoleSender(), boldNames);
                 if (dots >= 1) {
-                    topList.append(dotsBuilder.append(text((".".repeat(dots)))));
+                    topList.append(componentFactory.dotsBuilder().append(text((".".repeat(dots)))));
                 }
-            } else {
+            }
+            else {
                 topList.append(playerNameBuilder.append(text(":")));
             }
-            if (timeUnits != null) {
-                topList.append(space()).append(getTimeNumberComponent(topStats.get(playerName), request.getSelection(), timeUnits));
-            } else {
-                topList.append(space()).append(getStatNumberComponent(request.getStatistic(), topStats.get(playerName), Target.TOP, request.isConsoleSender()));
-            }
+            topList.append(space()).append(getStatNumberComponent(request.getStatistic(), topStats.get(playerName), Target.TOP, request.isConsoleSender()));
         }
         return topList.build();
     }
@@ -190,6 +170,17 @@ public class MessageWriter {
                 .append(getStatNameComponent(request))
                 .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnit
                 .build();
+    }
+
+    public TextComponent usageExamples(boolean isBukkitConsole) {
+        return new ExampleMessage(componentFactory, isBukkitConsole);
+    }
+
+    public TextComponent helpMsg(boolean isConsoleSender) {
+        return new HelpMessage(componentFactory,
+                config.useHoverText() && !isConsoleSender,
+                isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit"),
+                config.getTopListMaxSize());
     }
 
     /** Depending on the config settings, return either a TranslatableComponent representing
@@ -211,8 +202,8 @@ public class MessageWriter {
         }
         else {
             return componentFactory.statNameTextComponent(
-                    getPrettyName(request.getStatistic().toString()),
-                    getPrettyName(request.getSubStatEntry()),
+                    StringUtils.prettify(request.getStatistic().toString()),
+                    StringUtils.prettify(request.getSubStatEntry()),
                     request.getSelection());
         }
     }
@@ -325,44 +316,5 @@ public class MessageWriter {
         }
         return Component.space()
                 .append(componentFactory.statUnitComponent(statName, null, selection));
-    }
-
-    /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */
-    private String getSubStatTypeName(Statistic.Type statType) {
-        String subStat = "sub-statistic";
-        if (statType == null) return subStat;
-        switch (statType) {
-            case BLOCK -> subStat = "block";
-            case ENTITY -> subStat = "entity";
-            case ITEM -> subStat = "item";
-        }
-        return subStat;
-    }
-
-    /** Replace "_" with " " and capitalize each first letter of the input.
-     @param input String to prettify, case-insensitive*/
-    private String getPrettyName(String input) {
-        if (input == null) return null;
-        StringBuilder capitals = new StringBuilder(input.toLowerCase());
-        capitals.setCharAt(0, Character.toUpperCase(capitals.charAt(0)));
-        while (capitals.indexOf("_") != -1) {
-            MyLogger.replacingUnderscores();
-
-            int index = capitals.indexOf("_");
-            capitals.setCharAt(index + 1, Character.toUpperCase(capitals.charAt(index + 1)));
-            capitals.setCharAt(index, ' ');
-        }
-        return capitals.toString();
-    }
-
-    public TextComponent usageExamples(boolean isBukkitConsole) {
-        return new ExampleMessage(componentFactory, isBukkitConsole);
-    }
-
-    public TextComponent helpMsg(boolean isConsoleSender) {
-        return new HelpMessage(componentFactory,
-                config.useHoverText() && !isConsoleSender,
-                isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit"),
-                config.getTopListMaxSize());
     }
 }

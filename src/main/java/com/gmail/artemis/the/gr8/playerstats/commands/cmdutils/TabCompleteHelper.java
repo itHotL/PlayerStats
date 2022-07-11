@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 
 public class TabCompleteHelper {
 
-    private List<String> itemBrokenSuggestions;
-    private List<String> entityKilledSuggestions;
+    private static List<String> itemBrokenSuggestions;
+    private static List<String> entityKilledSuggestions;
 
     public TabCompleteHelper() {
         prepareLists();
@@ -34,7 +34,7 @@ public class TabCompleteHelper {
     }
 
 
-    private void prepareLists() {
+    private static void prepareLists() {
         itemBrokenSuggestions = Arrays.stream(Material.values())
                 .parallel()
                 .filter(Material::isItem)

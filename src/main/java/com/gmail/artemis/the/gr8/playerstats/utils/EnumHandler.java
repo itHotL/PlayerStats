@@ -18,7 +18,6 @@ public class EnumHandler {
     private final static List<String> entityNames;
     private final static List<String> itemNames;
     private final static List<String> statNames;
-    private final static List<String> entityTypeStatNames;
     private final static List<String> subStatNames;
 
     static {
@@ -46,12 +45,6 @@ public class EnumHandler {
                 .collect(Collectors.toList());
 
         statNames = Arrays.stream(Statistic.values())
-                .map(Statistic::toString)
-                .map(String::toLowerCase)
-                .collect(Collectors.toList());
-
-        entityTypeStatNames = Arrays.stream(Statistic.values())
-                .filter(statistic -> statistic.getType().equals(Statistic.Type.ENTITY))
                 .map(Statistic::toString)
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
@@ -112,6 +105,12 @@ public class EnumHandler {
         return statNames.contains(statName.toLowerCase());
     }
 
+    /** Checks whether the given String equals the name of an entity-type statistic. */
+    public static boolean isEntityStatistic(String statName) {
+        return statName.equalsIgnoreCase(Statistic.ENTITY_KILLED_BY.toString()) ||
+                statName.equalsIgnoreCase(Statistic.KILL_ENTITY.toString());
+    }
+
     /** Returns the names of all general statistics in lowercase */
     public static List<String> getStatNames() {
         return statNames;
@@ -128,14 +127,21 @@ public class EnumHandler {
         }
     }
 
+    /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */
+    public static String getSubStatTypeName(Statistic.Type statType) {
+        String subStat = "sub-statistic";
+        if (statType == null) return subStat;
+        switch (statType) {
+            case BLOCK -> subStat = "block";
+            case ENTITY -> subStat = "entity";
+            case ITEM -> subStat = "item";
+        }
+        return subStat;
+    }
+
     /** Checks if this statistic is a subStatEntry, meaning it is a block, item or entity
      @param statName String, case-insensitive*/
     public static boolean isSubStatEntry(@NotNull String statName) {
         return subStatNames.contains(statName.toLowerCase());
-    }
-
-    /** Returns all statistics that have type entities, in lowercase */
-    public static List<String> getEntityTypeStatNames() {
-        return entityTypeStatNames;
     }
 }

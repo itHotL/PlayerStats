@@ -1,10 +1,10 @@
-package com.gmail.artemis.the.gr8.playerstats.msg;
+package com.gmail.artemis.the.gr8.playerstats.msg.msgutils;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 
 import java.text.DecimalFormat;
 
-public class NumberFormatter {
+public final class NumberFormatter {
 
     private final DecimalFormat format;
 
