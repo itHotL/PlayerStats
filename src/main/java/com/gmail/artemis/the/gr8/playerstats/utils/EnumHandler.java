@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class EnumHandler {
+public final class EnumHandler {
 
     private final static List<String> blockNames;
     private final static List<String> entityNames;
@@ -48,9 +48,6 @@ public class EnumHandler {
                 .map(Statistic::toString)
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
-    }
-
-    private EnumHandler() {
     }
 
     public static List<String> getItemNames() {

@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TabCompleteHelper {
+public final class TabCompleteHelper {
 
     private static List<String> itemBrokenSuggestions;
     private static List<String> entityKilledSuggestions;

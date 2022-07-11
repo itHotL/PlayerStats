@@ -12,27 +12,24 @@ public class OfflinePlayerHandler {
     private static ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
     private static ArrayList<String> playerNames;
 
-    static {
+    public OfflinePlayerHandler() {
         offlinePlayerUUIDs = new ConcurrentHashMap<>();
         playerNames = new ArrayList<>();
     }
 
-    private OfflinePlayerHandler() {
-    }
-
     /** Checks if a given playerName is on the private HashMap of players that should be included in statistic calculations
      @param playerName String, case-sensitive */
-    public static boolean isRelevantPlayer(String playerName) {
+    public boolean isRelevantPlayer(String playerName) {
         return offlinePlayerUUIDs.containsKey(playerName);
     }
 
     /** Returns the number of OfflinePlayers that are included in statistic calculations */
-    public static int getOfflinePlayerCount() {
+    public int getOfflinePlayerCount() {
         return offlinePlayerUUIDs.size();
     }
 
     /** Get an ArrayList of names from all OfflinePlayers that should be included in statistic calculations */
-    public static ArrayList<String> getOfflinePlayerNames() {
+    public ArrayList<String> getOfflinePlayerNames() {
         return playerNames;
     }
 
@@ -41,7 +38,7 @@ public class OfflinePlayerHandler {
      * This HashMap is stored as a private variable in OfflinePlayerHandler.
      * @param playerList ConcurrentHashMap with keys: playerNames and values: UUIDs
      */
-    public static void updateOfflinePlayerList(ConcurrentHashMap<String, UUID> playerList) {
+    public void updateOfflinePlayerList(ConcurrentHashMap<String, UUID> playerList) {
         offlinePlayerUUIDs = playerList;
         playerNames = Collections.list(offlinePlayerUUIDs.keys());
     }
@@ -51,7 +48,7 @@ public class OfflinePlayerHandler {
      * @param playerName name of the target player
      * @return OfflinePlayer (if this player is on the list, otherwise null)
      */
-    public static @Nullable OfflinePlayer getOfflinePlayer(String playerName) {
+    public @Nullable OfflinePlayer getOfflinePlayer(String playerName) {
         if (offlinePlayerUUIDs.get(playerName) != null) {
             return Bukkit.getOfflinePlayer(offlinePlayerUUIDs.get(playerName));
         }

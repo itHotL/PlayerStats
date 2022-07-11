@@ -9,8 +9,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
-
-public class StatRequest {
+public final class StatRequest {
 
     private final CommandSender sender;
     private Statistic statistic;

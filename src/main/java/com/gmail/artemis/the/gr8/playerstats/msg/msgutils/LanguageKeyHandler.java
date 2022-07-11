@@ -13,11 +13,10 @@ import java.util.HashMap;
 
 public final class LanguageKeyHandler {
 
-    private final HashMap<Statistic, String> statNameKeys;
+    private static HashMap<Statistic, String> statNameKeys;
 
     public LanguageKeyHandler() {
-        statNameKeys = new HashMap<>();
-        generateStatNameKeys();
+        statNameKeys = generateStatNameKeys();
     }
 
     public String getStatKey(@NotNull Statistic statistic) {
@@ -72,47 +71,46 @@ public final class LanguageKeyHandler {
         }
     }
 
-    private void generateDefaultKeys() {
-        Arrays.stream(Statistic.values()).forEach(statistic -> statNameKeys.put(statistic, statistic.toString().toLowerCase()));
-    }
-
-    private void generateStatNameKeys() {
+    private @NotNull HashMap<Statistic, String> generateStatNameKeys() {
         //get the enum names for all statistics first
-        generateDefaultKeys();
+        HashMap<Statistic, String> statNames = new HashMap<>(Statistic.values().length);
+        Arrays.stream(Statistic.values()).forEach(statistic -> statNames.put(statistic, statistic.toString().toLowerCase()));
 
         //replace the ones for which the language key is different from the enum name
-        statNameKeys.put(Statistic.ARMOR_CLEANED, "clean_armor");
-        statNameKeys.put(Statistic.BANNER_CLEANED, "clean_banner");
-        statNameKeys.put(Statistic.DROP_COUNT, "drop");
-        statNameKeys.put(Statistic.CAKE_SLICES_EATEN, "eat_cake_slice");
-        statNameKeys.put(Statistic.ITEM_ENCHANTED, "enchant_item");
-        statNameKeys.put(Statistic.CAULDRON_FILLED, "fill_cauldron");
-        statNameKeys.put(Statistic.DISPENSER_INSPECTED, "inspect_dispenser");
-        statNameKeys.put(Statistic.DROPPER_INSPECTED, "inspect_dropper");
-        statNameKeys.put(Statistic.HOPPER_INSPECTED, "inspect_hopper");
-        statNameKeys.put(Statistic.BEACON_INTERACTION, "interact_with_beacon");
-        statNameKeys.put(Statistic.BREWINGSTAND_INTERACTION, "interact_with_brewingstand");
-        statNameKeys.put(Statistic.CRAFTING_TABLE_INTERACTION, "interact_with_crafting_table");
-        statNameKeys.put(Statistic.FURNACE_INTERACTION, "interact_with_furnace");
-        statNameKeys.put(Statistic.CHEST_OPENED, "open_chest");
-        statNameKeys.put(Statistic.ENDERCHEST_OPENED, "open_enderchest");
-        statNameKeys.put(Statistic.SHULKER_BOX_OPENED, "open_shulker_box");
-        statNameKeys.put(Statistic.NOTEBLOCK_PLAYED, "play_noteblock");
-        statNameKeys.put(Statistic.PLAY_ONE_MINUTE, "play_time");
-        statNameKeys.put(Statistic.RECORD_PLAYED, "play_record");
-        statNameKeys.put(Statistic.FLOWER_POTTED, "pot_flower");
-        statNameKeys.put(Statistic.TRAPPED_CHEST_TRIGGERED, "trigger_trapped_chest");
-        statNameKeys.put(Statistic.NOTEBLOCK_TUNED, "tune_noteblock");
-        statNameKeys.put(Statistic.CAULDRON_USED, "use_cauldron");
+        statNames.put(Statistic.ARMOR_CLEANED, "clean_armor");
+        statNames.put(Statistic.BANNER_CLEANED, "clean_banner");
+        statNames.put(Statistic.DROP_COUNT, "drop");
+        statNames.put(Statistic.CAKE_SLICES_EATEN, "eat_cake_slice");
+        statNames.put(Statistic.ITEM_ENCHANTED, "enchant_item");
+        statNames.put(Statistic.CAULDRON_FILLED, "fill_cauldron");
+        statNames.put(Statistic.DISPENSER_INSPECTED, "inspect_dispenser");
+        statNames.put(Statistic.DROPPER_INSPECTED, "inspect_dropper");
+        statNames.put(Statistic.HOPPER_INSPECTED, "inspect_hopper");
+        statNames.put(Statistic.BEACON_INTERACTION, "interact_with_beacon");
+        statNames.put(Statistic.BREWINGSTAND_INTERACTION, "interact_with_brewingstand");
+        statNames.put(Statistic.CRAFTING_TABLE_INTERACTION, "interact_with_crafting_table");
+        statNames.put(Statistic.FURNACE_INTERACTION, "interact_with_furnace");
+        statNames.put(Statistic.CHEST_OPENED, "open_chest");
+        statNames.put(Statistic.ENDERCHEST_OPENED, "open_enderchest");
+        statNames.put(Statistic.SHULKER_BOX_OPENED, "open_shulker_box");
+        statNames.put(Statistic.NOTEBLOCK_PLAYED, "play_noteblock");
+        statNames.put(Statistic.PLAY_ONE_MINUTE, "play_time");
+        statNames.put(Statistic.RECORD_PLAYED, "play_record");
+        statNames.put(Statistic.FLOWER_POTTED, "pot_flower");
+        statNames.put(Statistic.TRAPPED_CHEST_TRIGGERED, "trigger_trapped_chest");
+        statNames.put(Statistic.NOTEBLOCK_TUNED, "tune_noteblock");
+        statNames.put(Statistic.CAULDRON_USED, "use_cauldron");
 
         //do the same for the statistics that have a subtype
-        statNameKeys.put(Statistic.DROP, "dropped");
-        statNameKeys.put(Statistic.PICKUP, "picked_up");
-        statNameKeys.put(Statistic.MINE_BLOCK, "mined");
-        statNameKeys.put(Statistic.USE_ITEM, "used");
-        statNameKeys.put(Statistic.BREAK_ITEM, "broken");
-        statNameKeys.put(Statistic.CRAFT_ITEM, "crafted");
-        statNameKeys.put(Statistic.KILL_ENTITY, "killed");
-        statNameKeys.put(Statistic.ENTITY_KILLED_BY, "killed_by");
+        statNames.put(Statistic.DROP, "dropped");
+        statNames.put(Statistic.PICKUP, "picked_up");
+        statNames.put(Statistic.MINE_BLOCK, "mined");
+        statNames.put(Statistic.USE_ITEM, "used");
+        statNames.put(Statistic.BREAK_ITEM, "broken");
+        statNames.put(Statistic.CRAFT_ITEM, "crafted");
+        statNames.put(Statistic.KILL_ENTITY, "killed");
+        statNames.put(Statistic.ENTITY_KILLED_BY, "killed_by");
+
+        return statNames;
     }
 }

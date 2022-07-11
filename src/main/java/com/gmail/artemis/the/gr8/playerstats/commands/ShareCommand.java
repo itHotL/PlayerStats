@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
+import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.statistic.ShareManager;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.Command;
@@ -11,11 +12,11 @@ import java.util.UUID;
 
 public class ShareCommand implements CommandExecutor {
 
-    private final BukkitAudiences adventure;
-    private final ShareManager shareManager;
+    private static BukkitAudiences adventure;
+    private static ShareManager shareManager;
 
-    public ShareCommand(BukkitAudiences a, ShareManager s) {
-        adventure = a;
+    public ShareCommand(ShareManager s) {
+        adventure = Main.adventure();
         shareManager = s;
     }
 

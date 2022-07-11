@@ -3,36 +3,38 @@ package com.gmail.artemis.the.gr8.playerstats;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
-import com.gmail.artemis.the.gr8.playerstats.statistic.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
+import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;
 
-public class ThreadManager {
+public final class ThreadManager {
 
-    private final int threshold = 10;
+    private static volatile ThreadManager instance;
+
+    private final static int threshold = 10;
     private int statThreadID;
     private int reloadThreadID;
 
-    private final BukkitAudiences adventure;
+    private static BukkitAudiences adventure;
     private static ConfigHandler config;
     private static MessageWriter messageWriter;
-    private final ShareManager shareManager;
+    private final OfflinePlayerHandler offlinePlayerHandler;
 
     private ReloadThread lastActiveReloadThread;
     private StatThread lastActiveStatThread;
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    public ThreadManager(BukkitAudiences a, ConfigHandler c, MessageWriter m, ShareManager s) {
-        adventure = a;
+    private ThreadManager(ConfigHandler c, MessageWriter m, OfflinePlayerHandler o) {
+        adventure = Main.adventure();
         config = c;
         messageWriter = m;
-        shareManager = s;
+        offlinePlayerHandler = o;
 
         statThreads = new HashMap<>();
         statThreadID = 0;
@@ -42,11 +44,28 @@ public class ThreadManager {
         startReloadThread(null);
     }
 
+    public static ThreadManager getInstance(ConfigHandler config, MessageWriter messageWriter, OfflinePlayerHandler offlinePlayerHandler) {
+        ThreadManager threadManager = instance;
+        if (threadManager != null) {
+            return threadManager;
+        }
+        synchronized (ThreadManager.class) {
+            if (instance == null) {
+                instance = new ThreadManager(config, messageWriter, offlinePlayerHandler);
+            }
+            return instance;
+        }
+    }
+
+    public static int getTaskThreshold() {
+        return threshold;
+    }
+
     public void startReloadThread(CommandSender sender) {
         if (lastActiveReloadThread == null || !lastActiveReloadThread.isAlive()) {
             reloadThreadID += 1;
 
-            lastActiveReloadThread = new ReloadThread(adventure, config, messageWriter, threshold, reloadThreadID, lastActiveStatThread, sender);
+            lastActiveReloadThread = new ReloadThread(config, messageWriter, offlinePlayerHandler, reloadThreadID, lastActiveStatThread, sender);
             lastActiveReloadThread.start();
         }
         else {
@@ -83,7 +102,7 @@ public class ThreadManager {
     }
 
     private void startNewStatThread(StatRequest request) {
-        lastActiveStatThread = new StatThread(adventure, config, messageWriter, statThreadID, threshold, request, lastActiveReloadThread, shareManager);
+        lastActiveStatThread = new StatThread(config, messageWriter, offlinePlayerHandler, statThreadID, request, lastActiveReloadThread);
         statThreads.put(request.getCommandSender().getName(), lastActiveStatThread);
         lastActiveStatThread.start();
     }

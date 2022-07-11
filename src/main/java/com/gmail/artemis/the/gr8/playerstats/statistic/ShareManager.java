@@ -15,6 +15,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ShareManager {
 
+    private static volatile ShareManager instance;
+
     private boolean isEnabled;
     private int waitingTime;
 
@@ -22,9 +24,10 @@ public class ShareManager {
     private ConcurrentHashMap<UUID, StatResult> statResults = null;
     private ConcurrentHashMap<String, Instant> shareTimeStamp = null;
 
-    public ShareManager(ConfigHandler config) {
+    private ShareManager(ConfigHandler config) {
         isEnabled = config.enableStatSharing();
         waitingTime = config.getStatShareWaitingTime();
+
         if (isEnabled) {
             resultID = new AtomicInteger();
             statResults = new ConcurrentHashMap<>();
@@ -32,17 +35,37 @@ public class ShareManager {
         }
     }
 
-    public boolean isEnabled() {
-        return this.isEnabled;
+    public static ShareManager getInstance(ConfigHandler config) {
+        ShareManager shareManager = instance;
+        if (shareManager != null) {
+            return shareManager;
+        }
+        synchronized (ShareManager.class) {
+            if (instance == null) {
+                instance = new ShareManager(config);
+            }
+            return instance;
+        }
     }
 
-    public void updateSettings(ConfigHandler config) {
+    public synchronized void updateSettings(ConfigHandler config) {
         isEnabled = config.enableStatSharing();
         waitingTime = config.getStatShareWaitingTime();
+
+        //if we went from disabled to enabled, initialize the HashMaps
         if (isEnabled && statResults == null) {
             statResults = new ConcurrentHashMap<>();
             shareTimeStamp = new ConcurrentHashMap<>();
         }
+        //if we went from enabled to disabled, purge the existing data
+        else if (!isEnabled && statResults != null) {
+            statResults = null;
+            shareTimeStamp = null;
+        }
+    }
+
+    public boolean isEnabled() {
+        return this.isEnabled;
     }
 
     public UUID saveStatResult(String playerName, TextComponent statResult) {

@@ -4,6 +4,5 @@ import net.kyori.adventure.text.TextComponent;
 
 import java.util.UUID;
 
-
 public record StatResult(String playerName, TextComponent statResult, int ID, UUID uuid) {
 }

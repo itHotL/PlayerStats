@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
+import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
@@ -22,25 +23,27 @@ import java.util.stream.Collectors;
 
 public class StatThread extends Thread {
 
-    private final int threshold;
-    private final ReloadThread reloadThread;
-    private final ShareManager shareManager;
-
-    private final BukkitAudiences adventure;
     private static ConfigHandler config;
-    private static MessageWriter messageWriter;
+    private final MessageWriter messageWriter;
+    private final OfflinePlayerHandler offlinePlayerHandler;
+
+    private final ReloadThread reloadThread;
     private final StatRequest request;
 
+    private static ShareManager shareManager;
+    private static BukkitAudiences adventure;
 
-    public StatThread(BukkitAudiences a, ConfigHandler c, MessageWriter m, int ID, int threshold, StatRequest s, @Nullable ReloadThread r, @Nullable ShareManager sm) {
-        this.threshold = threshold;
-        reloadThread = r;
-        shareManager = sm;
 
-        adventure = a;
+    public StatThread(ConfigHandler c, MessageWriter m, OfflinePlayerHandler o, int ID, StatRequest s, @Nullable ReloadThread r) {
         config = c;
         messageWriter = m;
+        offlinePlayerHandler = o;
+
+        reloadThread = r;
         request = s;
+
+        adventure = Main.adventure();
+        shareManager = ShareManager.getInstance(config);
 
         this.setName("StatThread-" + request.getCommandSender().getName() + "-" + ID);
         MyLogger.threadCreated(this.getName());
@@ -112,11 +115,11 @@ public class StatThread extends Thread {
     private @NotNull ConcurrentHashMap<String, Integer> getAllStats() throws ConcurrentModificationException {
         long time = System.currentTimeMillis();
 
-        int size = OfflinePlayerHandler.getOfflinePlayerCount() != 0 ? OfflinePlayerHandler.getOfflinePlayerCount() : 16;
+        int size = offlinePlayerHandler.getOfflinePlayerCount() != 0 ? offlinePlayerHandler.getOfflinePlayerCount() : 16;
         ConcurrentHashMap<String, Integer> playerStats = new ConcurrentHashMap<>(size);
-        ImmutableList<String> playerNames = ImmutableList.copyOf(OfflinePlayerHandler.getOfflinePlayerNames());
+        ImmutableList<String> playerNames = ImmutableList.copyOf(offlinePlayerHandler.getOfflinePlayerNames());
 
-        TopStatAction task = new TopStatAction(threshold, playerNames, request, playerStats);
+        TopStatAction task = new TopStatAction(offlinePlayerHandler, playerNames, request, playerStats);
         MyLogger.actionCreated(playerNames.size());
         ForkJoinPool commonPool = ForkJoinPool.commonPool();
 
@@ -139,7 +142,7 @@ public class StatThread extends Thread {
     /** Gets the statistic data for an individual player. If somehow the player
      cannot be found, this returns 0.*/
     private int getIndividualStat() {
-        OfflinePlayer player = OfflinePlayerHandler.getOfflinePlayer(request.getPlayerName());
+        OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(request.getPlayerName());
         if (player != null) {
             return switch (request.getStatistic().getType()) {
                 case UNTYPED -> player.getStatistic(request.getStatistic());

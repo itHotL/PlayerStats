@@ -14,18 +14,22 @@ import java.util.stream.Collectors;
 
 public class TabCompleter implements org.bukkit.command.TabCompleter {
 
-    private final List<String> commandOptions;
+    private final OfflinePlayerHandler offlinePlayerHandler;
     private final TabCompleteHelper tabCompleteHelper;
 
+    private final List<String> commandOptions;
+
     //TODO add "example" to the list
-    public TabCompleter() {
+    public TabCompleter(OfflinePlayerHandler o) {
+        offlinePlayerHandler = o;
+        tabCompleteHelper = new TabCompleteHelper();
+
         commandOptions = new ArrayList<>();
         commandOptions.add("top");
         commandOptions.add("player");
         commandOptions.add("server");
         commandOptions.add("me");
 
-        tabCompleteHelper = new TabCompleteHelper();
     }
 
     //args[0] = statistic                                                                        (length = 1)
@@ -64,7 +68,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                         tabSuggestions = commandOptions;
                     }
                     else {
-                        tabSuggestions = getTabSuggestions(OfflinePlayerHandler.getOfflinePlayerNames(), currentArg);
+                        tabSuggestions = getTabSuggestions(offlinePlayerHandler.getOfflinePlayerNames(), currentArg);
                     }
                 }
 

@@ -1,7 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
-
-public class UnixTimeHandler {
+public final class UnixTimeHandler {
 
     /** Calculates whether a player has played recently enough to fall within the lastPlayedLimit.
     If lastPlayedLimit == 0, this always returns true (since there is no limit).

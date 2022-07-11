@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
+import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
@@ -23,14 +24,16 @@ import org.jetbrains.annotations.Nullable;
 
 public class StatCommand implements CommandExecutor {
 
-    private final BukkitAudiences adventure;
+    private static BukkitAudiences adventure;
+    private static ThreadManager threadManager;
     private final MessageWriter messageWriter;
-    private final ThreadManager threadManager;
+    private final OfflinePlayerHandler offlinePlayerHandler;
 
-    public StatCommand(BukkitAudiences a, MessageWriter m, ThreadManager t) {
-        adventure = a;
-        messageWriter = m;
+    public StatCommand(MessageWriter m, ThreadManager t, OfflinePlayerHandler o) {
+        adventure = Main.adventure();
         threadManager = t;
+        messageWriter = m;
+        offlinePlayerHandler = o;
     }
 
     @Override
@@ -90,7 +93,7 @@ public class StatCommand implements CommandExecutor {
                     request.setSelection(Target.SERVER);
                 }
             }
-            else if (OfflinePlayerHandler.isRelevantPlayer(arg) && request.getPlayerName() == null) {
+            else if (offlinePlayerHandler.isRelevantPlayer(arg) && request.getPlayerName() == null) {
                 request.setPlayerName(arg);
                 request.setSelection(Target.PLAYER);
             }

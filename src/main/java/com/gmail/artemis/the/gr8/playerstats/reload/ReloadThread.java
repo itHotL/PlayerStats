@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.reload;
 
+import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
@@ -22,24 +23,27 @@ import java.util.function.Predicate;
 
 public class ReloadThread extends Thread {
 
-    private final int threshold;
     private final int reloadThreadID;
     private final StatThread statThread;
 
-    private final BukkitAudiences adventure;
+    private static BukkitAudiences adventure;
     private static ConfigHandler config;
-    private static MessageWriter messageWriter;
+    private final MessageWriter messageWriter;
+    private final OfflinePlayerHandler offlinePlayerHandler;
+
     private final CommandSender sender;
 
-    public ReloadThread(BukkitAudiences a, ConfigHandler c, MessageWriter m, int threshold, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
-        this.threshold = threshold;
+
+    public ReloadThread(ConfigHandler c, MessageWriter m, OfflinePlayerHandler o, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
         reloadThreadID = ID;
         statThread = s;
 
-        adventure = a;
         config = c;
         messageWriter = m;
         sender = se;
+
+        adventure = Main.adventure();
+        offlinePlayerHandler = o;
 
         this.setName("ReloadThread-" + reloadThreadID);
         MyLogger.threadCreated(this.getName());
@@ -112,13 +116,13 @@ public class ReloadThread extends Thread {
         int size = offlinePlayers != null ? offlinePlayers.length : 16;
         ConcurrentHashMap<String, UUID> playerMap = new ConcurrentHashMap<>(size);
 
-        ReloadAction task = new ReloadAction(threshold, offlinePlayers, config.getLastPlayedLimit(), playerMap);
+        ReloadAction task = new ReloadAction(offlinePlayers, config.getLastPlayedLimit(), playerMap);
         MyLogger.actionCreated((offlinePlayers != null) ? offlinePlayers.length : 0);
         ForkJoinPool.commonPool().invoke(task);
         MyLogger.actionFinished(1);
 
-        OfflinePlayerHandler.updateOfflinePlayerList(playerMap);
+        offlinePlayerHandler.updateOfflinePlayerList(playerMap);
         MyLogger.logTimeTaken("ReloadThread",
-                ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
+                ("loaded " + offlinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
     }
 }

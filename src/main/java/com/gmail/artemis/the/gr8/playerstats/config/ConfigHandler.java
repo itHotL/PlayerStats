@@ -12,18 +12,18 @@ import java.io.File;
 
 public class ConfigHandler {
 
+    private static Main plugin;
+    private static double configVersion;
+
     private File configFile;
     private FileConfiguration config;
-    private final Main plugin;
-    private final double configVersion;
 
     public ConfigHandler(Main p) {
         plugin = p;
+        configVersion = 5;
 
         saveDefaultConfig();
         config = YamlConfiguration.loadConfiguration(configFile);
-
-        configVersion = 5;
         checkConfigVersion();
 
         MyLogger.setDebugLevel(getDebugLevel());
