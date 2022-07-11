@@ -46,7 +46,6 @@ public class TabCompleteHelper {
         entityKilledSuggestions = Arrays.stream(EntityType.values())
                 .parallel()
                 .filter(EntityType::isAlive)
-                .filter(entityType -> entityType != EntityType.ARMOR_STAND)
                 .map(EntityType::toString)
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
