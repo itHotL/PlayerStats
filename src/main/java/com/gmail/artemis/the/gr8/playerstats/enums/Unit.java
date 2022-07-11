@@ -94,48 +94,34 @@ public enum Unit {
     }
 
     public double getSeconds() {
-        switch (this) {
-            case DAY -> {
-                return 86400;
-            }
-            case HOUR -> {
-                return 3600;
-            }
-            case MINUTE -> {
-                return 60;
-            }
-            case SECOND -> {
-                return 1;
-            }
-            case TICK -> {
-                return 1 / 20.0;
-            }
-            default -> {
-                return -1;
-            }
-        }
+        return switch (this) {
+            case DAY -> 86400;
+            case HOUR -> 3600;
+            case MINUTE -> 60;
+            case SECOND -> 1;
+            case TICK -> 1 / 20.0;
+            default -> -1;
+        };
     }
 
     /** Returns the Unit corresponding to the given String. This String does NOT need to
      match exactly (it can be "day" or "days", for example), and is case-insensitive.
      @param unitName an approximation of the name belonging to the desired Unit, case-insensitive */
     public static @NotNull Unit fromString(@NotNull String unitName) {
-        Unit unit;
-        switch (unitName.toLowerCase()) {
-            case "cm" -> unit = Unit.CM;
-            case "m", "block", "blocks" -> unit = Unit.BLOCK;
-            case "mile", "miles" -> unit = Unit.MILE;
-            case "km" -> unit = Unit.KM;
-            case "hp" -> unit = Unit.HP;
-            case "heart", "hearts" -> unit = Unit.HEART;
-            case "day", "days" -> unit = Unit.DAY;
-            case "hour", "hours" -> unit = Unit.HOUR;
-            case "minute", "minutes", "min" -> unit = Unit.MINUTE;
-            case "second", "seconds", "sec" -> unit = Unit.SECOND;
-            case "tick", "ticks" -> unit = Unit.TICK;
-            default -> unit = Unit.NUMBER;
-        }
-        return unit;
+        return switch (unitName.toLowerCase()) {
+            case "cm" -> Unit.CM;
+            case "m", "block", "blocks" -> Unit.BLOCK;
+            case "mile", "miles" -> Unit.MILE;
+            case "km" -> Unit.KM;
+            case "hp" -> Unit.HP;
+            case "heart", "hearts" -> Unit.HEART;
+            case "day", "days" -> Unit.DAY;
+            case "hour", "hours" -> Unit.HOUR;
+            case "minute", "minutes", "min" -> Unit.MINUTE;
+            case "second", "seconds", "sec" -> Unit.SECOND;
+            case "tick", "ticks" -> Unit.TICK;
+            default -> Unit.NUMBER;
+        };
     }
 
     /** Returns the Unit.Type of this Statistic, which can be Untyped, Distance, Damage, or Time.

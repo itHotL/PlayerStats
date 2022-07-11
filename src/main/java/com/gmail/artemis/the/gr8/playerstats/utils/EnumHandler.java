@@ -18,7 +18,6 @@ public class EnumHandler {
     private final static List<String> entityNames;
     private final static List<String> itemNames;
     private final static List<String> statNames;
-    private final static List<String> entitySubStatNames;
     private final static List<String> subStatNames;
 
     static {
@@ -26,40 +25,34 @@ public class EnumHandler {
                 .filter(Material::isBlock)
                 .map(Material::toString)
                 .map(String::toLowerCase)
-                .toList();
+                .collect(Collectors.toList());
 
         entityNames = Arrays.stream(EntityType.values())
                 .map(EntityType::toString)
                 .map(String::toLowerCase)
                 .filter(entityName -> !entityName.equalsIgnoreCase("unknown"))
-                .toList();
+                .collect(Collectors.toList());
 
         itemNames = Arrays.stream(Material.values())
                 .filter(Material::isItem)
                 .map(Material::toString)
                 .map(String::toLowerCase)
-                .toList();
-
-        statNames = Arrays.stream(Statistic.values())
-                .map(Statistic::toString)
-                .map(String::toLowerCase)
-                .toList();
-
-        entitySubStatNames = Arrays.stream(Statistic.values())
-                .filter(statistic -> statistic.getType().equals(Statistic.Type.ENTITY))
-                .map(Statistic::toString)
-                .map(String::toLowerCase)
                 .collect(Collectors.toList());
 
         subStatNames = Stream.of(blockNames, entityNames, itemNames)
                 .flatMap(Collection::stream)
-                .toList();
+                .distinct()
+                .collect(Collectors.toList());
+
+        statNames = Arrays.stream(Statistic.values())
+                .map(Statistic::toString)
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
     }
 
     private EnumHandler() {
     }
 
-    /** Returns all item names in lowercase */
     public static List<String> getItemNames() {
         return itemNames;
     }
@@ -112,16 +105,10 @@ public class EnumHandler {
         return statNames.contains(statName.toLowerCase());
     }
 
-    public static boolean isDistanceStatistic(@NotNull String statName) {
-        return statName.toLowerCase().contains("one_cm");
-    }
-
-    public static boolean isDamageStatistic(@NotNull String statName) {
-        return statName.toLowerCase().contains("damage");
-    }
-
-    public static boolean isTimeStatistic(@NotNull String statName) {
-        return statName.toLowerCase().contains("time") || statName.toLowerCase().contains("one_minute");
+    /** Checks whether the given String equals the name of an entity-type statistic. */
+    public static boolean isEntityStatistic(String statName) {
+        return statName.equalsIgnoreCase(Statistic.ENTITY_KILLED_BY.toString()) ||
+                statName.equalsIgnoreCase(Statistic.KILL_ENTITY.toString());
     }
 
     /** Returns the names of all general statistics in lowercase */
@@ -140,14 +127,21 @@ public class EnumHandler {
         }
     }
 
+    /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */
+    public static String getSubStatTypeName(Statistic.Type statType) {
+        String subStat = "sub-statistic";
+        if (statType == null) return subStat;
+        switch (statType) {
+            case BLOCK -> subStat = "block";
+            case ENTITY -> subStat = "entity";
+            case ITEM -> subStat = "item";
+        }
+        return subStat;
+    }
+
     /** Checks if this statistic is a subStatEntry, meaning it is a block, item or entity
      @param statName String, case-insensitive*/
     public static boolean isSubStatEntry(@NotNull String statName) {
         return subStatNames.contains(statName.toLowerCase());
-    }
-
-    /** Returns all statistics that have type entities, in lowercase */
-    public static List<String> getEntitySubStatNames() {
-        return entitySubStatNames;
     }
 }
