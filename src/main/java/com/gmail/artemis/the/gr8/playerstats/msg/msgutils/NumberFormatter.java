@@ -1,10 +1,10 @@
-package com.gmail.artemis.the.gr8.playerstats.msg;
+package com.gmail.artemis.the.gr8.playerstats.msg.msgutils;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 
 import java.text.DecimalFormat;
 
-public class NumberFormatter {
+public final class NumberFormatter {
 
     private final DecimalFormat format;
 
@@ -23,17 +23,11 @@ public class NumberFormatter {
 
     public String format(long number, Unit statUnit, Unit smallTimeUnit) {
         if (smallTimeUnit == null) {
-            switch (statUnit.getType()) {
-                case DISTANCE -> {
-                    return formatDistance(number, statUnit);
-                }
-                case DAMAGE -> {
-                    return formatDamage(number, statUnit);
-                }
-                default -> {
-                    return format.format(number);
-                }
-            }
+            return switch (statUnit.getType()) {
+                case DISTANCE -> formatDistance(number, statUnit);
+                case DAMAGE -> formatDamage(number, statUnit);
+                default -> format.format(number);
+            };
         } else {
             return formatTime(number, statUnit, smallTimeUnit);
         }

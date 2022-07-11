@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.HashMap;
 
-public class LanguageKeyHandler {
+public final class LanguageKeyHandler {
 
     private final HashMap<Statistic, String> statNameKeys;
 
