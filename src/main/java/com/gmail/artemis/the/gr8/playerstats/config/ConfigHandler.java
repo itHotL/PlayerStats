@@ -13,7 +13,7 @@ import java.io.File;
 public class ConfigHandler {
 
     private static Main plugin;
-    private static double configVersion;
+    private static int configVersion;
 
     private File configFile;
     private FileConfiguration config;
@@ -35,7 +35,7 @@ public class ConfigHandler {
      <p>PlayerStats 1.3: "config-version" is 3. </P>
      <p>PlayerStats 1.4: "config-version" is 4.</p>*/
     private void checkConfigVersion() {
-        if (!config.contains("config-version") || config.getDouble("config-version") != configVersion) {
+        if (!config.contains("config-version") || config.getInt("config-version") != configVersion) {
             new ConfigUpdateHandler(plugin, configFile, configVersion);
             reloadConfig();
         }

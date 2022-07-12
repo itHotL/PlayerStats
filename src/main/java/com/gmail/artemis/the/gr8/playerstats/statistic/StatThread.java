@@ -70,13 +70,13 @@ public class StatThread extends Thread {
             }
         }
 
-        Target selection = request.getSelection();
         long lastCalc = ThreadManager.getLastRecordedCalcTime();
         if (lastCalc > 2000) {
             adventure.sender(request.getCommandSender()).sendMessage(
                     messageWriter.waitAMoment(lastCalc > 20000, request.isBukkitConsoleSender()));
         }
 
+        Target selection = request.getSelection();
         TextComponent statResult;
         try {
             statResult = switch (selection) {
