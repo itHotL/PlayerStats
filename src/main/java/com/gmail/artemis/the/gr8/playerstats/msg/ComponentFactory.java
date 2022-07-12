@@ -21,8 +21,8 @@ import static net.kyori.adventure.text.Component.*;
 import static net.kyori.adventure.text.Component.text;
 
 /** Creates Components with the desired formatting. This class can put Strings
- into formatted Components with TextColor and TextDecoration, and turn
- certain Strings into appropriate LanguageKeys to return a TranslatableComponent.*/
+ into formatted Components with TextColor and TextDecoration, or return empty Components
+ or ComponentBuilders with the desired formatting.*/
 public class ComponentFactory {
 
     private static ConfigHandler config;
