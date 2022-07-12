@@ -22,7 +22,10 @@ public class ShareCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, String label, String[] args) {
-        adventure.all().sendMessage(shareManager.getStatResult(sender.getName(), UUID.fromString(args[0])));
+        adventure.all().sendMessage(shareManager.getResultMessage(sender.getName(), UUID.fromString(args[0])));
+        //TODO send feedback if stat-result is null:
+            //can't share again yet (time-out)
+            //already shared this result (not in statResult list anymore)
         return true;
     }
 }

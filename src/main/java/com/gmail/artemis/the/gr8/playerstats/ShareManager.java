@@ -8,12 +8,13 @@ import net.kyori.adventure.text.TextComponent;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 public final class ShareManager {
 
@@ -77,24 +78,26 @@ public final class ShareManager {
         UUID identifier = UUID.randomUUID();
 
         statResults.put(identifier, new StatResult(playerName, statResult, ID, identifier));
+        MyLogger.logMsg("Saving statResults with no. " + ID, DebugLevel.MEDIUM);
         return identifier;
     }
 
-    public @Nullable TextComponent getStatResult(String playerName, UUID identifier) {
+    public @Nullable TextComponent getResultMessage(String playerName, UUID identifier) {
         if (statResults.containsKey(identifier) && playerCanShare(playerName)) {
             shareTimeStamp.put(playerName, Instant.now());
             return statResults.remove(identifier).statResult();
         } else {
+            //TODO send error-message if on time-out, and error-message if request is already shared
             return null;
         }
     }
 
-    private boolean playerCanShare(String playerName) {
+    public boolean playerCanShare(String playerName) {
         if (waitingTime == 0 || !shareTimeStamp.containsKey(playerName)) {
             return true;
         } else {
-            long seconds = shareTimeStamp.get(playerName).until(Instant.now(), ChronoUnit.SECONDS);
-            return seconds >= waitingTime;
+            long seconds = SECONDS.between(shareTimeStamp.get(playerName), Instant.now());
+            return seconds >= (long) waitingTime * 60;
         }
     }
 
@@ -111,7 +114,7 @@ public final class ShareManager {
                     .parallelStream()
                     .min(Comparator.comparing(StatResult::ID))
                     .orElseThrow().uuid();
-            MyLogger.logMsg("Removing old stat no. " + statResults.get(uuid) + " for player " + playerName, DebugLevel.MEDIUM);
+            MyLogger.logMsg("Removing old stat no. " + statResults.get(uuid).ID() + " for player " + playerName, DebugLevel.MEDIUM);
             statResults.remove(uuid);
         }
     }
