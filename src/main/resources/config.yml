@@ -15,7 +15,7 @@ config-version: 6
 debug-level: 1
 
 # Whether players have to wait for their lookup to finish before they can request another statistic
-# Warning: disabling this could allow players to stress out your server by spamming the stat-command!
+# Warning: disabling this could put stress on your server if players spam the stat-command!
 only-allow-one-lookup-at-a-time-per-player: true
 
 # Whether statistics can be shared with everyone in chat
@@ -45,31 +45,6 @@ translate-to-client-language: true
 # Use hover-text for additional info about statistic numbers
 enable-hover-text: true
 
-# The unit to display certain statistics in.
-# Minecraft measures distance in cm. PlayerStats supports: blocks, cm, m (= blocks), miles, km
-distance-unit: blocks
-distance-unit-for-hover-text: km
-
-# Minecraft measures damage in 0.5 hearts (1HP). PlayerStats supports: hp, hearts
-damage-unit: hearts
-damage-unit-for-hover-text: hp
-
-# Minecraft measures time in ticks. With the below settings, PlayerStats will:
-# Auto-detect the best maximum unit to use (weeks/days/hours/minutes/seconds) for your players' statistics
-# Show a specified amount of additional smaller units (example: "x days" would become "x days, y hours, z minutes")
-auto-detect-biggest-time-unit: true
-number-of-extra-units: 1
-auto-detect-biggest-time-unit-for-hover-text: false
-number-of-extra-units-for-hover-text: 0
-
-# If you don't want the unit to be auto-detected, set the auto-detect settings to false and specify your own range here
-# If the max and min are the same, only that unit will be displayed
-# PlayerStats supports: days, hours, minutes, seconds (and ticks if you want the original number)
-biggest-time-unit: days
-smallest-time-unit: hours
-biggest-time-unit-for-hover-text: hours
-smallest-time-unit-for-hover-text: seconds
-
 # Automatically use themed formatting for the duration of certain holidays or festivals
 enable-festive-formatting: true
 
@@ -89,6 +64,35 @@ top-list-title: 'Top'
 # This will become 'Total on My Awesome Server: [n] animals bred', for example
 total-server-stat-title: 'Total on'
 your-server-name: 'this server'
+
+
+#                                # ------------------------------- #                                     #
+#                                #             Units               #                                     #
+#                                # ------------------------------- #                                     #
+
+# Minecraft measures distance in cm. PlayerStats supports: blocks, cm, m (= blocks), miles, km
+distance-unit: blocks
+distance-unit-for-hover-text: km
+
+# Minecraft measures damage in 0.5 hearts (1HP). PlayerStats supports: hp, hearts
+damage-unit: hearts
+damage-unit-for-hover-text: hp
+
+# Minecraft measures time in ticks. With the below settings, PlayerStats will:
+# Auto-detect the biggest unit to use (weeks/days/hours/minutes/seconds) for your players' statistics
+# Show as many additional smaller units as you choose (so for 3 extra units, "9D" would become "9D 5H 20M")
+auto-detect-biggest-time-unit: true
+number-of-extra-units: 1
+auto-detect-biggest-time-unit-for-hover-text: false
+number-of-extra-units-for-hover-text: 0
+
+# To always use the same units, set the auto-detect settings to false and select your own unit range here
+# If the biggest and smallest unit are the same, only that unit will be displayed
+# PlayerStats supports: days, hours, minutes, seconds (and ticks if you want the original number)
+biggest-time-unit: days
+smallest-time-unit: hours
+biggest-time-unit-for-hover-text: hours
+smallest-time-unit-for-hover-text: seconds
 
 
 #                                # ------------------------------- #                                     #

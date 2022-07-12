@@ -131,7 +131,7 @@ public class ReloadThread extends Thread {
         MyLogger.actionFinished(1);
 
         MyLogger.logTimeTaken("ReloadThread",
-                ("loaded " + offlinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
+                ("loaded " + playerMap.size() + " offline players"), time);
         return playerMap;
     }
 }

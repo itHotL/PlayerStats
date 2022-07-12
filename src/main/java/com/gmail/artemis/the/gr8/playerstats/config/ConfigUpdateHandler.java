@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.config;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -19,8 +20,8 @@ public class ConfigUpdateHandler {
         try {
             configuration.save(configFile);
             ConfigUpdater.update(plugin, configFile.getName(), configFile);
-            plugin.getLogger().warning("Your config has been updated to version " + configVersion +
-                    ". This version includes some slight changes in the default color scheme, but none of your custom settings should have been changed!");
+            MyLogger.logMsg("Your config has been updated to version " + configVersion +
+                    ", but all of your custom settings should still be there!");
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -57,7 +57,7 @@ public class ComponentFactory {
         return text(content).color(PluginColor.GRAY.getColor()).decorate(TextDecoration.ITALIC);
     }
 
-    /** Returns a TextComponents that represents a full message, with [PlayerStats] prepended. */
+    /** Returns a TextComponents in the style of a default plugin message, with color Medium_Blue. */
     public TextComponent messageComponent() {
         return text().color(PluginColor.MEDIUM_BLUE.getColor()).build();
     }

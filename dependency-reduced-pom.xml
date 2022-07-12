@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.gmail.artemis-the-gr8</groupId>
+  <groupId>com.gmail.artemis.the.gr8</groupId>
   <artifactId>PlayerStats</artifactId>
-  <version>1.5</version>
+  <version>1.6</version>
   <build>
     <plugins>
       <plugin>
@@ -16,7 +16,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.3</version>
+        <version>3.3.0</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -36,6 +36,16 @@
               <exclude>org.jetbrains:annotations</exclude>
             </excludes>
           </artifactSet>
+          <relocations>
+            <relocation>
+              <pattern>net.kyori</pattern>
+              <shadedPattern>com.gmail.artemis.the.gr8.kyori</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.tchristofferson</pattern>
+              <shadedPattern>com.gmail.artemis.the.gr8.tchristofferson</shadedPattern>
+            </relocation>
+          </relocations>
           <filters>
             <filter>
               <artifact>*:*</artifact>
@@ -43,6 +53,18 @@
                 <exclude>META-INF/versions/**</exclude>
                 <exclude>META-INF/maven/com.tchristofferson/**</exclude>
                 <exclude>images/**</exclude>
+              </excludes>
+            </filter>
+            <filter>
+              <artifact>net.kyori:*</artifact>
+              <excludes>
+                <exclude>META-INF/**</exclude>
+              </excludes>
+            </filter>
+            <filter>
+              <artifact>com.tchristofferson:*</artifact>
+              <excludes>
+                <exclude>META-INF/**</exclude>
               </excludes>
             </filter>
           </filters>

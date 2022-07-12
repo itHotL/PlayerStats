@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.config;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;

@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RecursiveAction;
 
 
-public final class TopStatAction extends RecursiveAction {
+public final class StatAction extends RecursiveAction {
 
     private static int threshold;
 
@@ -29,7 +29,7 @@ public final class TopStatAction extends RecursiveAction {
      * @param statRequest a validated statRequest
      * @param playerStats the ConcurrentHashMap to put the results on
      */
-    public TopStatAction(OfflinePlayerHandler offlinePlayerHandler, ImmutableList<String> playerNames, StatRequest statRequest, ConcurrentHashMap<String, Integer> playerStats) {
+    public StatAction(OfflinePlayerHandler offlinePlayerHandler, ImmutableList<String> playerNames, StatRequest statRequest, ConcurrentHashMap<String, Integer> playerStats) {
         threshold = ThreadManager.getTaskThreshold();
 
         this.offlinePlayerHandler = offlinePlayerHandler;
@@ -46,8 +46,8 @@ public final class TopStatAction extends RecursiveAction {
             getStatsDirectly();
         }
         else {
-            final TopStatAction subTask1 = new TopStatAction(offlinePlayerHandler, playerNames.subList(0, playerNames.size()/2), request, playerStats);
-            final TopStatAction subTask2 = new TopStatAction(offlinePlayerHandler, playerNames.subList(playerNames.size()/2, playerNames.size()), request, playerStats);
+            final StatAction subTask1 = new StatAction(offlinePlayerHandler, playerNames.subList(0, playerNames.size()/2), request, playerStats);
+            final StatAction subTask2 = new StatAction(offlinePlayerHandler, playerNames.subList(playerNames.size()/2, playerNames.size()), request, playerStats);
 
             //queue and compute all subtasks in the right order
             invokeAll(subTask1, subTask2);

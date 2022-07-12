@@ -118,7 +118,7 @@ public class StatThread extends Thread {
         ConcurrentHashMap<String, Integer> playerStats = new ConcurrentHashMap<>(size);
         ImmutableList<String> playerNames = ImmutableList.copyOf(offlinePlayerHandler.getOfflinePlayerNames());
 
-        TopStatAction task = new TopStatAction(offlinePlayerHandler, playerNames, request, playerStats);
+        StatAction task = new StatAction(offlinePlayerHandler, playerNames, request, playerStats);
         MyLogger.actionCreated(playerNames.size());
         ForkJoinPool commonPool = ForkJoinPool.commonPool();
 

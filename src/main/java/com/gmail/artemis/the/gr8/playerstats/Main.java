@@ -7,16 +7,12 @@ import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
-import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Arrays;
 
 public class Main extends JavaPlugin {
 
