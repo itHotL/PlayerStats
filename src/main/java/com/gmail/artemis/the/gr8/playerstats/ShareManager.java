@@ -99,6 +99,8 @@ public final class ShareManager {
             shareTimeStamp.put(playerName, Instant.now());
 
             if (!sharedResults.offer(identifier)) {  //create a new ArrayBlockingQueue if our queue is full
+                MyLogger.logMsg("500 stat-results have been shared, " +
+                        "creating a new internal queue with the most recent 50 share-code-values and discarding the rest...", DebugLevel.MEDIUM);
                 ArrayBlockingQueue<UUID> newQueue = new ArrayBlockingQueue<>(500);
 
                 synchronized (this) {  //put the last 50 values in the new Queue

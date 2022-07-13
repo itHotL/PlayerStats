@@ -119,13 +119,13 @@ hover-text-amount-lighter: 40
 #                                                         # ------------------------------ #             #
 
 top-list:
-  title: '#FFEA40'
+  title: '#FFD52B'
   title-style: none
 
   title-number: gold
   title-number-style: none
 
-  stat-names: '#FFEA40'
+  stat-names: '#FFD52B'
   stat-names-style: none
 
   sub-stat-names: yellow

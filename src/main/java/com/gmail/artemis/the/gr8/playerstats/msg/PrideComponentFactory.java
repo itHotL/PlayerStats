@@ -41,19 +41,19 @@ public class PrideComponentFactory extends ComponentFactory {
         }
         return text()
                 .append(MiniMessage.miniMessage()
-                        .deserialize("<#fe3e3e>[</#fe3e3e>" +
-                                "<#fe5640>P</#fe5640>" +
-                                "<#f67824>l</#f67824>" +
+                        .deserialize("<#f74040>[</#f74040>" +
+                                "<#F54D39>P</#F54D39>" +
+                                "<#F16E28>l</#F16E28>" +
                                 "<#ee8a19>a</#ee8a19>" +
-                                "<#e49b0f>y</#e49b0f>" +
-                                "<#cbbd03>e</#cbbd03>" +
-                                "<#bccb01>r</#bccb01>" +
-                                "<#8aee08>S</#8aee08>" +
-                                "<#45fe31>t</#45fe31>" +
+                                "<#EEA019>y</#EEA019>" +
+                                "<#F7C522>e</#F7C522>" +
+                                "<#C1DA15>r</#C1DA15>" +
+                                "<#84D937>S</#84D937>" +
+                                "<#46D858>t</#46D858>" +
                                 "<#01c1a7>a</#01c1a7>" +
-                                "<#0690d4>t</#0690d4>" +
-                                "<#205bf3>s</#205bf3>" +
-                                "<#6c15fa>]</#6c15fa>"))
+                                "<#1F8BEB>t</#1F8BEB>" +
+                                "<#3341E6>s</#3341E6>" +
+                                "<#631ae6>]</#631ae6>"))
                 .build();
     }
 

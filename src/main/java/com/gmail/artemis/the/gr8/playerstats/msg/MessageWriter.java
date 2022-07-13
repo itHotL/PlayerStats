@@ -109,6 +109,7 @@ public class MessageWriter {
                         "Please wait for your previous lookup to finish!"));
     }
 
+    //TODO Make this say amount of time left
     public TextComponent stillOnShareCoolDown() {
         return componentFactory.pluginPrefixComponent(false)
                 .append(space())
