@@ -47,7 +47,7 @@ public class Main extends JavaPlugin {
         PluginCommand reloadcmd = this.getCommand("statisticreload");
         if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));
         PluginCommand sharecmd = this.getCommand("statisticshare");
-        if (sharecmd != null) sharecmd.setExecutor(new ShareCommand(shareManager));
+        if (sharecmd != null) sharecmd.setExecutor(new ShareCommand(shareManager, messageWriter));
 
         //register the listener
         Bukkit.getPluginManager().registerEvents(new JoinListener(threadManager), this);

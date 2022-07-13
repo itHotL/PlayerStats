@@ -108,6 +108,29 @@ public class MessageWriter {
                         "Please wait for your previous lookup to finish!"));
     }
 
+    public TextComponent stillOnShareCoolDown() {
+        return componentFactory.pluginPrefixComponent(false)
+                .append(space())
+                .append(componentFactory.messageComponent().content("You need to wait")
+                        .append(space())
+                        .append(componentFactory.messageAccentComponent().content(config.getStatShareWaitingTime() + ""))
+                        .append(space()))
+                .append(text("minutes before you are able to share again!"));
+    }
+
+    public TextComponent resultsAlreadyShared() {
+        return componentFactory.pluginPrefixComponent(false)
+                .append(space())
+                .append(componentFactory.messageComponent().content("You already shared these results!"));
+    }
+
+    public TextComponent statResultsTooOld() {
+        return componentFactory.pluginPrefixComponent(false)
+                .append(space())
+                .append(componentFactory.messageComponent().content(
+                        "It has been too long since you looked up this statistic, please repeat the original look-up if you want to share it!"));
+    }
+
     public TextComponent unknownError(boolean isBukkitConsole) {
         return componentFactory.pluginPrefixComponent(isBukkitConsole)
                 .append(space())

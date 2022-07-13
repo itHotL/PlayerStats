@@ -62,6 +62,10 @@ public class ComponentFactory {
         return text().color(PluginColor.MEDIUM_BLUE.getColor()).build();
     }
 
+    public TextComponent messageAccentComponent() {
+        return text().color(PluginColor.LIGHT_GOLD.getColor()).build();
+    }
+
     public TextComponent.Builder playerNameBuilder(String playerName, Target selection) {
         return getComponentBuilder(playerName,
                 getColorFromString(config.getPlayerNameDecoration(selection, false)),

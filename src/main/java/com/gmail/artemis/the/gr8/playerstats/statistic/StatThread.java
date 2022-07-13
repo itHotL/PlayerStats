@@ -85,7 +85,7 @@ public class StatThread extends Thread {
                 case SERVER -> messageWriter.formatServerStat(getServerTotal(), request);
             };
 
-            if (shareManager.isEnabled()) {
+            if (shareManager.isEnabled() && request.getCommandSender().hasPermission("playerstats.share")) {
                 UUID shareCode = shareManager.saveStatResult(request.getCommandSender().getName(), statResult);
                 statResult = messageWriter.addShareButton(statResult, shareCode);
             }
