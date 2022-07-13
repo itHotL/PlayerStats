@@ -103,9 +103,10 @@ public final class ShareManager {
 
                 synchronized (this) {  //put the last 50 values in the new Queue
                     UUID[] lastValues = sharedResults.toArray(new UUID[0]);
-                    Arrays.stream(Arrays.copyOfRange(lastValues, 450, 499))
+                    Arrays.stream(Arrays.copyOfRange(lastValues, 450, 500))
                             .parallel().iterator()
                             .forEachRemaining(newQueue::offer);
+
                     sharedResults = newQueue;
                 }
                 sharedResults.offer(identifier);
@@ -118,10 +119,10 @@ public final class ShareManager {
 
     public boolean isOnCoolDown(String playerName) {
         if (waitingTime == 0 || !shareTimeStamp.containsKey(playerName)) {
-            return true;
+            return false;
         } else {
             long seconds = SECONDS.between(shareTimeStamp.get(playerName), Instant.now());
-            return seconds >= (long) waitingTime * 60;
+            return seconds <= (long) waitingTime * 60;
         }
     }
 

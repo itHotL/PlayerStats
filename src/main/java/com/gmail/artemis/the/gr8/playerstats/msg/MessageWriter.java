@@ -14,6 +14,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.NotNull;
@@ -113,9 +114,11 @@ public class MessageWriter {
                 .append(space())
                 .append(componentFactory.messageComponent().content("You need to wait")
                         .append(space())
-                        .append(componentFactory.messageAccentComponent().content(config.getStatShareWaitingTime() + ""))
-                        .append(space()))
-                .append(text("minutes before you are able to share again!"));
+                        .append(componentFactory.messageAccentComponent()
+                                .content(config.getStatShareWaitingTime() + " minute(s)")
+                                .decorate(TextDecoration.ITALIC))
+                        .append(space())
+                        .append(text("between sharing!")));
     }
 
     public TextComponent resultsAlreadyShared() {
@@ -199,8 +202,9 @@ public class MessageWriter {
                 .build();
     }
 
-    public TextComponent addShareButton(TextComponent component, UUID shareCode) {
-        return component.append(newline())
+    public TextComponent addShareButton(TextComponent component, UUID shareCode, Target selection) {
+        TextComponent toAdd = selection == Target.TOP ? Component.newline() : Component.space();
+        return component.append(toAdd)
                 .append(text("[SHARE]").color(PluginColor.LIGHT_BLUE.getColor())
                         .clickEvent(ClickEvent.runCommand("/statshare " + shareCode))
                         .hoverEvent(HoverEvent.showText(text("CLICK ME").color(PluginColor.LIGHT_GOLD.getColor()))));

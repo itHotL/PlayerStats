@@ -63,7 +63,7 @@ public class ComponentFactory {
     }
 
     public TextComponent messageAccentComponent() {
-        return text().color(PluginColor.LIGHT_GOLD.getColor()).build();
+        return text().color(PluginColor.MEDIUM_GOLD.getColor()).build();
     }
 
     public TextComponent.Builder playerNameBuilder(String playerName, Target selection) {

@@ -87,7 +87,7 @@ public class StatThread extends Thread {
 
             if (shareManager.isEnabled() && request.getCommandSender().hasPermission("playerstats.share")) {
                 UUID shareCode = shareManager.saveStatResult(request.getCommandSender().getName(), statResult);
-                statResult = messageWriter.addShareButton(statResult, shareCode);
+                statResult = messageWriter.addShareButton(statResult, shareCode, request.getSelection());
             }
             adventure.sender(request.getCommandSender()).sendMessage(statResult);
         }

@@ -35,11 +35,11 @@ public class ShareCommand implements CommandExecutor {
                 MyLogger.logException(e, "ShareCommand", "/statshare is being called without a valid UUID argument");
                 return false;
             }
-            if (shareManager.isOnCoolDown(sender.getName())) {
-                adventure.sender(sender).sendMessage(messageWriter.stillOnShareCoolDown());
-            }
-            else if (shareManager.requestAlreadyShared(shareCode)) {
+            if (shareManager.requestAlreadyShared(shareCode)) {
                 adventure.sender(sender).sendMessage(messageWriter.resultsAlreadyShared());
+            }
+            else if (shareManager.isOnCoolDown(sender.getName())) {
+                adventure.sender(sender).sendMessage(messageWriter.stillOnShareCoolDown());
             }
             else {
                 TextComponent result = shareManager.getStatResult(sender.getName(), shareCode);
