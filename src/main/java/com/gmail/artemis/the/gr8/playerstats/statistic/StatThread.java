@@ -1,17 +1,16 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
-import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ShareManager;
+import com.gmail.artemis.the.gr8.playerstats.enums.PluginMessage;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageSender;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.google.common.collect.ImmutableList;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -25,25 +24,23 @@ import java.util.stream.Collectors;
 public class StatThread extends Thread {
 
     private static ConfigHandler config;
-    private final MessageWriter messageWriter;
+    private final MessageSender messageSender;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
     private final ReloadThread reloadThread;
     private final StatRequest request;
 
     private static ShareManager shareManager;
-    private static BukkitAudiences adventure;
 
 
-    public StatThread(ConfigHandler c, MessageWriter m, OfflinePlayerHandler o, int ID, StatRequest s, @Nullable ReloadThread r) {
+    public StatThread(ConfigHandler c, MessageSender m, OfflinePlayerHandler o, int ID, StatRequest s, @Nullable ReloadThread r) {
         config = c;
-        messageWriter = m;
+        messageSender = m;
         offlinePlayerHandler = o;
 
         reloadThread = r;
         request = s;
 
-        adventure = Main.adventure();
         shareManager = ShareManager.getInstance(config);
 
         this.setName("StatThread-" + request.getCommandSender().getName() + "-" + ID);
@@ -60,8 +57,7 @@ public class StatThread extends Thread {
         if (reloadThread != null && reloadThread.isAlive()) {
             try {
                 MyLogger.waitingForOtherThread(this.getName(), reloadThread.getName());
-                adventure.sender(request.getCommandSender()).sendMessage(
-                                messageWriter.stillReloading(request.isBukkitConsoleSender()));
+                messageSender.send(request.getCommandSender(), PluginMessage.STILL_RELOADING);
                 reloadThread.join();
 
             } catch (InterruptedException e) {
@@ -72,29 +68,27 @@ public class StatThread extends Thread {
 
         long lastCalc = ThreadManager.getLastRecordedCalcTime();
         if (lastCalc > 2000) {
-            adventure.sender(request.getCommandSender()).sendMessage(
-                    messageWriter.waitAMoment(lastCalc > 20000, request.isBukkitConsoleSender()));
+            messageSender.send(request.getCommandSender(), PluginMessage.WAIT_A_MOMENT, lastCalc > 20000);
         }
 
         Target selection = request.getSelection();
         TextComponent statResult;
         try {
-            statResult = switch (selection) {
-                case PLAYER -> messageWriter.formatPlayerStat(getIndividualStat(), request);
-                case TOP -> messageWriter.formatTopStats(getTopStats(), request);
-                case SERVER -> messageWriter.formatServerStat(getServerTotal(), request);
+             switch (selection) {
+                case PLAYER -> messageSender.send(request, getIndividualStat());
+                case TOP -> messageSender.send(request, getTopStats());
+                case SERVER -> messageSender.send(request, getServerTotal());
             };
 
             if (shareManager.isEnabled() && request.getCommandSender().hasPermission("playerstats.share")) {
-                UUID shareCode = shareManager.saveStatResult(request.getCommandSender().getName(), statResult);
-                statResult = messageWriter.addShareButton(statResult, shareCode, request.getSelection());
+                //UUID shareCode = shareManager.saveStatResult(request.getCommandSender().getName(), statResult);
+                //statResult = messageWriter.addShareButton(statResult, shareCode, request.getSelection());
             }
-            adventure.sender(request.getCommandSender()).sendMessage(statResult);
+            //adventure.sender(request.getCommandSender()).sendMessage(statResult);
         }
         catch (ConcurrentModificationException e) {
             if (!request.isConsoleSender()) {
-                adventure.sender(request.getCommandSender()).sendMessage(
-                        messageWriter.unknownError(false));
+                messageSender.send(request.getCommandSender(), PluginMessage.UNKNOWN_ERROR);
             }
         }
     }

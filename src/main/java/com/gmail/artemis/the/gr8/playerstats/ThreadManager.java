@@ -1,13 +1,13 @@
 package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
+import com.gmail.artemis.the.gr8.playerstats.enums.PluginMessage;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageSender;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;
@@ -20,9 +20,8 @@ public final class ThreadManager {
     private int statThreadID;
     private int reloadThreadID;
 
-    private static BukkitAudiences adventure;
     private static ConfigHandler config;
-    private static MessageWriter messageWriter;
+    private static MessageSender messageSender;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
     private ReloadThread lastActiveReloadThread;
@@ -30,10 +29,9 @@ public final class ThreadManager {
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    private ThreadManager(ConfigHandler c, MessageWriter m, OfflinePlayerHandler o) {
-        adventure = Main.adventure();
+    private ThreadManager(ConfigHandler c, MessageSender m, OfflinePlayerHandler o) {
         config = c;
-        messageWriter = m;
+        messageSender = m;
         offlinePlayerHandler = o;
 
         statThreads = new HashMap<>();
@@ -44,14 +42,14 @@ public final class ThreadManager {
         startReloadThread(null);
     }
 
-    public static ThreadManager getInstance(ConfigHandler config, MessageWriter messageWriter, OfflinePlayerHandler offlinePlayerHandler) {
+    public static ThreadManager getInstance(ConfigHandler config, MessageSender messageSender, OfflinePlayerHandler offlinePlayerHandler) {
         ThreadManager threadManager = instance;
         if (threadManager != null) {
             return threadManager;
         }
         synchronized (ThreadManager.class) {
             if (instance == null) {
-                instance = new ThreadManager(config, messageWriter, offlinePlayerHandler);
+                instance = new ThreadManager(config, messageSender, offlinePlayerHandler);
             }
             return instance;
         }
@@ -65,7 +63,7 @@ public final class ThreadManager {
         if (lastActiveReloadThread == null || !lastActiveReloadThread.isAlive()) {
             reloadThreadID += 1;
 
-            lastActiveReloadThread = new ReloadThread(config, messageWriter, offlinePlayerHandler, reloadThreadID, lastActiveStatThread, sender);
+            lastActiveReloadThread = new ReloadThread(config, messageSender, offlinePlayerHandler, reloadThreadID, lastActiveStatThread, sender);
             lastActiveReloadThread.start();
         }
         else {
@@ -80,7 +78,7 @@ public final class ThreadManager {
         if (config.limitStatRequests() && statThreads.containsKey(cmdSender)) {
             Thread runningThread = statThreads.get(cmdSender);
             if (runningThread.isAlive()) {
-                adventure.sender(request.getCommandSender()).sendMessage(messageWriter.requestAlreadyRunning(request.isBukkitConsoleSender()));
+                messageSender.send(request.getCommandSender(), PluginMessage.REQUEST_ALREADY_RUNNING);
             } else {
                 startNewStatThread(request);
             }
@@ -102,7 +100,7 @@ public final class ThreadManager {
     }
 
     private void startNewStatThread(StatRequest request) {
-        lastActiveStatThread = new StatThread(config, messageWriter, offlinePlayerHandler, statThreadID, request, lastActiveReloadThread);
+        lastActiveStatThread = new StatThread(config, messageSender, offlinePlayerHandler, statThreadID, request, lastActiveReloadThread);
         statThreads.put(request.getCommandSender().getName(), lastActiveStatThread);
         lastActiveStatThread.start();
     }

@@ -1,14 +1,12 @@
 package com.gmail.artemis.the.gr8.playerstats.msg.msgutils;
 
-import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
+import com.gmail.artemis.the.gr8.playerstats.msg.BukkitConsoleComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.msg.ComponentFactory;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -21,143 +19,120 @@ public class HelpMessage implements TextComponent {
 
     private final ComponentFactory componentFactory;
     private final TextComponent helpMessage;
-    boolean isBukkitConsole;
-    TextColor GRAY;
-    TextColor DARK_PURPLE;
-    TextColor GOLD;
-    TextColor MEDIUM_GOLD;
-    TextColor LIGHT_GOLD;
-    TextColor LIGHT_BLUE;
 
-
-    public HelpMessage(ComponentFactory componentFactory, boolean useHover, boolean isBukkitConsole, int listSize) {
+    public HelpMessage(ComponentFactory componentFactory, boolean useHover, int listSize) {
         this.componentFactory = componentFactory;
-        this.isBukkitConsole = isBukkitConsole;
-        getPluginColors(isBukkitConsole);
 
-        if (!useHover || isBukkitConsole) {
-            helpMessage = getPlainHelpMsg(isBukkitConsole, listSize);
+        if (!useHover) {
+            helpMessage = getPlainHelpMsg(listSize);
         } else {
             helpMessage = helpMsgHover(listSize);
         }
     }
 
-    private TextComponent getPlainHelpMsg(boolean isBukkitConsole, int listSize) {
-        String arrowSymbol = isBukkitConsole ? "->" : "→";  //alt + 26
-        String bulletSymbol = isBukkitConsole ? "*" : "•";  //alt + 7
+    private TextComponent getPlainHelpMsg(int listSize) {
+        String arrowSymbol = "→";  //alt + 26
+        String bulletSymbol = "•";  //alt + 7
+
+        if (componentFactory instanceof BukkitConsoleComponentFactory) {
+            arrowSymbol = "->";
+            bulletSymbol = "*";
+        }
         TextComponent spaces = text("    "); //4 spaces
-        TextComponent arrow = text(arrowSymbol).color(NamedTextColor.GOLD);
-        TextComponent bullet = text(bulletSymbol).color(NamedTextColor.GOLD);
+        TextComponent arrow = text(arrowSymbol).color(componentFactory.msgMain2());
+        TextComponent bullet = text(bulletSymbol).color(componentFactory.msgMain2());
 
         return Component.newline()
-                .append(componentFactory.prefixTitleComponent(isBukkitConsole))
+                .append(componentFactory.prefixTitleComponent())
                 .append(newline())
-                .append(text("Type \"/statistic examples\" to see examples!").color(GRAY).decorate(TextDecoration.ITALIC))
+                .append(text("Type \"/statistic examples\" to see examples!").color(componentFactory.brackets()).decorate(TextDecoration.ITALIC))
                 .append(newline())
-                .append(text("Usage:").color(GOLD)).append(space())
-                .append(text("/statistic").color(LIGHT_GOLD))
-                .append(newline())
-                .append(spaces).append(arrow).append(space())
-                .append(text("name").color(LIGHT_GOLD))
+                .append(text("Usage:").color(componentFactory.msgMain2())).append(space())
+                .append(text("/statistic").color(componentFactory.hoverAccent()))
                 .append(newline())
                 .append(spaces).append(arrow).append(space())
-                .append(text("{sub-statistic}").color(LIGHT_GOLD)).append(space())
-                .append(text("(a block, item or entity)").color(GRAY))
+                .append(text("name").color(componentFactory.hoverAccent()))
                 .append(newline())
                 .append(spaces).append(arrow).append(space())
-                .append(text("me | player | server | top").color(LIGHT_GOLD))
-                .append(newline())
-                .append(spaces).append(spaces).append(bullet).append(space())
-                .append(text("me:").color(MEDIUM_GOLD)).append(space())
-                .append(text("your own statistic").color(GRAY))
-                .append(newline())
-                .append(spaces).append(spaces).append(bullet).append(space())
-                .append(text("player:").color(MEDIUM_GOLD)).append(space())
-                .append(text("choose a player").color(GRAY))
-                .append(newline())
-                .append(spaces).append(spaces).append(bullet).append(space())
-                .append(text("server:").color(MEDIUM_GOLD)).append(space())
-                .append(text("everyone on the server combined").color(GRAY))
-                .append(newline())
-                .append(spaces).append(spaces).append(bullet).append(space())
-                .append(text("top:").color(MEDIUM_GOLD)).append(space())
-                .append(text("the top").color(GRAY).append(space()).append(text(listSize)))
+                .append(text("{sub-statistic}").color(componentFactory.hoverAccent())).append(space())
+                .append(text("(a block, item or entity)").color(componentFactory.brackets()))
                 .append(newline())
                 .append(spaces).append(arrow).append(space())
-                .append(text("{player-name}").color(LIGHT_GOLD));
+                .append(text("me | player | server | top").color(componentFactory.hoverAccent()))
+                .append(newline())
+                .append(spaces).append(spaces).append(bullet).append(space())
+                .append(text("me:").color(componentFactory.msgAccent())).append(space())
+                .append(text("your own statistic").color(componentFactory.brackets()))
+                .append(newline())
+                .append(spaces).append(spaces).append(bullet).append(space())
+                .append(text("player:").color(componentFactory.msgAccent())).append(space())
+                .append(text("choose a player").color(componentFactory.brackets()))
+                .append(newline())
+                .append(spaces).append(spaces).append(bullet).append(space())
+                .append(text("server:").color(componentFactory.msgAccent())).append(space())
+                .append(text("everyone on the server combined").color(componentFactory.brackets()))
+                .append(newline())
+                .append(spaces).append(spaces).append(bullet).append(space())
+                .append(text("top:").color(componentFactory.msgAccent())).append(space())
+                .append(text("the top").color(componentFactory.brackets()).append(space()).append(text(listSize)))
+                .append(newline())
+                .append(spaces).append(arrow).append(space())
+                .append(text("{player-name}").color(componentFactory.hoverAccent()));
     }
 
     private TextComponent helpMsgHover(int listSize) {
         TextComponent spaces = text("    ");
-        TextComponent arrow = text("→").color(GOLD);
+        TextComponent arrow = text("→").color(componentFactory.msgMain2());
 
         return Component.newline()
-                .append(componentFactory.prefixTitleComponent(false))
+                .append(componentFactory.prefixTitleComponent())
                 .append(newline())
                 .append(componentFactory.subTitleComponent("Hover over the arguments for more information!"))
                 .append(newline())
-                .append(text("Usage:").color(GOLD)).append(space())
-                .append(text("/statistic").color(LIGHT_GOLD))
+                .append(text("Usage:").color(componentFactory.msgMain2())).append(space())
+                .append(text("/statistic").color(componentFactory.hoverAccent()))
                 .append(newline())
                 .append(spaces).append(arrow).append(space())
-                .append(text("name").color(LIGHT_GOLD)
-                        .hoverEvent(HoverEvent.showText(text("The name that describes the statistic").color(LIGHT_BLUE)
+                .append(text("name").color(componentFactory.hoverAccent())
+                        .hoverEvent(HoverEvent.showText(text("The name that describes the statistic").color(componentFactory.hoverMsg())
                                 .append(newline())
-                                .append(text("Example: ").color(GOLD))
-                                .append(text("\"animals_bred\"").color(LIGHT_GOLD)))))
+                                .append(text("Example: ").color(componentFactory.msgMain2()))
+                                .append(text("\"animals_bred\"").color(componentFactory.hoverAccent())))))
                 .append(newline())
                 .append(spaces).append(arrow).append(space())
-                .append(text("sub-statistic").color(LIGHT_GOLD)
+                .append(text("sub-statistic").color(componentFactory.hoverAccent())
                         .hoverEvent(HoverEvent.showText(
-                                text("Some statistics need an item, block or entity as extra input").color(LIGHT_BLUE)
+                                text("Some statistics need an item, block or entity as extra input").color(componentFactory.hoverMsg())
                                         .append(newline())
-                                        .append(text("Example: ").color(GOLD)
-                                                .append(text("\"mine_block diorite\"").color(LIGHT_GOLD))))))
+                                        .append(text("Example: ").color(componentFactory.msgMain2())
+                                                .append(text("\"mine_block diorite\"").color(componentFactory.hoverAccent()))))))
                 .append(newline())
                 .append(spaces).append(arrow
                         .hoverEvent(HoverEvent.showText(
-                                text("Choose one").color(DARK_PURPLE)))).append(space())
-                .append(text("me").color(LIGHT_GOLD)
+                                text("Choose one").color(componentFactory.underscore())))).append(space())
+                .append(text("me").color(componentFactory.hoverAccent())
                         .hoverEvent(HoverEvent.showText(
-                                text("See your own statistic").color(LIGHT_BLUE))))
-                .append(text(" | ").color(LIGHT_GOLD))
-                .append(text("player").color(LIGHT_GOLD)
+                                text("See your own statistic").color(componentFactory.hoverMsg()))))
+                .append(text(" | ").color(componentFactory.hoverAccent()))
+                .append(text("player").color(componentFactory.hoverAccent())
                         .hoverEvent(HoverEvent.showText(
-                                text("Choose any player that has played on your server").color(LIGHT_BLUE))))
-                .append(text(" | ").color(LIGHT_GOLD))
-                .append(text("server").color(LIGHT_GOLD)
+                                text("Choose any player that has played on your server").color(componentFactory.hoverMsg()))))
+                .append(text(" | ").color(componentFactory.hoverAccent()))
+                .append(text("server").color(componentFactory.hoverAccent())
                         .hoverEvent(HoverEvent.showText(
-                                text("See the combined total for everyone on your server").color(LIGHT_BLUE))))
-                .append(text(" | ").color(LIGHT_GOLD))
-                .append(text("top").color(LIGHT_GOLD)
+                                text("See the combined total for everyone on your server").color(componentFactory.hoverMsg()))))
+                .append(text(" | ").color(componentFactory.hoverAccent()))
+                .append(text("top").color(componentFactory.hoverAccent())
                         .hoverEvent(HoverEvent.showText(
-                                text("See the top").color(LIGHT_BLUE).append(space())
+                                text("See the top").color(componentFactory.hoverMsg()).append(space())
                                         .append(text(listSize)))))
                 .append(newline())
                 .append(spaces).append(arrow).append(space())
-                .append(text("player-name").color(LIGHT_GOLD)
+                .append(text("player-name").color(componentFactory.hoverAccent())
                         .hoverEvent(HoverEvent.showText(
-                                text("In case you typed").color(LIGHT_BLUE).append(space())
-                                        .append(text("\"player\"").color(LIGHT_GOLD))
+                                text("In case you typed").color(componentFactory.hoverMsg()).append(space())
+                                        .append(text("\"player\"").color(componentFactory.hoverAccent()))
                                                 .append(text(", add the player's name")))));
-    }
-
-    private void getPluginColors(boolean isBukkitConsole) {
-        if (isBukkitConsole) {
-            GRAY = PluginColor.GRAY.getConsoleColor();
-            DARK_PURPLE = PluginColor.DARK_PURPLE.getConsoleColor();
-            GOLD = PluginColor.GOLD.getConsoleColor();
-            MEDIUM_GOLD = PluginColor.MEDIUM_GOLD.getConsoleColor();
-            LIGHT_GOLD = PluginColor.LIGHT_GOLD.getConsoleColor();
-            LIGHT_BLUE = PluginColor.LIGHT_BLUE.getConsoleColor();
-        } else {
-            GRAY = PluginColor.GRAY.getColor();
-            DARK_PURPLE = PluginColor.DARK_PURPLE.getColor();
-            GOLD = PluginColor.GOLD.getColor();
-            MEDIUM_GOLD = PluginColor.MEDIUM_GOLD.getColor();
-            LIGHT_GOLD = PluginColor.LIGHT_GOLD.getColor();
-            LIGHT_BLUE = PluginColor.LIGHT_BLUE.getColor();
-        }
     }
 
     @Override

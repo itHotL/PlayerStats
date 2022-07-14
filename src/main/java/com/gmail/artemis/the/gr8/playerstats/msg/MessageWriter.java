@@ -15,7 +15,6 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextDecoration;
-import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +27,8 @@ import static net.kyori.adventure.text.Component.*;
  The component parts (with appropriate formatting) are supplied by a ComponentFactory.*/
 public class MessageWriter {
 
-    private static ConfigHandler config;
+    protected static ConfigHandler config;
+
     private static ComponentFactory componentFactory;
     private final LanguageKeyHandler languageKeyHandler;
     private final NumberFormatter formatter;
@@ -40,12 +40,9 @@ public class MessageWriter {
         getComponentFactory();
     }
 
-    public static void updateComponentFactory() {
-        getComponentFactory();
-    }
-
-    private static void getComponentFactory() {
+    protected void getComponentFactory() {
         if (config.enableFestiveFormatting() || config.enableRainbowMode()) {
+            //TODO check for date
             componentFactory = new PrideComponentFactory(config);
         }
         else {
@@ -53,57 +50,57 @@ public class MessageWriter {
         }
     }
 
-    public TextComponent reloadedConfig(boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent reloadedConfig() {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content("Config reloaded!"));
     }
 
-    public TextComponent stillReloading(boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent stillReloading() {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(
                 "The plugin is (re)loading, your request will be processed when it is done!"));
     }
 
-    public TextComponent waitAMoment(boolean longWait, boolean isBukkitConsole) {
+    public TextComponent waitAMoment(boolean longWait) {
         String msg = longWait ? "Calculating statistics, this may take a minute..." :
                 "Calculating statistics, this may take a few moments...";
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(msg));
     }
 
-    public TextComponent missingStatName(boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent missingStatName() {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(
                 "Please provide a valid statistic name!"));
     }
 
-    public TextComponent missingSubStatName(Statistic.Type statType, boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent missingSubStatName(Statistic.Type statType) {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(
                 "Please add a valid " + EnumHandler.getSubStatTypeName(statType) + " to look up this statistic!"));
     }
 
-    public TextComponent missingPlayerName(boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent missingPlayerName() {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(
                 "Please specify a valid player-name!"));
     }
 
-    public TextComponent wrongSubStatType(Statistic.Type statType, String subStatEntry, boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent wrongSubStatType(Statistic.Type statType) {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(
-                "\"" + subStatEntry + "\" is not a valid " + EnumHandler.getSubStatTypeName(statType) + "!"));
+                "This is not a valid " + EnumHandler.getSubStatTypeName(statType) + "!"));
     }
 
-    public TextComponent requestAlreadyRunning(boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent requestAlreadyRunning() {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(
                         "Please wait for your previous lookup to finish!"));
@@ -111,7 +108,7 @@ public class MessageWriter {
 
     //TODO Make this say amount of time left
     public TextComponent stillOnShareCoolDown() {
-        return componentFactory.pluginPrefixComponent(false)
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content("You need to wait")
                         .append(space())
@@ -123,20 +120,20 @@ public class MessageWriter {
     }
 
     public TextComponent resultsAlreadyShared() {
-        return componentFactory.pluginPrefixComponent(false)
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content("You already shared these results!"));
     }
 
     public TextComponent statResultsTooOld() {
-        return componentFactory.pluginPrefixComponent(false)
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(
                         "It has been too long since you looked up this statistic, please repeat the original look-up if you want to share it!"));
     }
 
-    public TextComponent unknownError(boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent unknownError() {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(
                 "Something went wrong with your request, " +
@@ -158,7 +155,7 @@ public class MessageWriter {
     public TextComponent formatTopStats(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
         TextComponent.Builder topList = Component.text()
                 .append(newline())
-                .append(componentFactory.pluginPrefixComponent(request.isBukkitConsoleSender())).append(space())
+                .append(componentFactory.pluginPrefixComponent()).append(space())
                 .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
                 .append(componentFactory.titleNumberComponent(topStats.size())).append(space())
                 .append(getStatNameComponent(request))  //space is provided by statUnitComponent
@@ -211,14 +208,13 @@ public class MessageWriter {
                         .hoverEvent(HoverEvent.showText(text("CLICK ME").color(PluginColor.LIGHT_GOLD.getColor()))));
     }
 
-    public TextComponent usageExamples(boolean isBukkitConsole) {
-        return new ExampleMessage(componentFactory, isBukkitConsole);
+    public TextComponent usageExamples() {
+        return new ExampleMessage(componentFactory);
     }
 
-    public TextComponent helpMsg(boolean isConsoleSender) {
+    public TextComponent helpMsg() {
         return new HelpMessage(componentFactory,
-                config.useHoverText() && !isConsoleSender,
-                isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit"),
+                config.useHoverText(),
                 config.getTopListMaxSize());
     }
 

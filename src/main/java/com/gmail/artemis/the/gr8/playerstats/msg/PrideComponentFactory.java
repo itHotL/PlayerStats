@@ -2,43 +2,46 @@ package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 
+import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
+import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
-import java.time.LocalDate;
-import java.time.Month;
-
 import static net.kyori.adventure.text.Component.*;
-
 
 public class PrideComponentFactory extends ComponentFactory {
 
-    private static ConfigHandler config;
 
     public PrideComponentFactory(ConfigHandler c) {
         super(c);
-        config = c;
-    }
 
-
-    @Override
-    public TextComponent prefixTitleComponent(boolean isBukkitConsole) {
-        if (cancelRainbow(isBukkitConsole)) {
-            return super.prefixTitleComponent(isBukkitConsole);
-        }
-        else {
-            String title = "<rainbow:16>____________    [PlayerStats]    ____________</rainbow>"; //12 underscores
-            return text()
-                    .append(MiniMessage.miniMessage().deserialize(title))
-                    .build();
-        }
+        MyLogger.logMsg("PrideComponentFactory created!", DebugLevel.MEDIUM);
     }
 
     @Override
-    public TextComponent pluginPrefixComponent(boolean isConsoleSender) {
-        if (cancelRainbow(isConsoleSender)) {
-            return super.pluginPrefixComponent(isConsoleSender);
-        }
+    protected void prepareColors() {
+        PREFIX = PluginColor.GOLD.getColor();
+        BRACKETS = PluginColor.GRAY.getColor();
+        UNDERSCORE = PluginColor.DARK_PURPLE.getColor();
+        MSG_MAIN = PluginColor.MEDIUM_GOLD.getColor();
+        MSG_MAIN_2 = PluginColor.GOLD.getColor();
+        MSG_ACCENT = PluginColor.GOLD.getColor();
+        MSG_ACCENT_2 = PluginColor.LIGHT_YELLOW.getColor();
+        HOVER_MSG = PluginColor.LIGHT_BLUE.getColor();
+        HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
+    }
+
+    @Override
+    public TextComponent prefixTitleComponent() {
+        String title = "<rainbow:16>____________    [PlayerStats]    ____________</rainbow>"; //12 underscores
+        return text()
+                .append(MiniMessage.miniMessage().deserialize(title))
+                .build();
+    }
+
+    @Override
+    public TextComponent pluginPrefixComponent() {
         return text()
                 .append(MiniMessage.miniMessage()
                         .deserialize("<#f74040>[</#f74040>" +
@@ -57,11 +60,22 @@ public class PrideComponentFactory extends ComponentFactory {
                 .build();
     }
 
-    /** Don't use rainbow formatting if the rainbow Prefix is disabled,
-     if festive formatting is disabled or it is not pride month,
-     or the commandsender is a Bukkit or Spigot console.*/
-    private boolean cancelRainbow(boolean isBukkitConsole) {
-        return !(config.enableRainbowMode() || (config.enableFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) ||
-                (isBukkitConsole);
+    public TextComponent backwardsPluginPrefixComponents() {
+        return text()
+                .append(MiniMessage.miniMessage()
+                        .deserialize("<#631ae6>[</#631ae6>" +
+                                "<#3341E6>P</#3341E6>" +
+                                "<#1F8BEB>l</#1F8BEB>" +
+                                "<#01c1a7>a</#01c1a7>" +
+                                "<#46D858>y</#46D858>" +
+                                "<#84D937>e</#84D937>" +
+                                "<#C1DA15>r</#C1DA15>" +
+                                "<#F7C522>S</#F7C522>" +
+                                "<#EEA019>t</#EEA019>" +
+                                "<#ee8a19>a</#ee8a19>" +
+                                "<#f67824>t</#f67824>" +
+                                "<#f76540>s</#f76540>" +
+                                "<#f74040>]</#f74040>"))
+                .build();
     }
 }

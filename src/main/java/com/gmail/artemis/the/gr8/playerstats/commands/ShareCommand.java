@@ -2,7 +2,8 @@ package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ShareManager;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
+import com.gmail.artemis.the.gr8.playerstats.enums.PluginMessage;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageSender;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
@@ -17,12 +18,12 @@ public class ShareCommand implements CommandExecutor {
 
     private static BukkitAudiences adventure;
     private static ShareManager shareManager;
-    private final MessageWriter messageWriter;
+    private static MessageSender messageSender;
 
-    public ShareCommand(ShareManager s, MessageWriter m) {
+    public ShareCommand(ShareManager s, MessageSender m) {
         adventure = Main.adventure();
         shareManager = s;
-        messageWriter = m;
+        messageSender = m;
     }
 
     @Override
@@ -36,16 +37,17 @@ public class ShareCommand implements CommandExecutor {
                 return false;
             }
             if (shareManager.requestAlreadyShared(shareCode)) {
-                adventure.sender(sender).sendMessage(messageWriter.resultsAlreadyShared());
+                messageSender.send(sender, PluginMessage.RESULTS_ALREADY_SHARED);
             }
             else if (shareManager.isOnCoolDown(sender.getName())) {
-                adventure.sender(sender).sendMessage(messageWriter.stillOnShareCoolDown());
+                messageSender.send(sender, PluginMessage.STILL_ON_SHARE_COOLDOWN);
             }
             else {
                 TextComponent result = shareManager.getStatResult(sender.getName(), shareCode);
                 if (result == null) {  //at this point the only possible cause of statResult being null is the request being older than 25 player-requests ago
-                    adventure.sender(sender).sendMessage(messageWriter.statResultsTooOld());
+                    messageSender.send(sender, PluginMessage.STAT_RESULTS_TOO_OLD);
                 } else {
+                    //TODO add shared-by signature
                     adventure.all().sendMessage(result);
                 }
             }

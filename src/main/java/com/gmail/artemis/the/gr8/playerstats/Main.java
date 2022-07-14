@@ -6,7 +6,7 @@ import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageSender;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
@@ -32,22 +32,22 @@ public class Main extends JavaPlugin {
 
         //first get an instance of all the classes that need to be initialized or passed along to different classes
         ConfigHandler config = new ConfigHandler(this);
-        MessageWriter messageWriter = new MessageWriter(config);
+        MessageSender sender = new MessageSender(config);
         OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler();
 
-        ThreadManager threadManager = ThreadManager.getInstance(config, messageWriter, offlinePlayerHandler);
+        ThreadManager threadManager = ThreadManager.getInstance(config, sender, offlinePlayerHandler);
         ShareManager shareManager = ShareManager.getInstance(config);
 
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(messageWriter, threadManager, offlinePlayerHandler));
+            statcmd.setExecutor(new StatCommand(sender, threadManager, offlinePlayerHandler));
             statcmd.setTabCompleter(new TabCompleter(offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
         if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));
         PluginCommand sharecmd = this.getCommand("statisticshare");
-        if (sharecmd != null) sharecmd.setExecutor(new ShareCommand(shareManager, messageWriter));
+        if (sharecmd != null) sharecmd.setExecutor(new ShareCommand(shareManager, sender));
 
         //register the listener
         Bukkit.getPluginManager().registerEvents(new JoinListener(threadManager), this);

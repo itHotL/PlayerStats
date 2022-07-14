@@ -1,19 +1,17 @@
 package com.gmail.artemis.the.gr8.playerstats.reload;
 
-import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
+import com.gmail.artemis.the.gr8.playerstats.enums.PluginMessage;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageSender;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Set;
@@ -25,10 +23,9 @@ import java.util.function.Predicate;
 public class ReloadThread extends Thread {
 
     private static ConfigHandler config;
-    private final MessageWriter messageWriter;
+    private static MessageSender messageSender;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
-    private static BukkitAudiences adventure;
     private static ShareManager shareManager;
 
     private final int reloadThreadID;
@@ -37,12 +34,11 @@ public class ReloadThread extends Thread {
     private final CommandSender sender;
 
 
-    public ReloadThread(ConfigHandler c, MessageWriter m, OfflinePlayerHandler o, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
+    public ReloadThread(ConfigHandler c, MessageSender m, OfflinePlayerHandler o, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
         config = c;
-        messageWriter = m;
+        messageSender = m;
         offlinePlayerHandler = o;
 
-        adventure = Main.adventure();
         shareManager = ShareManager.getInstance(c);
 
         reloadThreadID = ID;
@@ -72,10 +68,8 @@ public class ReloadThread extends Thread {
             MyLogger.logMsg("Reloading!", false);
             reloadEverything();
 
-            boolean isBukkitConsole = sender instanceof ConsoleCommandSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit");
             if (sender != null) {
-                adventure.sender(sender).sendMessage(
-                        messageWriter.reloadedConfig(isBukkitConsole));
+                messageSender.send(sender, PluginMessage.RELOADED_CONFIG);
             }
         }
         else {  //during first start-up
@@ -87,7 +81,7 @@ public class ReloadThread extends Thread {
 
     private void reloadEverything() {
         MyLogger.setDebugLevel(config.getDebugLevel());
-        MessageWriter.updateComponentFactory();
+        messageSender.updateComponentFactories(config);
         offlinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
         shareManager.updateSettings(config);
     }

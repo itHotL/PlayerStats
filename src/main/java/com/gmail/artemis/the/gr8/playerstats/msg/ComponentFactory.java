@@ -1,9 +1,11 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
+import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -17,6 +19,7 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+
 import static net.kyori.adventure.text.Component.*;
 import static net.kyori.adventure.text.Component.text;
 
@@ -27,43 +30,94 @@ public class ComponentFactory {
 
     private static ConfigHandler config;
 
+    protected static TextColor PREFIX;  //gold
+    protected static TextColor BRACKETS;  //gray
+    protected static TextColor UNDERSCORE;  //dark_purple
+    protected static TextColor MSG_MAIN;  //blue
+    protected static TextColor MSG_MAIN_2;  //gold
+    protected static TextColor MSG_ACCENT;  //medium_gold
+    protected static TextColor MSG_ACCENT_2;  //light_yellow
+    protected static TextColor HOVER_MSG;  //light_blue
+    protected static TextColor HOVER_ACCENT;  //light_gold
+
     public ComponentFactory(ConfigHandler c) {
         config = c;
+        prepareColors();
+
+        MyLogger.logMsg("Regular ComponentFactory created!", DebugLevel.MEDIUM);
     }
 
+    protected void prepareColors() {
+        PREFIX = PluginColor.GOLD.getColor();
+        BRACKETS = PluginColor.GRAY.getColor();
+        UNDERSCORE = PluginColor.DARK_PURPLE.getColor();
+        MSG_MAIN = PluginColor.MEDIUM_BLUE.getColor();
+        MSG_MAIN_2 = PluginColor.GOLD.getColor();
+        MSG_ACCENT = PluginColor.MEDIUM_GOLD.getColor();
+        MSG_ACCENT_2 = PluginColor.LIGHT_YELLOW.getColor();
+        HOVER_MSG = PluginColor.LIGHT_BLUE.getColor();
+        HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
+    }
+
+    public TextColor prefix() {
+        return PREFIX;
+    }
+    public TextColor brackets() {
+        return BRACKETS;
+    }
+    public TextColor underscore() {
+        return UNDERSCORE;
+    }
+    public TextColor msgMain() {
+        return MSG_MAIN;
+    }
+    public TextColor msgMain2() {
+        return MSG_MAIN_2;
+    }
+    public TextColor msgAccent() {
+        return MSG_ACCENT;
+    }
+    public TextColor msgAccent2() {
+        return MSG_ACCENT_2;
+    }
+    public TextColor hoverMsg() {
+        return HOVER_MSG;
+    }
+    public TextColor hoverAccent() {
+        return HOVER_ACCENT;
+    }
+
+
     /** Returns [PlayerStats]. */
-    public TextComponent pluginPrefixComponent(boolean isBukkitConsole) {
+    public TextComponent pluginPrefixComponent() {
         return text("[")
-                .color(PluginColor.GRAY.getColor())
-                .append(text("PlayerStats").color(PluginColor.GOLD.getColor()))
+                .color(BRACKETS)
+                .append(text("PlayerStats").color(PREFIX))
                 .append(text("]"));
     }
 
     /** Returns [PlayerStats] surrounded by underscores on both sides. */
-    public TextComponent prefixTitleComponent(boolean isBukkitConsole) {
-        String underscores = "____________";  //12 underscores for both console and in-game
-        TextColor underscoreColor = isBukkitConsole ?
-                PluginColor.DARK_PURPLE.getConsoleColor() : PluginColor.DARK_PURPLE.getColor();
-
-        return text(underscores).color(underscoreColor)
+    public TextComponent prefixTitleComponent() {
+        //12 underscores for both console and in-game
+        return text("____________").color(UNDERSCORE)
                 .append(text("    "))  //4 spaces
-                .append(pluginPrefixComponent(isBukkitConsole))
+                .append(pluginPrefixComponent())
                 .append(text("    "))  //4 spaces
-                .append(text(underscores));
+                .append(text("____________"));
     }
 
     /** Returns a TextComponent with the input String as content, with color Gray and decoration Italic.*/
     public TextComponent subTitleComponent(String content) {
-        return text(content).color(PluginColor.GRAY.getColor()).decorate(TextDecoration.ITALIC);
+        return text(content).color(BRACKETS).decorate(TextDecoration.ITALIC);
     }
 
     /** Returns a TextComponents in the style of a default plugin message, with color Medium_Blue. */
     public TextComponent messageComponent() {
-        return text().color(PluginColor.MEDIUM_BLUE.getColor()).build();
+        return text().color(MSG_MAIN).build();
     }
 
     public TextComponent messageAccentComponent() {
-        return text().color(PluginColor.MEDIUM_GOLD.getColor()).build();
+        return text().color(MSG_ACCENT).build();
     }
 
     public TextComponent.Builder playerNameBuilder(String playerName, Target selection) {
@@ -228,10 +282,10 @@ public class ComponentFactory {
         if (config.useHoverText()) {
             heartComponent.hoverEvent(HoverEvent.showText(
                     text(Unit.HEART.getLabel())
-                            .color(PluginColor.LIGHT_GOLD.getColor())
+                            .color(HOVER_ACCENT)
                             .decorate(TextDecoration.ITALIC)));
         }
-        return Component.text().color(PluginColor.GRAY.getColor())
+        return Component.text().color(BRACKETS)
                 .append(text("["))
                 .append(heartComponent)
                 .append(text("]"))
