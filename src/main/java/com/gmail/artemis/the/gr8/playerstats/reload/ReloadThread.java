@@ -4,8 +4,8 @@ import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
-import com.gmail.artemis.the.gr8.playerstats.enums.PluginMessage;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageSender;
+import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
+import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
@@ -23,7 +23,7 @@ import java.util.function.Predicate;
 public class ReloadThread extends Thread {
 
     private static ConfigHandler config;
-    private static MessageSender messageSender;
+    private static OutputManager messageSender;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
     private static ShareManager shareManager;
@@ -34,7 +34,7 @@ public class ReloadThread extends Thread {
     private final CommandSender sender;
 
 
-    public ReloadThread(ConfigHandler c, MessageSender m, OfflinePlayerHandler o, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
+    public ReloadThread(ConfigHandler c, OutputManager m, OfflinePlayerHandler o, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
         config = c;
         messageSender = m;
         offlinePlayerHandler = o;
@@ -69,7 +69,7 @@ public class ReloadThread extends Thread {
             reloadEverything();
 
             if (sender != null) {
-                messageSender.send(sender, PluginMessage.RELOADED_CONFIG);
+                messageSender.sendFeedbackMsg(sender, StandardMessage.RELOADED_CONFIG);
             }
         }
         else {  //during first start-up

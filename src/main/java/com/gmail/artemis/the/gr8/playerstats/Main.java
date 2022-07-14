@@ -6,7 +6,7 @@ import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageSender;
+import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
@@ -32,7 +32,7 @@ public class Main extends JavaPlugin {
 
         //first get an instance of all the classes that need to be initialized or passed along to different classes
         ConfigHandler config = new ConfigHandler(this);
-        MessageSender sender = new MessageSender(config);
+        OutputManager sender = new OutputManager(config);
         OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler();
 
         ThreadManager threadManager = ThreadManager.getInstance(config, sender, offlinePlayerHandler);

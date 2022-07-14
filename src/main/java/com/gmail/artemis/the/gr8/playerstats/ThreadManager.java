@@ -1,8 +1,8 @@
 package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
-import com.gmail.artemis.the.gr8.playerstats.enums.PluginMessage;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageSender;
+import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
+import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
@@ -21,7 +21,7 @@ public final class ThreadManager {
     private int reloadThreadID;
 
     private static ConfigHandler config;
-    private static MessageSender messageSender;
+    private static OutputManager messageSender;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
     private ReloadThread lastActiveReloadThread;
@@ -29,7 +29,7 @@ public final class ThreadManager {
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    private ThreadManager(ConfigHandler c, MessageSender m, OfflinePlayerHandler o) {
+    private ThreadManager(ConfigHandler c, OutputManager m, OfflinePlayerHandler o) {
         config = c;
         messageSender = m;
         offlinePlayerHandler = o;
@@ -42,7 +42,7 @@ public final class ThreadManager {
         startReloadThread(null);
     }
 
-    public static ThreadManager getInstance(ConfigHandler config, MessageSender messageSender, OfflinePlayerHandler offlinePlayerHandler) {
+    public static ThreadManager getInstance(ConfigHandler config, OutputManager messageSender, OfflinePlayerHandler offlinePlayerHandler) {
         ThreadManager threadManager = instance;
         if (threadManager != null) {
             return threadManager;
@@ -78,7 +78,7 @@ public final class ThreadManager {
         if (config.limitStatRequests() && statThreads.containsKey(cmdSender)) {
             Thread runningThread = statThreads.get(cmdSender);
             if (runningThread.isAlive()) {
-                messageSender.send(request.getCommandSender(), PluginMessage.REQUEST_ALREADY_RUNNING);
+                messageSender.sendFeedbackMsg(request.getCommandSender(), StandardMessage.REQUEST_ALREADY_RUNNING);
             } else {
                 startNewStatThread(request);
             }

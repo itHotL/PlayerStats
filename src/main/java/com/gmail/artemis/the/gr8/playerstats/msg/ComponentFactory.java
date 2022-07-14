@@ -9,6 +9,7 @@ import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -19,6 +20,8 @@ import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+
+import java.util.UUID;
 
 import static net.kyori.adventure.text.Component.*;
 import static net.kyori.adventure.text.Component.text;
@@ -38,6 +41,7 @@ public class ComponentFactory {
     protected static TextColor MSG_ACCENT;  //medium_gold
     protected static TextColor MSG_ACCENT_2;  //light_yellow
     protected static TextColor HOVER_MSG;  //light_blue
+    protected static TextColor CLICKED_MSG;  //light_purple
     protected static TextColor HOVER_ACCENT;  //light_gold
 
     public ComponentFactory(ConfigHandler c) {
@@ -55,6 +59,7 @@ public class ComponentFactory {
         MSG_MAIN_2 = PluginColor.GOLD.getColor();
         MSG_ACCENT = PluginColor.MEDIUM_GOLD.getColor();
         MSG_ACCENT_2 = PluginColor.LIGHT_YELLOW.getColor();
+        CLICKED_MSG = PluginColor.LIGHT_PURPLE.getColor();
         HOVER_MSG = PluginColor.LIGHT_BLUE.getColor();
         HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
     }
@@ -79,6 +84,9 @@ public class ComponentFactory {
     }
     public TextColor msgAccent2() {
         return MSG_ACCENT_2;
+    }
+    public TextColor clickedMsg() {
+        return CLICKED_MSG;
     }
     public TextColor hoverMsg() {
         return HOVER_MSG;
@@ -285,9 +293,29 @@ public class ComponentFactory {
                             .color(HOVER_ACCENT)
                             .decorate(TextDecoration.ITALIC)));
         }
-        return Component.text().color(BRACKETS)
+        return surroundingBracketComponent(heartComponent.build());
+    }
+
+    public TextComponent shareButtonComponent(UUID shareCode) {
+        return surroundingBracketComponent(
+                text("Share")
+                        .color(HOVER_MSG)
+                        .clickEvent(ClickEvent.runCommand("/statshare " + shareCode))
+                        .hoverEvent(HoverEvent.showText(text("Click here to share this statistic in chat!")
+                                .color(HOVER_ACCENT))));
+    }
+
+    public TextComponent sharedButtonComponent(String playerName) {
+        return surroundingBracketComponent(
+                text("Shared!")
+                        .color(CLICKED_MSG));
+    }
+
+    private TextComponent surroundingBracketComponent(TextComponent component) {
+        return Component.text()
+                .color(BRACKETS)
                 .append(text("["))
-                .append(heartComponent)
+                .append(component)
                 .append(text("]"))
                 .build();
     }

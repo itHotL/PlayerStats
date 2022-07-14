@@ -21,6 +21,7 @@ public class BukkitConsoleComponentFactory extends ComponentFactory {
         MSG_MAIN_2 = PluginColor.GOLD.getConsoleColor();
         MSG_ACCENT = PluginColor.MEDIUM_GOLD.getConsoleColor();
         MSG_ACCENT_2 = PluginColor.LIGHT_YELLOW.getConsoleColor();
+        CLICKED_MSG = PluginColor.LIGHT_PURPLE.getConsoleColor();
         HOVER_MSG = PluginColor.LIGHT_BLUE.getConsoleColor();
         HOVER_ACCENT = PluginColor.LIGHT_GOLD.getConsoleColor();
     }

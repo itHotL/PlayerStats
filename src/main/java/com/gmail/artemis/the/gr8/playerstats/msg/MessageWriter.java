@@ -1,7 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
-import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
@@ -12,13 +11,12 @@ import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.Function;
 
 import static net.kyori.adventure.text.Component.*;
 
@@ -92,11 +90,13 @@ public class MessageWriter {
                 "Please specify a valid player-name!"));
     }
 
-    public TextComponent wrongSubStatType(Statistic.Type statType) {
+    public TextComponent wrongSubStatType(Statistic.Type statType, String subStatName) {
         return componentFactory.pluginPrefixComponent()
                 .append(space())
+                .append(componentFactory.messageAccentComponent().content(subStatName))
+                .append(space())
                 .append(componentFactory.messageComponent().content(
-                "This is not a valid " + EnumHandler.getSubStatTypeName(statType) + "!"));
+                "is not a valid " + EnumHandler.getSubStatTypeName(statType) + "!"));
     }
 
     public TextComponent requestAlreadyRunning() {
@@ -140,34 +140,79 @@ public class MessageWriter {
                         "please try again or see /statistic for a usage explanation!"));
     }
 
-    public TextComponent formattedPlayerStat(int stat, @NotNull StatRequest request) {
-        return Component.text()
+    public TextComponent usageExamples() {
+        return new ExampleMessage(componentFactory);
+    }
+
+    public TextComponent helpMsg() {
+        return new HelpMessage(componentFactory,
+                config.useHoverText(),
+                config.getTopListMaxSize());
+    }
+
+    public Function<UUID, TextComponent> formattedPlayerStatFunction(int stat, @NotNull StatRequest request) {
+        TextComponent.Builder playerStat = Component.text()
                 .append(componentFactory.playerNameBuilder(request.getPlayerName(), Target.PLAYER)
                         .append(text(":"))
                         .append(space()))
                 .append(getStatNumberComponent(request.getStatistic(), stat, Target.PLAYER, request.isConsoleSender()))
                 .append(space())
                 .append(getStatNameComponent(request))
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))
-                .build();  //space is provided by statUnitComponent
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()));  //space is provided by statUnitComponent
+
+        return shareCode -> {
+            if (shareCode != null) {
+                playerStat.append(space())
+                        .append(componentFactory.shareButtonComponent(shareCode));
+            }
+            return playerStat.build();
+        };
     }
 
-    public TextComponent[] formattedTopStatComponents(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
-        TextComponent[] array = new TextComponent[2];
-        array[0] = getTopStatsTitle(request, topStats.size());
-        array[1] = getTopStatList(topStats, request);
-        return array;
+    public Function<UUID,TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequest request) {
+        TextComponent.Builder serverStat = Component.text()
+                .append(componentFactory.titleComponent(config.getServerTitle(), Target.SERVER))
+                .append(space())
+                .append(componentFactory.serverNameComponent(config.getServerName()))
+                .append(space())
+                .append(getStatNumberComponent(request.getStatistic(), stat, Target.SERVER, request.isConsoleSender()))
+                .append(space())
+                .append(getStatNameComponent(request))
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()));  //space is provided by statUnit
+
+        return shareCode -> {
+            if (shareCode != null) {
+                serverStat.append(space())
+                        .append(componentFactory.shareButtonComponent(shareCode));
+            }
+            return serverStat.build();
+        };
+    }
+    public Function<UUID, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
+        TextComponent.Builder title = getTopStatsTitle(request, topStats.size());
+        TextComponent list = getTopStatList(topStats, request);
+
+        return shareCode -> {
+            if (shareCode != null) {
+                title.append(space())
+                        .append(componentFactory.shareButtonComponent(shareCode));
+            }
+            return title.append(list).build();
+        };
     }
 
-    private TextComponent getTopStatsTitle(StatRequest request, int statListSize) {
+    public TextComponent sharedButton(String playerName) {
+        return componentFactory.sharedButtonComponent(playerName);
+    }
+
+    private TextComponent.Builder getTopStatsTitle(StatRequest request, int statListSize) {
         return Component.text()
                 .append(newline())
                 .append(componentFactory.pluginPrefixComponent()).append(space())
                 .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
                 .append(componentFactory.titleNumberComponent(statListSize)).append(space())
                 .append(getStatNameComponent(request))  //space is provided by statUnitComponent
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))
-                .build();
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()));
     }
 
     private TextComponent getTopStatList(LinkedHashMap<String, Integer> topStats, StatRequest request) {
@@ -198,40 +243,7 @@ public class MessageWriter {
         return topList.build();
     }
 
-    public TextComponent formattedTopStats(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
-        return getTopStatsTitle(request, topStats.size()).append(getTopStatList(topStats, request));
-    }
 
-    public TextComponent formattedServerStat(long stat, @NotNull StatRequest request) {
-        return Component.text()
-                .append(componentFactory.titleComponent(config.getServerTitle(), Target.SERVER))
-                .append(space())
-                .append(componentFactory.serverNameComponent(config.getServerName()))
-                .append(space())
-                .append(getStatNumberComponent(request.getStatistic(), stat, Target.SERVER, request.isConsoleSender()))
-                .append(space())
-                .append(getStatNameComponent(request))
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnit
-                .build();
-    }
-
-    public TextComponent addShareButton(TextComponent component, UUID shareCode, Target selection) {
-        TextComponent toAdd = selection == Target.TOP ? Component.newline() : Component.space();
-        return component.append(toAdd)
-                .append(text("[SHARE]").color(PluginColor.LIGHT_BLUE.getColor())
-                        .clickEvent(ClickEvent.runCommand("/statshare " + shareCode))
-                        .hoverEvent(HoverEvent.showText(text("CLICK ME").color(PluginColor.LIGHT_GOLD.getColor()))));
-    }
-
-    public TextComponent usageExamples() {
-        return new ExampleMessage(componentFactory);
-    }
-
-    public TextComponent helpMsg() {
-        return new HelpMessage(componentFactory,
-                config.useHoverText(),
-                config.getTopListMaxSize());
-    }
 
     /** Depending on the config settings, return either a TranslatableComponent representing
      the statName (and potential subStatName), or a TextComponent with capitalized English names.*/

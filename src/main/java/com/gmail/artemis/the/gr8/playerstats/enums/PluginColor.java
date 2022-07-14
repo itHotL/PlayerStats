@@ -16,6 +16,7 @@ import net.kyori.adventure.text.format.TextColor;
 public enum PluginColor {
     GRAY (NamedTextColor.GRAY),  //#AAAAAA
     DARK_PURPLE (TextColor.fromHexString("#6E3485")),
+    LIGHT_PURPLE (TextColor.fromHexString("#9876AA")),
     MEDIUM_BLUE (TextColor.fromHexString("#55AAFF")),
     LIGHT_BLUE (TextColor.fromHexString("#55C6FF")),
     GOLD (NamedTextColor.GOLD),  //#FFAA00

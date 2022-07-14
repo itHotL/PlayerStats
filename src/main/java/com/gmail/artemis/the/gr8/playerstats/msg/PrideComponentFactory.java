@@ -28,6 +28,7 @@ public class PrideComponentFactory extends ComponentFactory {
         MSG_MAIN_2 = PluginColor.GOLD.getColor();
         MSG_ACCENT = PluginColor.GOLD.getColor();
         MSG_ACCENT_2 = PluginColor.LIGHT_YELLOW.getColor();
+        CLICKED_MSG = PluginColor.LIGHT_PURPLE.getColor();
         HOVER_MSG = PluginColor.LIGHT_BLUE.getColor();
         HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
     }

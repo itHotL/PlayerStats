@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
@@ -83,11 +84,11 @@ public final class ShareManager {
         removeExcessResults(playerName);
 
         int ID = getNextIDNumber();
-        UUID identifier = UUID.randomUUID();
+        UUID shareCode = UUID.randomUUID();
 
-        statResultQueue.put(identifier, new StatResult(playerName, statResult, ID, identifier));
+        statResultQueue.put(shareCode, new StatResult(playerName, statResult, ID, shareCode));
         MyLogger.logMsg("Saving statResults with no. " + ID, DebugLevel.MEDIUM);
-        return identifier;
+        return shareCode;
     }
 
     /** Takes a statResult from the internal ConcurrentHashmap,

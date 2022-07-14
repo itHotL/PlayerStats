@@ -1,10 +1,9 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
-import com.gmail.artemis.the.gr8.playerstats.ShareManager;
-import com.gmail.artemis.the.gr8.playerstats.enums.PluginMessage;
+import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageSender;
+import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
@@ -23,24 +22,19 @@ import java.util.stream.Collectors;
 public class StatThread extends Thread {
 
     private static ConfigHandler config;
-    private final MessageSender messageSender;
+    private final OutputManager outputManager;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
     private final ReloadThread reloadThread;
     private final StatRequest request;
 
-    private static ShareManager shareManager;
-
-
-    public StatThread(ConfigHandler c, MessageSender m, OfflinePlayerHandler o, int ID, StatRequest s, @Nullable ReloadThread r) {
+    public StatThread(ConfigHandler c, OutputManager m, OfflinePlayerHandler o, int ID, StatRequest s, @Nullable ReloadThread r) {
         config = c;
-        messageSender = m;
+        outputManager = m;
         offlinePlayerHandler = o;
 
         reloadThread = r;
         request = s;
-
-        shareManager = ShareManager.getInstance(config);
 
         this.setName("StatThread-" + request.getCommandSender().getName() + "-" + ID);
         MyLogger.threadCreated(this.getName());
@@ -56,7 +50,7 @@ public class StatThread extends Thread {
         if (reloadThread != null && reloadThread.isAlive()) {
             try {
                 MyLogger.waitingForOtherThread(this.getName(), reloadThread.getName());
-                messageSender.send(request.getCommandSender(), PluginMessage.STILL_RELOADING);
+                outputManager.sendFeedbackMsg(request.getCommandSender(), StandardMessage.STILL_RELOADING);
                 reloadThread.join();
 
             } catch (InterruptedException e) {
@@ -67,20 +61,19 @@ public class StatThread extends Thread {
 
         long lastCalc = ThreadManager.getLastRecordedCalcTime();
         if (lastCalc > 2000) {
-            messageSender.send(request.getCommandSender(), PluginMessage.WAIT_A_MOMENT, lastCalc > 20000);
+            outputManager.sendFeedbackMsgWaitAMoment(request.getCommandSender(), lastCalc > 20000);
         }
 
-        boolean saveResult = shareManager.isEnabled() && !request.isConsoleSender() && request.getCommandSender().hasPermission("playerstats.share");
         Target selection = request.getSelection();
         try {
             switch (selection) {
-                case PLAYER -> messageSender.send(request, getIndividualStat(), saveResult);
-                case TOP -> messageSender.send(request, getTopStats(), saveResult);
-                case SERVER -> messageSender.send(request, getServerTotal(), saveResult);
+                case PLAYER -> outputManager.sendPlayerStat(request, getIndividualStat());
+                case TOP -> outputManager.sendTopStat(request, getTopStats());
+                case SERVER -> outputManager.sendServerStat(request, getServerTotal());
             }
         } catch (ConcurrentModificationException e) {
             if (!request.isConsoleSender()) {
-                messageSender.send(request.getCommandSender(), PluginMessage.UNKNOWN_ERROR);
+                outputManager.sendFeedbackMsg(request.getCommandSender(), StandardMessage.UNKNOWN_ERROR);
             }
         }
     }

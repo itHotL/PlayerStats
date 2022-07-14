@@ -1,9 +1,9 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
-import com.gmail.artemis.the.gr8.playerstats.enums.PluginMessage;
+import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageSender;
+import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
@@ -21,23 +21,23 @@ import org.jetbrains.annotations.NotNull;
 public class StatCommand implements CommandExecutor {
 
     private static ThreadManager threadManager;
-    private static MessageSender messageSender;
+    private static OutputManager outputManager;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
-    public StatCommand(MessageSender m, ThreadManager t, OfflinePlayerHandler o) {
+    public StatCommand(OutputManager m, ThreadManager t, OfflinePlayerHandler o) {
         threadManager = t;
-        messageSender = m;
+        outputManager = m;
         offlinePlayerHandler = o;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {  //in case of less than 1 argument or "help", display the help message
-            messageSender.send(sender, PluginMessage.HELP_MSG);
+            outputManager.sendHelp(sender);
         }
         else if (args[0].equalsIgnoreCase("examples") ||
                 args[0].equalsIgnoreCase("example")) {  //in case of "statistic examples", show examples
-            messageSender.send(sender, PluginMessage.USAGE_EXAMPLES);
+            outputManager.sendExamples(sender);
         }
         else {
             StatRequest request = generateRequest(sender, args);
@@ -137,20 +137,20 @@ public class StatCommand implements CommandExecutor {
      @return true if the Request is valid, and false + an explanation message otherwise. */
     private boolean requestIsValid(StatRequest request) {
         if (request.getStatistic() == null) {
-            messageSender.send(request.getCommandSender(), PluginMessage.MISSING_STAT_NAME);
+            outputManager.sendFeedbackMsg(request.getCommandSender(), StandardMessage.MISSING_STAT_NAME);
             return false;
         }
         Statistic.Type type = request.getStatistic().getType();
         if (request.getSubStatEntry() == null && type != Statistic.Type.UNTYPED) {
-            messageSender.send(request.getCommandSender(), PluginMessage.MISSING_SUB_STAT_NAME, type);
+            outputManager.sendFeedbackMsgMissingSubStat(request.getCommandSender(), type);
             return false;
         }
         else if (!matchingSubStat(request)) {
-            messageSender.send(request.getCommandSender(), PluginMessage.WRONG_SUB_STAT_TYPE, type);
+            outputManager.sendFeedbackMsgWrongSubStat(request.getCommandSender(), type, request.getSubStatEntry());
             return false;
         }
         else if (request.getSelection() == Target.PLAYER && request.getPlayerName() == null) {
-            messageSender.send(request.getCommandSender(), PluginMessage.MISSING_PLAYER_NAME);
+            outputManager.sendFeedbackMsg(request.getCommandSender(), StandardMessage.MISSING_PLAYER_NAME);
             return false;
         }
         else {
