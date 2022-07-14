@@ -140,7 +140,7 @@ public class MessageWriter {
                         "please try again or see /statistic for a usage explanation!"));
     }
 
-    public TextComponent formatPlayerStat(int stat, @NotNull StatRequest request) {
+    public TextComponent formattedPlayerStat(int stat, @NotNull StatRequest request) {
         return Component.text()
                 .append(componentFactory.playerNameBuilder(request.getPlayerName(), Target.PLAYER)
                         .append(text(":"))
@@ -152,15 +152,26 @@ public class MessageWriter {
                 .build();  //space is provided by statUnitComponent
     }
 
-    public TextComponent formatTopStats(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
-        TextComponent.Builder topList = Component.text()
+    public TextComponent[] formattedTopStatComponents(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
+        TextComponent[] array = new TextComponent[2];
+        array[0] = getTopStatsTitle(request, topStats.size());
+        array[1] = getTopStatList(topStats, request);
+        return array;
+    }
+
+    private TextComponent getTopStatsTitle(StatRequest request, int statListSize) {
+        return Component.text()
                 .append(newline())
                 .append(componentFactory.pluginPrefixComponent()).append(space())
                 .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
-                .append(componentFactory.titleNumberComponent(topStats.size())).append(space())
+                .append(componentFactory.titleNumberComponent(statListSize)).append(space())
                 .append(getStatNameComponent(request))  //space is provided by statUnitComponent
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()));
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))
+                .build();
+    }
 
+    private TextComponent getTopStatList(LinkedHashMap<String, Integer> topStats, StatRequest request) {
+        TextComponent.Builder topList = Component.text();
         boolean useDots = config.useDots();
         boolean boldNames = config.playerNameIsBold();
         Set<String> playerNames = topStats.keySet();
@@ -187,7 +198,11 @@ public class MessageWriter {
         return topList.build();
     }
 
-    public TextComponent formatServerStat(long stat, @NotNull StatRequest request) {
+    public TextComponent formattedTopStats(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
+        return getTopStatsTitle(request, topStats.size()).append(getTopStatList(topStats, request));
+    }
+
+    public TextComponent formattedServerStat(long stat, @NotNull StatRequest request) {
         return Component.text()
                 .append(componentFactory.titleComponent(config.getServerTitle(), Target.SERVER))
                 .append(space())

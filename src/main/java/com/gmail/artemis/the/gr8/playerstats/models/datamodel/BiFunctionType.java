@@ -6,12 +6,13 @@ import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Statistic;
 
 import java.util.LinkedHashMap;
+import java.util.UUID;
 import java.util.function.BiFunction;
 
 /** Represents a bunch of BiFunctions that most of the time will have a MessageWriter as its first argument*/
 public abstract class BiFunctionType<M, O, T> implements Type {
 
-    public abstract TextComponent apply(MessageWriter messageWriter, Object o);
+    public abstract TextComponent apply(Object m, Object o);
 
 
     public record MsgBoolean<M, B, T>(BiFunction<MessageWriter, Boolean, TextComponent> biFunction) implements Type {
@@ -41,6 +42,12 @@ public abstract class BiFunctionType<M, O, T> implements Type {
     public record StatRequestMap<S, M, T>(BiFunction<StatRequest, LinkedHashMap<String, Integer>, TextComponent> biFunction) implements Type {
         public TextComponent apply(StatRequest request, LinkedHashMap<String, Integer> topStats) {
             return biFunction.apply(request, topStats);
+        }
+    }
+
+    public record ComponentUUID<C, U, T>(BiFunction<TextComponent, UUID, TextComponent> biFunction, MessageWriter messageWriter) implements Type {
+        public TextComponent apply(TextComponent statResult, UUID shareCode) {
+            return messageWriter.addShareButton(statResult, shareCode, null);
         }
     }
 }

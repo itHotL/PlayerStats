@@ -11,7 +11,6 @@ import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.google.common.collect.ImmutableList;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -71,22 +70,15 @@ public class StatThread extends Thread {
             messageSender.send(request.getCommandSender(), PluginMessage.WAIT_A_MOMENT, lastCalc > 20000);
         }
 
+        boolean saveResult = shareManager.isEnabled() && !request.isConsoleSender() && request.getCommandSender().hasPermission("playerstats.share");
         Target selection = request.getSelection();
-        TextComponent statResult;
         try {
-             switch (selection) {
-                case PLAYER -> messageSender.send(request, getIndividualStat());
-                case TOP -> messageSender.send(request, getTopStats());
-                case SERVER -> messageSender.send(request, getServerTotal());
-            };
-
-            if (shareManager.isEnabled() && request.getCommandSender().hasPermission("playerstats.share")) {
-                //UUID shareCode = shareManager.saveStatResult(request.getCommandSender().getName(), statResult);
-                //statResult = messageWriter.addShareButton(statResult, shareCode, request.getSelection());
+            switch (selection) {
+                case PLAYER -> messageSender.send(request, getIndividualStat(), saveResult);
+                case TOP -> messageSender.send(request, getTopStats(), saveResult);
+                case SERVER -> messageSender.send(request, getServerTotal(), saveResult);
             }
-            //adventure.sender(request.getCommandSender()).sendMessage(statResult);
-        }
-        catch (ConcurrentModificationException e) {
+        } catch (ConcurrentModificationException e) {
             if (!request.isConsoleSender()) {
                 messageSender.send(request.getCommandSender(), PluginMessage.UNKNOWN_ERROR);
             }

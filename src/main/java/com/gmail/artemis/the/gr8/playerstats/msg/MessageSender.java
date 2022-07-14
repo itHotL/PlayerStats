@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.PluginMessage;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
@@ -16,12 +17,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
+import java.util.UUID;
+import java.util.function.BiFunction;
 
 import static com.gmail.artemis.the.gr8.playerstats.enums.PluginMessage.*;
 
 public class MessageSender {
 
     private static BukkitAudiences adventure;
+    private static ShareManager shareManager;
     private static MessageWriter msg;
     private static ConsoleMessageWriter consoleMsg;
 
@@ -29,6 +33,7 @@ public class MessageSender {
 
     public MessageSender(ConfigHandler conf) {
         adventure = Main.adventure();
+        shareManager = ShareManager.getInstance(conf);
 
         msg = new MessageWriter(conf);
         consoleMsg = new ConsoleMessageWriter(conf);
@@ -59,16 +64,28 @@ public class MessageSender {
         send(sender, message, null, statType, null, 0, 0, null);
     }
 
-    public void send(StatRequest request, int playerStat) {
-        send(request.getCommandSender(), FORMAT_PLAYER_STAT, null, null, null, playerStat, 0, null);
+    public void send(StatRequest request, int playerStat, boolean saveResult) {
+        if (!saveResult) {
+            send(request.getCommandSender(), FORMATTED_PLAYER_STAT, null, null, null, playerStat, 0, null);
+        } else {  //we are never adding a share-button to console-sender-messages, so I can use msg
+
+        }
     }
 
-    public void send(StatRequest request, long serverStat) {
-        send(request.getCommandSender(), FORMAT_SERVER_STAT, null, null, null, 0, serverStat, null);
+    public void send(StatRequest request, long serverStat, boolean saveResult) {
+        if (!saveResult) {
+            send(request.getCommandSender(), FORMATTED_SERVER_STAT, null, null, null, 0, serverStat, null);
+        } else {  //we are never adding a share-button to console-sender-messages, so I can use msg
+
+        }
     }
 
-    public void send(StatRequest request, LinkedHashMap<String, Integer> topStats) {
-        send(request.getCommandSender(), FORMAT_TOP_STAT, null, null, request, 0, 0, topStats);
+    public void send(StatRequest request, LinkedHashMap<String, Integer> topStats, boolean saveResult) {
+        if (!saveResult) {
+            send(request.getCommandSender(), FORMATTED_TOP_STAT, null, null, request, 0, 0, topStats);
+        } else {  //we are never adding a share-button to console-sender-messages, so I can use msg
+
+        }
     }
 
     private void send(@NotNull CommandSender sender, @NotNull PluginMessage message, Boolean longWait, Statistic.Type statType,
@@ -117,9 +134,13 @@ public class MessageSender {
         pluginMessages.put(UNKNOWN_ERROR, new FunctionType<>(MessageWriter::unknownError));
         pluginMessages.put(USAGE_EXAMPLES, new FunctionType<>(MessageWriter::usageExamples));
         pluginMessages.put(HELP_MSG, new FunctionType<>(MessageWriter::helpMsg));
-        pluginMessages.put(FORMAT_PLAYER_STAT, new BiFunctionType.StatRequestInt<>((StatRequest s, Integer i) -> messageWriter(s.isConsoleSender()).formatPlayerStat(i, s)));
-        pluginMessages.put(FORMAT_SERVER_STAT, new BiFunctionType.StatRequestLong<>((StatRequest s, Long l) -> messageWriter(s.isConsoleSender()).formatServerStat(l, s)));
-        pluginMessages.put(FORMAT_TOP_STAT, new BiFunctionType.StatRequestMap<>((StatRequest s, LinkedHashMap<String, Integer> l) -> messageWriter(s.isConsoleSender()).formatTopStats(l, s)));
+        pluginMessages.put(FORMATTED_PLAYER_STAT, new BiFunctionType.StatRequestInt<>((StatRequest s, Integer i) -> messageWriter(s.isConsoleSender()).formattedPlayerStat(i, s)));
+        pluginMessages.put(FORMATTED_SERVER_STAT, new BiFunctionType.StatRequestLong<>((StatRequest s, Long l) -> messageWriter(s.isConsoleSender()).formattedServerStat(l, s)));
+        pluginMessages.put(FORMATTED_TOP_STAT, new BiFunctionType.StatRequestMap<>((StatRequest s, LinkedHashMap<String, Integer> l) -> messageWriter(s.isConsoleSender()).formattedTopStats(l, s)));
+    }
+
+    private BiFunction<TextComponent, UUID, TextComponent> addShareButton; {
+
     }
 
     private MessageWriter messageWriter(boolean isConsoleSender) {
