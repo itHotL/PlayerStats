@@ -95,11 +95,11 @@ public final class ShareManager {
      puts the current time in the shareTimeStamp (ConcurrentHashMap),
      puts the shareCode (UUID) in the sharedResults (ArrayBlockingQueue),
      and returns the statResult. If no statResult was found, returns null.*/
-    public @Nullable TextComponent getStatResult(String playerName, UUID identifier) {
-        if (statResultQueue.containsKey(identifier)) {
+    public @Nullable TextComponent getStatResult(String playerName, UUID shareCode) {
+        if (statResultQueue.containsKey(shareCode)) {
             shareTimeStamp.put(playerName, Instant.now());
 
-            if (!sharedResults.offer(identifier)) {  //create a new ArrayBlockingQueue if our queue is full
+            if (!sharedResults.offer(shareCode)) {  //create a new ArrayBlockingQueue if our queue is full
                 MyLogger.logMsg("500 stat-results have been shared, " +
                         "creating a new internal queue with the most recent 50 share-code-values and discarding the rest...", DebugLevel.MEDIUM);
                 ArrayBlockingQueue<UUID> newQueue = new ArrayBlockingQueue<>(500);
@@ -112,9 +112,14 @@ public final class ShareManager {
 
                     sharedResults = newQueue;
                 }
-                sharedResults.offer(identifier);
+                sharedResults.offer(shareCode);
             }
-            return statResultQueue.remove(identifier).statResult();
+            StatResult result = statResultQueue.remove(shareCode);
+            MyLogger.logMsg("StatResult record exists: " + (result != null));
+            MyLogger.logMsg("Its TextComponent: " + result.statResult());
+            MyLogger.logMsg("Its ID: " + result.ID());
+            MyLogger.logMsg("Its uuid: " + result.uuid());
+            return result.statResult();
         } else {
             return null;
         }

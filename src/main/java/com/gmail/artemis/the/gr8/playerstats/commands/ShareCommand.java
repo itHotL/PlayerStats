@@ -47,8 +47,7 @@ public class ShareCommand implements CommandExecutor {
                 if (result == null) {  //at this point the only possible cause of statResult being null is the request being older than 25 player-requests ago
                     outputManager.sendFeedbackMsg(sender, StandardMessage.STAT_RESULTS_TOO_OLD);
                 } else {
-                    //TODO add shared-by signature
-                    adventure.all().sendMessage(result);
+                    outputManager.shareStatResults(sender, result);
                 }
             }
         }

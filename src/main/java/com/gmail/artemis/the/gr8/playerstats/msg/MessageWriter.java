@@ -189,15 +189,20 @@ public class MessageWriter {
         };
     }
     public Function<UUID, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
-        TextComponent.Builder title = getTopStatsTitle(request, topStats.size());
+        TextComponent title = getTopStatsTitle(request, topStats.size());
         TextComponent list = getTopStatList(topStats, request);
 
         return shareCode -> {
+            MyLogger.logMsg("Function triggered with shareCode " + shareCode);
+            TextComponent.Builder topBuilder = Component.text().append(title);
             if (shareCode != null) {
-                title.append(space())
+                topBuilder
+                        .append(space())
                         .append(componentFactory.shareButtonComponent(shareCode));
             }
-            return title.append(list).build();
+            topBuilder.append(list);
+            MyLogger.logMsg(topBuilder.build() + "");
+            return topBuilder.build();
         };
     }
 
@@ -205,14 +210,15 @@ public class MessageWriter {
         return componentFactory.sharedButtonComponent(playerName);
     }
 
-    private TextComponent.Builder getTopStatsTitle(StatRequest request, int statListSize) {
+    private TextComponent getTopStatsTitle(StatRequest request, int statListSize) {
         return Component.text()
                 .append(newline())
                 .append(componentFactory.pluginPrefixComponent()).append(space())
                 .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
                 .append(componentFactory.titleNumberComponent(statListSize)).append(space())
                 .append(getStatNameComponent(request))  //space is provided by statUnitComponent
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()));
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))
+                .build();
     }
 
     private TextComponent getTopStatList(LinkedHashMap<String, Integer> topStats, StatRequest request) {

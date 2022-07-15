@@ -5,11 +5,14 @@ import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
@@ -73,12 +76,13 @@ public class OutputManager {
         adventure.sender(sender).sendMessage(getWriter(sender).helpMsg());
     }
 
-    public void shareStatResults(CommandSender sender, UUID shareCode) {
-        TextComponent statResult = shareManager.getStatResult(sender.getName(), shareCode);
-        if (statResult != null) {
-            adventure.filter(commandSender -> !(commandSender == sender)).sendMessage(statResult);
-            adventure.sender(sender).sendMessage(msg.sharedButton(sender.getName()));
-        }
+    public void shareStatResults(CommandSender sender, @NotNull TextComponent statResult) {
+        MyLogger.logMsg("statResult: " + statResult);
+        adventure.all()
+                .filterAudience(player -> !player.get(Identity.NAME)
+                        .orElse("").equalsIgnoreCase(sender.getName())).sendMessage(statResult);
+        MyLogger.logMsg("SharedButton: " + msg.sharedButton(sender.getName()));
+        adventure.sender(sender).sendMessage(msg.sharedButton(sender.getName()));
     }
 
     public void sendPlayerStat(StatRequest request, int playerStat) {
