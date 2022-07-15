@@ -193,7 +193,6 @@ public class MessageWriter {
         TextComponent list = getTopStatList(topStats, request);
 
         return shareCode -> {
-            MyLogger.logMsg("Function triggered with shareCode " + shareCode);
             TextComponent.Builder topBuilder = Component.text().append(title);
             if (shareCode != null) {
                 topBuilder
@@ -201,12 +200,15 @@ public class MessageWriter {
                         .append(componentFactory.shareButtonComponent(shareCode));
             }
             topBuilder.append(list);
-            MyLogger.logMsg(topBuilder.build() + "");
             return topBuilder.build();
         };
     }
 
-    public TextComponent sharedButton(String playerName) {
+    public TextComponent sharedButton() {
+        return componentFactory.sharedButtonComponent(null);
+    }
+
+    public TextComponent sharedSignature(String playerName) {
         return componentFactory.sharedButtonComponent(playerName);
     }
 

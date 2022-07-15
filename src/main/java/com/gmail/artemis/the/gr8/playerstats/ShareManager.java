@@ -115,12 +115,9 @@ public final class ShareManager {
                 sharedResults.offer(shareCode);
             }
             StatResult result = statResultQueue.remove(shareCode);
-            MyLogger.logMsg("StatResult record exists: " + (result != null));
-            MyLogger.logMsg("Its TextComponent: " + result.statResult());
-            MyLogger.logMsg("Its ID: " + result.ID());
-            MyLogger.logMsg("Its uuid: " + result.uuid());
             return result.statResult();
-        } else {
+        }
+        else {
             return null;
         }
     }

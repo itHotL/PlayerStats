@@ -5,7 +5,6 @@ import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
-import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
@@ -77,12 +76,11 @@ public class OutputManager {
     }
 
     public void shareStatResults(CommandSender sender, @NotNull TextComponent statResult) {
-        MyLogger.logMsg("statResult: " + statResult);
         adventure.all()
                 .filterAudience(player -> !player.get(Identity.NAME)
                         .orElse("").equalsIgnoreCase(sender.getName())).sendMessage(statResult);
-        MyLogger.logMsg("SharedButton: " + msg.sharedButton(sender.getName()));
-        adventure.sender(sender).sendMessage(msg.sharedButton(sender.getName()));
+        //TODO add sharedSignature
+        adventure.sender(sender).sendMessage(msg.sharedButton());
     }
 
     public void sendPlayerStat(StatRequest request, int playerStat) {

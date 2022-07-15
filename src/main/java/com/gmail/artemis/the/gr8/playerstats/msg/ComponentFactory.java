@@ -306,9 +306,18 @@ public class ComponentFactory {
     }
 
     public TextComponent sharedButtonComponent(String playerName) {
-        return surroundingBracketComponent(
-                text("Shared!")
-                        .color(CLICKED_MSG));
+        if (playerName == null) {
+            return surroundingBracketComponent(
+                    text("Shared!")
+                            .color(CLICKED_MSG));
+        } else {
+            return surroundingBracketComponent(
+                    text("Shared by ")
+                            .color(CLICKED_MSG)
+                            .append(text(playerName)
+                                    .color(MSG_ACCENT))
+                            .append(text("!")));
+        }
     }
 
     private TextComponent surroundingBracketComponent(TextComponent component) {
