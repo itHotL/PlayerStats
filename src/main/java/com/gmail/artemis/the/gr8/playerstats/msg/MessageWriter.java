@@ -198,11 +198,15 @@ public class MessageWriter {
         TextComponent list = getTopStatList(topStats, request);
 
         return shareCode -> {
-            TextComponent.Builder topBuilder = Component.text().append(title);
-            if (shareCode != null) {
+            TextComponent.Builder topBuilder = Component.text();
+            if (shareCode != null) { //if we're adding a share-button
+                TextComponent newLineTitle = newline().append(title);
                 topBuilder
+                        .append(newLineTitle)
                         .append(space())
                         .append(componentFactory.shareButtonComponent(shareCode));
+            } else {
+                topBuilder.append(title);
             }
             topBuilder.append(list);
             return topBuilder.build();
@@ -211,18 +215,26 @@ public class MessageWriter {
 
     //TODO add fancy hover-text with sharedResults
     public TextComponent messageShared(TextComponent statResults) {
-        return componentFactory.sharedMessageComponent(null);
-                //.hoverEvent(HoverEvent.showText(statResults));
+        return componentFactory.messageSharedComponent()
+                .hoverEvent(HoverEvent.showText(statResults));
     }
 
     public TextComponent addSharedSignature(TextComponent statResults, String playerName) {
         return statResults.append(newline())
-                        .append(componentFactory.sharedMessageComponent(playerName));
+                .append(componentFactory.messageSharedComponent(playerName));
+    }
+
+    public TextComponent addSharedSignature(TextComponent statResults, Component playerName) {
+        return statResults.append(newline())
+                .append(componentFactory.messageSharedComponent(playerName));
+    }
+
+    public TextComponent startWithNewLine(TextComponent component) {
+        return newline().append(component);
     }
 
     private TextComponent getTopStatsTitle(StatRequest request, int statListSize) {
         return Component.text()
-                .append(newline())
                 .append(componentFactory.pluginPrefixComponent()).append(space())
                 .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
                 .append(componentFactory.titleNumberComponent(statListSize)).append(space())

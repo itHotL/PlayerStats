@@ -305,19 +305,25 @@ public class ComponentFactory {
                                 .color(HOVER_ACCENT))));
     }
 
-    public TextComponent sharedMessageComponent(String playerName) {
-        if (playerName == null) {
-            return surroundingBracketComponent(
-                    text("Shared!")
-                            .color(CLICKED_MSG));
-        } else {
-            return surroundingBracketComponent(
-                    text("Shared by ")
-                            .color(CLICKED_MSG)
-                            .append(text(playerName)
-                                    .color(MSG_ACCENT))
-                            .append(text("!")));
-        }
+    public TextComponent messageSharedComponent() {
+        return surroundingBracketComponent(
+                text("Shared!")
+                        .color(CLICKED_MSG));
+    }
+
+    public TextComponent messageSharedComponent(String playerName) {
+        return messageSharedComponent(
+                text(playerName)
+                        .color(MSG_ACCENT));
+    }
+
+    public TextComponent messageSharedComponent(Component playerName) {
+        return surroundingBracketComponent(
+                text("Shared by")
+                        .color(CLICKED_MSG)
+                        .append(space())
+                        .append(playerName)
+                        .append(text("!")));
     }
 
     private TextComponent surroundingBracketComponent(TextComponent component) {

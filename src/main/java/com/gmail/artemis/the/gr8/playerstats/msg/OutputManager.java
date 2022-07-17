@@ -5,12 +5,15 @@ import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.EasterEggProvider;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
@@ -76,11 +79,23 @@ public class OutputManager {
     }
 
     public void shareStatResults(CommandSender sender, @NotNull TextComponent statResult) {
-        adventure.players()
-                .filterAudience(player -> !player.get(Identity.NAME)
-                        .orElse("").equalsIgnoreCase(sender.getName())).sendMessage(
-                                msg.addSharedSignature(statResult, sender.getName()));
-        adventure.sender(sender).sendMessage(msg.messageShared(statResult));
+        if (sender instanceof Player player) {
+            TextComponent totalResult;
+
+            Component playerName = EasterEggProvider.getPlayerName(player);
+            if (playerName == null) {
+                totalResult = msg.addSharedSignature(statResult, sender.getName());
+            } else {
+                totalResult = msg.addSharedSignature(statResult, playerName);
+            }
+            totalResult = msg.startWithNewLine(totalResult);
+
+            adventure.players()
+                    .filterAudience(onlinePlayer -> !onlinePlayer.get(Identity.NAME)
+                            .orElse("").equalsIgnoreCase(sender.getName())).sendMessage(totalResult);
+
+            adventure.sender(sender).sendMessage(msg.messageShared(statResult));
+        }
     }
 
     public void sendPlayerStat(StatRequest request, int playerStat) {
