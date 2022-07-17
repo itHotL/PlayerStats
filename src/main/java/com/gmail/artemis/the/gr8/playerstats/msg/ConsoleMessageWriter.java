@@ -6,6 +6,9 @@ import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.HelpMessage;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 
+import java.time.LocalDate;
+import java.time.Month;
+
 
 public class ConsoleMessageWriter extends MessageWriter {
 
@@ -24,8 +27,8 @@ public class ConsoleMessageWriter extends MessageWriter {
         if (isBukkit) {
             componentFactory = new BukkitConsoleComponentFactory(config);
         }
-        else if (config.enableFestiveFormatting() || config.enableRainbowMode()) {
-            //TODO Check for date
+        else if (config.enableRainbowMode() ||
+                (config.enableFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) {
             componentFactory = new PrideComponentFactory(config);
         }
         else {

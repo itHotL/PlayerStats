@@ -11,10 +11,12 @@ import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.*;
 import java.util.function.Function;
 
@@ -39,9 +41,10 @@ public class MessageWriter {
     }
 
     protected void getComponentFactory() {
-        if (config.enableFestiveFormatting() || config.enableRainbowMode()) {
-            //TODO check for date
-            componentFactory = new PrideComponentFactory(config);
+       if (config.enableRainbowMode() ||
+                (config.enableFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) {
+
+           componentFactory = new PrideComponentFactory(config);
         }
         else {
             componentFactory = new ComponentFactory(config);
@@ -108,13 +111,15 @@ public class MessageWriter {
 
     //TODO Make this say amount of time left
     public TextComponent stillOnShareCoolDown() {
+        int waitTime = config.getStatShareWaitingTime();
+        String minutes = waitTime == 1 ? " minute" : " minutes";
+
         return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content("You need to wait")
                         .append(space())
                         .append(componentFactory.messageAccentComponent()
-                                .content(config.getStatShareWaitingTime() + " minute(s)")
-                                .decorate(TextDecoration.ITALIC))
+                                .content(waitTime + minutes))
                         .append(space())
                         .append(text("between sharing!")));
     }
@@ -204,12 +209,15 @@ public class MessageWriter {
         };
     }
 
-    public TextComponent sharedButton() {
-        return componentFactory.sharedButtonComponent(null);
+    //TODO add fancy hover-text with sharedResults
+    public TextComponent messageShared(TextComponent statResults) {
+        return componentFactory.sharedMessageComponent(null);
+                //.hoverEvent(HoverEvent.showText(statResults));
     }
 
-    public TextComponent sharedSignature(String playerName) {
-        return componentFactory.sharedButtonComponent(playerName);
+    public TextComponent addSharedSignature(TextComponent statResults, String playerName) {
+        return statResults.append(newline())
+                        .append(componentFactory.sharedMessageComponent(playerName));
     }
 
     private TextComponent getTopStatsTitle(StatRequest request, int statListSize) {

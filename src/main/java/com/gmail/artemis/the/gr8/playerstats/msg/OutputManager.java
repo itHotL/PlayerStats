@@ -76,11 +76,11 @@ public class OutputManager {
     }
 
     public void shareStatResults(CommandSender sender, @NotNull TextComponent statResult) {
-        adventure.all()
+        adventure.players()
                 .filterAudience(player -> !player.get(Identity.NAME)
-                        .orElse("").equalsIgnoreCase(sender.getName())).sendMessage(statResult);
-        //TODO add sharedSignature
-        adventure.sender(sender).sendMessage(msg.sharedButton());
+                        .orElse("").equalsIgnoreCase(sender.getName())).sendMessage(
+                                msg.addSharedSignature(statResult, sender.getName()));
+        adventure.sender(sender).sendMessage(msg.messageShared(statResult));
     }
 
     public void sendPlayerStat(StatRequest request, int playerStat) {
@@ -108,9 +108,7 @@ public class OutputManager {
     }
 
     private void processAndSend(CommandSender sender, Function<UUID, TextComponent> buildFunction) {
-        if (shareManager.isEnabled() &&
-                !(sender instanceof ConsoleCommandSender) &&
-                sender.hasPermission("playerstats.share")) {
+        if (shareManager.isEnabled() && shareManager.senderHasPermission(sender)) {
 
             UUID shareCode = shareManager.saveStatResult(sender.getName(), buildFunction.apply(null));
             adventure.sender(sender).sendMessage(buildFunction.apply(shareCode));

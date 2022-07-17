@@ -19,7 +19,6 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
 
     private final List<String> commandOptions;
 
-    //TODO add "example" to the list
     public TabCompleter(OfflinePlayerHandler o) {
         offlinePlayerHandler = o;
         tabCompleteHelper = new TabCompleteHelper();

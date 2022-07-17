@@ -1,11 +1,9 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
-import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,12 +14,10 @@ import java.util.UUID;
 
 public class ShareCommand implements CommandExecutor {
 
-    private static BukkitAudiences adventure;
     private static ShareManager shareManager;
     private static OutputManager outputManager;
 
     public ShareCommand(ShareManager s, OutputManager m) {
-        adventure = Main.adventure();
         shareManager = s;
         outputManager = m;
     }

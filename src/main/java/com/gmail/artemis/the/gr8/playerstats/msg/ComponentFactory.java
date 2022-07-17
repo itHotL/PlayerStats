@@ -305,7 +305,7 @@ public class ComponentFactory {
                                 .color(HOVER_ACCENT))));
     }
 
-    public TextComponent sharedButtonComponent(String playerName) {
+    public TextComponent sharedMessageComponent(String playerName) {
         if (playerName == null) {
             return surroundingBracketComponent(
                     text("Shared!")

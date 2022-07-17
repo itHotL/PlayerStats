@@ -5,6 +5,8 @@ import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.models.StatResult;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.TextComponent;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 
 import javax.annotation.Nullable;
 import java.time.Instant;
@@ -15,7 +17,6 @@ import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
@@ -80,6 +81,10 @@ public final class ShareManager {
         return isEnabled;
     }
 
+    public boolean senderHasPermission(CommandSender sender) {
+        return !(sender instanceof ConsoleCommandSender) && sender.hasPermission("playerstats.share");
+    }
+
     public UUID saveStatResult(String playerName, TextComponent statResult) {
         removeExcessResults(playerName);
 
@@ -89,6 +94,19 @@ public final class ShareManager {
         statResultQueue.put(shareCode, new StatResult(playerName, statResult, ID, shareCode));
         MyLogger.logMsg("Saving statResults with no. " + ID, DebugLevel.MEDIUM);
         return shareCode;
+    }
+
+    public boolean isOnCoolDown(String playerName) {
+        if (waitingTime == 0 || !shareTimeStamp.containsKey(playerName)) {
+            return false;
+        } else {
+            long seconds = SECONDS.between(shareTimeStamp.get(playerName), Instant.now());
+            return seconds <= (long) waitingTime * 60;
+        }
+    }
+
+    public boolean requestAlreadyShared(UUID shareCode) {
+        return sharedResults.contains(shareCode);
     }
 
     /** Takes a statResult from the internal ConcurrentHashmap,
@@ -120,19 +138,6 @@ public final class ShareManager {
         else {
             return null;
         }
-    }
-
-    public boolean isOnCoolDown(String playerName) {
-        if (waitingTime == 0 || !shareTimeStamp.containsKey(playerName)) {
-            return false;
-        } else {
-            long seconds = SECONDS.between(shareTimeStamp.get(playerName), Instant.now());
-            return seconds <= (long) waitingTime * 60;
-        }
-    }
-
-    public boolean requestAlreadyShared(UUID shareCode) {
-        return sharedResults.contains(shareCode);
     }
 
     /** If the given player already has more than x (in this case 25) StatResults saved,
