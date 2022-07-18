@@ -51,6 +51,9 @@ enable-festive-formatting: true
 # Always use rainbow for the [PlayerStats] prefix instead of the default gold/purple
 rainbow-mode: false
 
+# Start each stat-result with a line-break before it
+use-enters: true
+
 # Align the stat-numbers in the top list with dots
 use-dots: true
 

@@ -123,6 +123,54 @@ public class ConfigHandler {
         return config.getBoolean("enable-hover-text", true);
     }
 
+    /** Whether to use festive formatting, such as pride colors.
+     <p>Default: true</p> */
+    public boolean enableFestiveFormatting() {
+        return config.getBoolean("enable-festive-formatting", true);
+    }
+
+    /** Whether to use rainbow colors for the [PlayerStats] prefix rather than the default gold/purple.
+     <p>Default: false</p> */
+    public boolean enableRainbowMode() {
+        return config.getBoolean("rainbow-mode", false);
+    }
+
+    /** Whether to start each stat-result with a line-break before it.
+     <p>Default: true</p>*/
+    public boolean useEnters() {
+        return config.getBoolean("use-enters", true);
+    }
+
+    /** Returns the config setting for use-dots.
+     <p>Default: true</p>*/
+    public boolean useDots() {
+        return config.getBoolean("use-dots", true);
+    }
+
+    /** Returns the config setting for top-list-max-size.
+     <p>Default: 10</p> */
+    public int getTopListMaxSize() {
+        return config.getInt("top-list-max-size", 10);
+    }
+
+    /** Returns a String that represents the title for a top statistic.
+     <p>Default: "Top"</p>*/
+    public String getTopStatsTitle() {
+        return config.getString("top-list-title", "Top");
+    }
+
+    /** Returns a String that represents the title for a server stat.
+     <p>Default: "Total on"</p> */
+    public String getServerTitle() {
+        return config.getString("total-server-stat-title", "Total on");
+    }
+
+    /** Returns the specified server name for a server stat title.
+     <p>Default: "this server"</p>*/
+    public String getServerName() {
+        return config.getString("your-server-name", "this server");
+    }
+
     /** Returns the unit that should be used for distance-related statistics.
      <p>Default: Blocks for plain text, km for hover-text</p>*/
     public String getDistanceUnit(boolean isHoverText) {
@@ -172,48 +220,6 @@ public class ConfigHandler {
             return getUnitString(isHoverText, "hours", "seconds", "smallest-time-unit");
         }
         return getUnitString(isHoverText, "days", "hours", "biggest-time-unit");
-    }
-
-    /** Whether to use festive formatting, such as pride colors.
-     <p>Default: true</p> */
-    public boolean enableFestiveFormatting() {
-        return config.getBoolean("enable-festive-formatting", true);
-    }
-
-    /** Whether to use rainbow colors for the [PlayerStats] prefix rather than the default gold/purple.
-     <p>Default: false</p> */
-    public boolean enableRainbowMode() {
-        return config.getBoolean("rainbow-mode", false);
-    }
-
-    /** Returns the config setting for use-dots.
-     <p>Default: true</p>*/
-    public boolean useDots() {
-        return config.getBoolean("use-dots", true);
-    }
-
-    /** Returns the config setting for top-list-max-size.
-     <p>Default: 10</p> */
-    public int getTopListMaxSize() {
-        return config.getInt("top-list-max-size", 10);
-    }
-
-    /** Returns a String that represents the title for a top statistic.
-     <p>Default: "Top"</p>*/
-    public String getTopStatsTitle() {
-        return config.getString("top-list-title", "Top");
-    }
-
-    /** Returns a String that represents the title for a server stat.
-     <p>Default: "Total on"</p> */
-    public String getServerTitle() {
-        return config.getString("total-server-stat-title", "Total on");
-    }
-
-    /** Returns the specified server name for a server stat title.
-     <p>Default: "this server"</p>*/
-    public String getServerName() {
-        return config.getString("your-server-name", "this server");
     }
 
     /** Returns an integer between 0 and 100 that represents how much lighter a hoverColor should be.

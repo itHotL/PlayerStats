@@ -65,6 +65,7 @@ public class ComponentFactory {
         HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
     }
 
+    //TODO try the share-purple for sharer-names
     public TextColor getSharerNameColor() {
         return PluginColor.NAME_5.getColor();
     }

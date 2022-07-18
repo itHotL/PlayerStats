@@ -190,6 +190,7 @@ public class MessageWriter {
         TextComponent shortTitle = getTopStatsTitleShort(request, topStats.size());
         TextComponent list = getTopStatList(topStats, request);
 
+        //TODO make use-enters configurable
         return (shareCode, sender) -> {
             TextComponent.Builder topBuilder = text().append(newline());
 
@@ -225,6 +226,7 @@ public class MessageWriter {
         return (shareCode, sender) -> {
             TextComponent.Builder statBuilder = text().append(newline());
 
+            //TODO make use-enters configurable
             //if we're adding a share-button
             if (shareCode != null) {
                 statBuilder.append(statResult)
