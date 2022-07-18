@@ -53,6 +53,21 @@ public class EasterEggProvider {
                     playerName = "<gradient:blue:#03befc:blue>nice admin</gradient>";
                 }
             }
+            case "29c0911d-695a-4c31-817f-3a065a7144b7" -> {
+                if (sillyNumberIsBetween(sillyNumber, 0, 20)) {
+                    playerName = "<gradient:gold:#00ff7b:#03b6fc>Tzzzzzzzzz</gradient>";
+                }
+            }
+            case "0410f9c7-f042-479c-ac80-49d46be655e9" -> {
+                if (sillyNumberIsBetween(sillyNumber, 0, 20)) {
+                    playerName = "<gradient:gold:#ff245e:#a511f0:#7c0aff>SamanthaCation</gradient>";
+                }
+            }
+            case "0bd803b6-f6c2-41bd-9872-74d8754a29fd" -> {
+                if (sillyNumberIsBetween(sillyNumber, 0, 30)) {
+                    playerName = "<gradient:#14f7a0:#4287f5>Bradwurst</gradient>";
+                }
+            }
         }
         if (playerName == null) {
             return null;
