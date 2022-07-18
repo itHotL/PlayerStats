@@ -65,8 +65,8 @@ public class ComponentFactory {
         HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
     }
 
-    public TextColor getRandomNameColor() {
-        return PluginColor.getRandomNameColor();
+    public TextColor getSharerNameColor() {
+        return PluginColor.NAME_5.getColor();
     }
 
     public TextColor prefix() {
@@ -309,16 +309,13 @@ public class ComponentFactory {
                                 .color(HOVER_ACCENT))));
     }
 
-    public TextComponent messageSharedComponent() {
+    public TextComponent hoveringStatResultComponent(TextComponent statResult) {
         return surroundingBracketComponent(
-                text("Shared!")
-                        .color(CLICKED_MSG));
-    }
-
-    public TextComponent messageSharedComponent(String playerName) {
-        return messageSharedComponent(
-                text(playerName)
-                        .color(getRandomNameColor()));
+                text().append(text("Hover Here")
+                        .color(CLICKED_MSG)
+                        .decorate(TextDecoration.ITALIC)
+                        .hoverEvent(HoverEvent.showText(statResult)))
+                        .build());
     }
 
     public TextComponent messageSharedComponent(Component playerName) {
@@ -328,8 +325,12 @@ public class ComponentFactory {
                                 .decorate(TextDecoration.ITALIC))
                         .append(space())
                         .append(playerName)
-                        .append(text("!"))
                         .build());
+    }
+
+    public TextComponent sharerNameComponent(String sharerName) {
+        return text(sharerName)
+                .color(getSharerNameColor());
     }
 
     private TextComponent surroundingBracketComponent(TextComponent component) {

@@ -31,9 +31,8 @@ public enum PluginColor {
     NAME_3 (TextColor.fromHexString("#55AAFF")), //same as medium_blue
     NAME_4 (TextColor.fromHexString("#D65DB1")), //magenta-purple
     NAME_5 (TextColor.fromHexString("#EE8A19")), //dark orange
-    NAME_6 (NamedTextColor.GOLD), //same as gold
-    NAME_7 (TextColor.fromHexString("#01C1A7")), //aqua-cyan-green-ish
-    NAME_8 (TextColor.fromHexString("46D858"));  //light green
+    NAME_6 (TextColor.fromHexString("#01C1A7")), //aqua-cyan-green-ish
+    NAME_7 (TextColor.fromHexString("#46D858"));  //light green
 
 
     private final TextColor color;
@@ -56,14 +55,13 @@ public enum PluginColor {
 
     public static TextColor getRandomNameColor(boolean isConsole) {
         Random randomizer = new Random();
-        PluginColor color = switch (randomizer.nextInt(8)) {
+        PluginColor color = switch (randomizer.nextInt(7)) {
             case 0 -> NAME_1;
             case 2 -> NAME_3;
             case 3 -> NAME_4;
             case 4 -> NAME_5;
             case 5 -> NAME_6;
             case 6 -> NAME_7;
-            case 7 -> NAME_8;
             default -> NAME_2;
         };
         return getCorrespondingColor(color, isConsole);

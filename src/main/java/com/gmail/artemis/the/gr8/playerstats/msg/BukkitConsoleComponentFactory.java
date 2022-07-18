@@ -28,7 +28,7 @@ public class BukkitConsoleComponentFactory extends ComponentFactory {
     }
 
     @Override
-    public TextColor getRandomNameColor() {
-        return PluginColor.getRandomNameColor(true);
+    public TextColor getSharerNameColor() {
+        return PluginColor.NAME_5.getConsoleColor();
     }
 }

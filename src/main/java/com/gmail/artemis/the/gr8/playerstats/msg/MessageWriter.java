@@ -11,14 +11,15 @@ import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.event.HoverEvent;
 import org.bukkit.Statistic;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import static net.kyori.adventure.text.Component.*;
 
@@ -155,29 +156,22 @@ public class MessageWriter {
                 config.getTopListMaxSize());
     }
 
-    public Function<UUID, TextComponent> formattedPlayerStatFunction(int stat, @NotNull StatRequest request) {
-        TextComponent.Builder playerStat = Component.text()
+    public BiFunction<UUID, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull StatRequest request) {
+        TextComponent playerStat = Component.text()
                 .append(componentFactory.playerNameBuilder(request.getPlayerName(), Target.PLAYER)
                         .append(text(":"))
                         .append(space()))
                 .append(getStatNumberComponent(request.getStatistic(), stat, Target.PLAYER, request.isConsoleSender()))
                 .append(space())
                 .append(getStatNameComponent(request))
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()));  //space is provided by statUnitComponent
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnitComponent
+                .build();
 
-        return shareCode -> {
-            TextComponent.Builder playerBuilder = text().append(playerStat);
-            //if we're adding a share-button
-            if (shareCode != null) {
-                playerBuilder.append(space())
-                        .append(componentFactory.shareButtonComponent(shareCode));
-            }
-            return playerBuilder.build();
-        };
+        return getFormattingFunction(playerStat);
     }
 
-    public Function<UUID,TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequest request) {
-        TextComponent.Builder serverStat = text()
+    public BiFunction<UUID, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequest request) {
+        TextComponent serverStat = text()
                 .append(componentFactory.titleComponent(config.getServerTitle(), Target.SERVER))
                 .append(space())
                 .append(componentFactory.serverNameComponent(config.getServerName()))
@@ -185,57 +179,77 @@ public class MessageWriter {
                 .append(getStatNumberComponent(request.getStatistic(), stat, Target.SERVER, request.isConsoleSender()))
                 .append(space())
                 .append(getStatNameComponent(request))
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()));  //space is provided by statUnit
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnit
+                .build();
 
-        return shareCode -> {
-            TextComponent.Builder serverBuilder = text().append(serverStat);
-            //if we're adding a share-button
-            if (shareCode != null) {
-                serverBuilder.append(space())
-                        .append(componentFactory.shareButtonComponent(shareCode));
-            }
-            return serverBuilder.build();
-        };
+        return getFormattingFunction(serverStat);
     }
-    public Function<UUID, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
+
+    public BiFunction<UUID, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
         TextComponent title = getTopStatsTitle(request, topStats.size());
+        TextComponent shortTitle = getTopStatsTitleShort(request, topStats.size());
         TextComponent list = getTopStatList(topStats, request);
 
-        return shareCode -> {
-            TextComponent.Builder topBuilder = text();
+        return (shareCode, sender) -> {
+            TextComponent.Builder topBuilder = text().append(newline());
+
             //if we're adding a share-button
             if (shareCode != null) {
-                TextComponent newLineTitle = newline().append(title);
-                topBuilder
-                        .append(newLineTitle)
-                        .append(space())
-                        .append(componentFactory.shareButtonComponent(shareCode));
-            } else {
-                topBuilder.append(title);
+                topBuilder.append(title)
+                            .append(space())
+                            .append(componentFactory.shareButtonComponent(shareCode))
+                        .append(list);
             }
-            topBuilder.append(list);
+            //if we're not adding a share-button or a "shared by" component
+            else if (sender == null) {
+                topBuilder.append(title)
+                        .append(list);
+            }
+            //if we're adding a "shared by" component
+            else {
+                topBuilder.append(shortTitle)
+                            .append(space())
+                            .append(componentFactory.hoveringStatResultComponent(text()
+                                    .append(title)
+                                    .append(list)
+                                    .build()))
+                        .append(newline())
+                        .append(componentFactory.messageSharedComponent(
+                                getSharerNameComponent(sender)));
+            }
             return topBuilder.build();
         };
     }
 
-    //TODO add fancy hover-text with sharedResults
-    public TextComponent messageShared(TextComponent statResults) {
-        return componentFactory.messageSharedComponent()
-                .hoverEvent(HoverEvent.showText(statResults));
+    private BiFunction<UUID, CommandSender, TextComponent> getFormattingFunction(@NotNull TextComponent statResult) {
+        return (shareCode, sender) -> {
+            TextComponent.Builder statBuilder = text().append(newline());
+
+            //if we're adding a share-button
+            if (shareCode != null) {
+                statBuilder.append(statResult)
+                        .append(space())
+                        .append(componentFactory.shareButtonComponent(shareCode));
+            }
+            //if we're adding a "shared by" component
+            else if (sender != null) {
+                statBuilder.append(statResult)
+                        .append(newline())
+                        .append(componentFactory.messageSharedComponent(
+                                getSharerNameComponent(sender)));
+            }
+            return statBuilder.build();
+        };
     }
 
-    public TextComponent addSharedSignature(TextComponent statResults, String playerName) {
-        return statResults.append(newline())
-                .append(componentFactory.messageSharedComponent(playerName));
-    }
-
-    public TextComponent addSharedSignature(TextComponent statResults, Component playerName) {
-        return statResults.append(newline())
-                .append(componentFactory.messageSharedComponent(playerName));
-    }
-
-    public TextComponent startWithNewLine(TextComponent component) {
-        return newline().append(component);
+    private Component getSharerNameComponent(CommandSender sender) {
+        if (sender instanceof Player player) {
+            Component senderName = EasterEggProvider.getPlayerName(player);
+            if (senderName != null) {
+                return senderName;
+            }
+        }
+        return componentFactory.sharerNameComponent(sender.getName());
     }
 
     private TextComponent getTopStatsTitle(StatRequest request, int statListSize) {
@@ -245,6 +259,14 @@ public class MessageWriter {
                 .append(componentFactory.titleNumberComponent(statListSize)).append(space())
                 .append(getStatNameComponent(request))  //space is provided by statUnitComponent
                 .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))
+                .build();
+    }
+
+    private TextComponent getTopStatsTitleShort(StatRequest request, int statListSize) {
+        return Component.text()
+                .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
+                .append(componentFactory.titleNumberComponent(statListSize)).append(space())
+                .append(getStatNameComponent(request))  //space is provided by statUnitComponent
                 .build();
     }
 

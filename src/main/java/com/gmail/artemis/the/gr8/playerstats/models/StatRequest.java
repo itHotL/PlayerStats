@@ -1,7 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.models;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
@@ -35,10 +34,6 @@ public final class StatRequest {
 
     public boolean isConsoleSender() {
         return sender instanceof ConsoleCommandSender;
-    }
-
-    public boolean isBukkitConsoleSender() {
-        return sender instanceof ConsoleCommandSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit");
     }
 
     public void setStatistic(Statistic statistic) {

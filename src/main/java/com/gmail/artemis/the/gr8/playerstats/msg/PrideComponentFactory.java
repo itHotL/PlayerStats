@@ -6,6 +6,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import static net.kyori.adventure.text.Component.*;
@@ -31,6 +32,11 @@ public class PrideComponentFactory extends ComponentFactory {
         CLICKED_MSG = PluginColor.LIGHT_PURPLE.getColor();
         HOVER_MSG = PluginColor.LIGHT_BLUE.getColor();
         HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
+    }
+
+    @Override
+    public TextColor getSharerNameColor() {
+        return PluginColor.getRandomNameColor();
     }
 
     @Override

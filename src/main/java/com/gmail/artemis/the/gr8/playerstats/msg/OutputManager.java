@@ -5,20 +5,17 @@ import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
-import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.EasterEggProvider;
-import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage.*;
@@ -78,59 +75,46 @@ public class OutputManager {
         adventure.sender(sender).sendMessage(getWriter(sender).helpMsg());
     }
 
-    public void shareStatResults(CommandSender sender, @NotNull TextComponent statResult) {
-        if (sender instanceof Player player) {
-            TextComponent totalResult;
+    public void shareStatResults(@NotNull TextComponent statResult) {
+        adventure.players()
+//                .filterAudience(onlinePlayer -> !onlinePlayer.get(Identity.NAME)
+//                        .orElse("").equalsIgnoreCase(sender.getName()))
+                .sendMessage(statResult);
 
-            Component playerName = EasterEggProvider.getPlayerName(player);
-            if (playerName == null) {
-                totalResult = msg.addSharedSignature(statResult, sender.getName());
-            } else {
-                totalResult = msg.addSharedSignature(statResult, playerName);
-            }
-            totalResult = msg.startWithNewLine(totalResult);
-
-            adventure.players()
-//                    .filterAudience(onlinePlayer -> !onlinePlayer.get(Identity.NAME)
-//                            .orElse("").equalsIgnoreCase(sender.getName()))
-                    .sendMessage(totalResult);
-
-            adventure.sender(sender).sendMessage(msg.messageShared(statResult));
-        }
     }
 
-    public void sendPlayerStat(StatRequest request, int playerStat) {
+    public void sendPlayerStat(@NotNull StatRequest request, int playerStat) {
         CommandSender sender = request.getCommandSender();
-        Function<UUID, TextComponent> buildFunction =
+        BiFunction<UUID, CommandSender, TextComponent> buildFunction =
                 getWriter(sender).formattedPlayerStatFunction(playerStat, request);
 
         processAndSend(sender, buildFunction);
     }
 
-    public void sendServerStat(StatRequest request, long serverStat) {
+    public void sendServerStat(@NotNull StatRequest request, long serverStat) {
         CommandSender sender = request.getCommandSender();
-        Function<UUID, TextComponent> buildFunction =
+        BiFunction<UUID, CommandSender, TextComponent> buildFunction =
                 getWriter(sender).formattedServerStatFunction(serverStat, request);
 
         processAndSend(sender, buildFunction);
     }
 
-    public void sendTopStat(StatRequest request, LinkedHashMap<String, Integer> topStats) {
+    public void sendTopStat(@NotNull StatRequest request, LinkedHashMap<String, Integer> topStats) {
         CommandSender sender = request.getCommandSender();
-        Function<UUID, TextComponent> buildFunction =
+        BiFunction<UUID, CommandSender, TextComponent> buildFunction =
                 getWriter(sender).formattedTopStatFunction(topStats, request);
 
         processAndSend(sender, buildFunction);
     }
 
-    private void processAndSend(CommandSender sender, Function<UUID, TextComponent> buildFunction) {
+    private void processAndSend(CommandSender sender, BiFunction<UUID, CommandSender, TextComponent> buildFunction) {
         if (shareManager.isEnabled() && shareManager.senderHasPermission(sender)) {
 
-            UUID shareCode = shareManager.saveStatResult(sender.getName(), buildFunction.apply(null));
-            adventure.sender(sender).sendMessage(buildFunction.apply(shareCode));
+            UUID shareCode = shareManager.saveStatResult(sender.getName(), buildFunction.apply(null, sender));
+            adventure.sender(sender).sendMessage(buildFunction.apply(shareCode, null));
         }
         else {
-            adventure.sender(sender).sendMessage(buildFunction.apply(null));
+            adventure.sender(sender).sendMessage(buildFunction.apply(null, null));
         }
     }
 

@@ -113,7 +113,7 @@ public final class ShareManager {
      puts the current time in the shareTimeStamp (ConcurrentHashMap),
      puts the shareCode (UUID) in the sharedResults (ArrayBlockingQueue),
      and returns the statResult. If no statResult was found, returns null.*/
-    public @Nullable TextComponent getStatResult(String playerName, UUID shareCode) {
+    public @Nullable StatResult getStatResult(String playerName, UUID shareCode) {
         if (statResultQueue.containsKey(shareCode)) {
             shareTimeStamp.put(playerName, Instant.now());
 
@@ -132,8 +132,7 @@ public final class ShareManager {
                 }
                 sharedResults.offer(shareCode);
             }
-            StatResult result = statResultQueue.remove(shareCode);
-            return result.statResult();
+            return statResultQueue.remove(shareCode);
         }
         else {
             return null;

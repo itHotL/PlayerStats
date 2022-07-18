@@ -46,7 +46,7 @@ public class ExampleMessage implements TextComponent {
                                 .append(text("deaths ").color(componentFactory.msgAccent())
                                         .append(text("player ").color(componentFactory.msgAccent2())
                                                 .append(text("Artemis_the_gr8")
-                                                        .color(componentFactory.getRandomNameColor()))))));
+                                                        .color(componentFactory.getSharerNameColor()))))));
     }
 
     @Override
