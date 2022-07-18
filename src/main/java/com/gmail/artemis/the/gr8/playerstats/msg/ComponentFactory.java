@@ -44,6 +44,7 @@ public class ComponentFactory {
     protected static TextColor CLICKED_MSG;  //light_purple
     protected static TextColor HOVER_ACCENT;  //light_gold
 
+
     public ComponentFactory(ConfigHandler c) {
         config = c;
         prepareColors();
@@ -62,6 +63,10 @@ public class ComponentFactory {
         CLICKED_MSG = PluginColor.LIGHT_PURPLE.getColor();
         HOVER_MSG = PluginColor.LIGHT_BLUE.getColor();
         HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
+    }
+
+    public TextColor getRandomNameColor() {
+        return PluginColor.getRandomNameColor();
     }
 
     public TextColor prefix() {
@@ -263,15 +268,14 @@ public class ComponentFactory {
         if (!(unitName == null && unitKey == null)) {
             TextComponent.Builder statUnitBuilder = getComponentBuilder(null,
                     getColorFromString(config.getSubStatNameDecoration(selection, false)),
-                    getStyleFromString(config.getSubStatNameDecoration(selection, true)))
-                    .append(text("["));
+                    getStyleFromString(config.getSubStatNameDecoration(selection, true)));
             if (unitKey != null) {
                 statUnitBuilder.append(translatable()
                         .key(unitKey));
             } else {
                 statUnitBuilder.append(text(unitName));
             }
-            return statUnitBuilder.append(text("]")).build();
+            return surroundingBracketComponent(statUnitBuilder.build());
         }
         else {
             return Component.empty();
@@ -314,25 +318,25 @@ public class ComponentFactory {
     public TextComponent messageSharedComponent(String playerName) {
         return messageSharedComponent(
                 text(playerName)
-                        .color(MSG_ACCENT));
+                        .color(getRandomNameColor()));
     }
 
     public TextComponent messageSharedComponent(Component playerName) {
         return surroundingBracketComponent(
-                text("Shared by")
-                        .color(CLICKED_MSG)
+                text().append(text("Shared by")
+                                .color(BRACKETS)
+                                .decorate(TextDecoration.ITALIC))
                         .append(space())
                         .append(playerName)
-                        .append(text("!")));
+                        .append(text("!"))
+                        .build());
     }
 
     private TextComponent surroundingBracketComponent(TextComponent component) {
-        return Component.text()
-                .color(BRACKETS)
+        return getComponent(null, BRACKETS, null)
                 .append(text("["))
                 .append(component)
-                .append(text("]"))
-                .build();
+                .append(text("]"));
     }
 
     public TextComponent titleComponent(String content, Target selection) {

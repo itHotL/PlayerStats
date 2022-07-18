@@ -4,6 +4,7 @@ import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
+import net.kyori.adventure.text.format.TextColor;
 
 public class BukkitConsoleComponentFactory extends ComponentFactory {
 
@@ -24,5 +25,10 @@ public class BukkitConsoleComponentFactory extends ComponentFactory {
         CLICKED_MSG = PluginColor.LIGHT_PURPLE.getConsoleColor();
         HOVER_MSG = PluginColor.LIGHT_BLUE.getConsoleColor();
         HOVER_ACCENT = PluginColor.LIGHT_GOLD.getConsoleColor();
+    }
+
+    @Override
+    public TextColor getRandomNameColor() {
+        return PluginColor.getRandomNameColor(true);
     }
 }

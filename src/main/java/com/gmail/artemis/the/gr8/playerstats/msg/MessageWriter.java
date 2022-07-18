@@ -166,16 +166,18 @@ public class MessageWriter {
                 .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()));  //space is provided by statUnitComponent
 
         return shareCode -> {
+            TextComponent.Builder playerBuilder = text().append(playerStat);
+            //if we're adding a share-button
             if (shareCode != null) {
-                playerStat.append(space())
+                playerBuilder.append(space())
                         .append(componentFactory.shareButtonComponent(shareCode));
             }
-            return playerStat.build();
+            return playerBuilder.build();
         };
     }
 
     public Function<UUID,TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequest request) {
-        TextComponent.Builder serverStat = Component.text()
+        TextComponent.Builder serverStat = text()
                 .append(componentFactory.titleComponent(config.getServerTitle(), Target.SERVER))
                 .append(space())
                 .append(componentFactory.serverNameComponent(config.getServerName()))
@@ -186,11 +188,13 @@ public class MessageWriter {
                 .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()));  //space is provided by statUnit
 
         return shareCode -> {
+            TextComponent.Builder serverBuilder = text().append(serverStat);
+            //if we're adding a share-button
             if (shareCode != null) {
-                serverStat.append(space())
+                serverBuilder.append(space())
                         .append(componentFactory.shareButtonComponent(shareCode));
             }
-            return serverStat.build();
+            return serverBuilder.build();
         };
     }
     public Function<UUID, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
@@ -198,8 +202,9 @@ public class MessageWriter {
         TextComponent list = getTopStatList(topStats, request);
 
         return shareCode -> {
-            TextComponent.Builder topBuilder = Component.text();
-            if (shareCode != null) { //if we're adding a share-button
+            TextComponent.Builder topBuilder = text();
+            //if we're adding a share-button
+            if (shareCode != null) {
                 TextComponent newLineTitle = newline().append(title);
                 topBuilder
                         .append(newLineTitle)
@@ -270,8 +275,6 @@ public class MessageWriter {
         }
         return topList.build();
     }
-
-
 
     /** Depending on the config settings, return either a TranslatableComponent representing
      the statName (and potential subStatName), or a TextComponent with capitalized English names.*/

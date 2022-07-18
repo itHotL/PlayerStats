@@ -91,8 +91,9 @@ public class OutputManager {
             totalResult = msg.startWithNewLine(totalResult);
 
             adventure.players()
-                    .filterAudience(onlinePlayer -> !onlinePlayer.get(Identity.NAME)
-                            .orElse("").equalsIgnoreCase(sender.getName())).sendMessage(totalResult);
+//                    .filterAudience(onlinePlayer -> !onlinePlayer.get(Identity.NAME)
+//                            .orElse("").equalsIgnoreCase(sender.getName()))
+                    .sendMessage(totalResult);
 
             adventure.sender(sender).sendMessage(msg.messageShared(statResult));
         }
