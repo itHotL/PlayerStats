@@ -230,6 +230,21 @@ public class ConfigHandler {
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
+     * <p>Style: "italic"</p>
+     * <p>Color: "gray"</p>*/
+    public String getSharedByTextDecoration(boolean getStyle) {
+        String def = getStyle ? "italic" : "gray";
+        return getDecorationString(null, getStyle, def, "shared-by");
+    }
+
+    /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
+     * <p>Style: "none"</p>
+     * <p>Color: "#845EC2"</p>*/
+    public String getSharerNameDecoration(boolean getStyle) {
+       return getDecorationString(null, getStyle, "#845EC2", "player-name");
+    }
+
+    /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
      <p>Style: "none"</p>
      <p>Color Top: "green"</p>
      <p>Color Individual/Server: "gold"</p>*/
@@ -360,6 +375,9 @@ public class ConfigHandler {
 
     /** Returns the config section that contains the relevant color or style option. */
     private @Nullable ConfigurationSection getRelevantSection(Target selection) {
+        if (selection == null) {  //rather than rework the whole Target enum, I have added shared-stats as the null-option for now
+            return config.getConfigurationSection("shared-stats");
+        }
         switch (selection) {
             case TOP -> {
                 return config.getConfigurationSection("top-list");

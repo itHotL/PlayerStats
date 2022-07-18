@@ -4,6 +4,7 @@ import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 
 public class BukkitConsoleComponentFactory extends ComponentFactory {
@@ -30,5 +31,11 @@ public class BukkitConsoleComponentFactory extends ComponentFactory {
     @Override
     public TextColor getSharerNameColor() {
         return PluginColor.NAME_5.getConsoleColor();
+    }
+
+    @Override
+    protected TextColor getHexColor(String hexColor) {
+        TextColor hex = TextColor.fromHexString(hexColor);
+        return hex != null ? NamedTextColor.nearestTo(hex) : NamedTextColor.WHITE;
     }
 }

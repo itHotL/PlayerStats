@@ -121,6 +121,15 @@ hover-text-amount-lighter: 40
 #                                                         #     black           white      #             #
 #                                                         # ------------------------------ #             #
 
+
+shared-stats:
+  shared-by: gray
+  shared-by-style: italic
+
+  player-name: "#EE8A19"
+  player-name-style: none
+
+
 top-list:
   title: '#FFD52B'
   title-style: none

@@ -65,11 +65,6 @@ public class ComponentFactory {
         HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
     }
 
-    //TODO try the share-purple for sharer-names
-    public TextColor getSharerNameColor() {
-        return PluginColor.NAME_5.getColor();
-    }
-
     public TextColor prefix() {
         return PREFIX;
     }
@@ -99,6 +94,10 @@ public class ComponentFactory {
     }
     public TextColor hoverAccent() {
         return HOVER_ACCENT;
+    }
+
+    public TextColor getSharerNameColor() {
+        return getColorFromString(config.getSharerNameDecoration(false));
     }
 
 
@@ -321,17 +320,19 @@ public class ComponentFactory {
 
     public TextComponent messageSharedComponent(Component playerName) {
         return surroundingBracketComponent(
-                text().append(text("Shared by")
-                                .color(BRACKETS)
-                                .decorate(TextDecoration.ITALIC))
+                text().append(
+                        getComponent("Shared by",
+                                getColorFromString(config.getSharedByTextDecoration(false)),
+                                getStyleFromString(config.getSharedByTextDecoration(true))))
                         .append(space())
                         .append(playerName)
                         .build());
     }
 
     public TextComponent sharerNameComponent(String sharerName) {
-        return text(sharerName)
-                .color(getSharerNameColor());
+        return getComponent(sharerName,
+                getSharerNameColor(),
+                getStyleFromString(config.getSharerNameDecoration(true)));
     }
 
     private TextComponent surroundingBracketComponent(TextComponent component) {
@@ -394,7 +395,7 @@ public class ComponentFactory {
         if (configString != null) {
             try {
                 if (configString.contains("#")) {
-                    return TextColor.fromHexString(configString);
+                    return getHexColor(configString);
                 }
                 else {
                     return getTextColorByName(configString);
@@ -405,6 +406,10 @@ public class ComponentFactory {
             }
         }
         return null;
+    }
+
+    protected TextColor getHexColor(String hexColor) {
+        return TextColor.fromHexString(hexColor);
     }
 
     private TextColor getTextColorByName(String textColor) {

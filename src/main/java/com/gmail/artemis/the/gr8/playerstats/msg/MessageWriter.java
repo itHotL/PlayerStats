@@ -167,7 +167,7 @@ public class MessageWriter {
                 .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnitComponent
                 .build();
 
-        return getFormattingFunction(playerStat);
+        return getFormattingFunction(playerStat, config.useEnters());
     }
 
     public BiFunction<UUID, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequest request) {
@@ -182,18 +182,20 @@ public class MessageWriter {
                 .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnit
                 .build();
 
-        return getFormattingFunction(serverStat);
+        return getFormattingFunction(serverStat, config.useEnters());
     }
 
     public BiFunction<UUID, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
-        TextComponent title = getTopStatsTitle(request, topStats.size());
-        TextComponent shortTitle = getTopStatsTitleShort(request, topStats.size());
-        TextComponent list = getTopStatList(topStats, request);
+        final TextComponent title = getTopStatsTitle(request, topStats.size());
+        final TextComponent shortTitle = getTopStatsTitleShort(request, topStats.size());
+        final TextComponent list = getTopStatList(topStats, request);
+        final boolean useEnters = config.useEnters();
 
-        //TODO make use-enters configurable
         return (shareCode, sender) -> {
-            TextComponent.Builder topBuilder = text().append(newline());
-
+            TextComponent.Builder topBuilder = text();
+            if (useEnters) {
+                topBuilder.append(newline());
+            }
             //if we're adding a share-button
             if (shareCode != null) {
                 topBuilder.append(title)
@@ -222,11 +224,13 @@ public class MessageWriter {
         };
     }
 
-    private BiFunction<UUID, CommandSender, TextComponent> getFormattingFunction(@NotNull TextComponent statResult) {
+    private BiFunction<UUID, CommandSender, TextComponent> getFormattingFunction(@NotNull TextComponent statResult, boolean useEnters) {
         return (shareCode, sender) -> {
-            TextComponent.Builder statBuilder = text().append(newline());
+            TextComponent.Builder statBuilder = text();
+            if (useEnters) {
+                statBuilder.append(newline());
+            }
 
-            //TODO make use-enters configurable
             //if we're adding a share-button
             if (shareCode != null) {
                 statBuilder.append(statResult)
@@ -282,7 +286,7 @@ public class MessageWriter {
         for (String playerName : playerNames) {
             TextComponent.Builder playerNameBuilder = componentFactory.playerNameBuilder(playerName, Target.TOP);
             topList.append(newline())
-                    .append(componentFactory.rankingNumberComponent(++count + "."))
+                    .append(componentFactory.rankingNumberComponent(" " + ++count + "."))
                     .append(space());
             if (useDots) {
                 topList.append(playerNameBuilder)
