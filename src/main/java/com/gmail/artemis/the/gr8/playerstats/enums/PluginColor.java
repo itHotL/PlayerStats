@@ -19,6 +19,7 @@ public enum PluginColor {
     GRAY (NamedTextColor.GRAY),  //#AAAAAA
     DARK_PURPLE (TextColor.fromHexString("#6E3485")),
     LIGHT_PURPLE (TextColor.fromHexString("#845EC2")),
+    BLUE (NamedTextColor.BLUE),
     MEDIUM_BLUE (TextColor.fromHexString("#55AAFF")),
     LIGHT_BLUE (TextColor.fromHexString("#55C6FF")),
     GOLD (NamedTextColor.GOLD),  //#FFAA00

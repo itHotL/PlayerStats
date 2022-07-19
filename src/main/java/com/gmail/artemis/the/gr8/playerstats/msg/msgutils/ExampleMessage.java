@@ -33,20 +33,20 @@ public class ExampleMessage implements TextComponent {
                 .append(Component.newline())
                 .append(text(arrow).color(componentFactory.msgMain2())
                         .append(text("/statistic ")
-                                .append(text("animals_bred ").color(componentFactory.msgAccent())
-                                        .append(text("top").color(componentFactory.msgAccent2())))))
+                                .append(text("animals_bred ").color(componentFactory.msgAccent2A())
+                                        .append(text("top").color(componentFactory.msgAccent2B())))))
                 .append(Component.newline())
                 .append(text(arrow).color(componentFactory.msgMain2())
                         .append(text("/statistic ")
-                                .append(text("mine_block diorite ").color(componentFactory.msgAccent())
-                                        .append(text("me").color(componentFactory.msgAccent2())))))
+                                .append(text("mine_block diorite ").color(componentFactory.msgAccent2A())
+                                        .append(text("me").color(componentFactory.msgAccent2B())))))
                 .append(Component.newline())
                 .append(text(arrow).color(componentFactory.msgMain2())
                         .append(text("/statistic ")
-                                .append(text("deaths ").color(componentFactory.msgAccent())
-                                        .append(text("player ").color(componentFactory.msgAccent2())
+                                .append(text("deaths ").color(componentFactory.msgAccent2A())
+                                        .append(text("player ").color(componentFactory.msgAccent2B())
                                                 .append(text("Artemis_the_gr8")
-                                                        .color(componentFactory.getSharerNameColor()))))));
+                                                        .color(componentFactory.getExampleNameColor()))))));
     }
 
     @Override

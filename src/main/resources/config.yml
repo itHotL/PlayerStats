@@ -48,7 +48,7 @@ enable-hover-text: true
 # Automatically use themed formatting for the duration of certain holidays or festivals
 enable-festive-formatting: true
 
-# Always use rainbow for the [PlayerStats] prefix instead of the default gold/purple
+# Always use the rainbow theme
 rainbow-mode: false
 
 # Start the below stat-results with an empty line in chat before the result
@@ -132,7 +132,7 @@ shared-stats:
   shared-by-style: italic
 
   player-name: "#EE8A19"
-  player-name-style: none
+  player-name-style: italic
 
 
 top-list:

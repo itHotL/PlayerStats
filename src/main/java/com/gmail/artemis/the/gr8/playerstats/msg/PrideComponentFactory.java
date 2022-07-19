@@ -9,6 +9,8 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 
+import java.util.Random;
+
 import static net.kyori.adventure.text.Component.*;
 
 public class PrideComponentFactory extends ComponentFactory {
@@ -16,8 +18,6 @@ public class PrideComponentFactory extends ComponentFactory {
 
     public PrideComponentFactory(ConfigHandler c) {
         super(c);
-
-        MyLogger.logMsg("PrideComponentFactory created!", DebugLevel.MEDIUM);
     }
 
     @Override
@@ -25,13 +25,19 @@ public class PrideComponentFactory extends ComponentFactory {
         PREFIX = PluginColor.GOLD.getColor();
         BRACKETS = PluginColor.GRAY.getColor();
         UNDERSCORE = PluginColor.DARK_PURPLE.getColor();
-        MSG_MAIN = PluginColor.MEDIUM_GOLD.getColor();
+        MSG_MAIN = PluginColor.GRAY.getColor();  //difference 1
+        MSG_ACCENT = PluginColor.LIGHT_GOLD.getColor();  //difference 2
         MSG_MAIN_2 = PluginColor.GOLD.getColor();
-        MSG_ACCENT = PluginColor.GOLD.getColor();
-        MSG_ACCENT_2 = PluginColor.LIGHT_YELLOW.getColor();
+        MSG_ACCENT_2A = PluginColor.MEDIUM_GOLD.getColor();
+        MSG_ACCENT_2B = PluginColor.LIGHT_YELLOW.getColor();
         CLICKED_MSG = PluginColor.LIGHT_PURPLE.getColor();
         HOVER_MSG = PluginColor.LIGHT_BLUE.getColor();
         HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
+    }
+
+    @Override
+    public TextColor getExampleNameColor() {
+        return getSharerNameColor();
     }
 
     @Override
@@ -49,6 +55,10 @@ public class PrideComponentFactory extends ComponentFactory {
 
     @Override
     public TextComponent pluginPrefixComponent() {
+        Random randomizer = new Random();
+        if (randomizer.nextBoolean()) {
+            return backwardsPluginPrefixComponent();
+        }
         return text()
                 .append(MiniMessage.miniMessage()
                         .deserialize("<#f74040>[</#f74040>" +
@@ -67,7 +77,7 @@ public class PrideComponentFactory extends ComponentFactory {
                 .build();
     }
 
-    public TextComponent backwardsPluginPrefixComponents() {
+    public TextComponent backwardsPluginPrefixComponent() {
         return text()
                 .append(MiniMessage.miniMessage()
                         .deserialize("<#631ae6>[</#631ae6>" +

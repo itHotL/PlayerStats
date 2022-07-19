@@ -33,15 +33,7 @@ public final class ShareManager {
     private ArrayBlockingQueue<UUID> sharedResults;
 
     private ShareManager(ConfigHandler config) {
-        isEnabled = config.enableStatSharing();
-        waitingTime = config.getStatShareWaitingTime();
-
-        if (isEnabled) {
-            resultID = new AtomicInteger();  //always starts with value 0
-            statResultQueue = new ConcurrentHashMap<>();
-            shareTimeStamp = new ConcurrentHashMap<>();
-            sharedResults = new ArrayBlockingQueue<>(500);
-        }
+       updateSettings(config);
     }
 
     public static ShareManager getInstance(ConfigHandler config) {
@@ -58,22 +50,27 @@ public final class ShareManager {
     }
 
     public synchronized void updateSettings(ConfigHandler config) {
-        isEnabled = config.enableStatSharing();
+        isEnabled = config.allowStatSharing() && config.useHoverText();
         waitingTime = config.getStatShareWaitingTime();
 
-
-        if (isEnabled) { //reset the sharedResultsQueue
-            sharedResults = new ArrayBlockingQueue<>(500);
-            if (statResultQueue == null) {  //if we went from disabled to enabled, initialize the HashMaps
+        if (isEnabled) {
+            sharedResults = new ArrayBlockingQueue<>(500);  //reset the sharedResultsQueue
+            if (resultID == null) {  //if we went from disabled to enabled, initialize
+                resultID = new AtomicInteger();  //always starts with value 0
                 statResultQueue = new ConcurrentHashMap<>();
                 shareTimeStamp = new ConcurrentHashMap<>();
             }
-        }
-        //if we went from enabled to disabled, purge the existing data
-        else if (statResultQueue != null) {
-            statResultQueue = null;
-            shareTimeStamp = null;
-            sharedResults = null;
+        } else {
+            //if we went from enabled to disabled, purge the existing data
+            if (statResultQueue != null) {
+                statResultQueue = null;
+                shareTimeStamp = null;
+                sharedResults = null;
+            }
+            if (config.allowStatSharing() && !config.useHoverText()) {
+                MyLogger.logMsg("Stat-sharing does not work without hover-text enabled! " +
+                        "Enable hover-text, or disable stat-sharing to stop seeing this message.", true);
+            }
         }
     }
 

@@ -1,11 +1,9 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
-import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
-import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -36,10 +34,11 @@ public class ComponentFactory {
     protected static TextColor PREFIX;  //gold
     protected static TextColor BRACKETS;  //gray
     protected static TextColor UNDERSCORE;  //dark_purple
-    protected static TextColor MSG_MAIN;  //blue
+    protected static TextColor MSG_MAIN;  //medium_blue
+    protected static TextColor MSG_ACCENT; //blue
     protected static TextColor MSG_MAIN_2;  //gold
-    protected static TextColor MSG_ACCENT;  //medium_gold
-    protected static TextColor MSG_ACCENT_2;  //light_yellow
+    protected static TextColor MSG_ACCENT_2A;  //medium_gold
+    protected static TextColor MSG_ACCENT_2B;  //light_yellow
     protected static TextColor HOVER_MSG;  //light_blue
     protected static TextColor CLICKED_MSG;  //light_purple
     protected static TextColor HOVER_ACCENT;  //light_gold
@@ -48,8 +47,6 @@ public class ComponentFactory {
     public ComponentFactory(ConfigHandler c) {
         config = c;
         prepareColors();
-
-        MyLogger.logMsg("Regular ComponentFactory created!", DebugLevel.MEDIUM);
     }
 
     protected void prepareColors() {
@@ -57,9 +54,10 @@ public class ComponentFactory {
         BRACKETS = PluginColor.GRAY.getColor();
         UNDERSCORE = PluginColor.DARK_PURPLE.getColor();
         MSG_MAIN = PluginColor.MEDIUM_BLUE.getColor();
+        MSG_ACCENT = PluginColor.BLUE.getColor();
         MSG_MAIN_2 = PluginColor.GOLD.getColor();
-        MSG_ACCENT = PluginColor.MEDIUM_GOLD.getColor();
-        MSG_ACCENT_2 = PluginColor.LIGHT_YELLOW.getColor();
+        MSG_ACCENT_2A = PluginColor.MEDIUM_GOLD.getColor();
+        MSG_ACCENT_2B = PluginColor.LIGHT_YELLOW.getColor();
         CLICKED_MSG = PluginColor.LIGHT_PURPLE.getColor();
         HOVER_MSG = PluginColor.LIGHT_BLUE.getColor();
         HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
@@ -77,14 +75,17 @@ public class ComponentFactory {
     public TextColor msgMain() {
         return MSG_MAIN;
     }
-    public TextColor msgMain2() {
-        return MSG_MAIN_2;
-    }
     public TextColor msgAccent() {
         return MSG_ACCENT;
     }
-    public TextColor msgAccent2() {
-        return MSG_ACCENT_2;
+    public TextColor msgMain2() {
+        return MSG_MAIN_2;
+    }
+    public TextColor msgAccent2A() {
+        return MSG_ACCENT_2A;
+    }
+    public TextColor msgAccent2B() {
+        return MSG_ACCENT_2B;
     }
     public TextColor clickedMsg() {
         return CLICKED_MSG;
@@ -96,6 +97,9 @@ public class ComponentFactory {
         return HOVER_ACCENT;
     }
 
+    public TextColor getExampleNameColor() {
+        return MSG_ACCENT_2B;
+    }
     public TextColor getSharerNameColor() {
         return getColorFromString(config.getSharerNameDecoration(false));
     }
@@ -294,8 +298,7 @@ public class ComponentFactory {
         if (config.useHoverText()) {
             heartComponent.hoverEvent(HoverEvent.showText(
                     text(Unit.HEART.getLabel())
-                            .color(HOVER_ACCENT)
-                            .decorate(TextDecoration.ITALIC)));
+                            .color(HOVER_ACCENT)));
         }
         return surroundingBracketComponent(heartComponent.build());
     }
@@ -374,11 +377,11 @@ public class ComponentFactory {
                 getStyleFromString(config.getDotsDecoration(true)));
     }
 
-    private TextComponent getComponent(String content, TextColor color, @Nullable TextDecoration style) {
+    protected TextComponent getComponent(String content, @NotNull TextColor color, @Nullable TextDecoration style) {
         return getComponentBuilder(content, color, style).build();
     }
 
-    private TextComponent.Builder getComponentBuilder(@Nullable String content, TextColor color, @Nullable TextDecoration style) {
+    protected TextComponent.Builder getComponentBuilder(@Nullable String content, TextColor color, @Nullable TextDecoration style) {
         TextComponent.Builder builder = text()
                 .decorations(TextDecoration.NAMES.values(), false)
                 .color(color);

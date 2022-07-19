@@ -81,7 +81,7 @@ public class ConfigHandler {
 
     /** Returns true if stat-sharing is allowed.
      <p>Default: true</p>*/
-    public boolean enableStatSharing() {
+    public boolean allowStatSharing() {
         return config.getBoolean("enable-stat-sharing", true);
     }
 
@@ -125,13 +125,13 @@ public class ConfigHandler {
 
     /** Whether to use festive formatting, such as pride colors.
      <p>Default: true</p> */
-    public boolean enableFestiveFormatting() {
+    public boolean useFestiveFormatting() {
         return config.getBoolean("enable-festive-formatting", true);
     }
 
     /** Whether to use rainbow colors for the [PlayerStats] prefix rather than the default gold/purple.
      <p>Default: false</p> */
-    public boolean enableRainbowMode() {
+    public boolean useRainbowMode() {
         return config.getBoolean("rainbow-mode", false);
     }
 
