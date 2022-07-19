@@ -51,8 +51,14 @@ enable-festive-formatting: true
 # Always use rainbow for the [PlayerStats] prefix instead of the default gold/purple
 rainbow-mode: false
 
-# Start each stat-result with a line-break before it
-use-enters: true
+# Start the below stat-results with an empty line in chat before the result
+use-enters:
+  top-stats: true
+  top-stats-shared: false
+  player-stats: false
+  player-stats-shared: false
+  server-stats: false
+  server-stats-shared: false
 
 # Align the stat-numbers in the top list with dots
 use-dots: true
@@ -120,7 +126,6 @@ hover-text-amount-lighter: 40
 #                                                         #     gray          dark_gray    #             #
 #                                                         #     black           white      #             #
 #                                                         # ------------------------------ #             #
-
 
 shared-stats:
   shared-by: gray

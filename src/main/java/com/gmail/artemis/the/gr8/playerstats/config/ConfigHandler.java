@@ -135,10 +135,21 @@ public class ConfigHandler {
         return config.getBoolean("rainbow-mode", false);
     }
 
-    /** Whether to start each stat-result with a line-break before it.
-     <p>Default: true</p>*/
-    public boolean useEnters() {
-        return config.getBoolean("use-enters", true);
+    public boolean useEnters(Target selection, boolean getSharedSetting) {
+        ConfigurationSection section = config.getConfigurationSection("use-enters");
+        boolean def = selection == Target.TOP && !getSharedSetting;
+        if (section != null) {
+            String path = switch (selection) {
+                case TOP -> getSharedSetting ? "top-stats-shared" : "top-stats";
+                case PLAYER -> getSharedSetting ? "player-stats-shared" : "player-stats";
+                case SERVER -> getSharedSetting ? "server-stats-shared" : "server-stats";
+            };
+            return section.getBoolean(path, def);
+        }
+        MyLogger.logMsg("Config settings for use-enters could not be retrieved! " +
+                "Please check your file if you want to use custom settings. " +
+                "Using default values...", true);
+        return def;
     }
 
     /** Returns the config setting for use-dots.
@@ -232,23 +243,23 @@ public class ConfigHandler {
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
      * <p>Style: "italic"</p>
      * <p>Color: "gray"</p>*/
-    public String getSharedByTextDecoration(boolean getStyle) {
-        String def = getStyle ? "italic" : "gray";
-        return getDecorationString(null, getStyle, def, "shared-by");
+    public String getSharedByTextDecoration(boolean getStyleSetting) {
+        String def = getStyleSetting ? "italic" : "gray";
+        return getDecorationString(null, getStyleSetting, def, "shared-by");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
      * <p>Style: "none"</p>
      * <p>Color: "#845EC2"</p>*/
-    public String getSharerNameDecoration(boolean getStyle) {
-       return getDecorationString(null, getStyle, "#845EC2", "player-name");
+    public String getSharerNameDecoration(boolean getStyleSetting) {
+       return getDecorationString(null, getStyleSetting, "#845EC2", "player-name");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
      <p>Style: "none"</p>
      <p>Color Top: "green"</p>
      <p>Color Individual/Server: "gold"</p>*/
-    public String getPlayerNameDecoration(Target selection, boolean getStyle) {
+    public String getPlayerNameDecoration(Target selection, boolean getStyleSetting) {
         String def;
         if (selection == Target.TOP) {
             def = "green";
@@ -256,7 +267,7 @@ public class ConfigHandler {
         else {
             def = "gold";
         }
-        return getDecorationString(selection, getStyle, def, "player-names");
+        return getDecorationString(selection, getStyleSetting, def, "player-names");
     }
 
     /** Returns true if playerNames Style is "bold", false if it is not.
@@ -274,22 +285,22 @@ public class ConfigHandler {
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "yellow"</p>*/
-    public String getStatNameDecoration(Target selection, boolean getStyle) {
-        return getDecorationString(selection, getStyle, "yellow", "stat-names");
+    public String getStatNameDecoration(Target selection, boolean getStyleSetting) {
+        return getDecorationString(selection, getStyleSetting, "yellow", "stat-names");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "#FFD52B"</p>*/
-    public String getSubStatNameDecoration(Target selection, boolean getStyle) {
-        return getDecorationString(selection, getStyle, "#FFD52B", "sub-stat-names");
+    public String getSubStatNameDecoration(Target selection, boolean getStyleSetting) {
+        return getDecorationString(selection, getStyleSetting, "#FFD52B", "sub-stat-names");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color Top: "#55AAFF"</p>
      <p>Color Individual/Server: "#ADE7FF"</p> */
-    public String getStatNumberDecoration(Target selection, boolean getStyle) {
+    public String getStatNumberDecoration(Target selection, boolean getStyleSetting) {
         String def;
         if (selection == Target.TOP) {
             def = "#55AAFF";
@@ -297,14 +308,14 @@ public class ConfigHandler {
         else {
             def = "#ADE7FF";
         }
-        return getDecorationString(selection, getStyle, def,"stat-numbers");
+        return getDecorationString(selection, getStyleSetting, def,"stat-numbers");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color Top: "yellow"</p>
      <p>Color Server: "gold"</p>*/
-    public String getTitleDecoration(Target selection, boolean getStyle) {
+    public String getTitleDecoration(Target selection, boolean getStyleSetting) {
         String def;
         if (selection == Target.TOP) {
             def = "yellow";
@@ -312,35 +323,35 @@ public class ConfigHandler {
         else {
             def = "gold";
         }
-        return getDecorationString(selection, getStyle, def, "title");
+        return getDecorationString(selection, getStyleSetting, def, "title");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "gold"</p>*/
-    public String getTitleNumberDecoration(boolean getStyle) {
-        return getDecorationString(Target.TOP, getStyle, "gold", "title-number");
+    public String getTitleNumberDecoration(boolean getStyleSetting) {
+        return getDecorationString(Target.TOP, getStyleSetting, "gold", "title-number");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "#FFB80E"</p>*/
-    public String getServerNameDecoration(boolean getStyle) {
-        return getDecorationString(Target.SERVER, getStyle, "#FFB80E", "server-name");
+    public String getServerNameDecoration(boolean getStyleSetting) {
+        return getDecorationString(Target.SERVER, getStyleSetting, "#FFB80E", "server-name");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "gold"</p>*/
-    public String getRankNumberDecoration(boolean getStyle) {
-        return getDecorationString(Target.TOP, getStyle, "gold", "rank-numbers");
+    public String getRankNumberDecoration(boolean getStyleSetting) {
+        return getDecorationString(Target.TOP, getStyleSetting, "gold", "rank-numbers");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
      <p>Style: "none"</p>
      <p>Color: "dark_gray"</p> */
-    public String getDotsDecoration(boolean getStyle) {
-        return getDecorationString(Target.TOP, getStyle, "dark_gray", "dots");
+    public String getDotsDecoration(boolean getStyleSetting) {
+        return getDecorationString(Target.TOP, getStyleSetting, "dark_gray", "dots");
     }
 
     /** Returns a String representing the Unit that should be used for a certain Unit.Type.
@@ -362,12 +373,12 @@ public class ConfigHandler {
     /** Returns the config value for a color or style option in string-format, the supplied default value,
      or null if no configSection was found.
      @param selection the Target this decoration is meant for (Player, Server or Top)
-     @param getStyle if true, the result will be a style String, otherwise a color String
+     @param getStyleSetting if true, the result will be a style String, otherwise a color String
      @param defaultColor the default color to return if the config value cannot be found (for style, the default is always "none")
      @param pathName the config path to retrieve the value from*/
-    private @Nullable String getDecorationString(Target selection, boolean getStyle, String defaultColor, String pathName){
-        String path = getStyle ? pathName + "-style" : pathName;
-        String defaultValue = getStyle ? "none" : defaultColor;
+    private @Nullable String getDecorationString(Target selection, boolean getStyleSetting, String defaultColor, String pathName){
+        String path = getStyleSetting ? pathName + "-style" : pathName;
+        String defaultValue = getStyleSetting ? "none" : defaultColor;
 
         ConfigurationSection section = getRelevantSection(selection);
         return section != null ? section.getString(path, defaultValue) : null;

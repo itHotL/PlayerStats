@@ -76,11 +76,7 @@ public class OutputManager {
     }
 
     public void shareStatResults(@NotNull TextComponent statResult) {
-        adventure.players()
-//                .filterAudience(onlinePlayer -> !onlinePlayer.get(Identity.NAME)
-//                        .orElse("").equalsIgnoreCase(sender.getName()))
-                .sendMessage(statResult);
-
+        adventure.players().sendMessage(statResult);
     }
 
     public void sendPlayerStat(@NotNull StatRequest request, int playerStat) {

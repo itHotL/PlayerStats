@@ -31,7 +31,7 @@ permissions:
     default: true
   playerstats.share:
     description: allows sharing stats in chat
-    default: op
+    default: true
   playerstats.reload:
     description: allows usage of /statreload
     default: op

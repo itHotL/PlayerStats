@@ -167,7 +167,7 @@ public class MessageWriter {
                 .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnitComponent
                 .build();
 
-        return getFormattingFunction(playerStat, config.useEnters());
+        return getFormattingFunction(playerStat, Target.PLAYER);
     }
 
     public BiFunction<UUID, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequest request) {
@@ -182,34 +182,34 @@ public class MessageWriter {
                 .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnit
                 .build();
 
-        return getFormattingFunction(serverStat, config.useEnters());
+        return getFormattingFunction(serverStat, Target.SERVER);
     }
 
     public BiFunction<UUID, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
         final TextComponent title = getTopStatsTitle(request, topStats.size());
         final TextComponent shortTitle = getTopStatsTitleShort(request, topStats.size());
         final TextComponent list = getTopStatList(topStats, request);
-        final boolean useEnters = config.useEnters();
+        final boolean useEnters = config.useEnters(Target.TOP, false);
+        final boolean useEntersForShared = config.useEnters(Target.TOP, true);
 
         return (shareCode, sender) -> {
             TextComponent.Builder topBuilder = text();
-            if (useEnters) {
-                topBuilder.append(newline());
-            }
+
             //if we're adding a share-button
             if (shareCode != null) {
+                if (useEnters) {
+                    topBuilder.append(newline());
+                }
                 topBuilder.append(title)
                             .append(space())
                             .append(componentFactory.shareButtonComponent(shareCode))
                         .append(list);
             }
-            //if we're not adding a share-button or a "shared by" component
-            else if (sender == null) {
-                topBuilder.append(title)
-                        .append(list);
-            }
             //if we're adding a "shared by" component
-            else {
+            else if (sender != null) {
+                if (useEntersForShared) {
+                    topBuilder.append(newline());
+                }
                 topBuilder.append(shortTitle)
                             .append(space())
                             .append(componentFactory.hoveringStatResultComponent(text()
@@ -220,29 +220,50 @@ public class MessageWriter {
                         .append(componentFactory.messageSharedComponent(
                                 getSharerNameComponent(sender)));
             }
+            //if we're not adding a share-button or a "shared by" component
+            else {
+                if (useEnters) {
+                    topBuilder.append(newline());
+                }
+                topBuilder.append(title)
+                        .append(list);
+            }
             return topBuilder.build();
         };
     }
 
-    private BiFunction<UUID, CommandSender, TextComponent> getFormattingFunction(@NotNull TextComponent statResult, boolean useEnters) {
+    private BiFunction<UUID, CommandSender, TextComponent> getFormattingFunction(@NotNull TextComponent statResult, Target selection) {
+        boolean useEnters = config.useEnters(selection, false);
+        boolean useEntersForShared = config.useEnters(selection, true);
+
         return (shareCode, sender) -> {
             TextComponent.Builder statBuilder = text();
-            if (useEnters) {
-                statBuilder.append(newline());
-            }
 
             //if we're adding a share-button
             if (shareCode != null) {
+                if (useEnters) {
+                    statBuilder.append(newline());
+                }
                 statBuilder.append(statResult)
                         .append(space())
                         .append(componentFactory.shareButtonComponent(shareCode));
             }
             //if we're adding a "shared by" component
             else if (sender != null) {
+                if (useEntersForShared) {
+                    statBuilder.append(newline());
+                }
                 statBuilder.append(statResult)
                         .append(newline())
                         .append(componentFactory.messageSharedComponent(
                                 getSharerNameComponent(sender)));
+            }
+            //if we're not adding a share-button or a "shared by" component
+            else {
+                if (useEnters) {
+                    statBuilder.append(newline());
+                }
+                statBuilder.append(statResult);
             }
             return statBuilder.build();
         };
