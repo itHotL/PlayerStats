@@ -7,11 +7,14 @@ import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.UUID;
@@ -25,54 +28,56 @@ public class OutputManager {
     private static BukkitAudiences adventure;
     private static ShareManager shareManager;
     private static MessageWriter msg;
-    private static ConsoleMessageWriter consoleMsg;
+    private static MessageWriter consoleMsg;
 
     private static EnumMap<StandardMessage, Function<MessageWriter, TextComponent>> standardMessages;
 
-    public OutputManager(ConfigHandler conf) {
+    public OutputManager(ConfigHandler config) {
         adventure = Main.adventure();
-        shareManager = ShareManager.getInstance(conf);
+        shareManager = ShareManager.getInstance(config);
 
-        msg = new MessageWriter(conf);
-        consoleMsg = new ConsoleMessageWriter(conf);
-
-        standardMessages = new EnumMap<>(StandardMessage.class);
+        getMessageWriters(config);
         prepareFunctions();
     }
 
-    public void updateComponentFactories(ConfigHandler config) {
-        msg = new MessageWriter(config);
-        consoleMsg = new ConsoleMessageWriter(config);
+    public void updateMessageWriters(ConfigHandler config) {
+        getMessageWriters(config);
     }
 
     public void sendFeedbackMsg(CommandSender sender, StandardMessage message) {
         if (message != null) {
-            adventure.sender(sender).sendMessage(standardMessages.get(message).apply(getWriter(sender)));
+            adventure.sender(sender).sendMessage(standardMessages.get(message)
+                    .apply(getWriter(sender)));
         }
     }
 
     public void sendFeedbackMsgWaitAMoment(CommandSender sender, boolean longWait) {
-        adventure.sender(sender).sendMessage(getWriter(sender).waitAMoment(longWait));
+        adventure.sender(sender).sendMessage(getWriter(sender)
+                .waitAMoment(longWait));
     }
 
     public void sendFeedbackMsgMissingSubStat(CommandSender sender, Statistic.Type statType) {
-        adventure.sender(sender).sendMessage(getWriter(sender).missingSubStatName(statType));
+        adventure.sender(sender).sendMessage(getWriter(sender)
+                .missingSubStatName(statType));
     }
 
     public void sendFeedbackMsgWrongSubStat(CommandSender sender, Statistic.Type statType, String subStatName) {
         if (subStatName == null) {
             sendFeedbackMsgMissingSubStat(sender, statType);
         } else {
-            adventure.sender(sender).sendMessage(getWriter(sender).wrongSubStatType(statType, subStatName));
+            adventure.sender(sender).sendMessage(getWriter(sender)
+                    .wrongSubStatType(statType, subStatName));
         }
     }
 
     public void sendExamples(CommandSender sender) {
-        adventure.sender(sender).sendMessage(getWriter(sender).usageExamples());
+        adventure.sender(sender).sendMessage(getWriter(sender)
+                .usageExamples());
     }
 
     public void sendHelp(CommandSender sender) {
-        adventure.sender(sender).sendMessage(getWriter(sender).helpMsg());
+        adventure.sender(sender).sendMessage(getWriter(sender)
+                .helpMsg(sender instanceof ConsoleCommandSender));
     }
 
     public void shareStatResults(@NotNull TextComponent statResult) {
@@ -107,14 +112,39 @@ public class OutputManager {
         if (shareManager.isEnabled() && shareManager.senderHasPermission(sender)) {
 
             UUID shareCode = shareManager.saveStatResult(sender.getName(), buildFunction.apply(null, sender));
-            adventure.sender(sender).sendMessage(buildFunction.apply(shareCode, null));
+            adventure.sender(sender).sendMessage(
+                    buildFunction.apply(shareCode, null));
         }
         else {
-            adventure.sender(sender).sendMessage(buildFunction.apply(null, null));
+            adventure.sender(sender).sendMessage(
+                    buildFunction.apply(null, null));
+        }
+    }
+
+    private MessageWriter getWriter(CommandSender sender) {
+        return sender instanceof ConsoleCommandSender ? consoleMsg : msg;
+    }
+
+    private void getMessageWriters(ConfigHandler config) {
+        boolean isBukkit = Bukkit.getName().equalsIgnoreCase("CraftBukkit");
+        if (config.useRainbowMode() ||
+                (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) {
+            msg = new MessageWriter(config, new PrideComponentFactory(config));
+        }
+        else {
+            msg = new MessageWriter(config);
+        }
+
+        if (!isBukkit) {
+            consoleMsg = msg;
+        } else {
+            consoleMsg = new MessageWriter(config, new BukkitConsoleComponentFactory(config));
         }
     }
 
     private void prepareFunctions() {
+        standardMessages = new EnumMap<>(StandardMessage.class);
+
         standardMessages.put(RELOADED_CONFIG, (MessageWriter::reloadedConfig));
         standardMessages.put(STILL_RELOADING, (MessageWriter::stillReloading));
         standardMessages.put(MISSING_STAT_NAME, (MessageWriter::missingStatName));
@@ -124,9 +154,5 @@ public class OutputManager {
         standardMessages.put(RESULTS_ALREADY_SHARED, (MessageWriter::resultsAlreadyShared));
         standardMessages.put(STAT_RESULTS_TOO_OLD, (MessageWriter::statResultsTooOld));
         standardMessages.put(UNKNOWN_ERROR, (MessageWriter::unknownError));
-    }
-
-    private MessageWriter getWriter(CommandSender sender) {
-        return sender instanceof ConsoleCommandSender ? consoleMsg : msg;
     }
 }

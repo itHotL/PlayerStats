@@ -18,8 +18,8 @@ public class ExampleMessage implements TextComponent {
     private final TextComponent exampleMessage;
     private final ComponentFactory componentFactory;
 
-    public ExampleMessage(ComponentFactory componentFactory) {
-        this.componentFactory = componentFactory;
+    public ExampleMessage(ComponentFactory factory) {
+        componentFactory = factory;
         exampleMessage = getExampleMessage();
     }
 

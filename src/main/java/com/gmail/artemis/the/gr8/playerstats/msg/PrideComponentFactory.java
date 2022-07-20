@@ -2,9 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 
-import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
-import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;

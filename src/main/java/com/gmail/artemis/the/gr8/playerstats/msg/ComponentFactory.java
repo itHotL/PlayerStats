@@ -31,17 +31,17 @@ public class ComponentFactory {
 
     private static ConfigHandler config;
 
-    protected static TextColor PREFIX;  //gold
-    protected static TextColor BRACKETS;  //gray
-    protected static TextColor UNDERSCORE;  //dark_purple
-    protected static TextColor MSG_MAIN;  //medium_blue
-    protected static TextColor MSG_ACCENT; //blue
-    protected static TextColor MSG_MAIN_2;  //gold
-    protected static TextColor MSG_ACCENT_2A;  //medium_gold
-    protected static TextColor MSG_ACCENT_2B;  //light_yellow
-    protected static TextColor HOVER_MSG;  //light_blue
-    protected static TextColor CLICKED_MSG;  //light_purple
-    protected static TextColor HOVER_ACCENT;  //light_gold
+    protected TextColor PREFIX;  //gold
+    protected TextColor BRACKETS;  //gray
+    protected TextColor UNDERSCORE;  //dark_purple
+    protected TextColor MSG_MAIN;  //medium_blue
+    protected TextColor MSG_ACCENT; //blue
+    protected TextColor MSG_MAIN_2;  //gold
+    protected TextColor MSG_ACCENT_2A;  //medium_gold
+    protected TextColor MSG_ACCENT_2B;  //light_yellow
+    protected TextColor HOVER_MSG;  //light_blue
+    protected TextColor CLICKED_MSG;  //light_purple
+    protected TextColor HOVER_ACCENT;  //light_gold
 
 
     public ComponentFactory(ConfigHandler c) {

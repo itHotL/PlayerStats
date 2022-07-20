@@ -16,16 +16,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.*;
 import java.util.function.BiFunction;
 
 import static net.kyori.adventure.text.Component.*;
 
-/** Composes messages to send to Players. This class is responsible
+/** Composes messages to send to a Player or Console. This class is responsible
  for constructing a final Component with the text content of the desired message.
- The component parts (with appropriate formatting) are supplied by a ComponentFactory.*/
+ The component parts (with appropriate formatting) are supplied by a ComponentFactory.
+ By default, this class works with the default ComponentFactory, but you can
+ give it a different ComponentFactory upon creation.*/
 public class MessageWriter {
 
     protected static ConfigHandler config;
@@ -34,82 +34,74 @@ public class MessageWriter {
     private final LanguageKeyHandler languageKeyHandler;
     private final NumberFormatter formatter;
 
-    public MessageWriter(ConfigHandler c) {
-        config = c;
-        formatter = new NumberFormatter();
-        languageKeyHandler = new LanguageKeyHandler();
-
-        if (config.useRainbowMode() ||
-                (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) {
-
-            componentFactory = new PrideComponentFactory(config);
-            MyLogger.logMsg("MessageWriter is using Pride-Factory", DebugLevel.MEDIUM);
-        }
-        else {
-            componentFactory = new ComponentFactory(config);
-            MyLogger.logMsg("MessageWriter is using Default-Factory", DebugLevel.MEDIUM);
-        }
+    public MessageWriter(ConfigHandler config) {
+        this (config, new ComponentFactory(config));
     }
 
-    protected ComponentFactory componentFactory() {
-        return componentFactory;
+    public MessageWriter(ConfigHandler configHandler, ComponentFactory factory) {
+        config = configHandler;
+        componentFactory = factory;
+
+        formatter = new NumberFormatter();
+        languageKeyHandler = new LanguageKeyHandler();
+        MyLogger.logMsg("MessageWriter created with factory: " + componentFactory.getClass().getSimpleName(), DebugLevel.MEDIUM);
     }
 
     public TextComponent reloadedConfig() {
-        return componentFactory().pluginPrefixComponent()
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
-                .append(componentFactory().messageComponent().content("Config reloaded!"));
+                .append(componentFactory.messageComponent().content("Config reloaded!"));
     }
 
     public TextComponent stillReloading() {
-        return componentFactory().pluginPrefixComponent()
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
-                .append(componentFactory().messageComponent().content(
+                .append(componentFactory.messageComponent().content(
                 "The plugin is (re)loading, your request will be processed when it is done!"));
     }
 
     public TextComponent waitAMoment(boolean longWait) {
         String msg = longWait ? "Calculating statistics, this may take a minute..." :
                 "Calculating statistics, this may take a few moments...";
-        return componentFactory().pluginPrefixComponent()
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
-                .append(componentFactory().messageComponent().content(msg));
+                .append(componentFactory.messageComponent().content(msg));
     }
 
     public TextComponent missingStatName() {
-        return componentFactory().pluginPrefixComponent()
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
-                .append(componentFactory().messageComponent().content(
+                .append(componentFactory.messageComponent().content(
                 "Please provide a valid statistic name!"));
     }
 
     public TextComponent missingSubStatName(Statistic.Type statType) {
-        return componentFactory().pluginPrefixComponent()
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
-                .append(componentFactory().messageComponent().content(
+                .append(componentFactory.messageComponent().content(
                 "Please add a valid " + EnumHandler.getSubStatTypeName(statType) + " to look up this statistic!"));
     }
 
     public TextComponent missingPlayerName() {
-        return componentFactory().pluginPrefixComponent()
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
-                .append(componentFactory().messageComponent().content(
+                .append(componentFactory.messageComponent().content(
                 "Please specify a valid player-name!"));
     }
 
     public TextComponent wrongSubStatType(Statistic.Type statType, String subStatName) {
-        return componentFactory().pluginPrefixComponent()
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
-                .append(componentFactory().messageAccentComponent().content("\"" + subStatName + "\""))
+                .append(componentFactory.messageAccentComponent().content("\"" + subStatName + "\""))
                 .append(space())
-                .append(componentFactory().messageComponent().content(
+                .append(componentFactory.messageComponent().content(
                 "is not a valid " + EnumHandler.getSubStatTypeName(statType) + "!"));
     }
 
     public TextComponent requestAlreadyRunning() {
-        return componentFactory().pluginPrefixComponent()
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
-                .append(componentFactory().messageComponent().content(
+                .append(componentFactory.messageComponent().content(
                         "Please wait for your previous lookup to finish!"));
     }
 
@@ -118,50 +110,50 @@ public class MessageWriter {
         int waitTime = config.getStatShareWaitingTime();
         String minutes = waitTime == 1 ? " minute" : " minutes";
 
-        return componentFactory().pluginPrefixComponent()
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
-                .append(componentFactory().messageComponent().content("You need to wait")
+                .append(componentFactory.messageComponent().content("You need to wait")
                         .append(space())
-                        .append(componentFactory().messageAccentComponent()
+                        .append(componentFactory.messageAccentComponent()
                                 .content(waitTime + minutes))
                         .append(space())
                         .append(text("between sharing!")));
     }
 
     public TextComponent resultsAlreadyShared() {
-        return componentFactory().pluginPrefixComponent()
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
-                .append(componentFactory().messageComponent().content("You already shared these results!"));
+                .append(componentFactory.messageComponent().content("You already shared these results!"));
     }
 
     public TextComponent statResultsTooOld() {
-        return componentFactory().pluginPrefixComponent()
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
-                .append(componentFactory().messageComponent().content(
+                .append(componentFactory.messageComponent().content(
                         "It has been too long since you looked up this statistic, please repeat the original command!"));
     }
 
     public TextComponent unknownError() {
-        return componentFactory().pluginPrefixComponent()
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
-                .append(componentFactory().messageComponent().content(
+                .append(componentFactory.messageComponent().content(
                 "Something went wrong with your request, " +
                         "please try again or see /statistic for a usage explanation!"));
     }
 
     public TextComponent usageExamples() {
-        return new ExampleMessage(componentFactory());
+        return new ExampleMessage(componentFactory);
     }
 
-    public TextComponent helpMsg() {
-        return new HelpMessage(componentFactory(),
-                config.useHoverText(),
+    public TextComponent helpMsg(boolean isConsoleSender) {
+        return new HelpMessage(componentFactory,
+                (!isConsoleSender && config.useHoverText()),
                 config.getTopListMaxSize());
     }
 
     public BiFunction<UUID, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull StatRequest request) {
         TextComponent playerStat = Component.text()
-                .append(componentFactory().playerNameBuilder(request.getPlayerName(), Target.PLAYER)
+                .append(componentFactory.playerNameBuilder(request.getPlayerName(), Target.PLAYER)
                         .append(text(":"))
                         .append(space()))
                 .append(getStatNumberComponent(request.getStatistic(), stat, Target.PLAYER, request.isConsoleSender()))
@@ -175,9 +167,9 @@ public class MessageWriter {
 
     public BiFunction<UUID, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequest request) {
         TextComponent serverStat = text()
-                .append(componentFactory().titleComponent(config.getServerTitle(), Target.SERVER))
+                .append(componentFactory.titleComponent(config.getServerTitle(), Target.SERVER))
                 .append(space())
-                .append(componentFactory().serverNameComponent(config.getServerName()))
+                .append(componentFactory.serverNameComponent(config.getServerName()))
                 .append(space())
                 .append(getStatNumberComponent(request.getStatistic(), stat, Target.SERVER, request.isConsoleSender()))
                 .append(space())
@@ -205,7 +197,7 @@ public class MessageWriter {
                 }
                 topBuilder.append(title)
                             .append(space())
-                            .append(componentFactory().shareButtonComponent(shareCode))
+                            .append(componentFactory.shareButtonComponent(shareCode))
                         .append(list);
             }
             //if we're adding a "shared by" component
@@ -215,12 +207,12 @@ public class MessageWriter {
                 }
                 topBuilder.append(shortTitle)
                             .append(space())
-                            .append(componentFactory().hoveringStatResultComponent(text()
+                            .append(componentFactory.hoveringStatResultComponent(text()
                                     .append(title)
                                     .append(list)
                                     .build()))
                         .append(newline())
-                        .append(componentFactory().messageSharedComponent(
+                        .append(componentFactory.messageSharedComponent(
                                 getSharerNameComponent(sender)));
             }
             //if we're not adding a share-button or a "shared by" component
@@ -249,7 +241,7 @@ public class MessageWriter {
                 }
                 statBuilder.append(statResult)
                         .append(space())
-                        .append(componentFactory().shareButtonComponent(shareCode));
+                        .append(componentFactory.shareButtonComponent(shareCode));
             }
             //if we're adding a "shared by" component
             else if (sender != null) {
@@ -258,7 +250,7 @@ public class MessageWriter {
                 }
                 statBuilder.append(statResult)
                         .append(newline())
-                        .append(componentFactory().messageSharedComponent(
+                        .append(componentFactory.messageSharedComponent(
                                 getSharerNameComponent(sender)));
             }
             //if we're not adding a share-button or a "shared by" component
@@ -279,14 +271,14 @@ public class MessageWriter {
                 return senderName;
             }
         }
-        return componentFactory().sharerNameComponent(sender.getName());
+        return componentFactory.sharerNameComponent(sender.getName());
     }
 
     private TextComponent getTopStatsTitle(StatRequest request, int statListSize) {
         return Component.text()
-                .append(componentFactory().pluginPrefixComponent()).append(space())
-                .append(componentFactory().titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
-                .append(componentFactory().titleNumberComponent(statListSize)).append(space())
+                .append(componentFactory.pluginPrefixComponent()).append(space())
+                .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
+                .append(componentFactory.titleNumberComponent(statListSize)).append(space())
                 .append(getStatNameComponent(request))  //space is provided by statUnitComponent
                 .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))
                 .build();
@@ -294,8 +286,8 @@ public class MessageWriter {
 
     private TextComponent getTopStatsTitleShort(StatRequest request, int statListSize) {
         return Component.text()
-                .append(componentFactory().titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
-                .append(componentFactory().titleNumberComponent(statListSize)).append(space())
+                .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
+                .append(componentFactory.titleNumberComponent(statListSize)).append(space())
                 .append(getStatNameComponent(request))  //space is provided by statUnitComponent
                 .build();
     }
@@ -308,16 +300,16 @@ public class MessageWriter {
 
         int count = 0;
         for (String playerName : playerNames) {
-            TextComponent.Builder playerNameBuilder = componentFactory().playerNameBuilder(playerName, Target.TOP);
+            TextComponent.Builder playerNameBuilder = componentFactory.playerNameBuilder(playerName, Target.TOP);
             topList.append(newline())
-                    .append(componentFactory().rankingNumberComponent(" " + ++count + "."))
+                    .append(componentFactory.rankingNumberComponent(" " + ++count + "."))
                     .append(space());
             if (useDots) {
                 topList.append(playerNameBuilder)
                         .append(space());
                 int dots = FontUtils.getNumberOfDotsToAlign(count + ". " + playerName, request.isConsoleSender(), boldNames);
                 if (dots >= 1) {
-                    topList.append(componentFactory().dotsBuilder().append(text((".".repeat(dots)))));
+                    topList.append(componentFactory.dotsBuilder().append(text((".".repeat(dots)))));
                 }
             }
             else {
@@ -343,10 +335,10 @@ public class MessageWriter {
                     }
                 }
             }
-            return componentFactory().statNameTransComponent(statKey, subStatKey, request.getSelection());
+            return componentFactory.statNameTransComponent(statKey, subStatKey, request.getSelection());
         }
         else {
-            return componentFactory().statNameTextComponent(
+            return componentFactory.statNameTextComponent(
                     StringUtils.prettify(request.getStatistic().toString()),
                     StringUtils.prettify(request.getSubStatEntry()),
                     request.getSelection());
@@ -366,7 +358,7 @@ public class MessageWriter {
         }
         String prettyNumber = formatter.format(statNumber, statUnit);
         if (!config.useHoverText() || statUnit == Unit.NUMBER) {
-            return componentFactory().statNumberComponent(prettyNumber, selection);
+            return componentFactory.statNumberComponent(prettyNumber, selection);
         }
         Unit hoverUnit = type == Unit.Type.DISTANCE ? Unit.fromString(config.getDistanceUnit(true)) :
                 Unit.fromString(config.getDamageUnit(true));
@@ -374,17 +366,17 @@ public class MessageWriter {
         MyLogger.logMsg("mainNumber: " + prettyNumber + ", hoverNumber: " + prettyHoverNumber, DebugLevel.HIGH);
 
         if (hoverUnit == Unit.HEART) {
-            return componentFactory().damageNumberHoverComponent(
+            return componentFactory.damageNumberHoverComponent(
                     prettyNumber, prettyHoverNumber,
-                    componentFactory().heartComponent(isConsoleSender, true), selection);
+                    componentFactory.heartComponent(isConsoleSender, true), selection);
         }
         if (config.useTranslatableComponents()) {
             String unitKey = languageKeyHandler.getUnitKey(hoverUnit);
             if (unitKey != null) {
-                return componentFactory().statNumberHoverComponent(prettyNumber, prettyHoverNumber, null, unitKey, selection);
+                return componentFactory.statNumberHoverComponent(prettyNumber, prettyHoverNumber, null, unitKey, selection);
             }
         }
-        return componentFactory().statNumberHoverComponent(prettyNumber, prettyHoverNumber, hoverUnit.getLabel(), null, selection);
+        return componentFactory.statNumberHoverComponent(prettyNumber, prettyHoverNumber, hoverUnit.getLabel(), null, selection);
     }
 
     private TextComponent getTimeNumberComponent(long statNumber, Target selection, ArrayList<Unit> unitRange) {
@@ -392,16 +384,16 @@ public class MessageWriter {
             MyLogger.logMsg(
                     "There is something wrong with the time-units you specified, please check your config!",
                     true);
-            return componentFactory().statNumberComponent("-", selection);
+            return componentFactory.statNumberComponent("-", selection);
         }
         else {
             String mainNumber = formatter.format(statNumber, unitRange.get(0), unitRange.get(1));
             if (!config.useHoverText()) {
-                return componentFactory().statNumberComponent(mainNumber, selection);
+                return componentFactory.statNumberComponent(mainNumber, selection);
             } else {
                 String hoverNumber = formatter.format(statNumber, unitRange.get(2), unitRange.get(3));
                 MyLogger.logMsg("mainNumber: " + mainNumber + ", hoverNumber: " + hoverNumber, DebugLevel.HIGH);
-                return componentFactory().statNumberHoverComponent(mainNumber, hoverNumber,
+                return componentFactory.statNumberHoverComponent(mainNumber, hoverNumber,
                         null, null, selection);
             }
         }
@@ -451,15 +443,15 @@ public class MessageWriter {
             String unitKey = languageKeyHandler.getUnitKey(statUnit);
             if (unitKey != null) {
                 return Component.space()
-                        .append(componentFactory().statUnitComponent(null, unitKey, selection));
+                        .append(componentFactory.statUnitComponent(null, unitKey, selection));
             }
         }
         String statName = statUnit.getLabel();
         if (statUnit == Unit.HEART) {  //console can do u2665, u2764 looks better in-game
             return Component.space()
-                    .append(componentFactory().heartComponent(isConsoleSender, false));
+                    .append(componentFactory.heartComponent(isConsoleSender, false));
         }
         return Component.space()
-                .append(componentFactory().statUnitComponent(statName, null, selection));
+                .append(componentFactory.statUnitComponent(statName, null, selection));
     }
 }

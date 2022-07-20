@@ -81,7 +81,7 @@ public class ReloadThread extends Thread {
 
     private void reloadEverything() {
         MyLogger.setDebugLevel(config.getDebugLevel());
-        messageSender.updateComponentFactories(config);
+        messageSender.updateMessageWriters(config);
         offlinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
         shareManager.updateSettings(config);
     }
