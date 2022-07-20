@@ -6,17 +6,30 @@ import org.bukkit.entity.Player;
 
 import java.util.Random;
 
-//This class is just for fun, and adds some silly names for players on my server.
-//It does not impact the rest of the plugin, and will only be used for the players mentioned in here.
+/**This class is just for fun, and adds some silly names for players on my server.
+It does not impact the rest of the plugin, and will only be used for the players mentioned in here.*/
 public class EasterEggProvider {
 
+    private static boolean isEnabled;
     private static final Random random;
 
     static{
+        enable();
         random = new Random();
     }
 
+    public static void enable() {
+        isEnabled = true;
+    }
+    public static void disable() {
+        isEnabled = false;
+    }
+
     public static Component getPlayerName(Player player) {
+        if (!isEnabled) {
+            return null;
+        }
+
         int sillyNumber = getSillyNumber();
         String playerName = null;
         switch (player.getUniqueId().toString()) {
