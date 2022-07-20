@@ -5,7 +5,7 @@
 
 ## About
 PlayerStats is a Minecraft server plugin that adds a command to view player statistics in 
-top-10 format or individually. Currently tested on all versions between **1.18** and **1.19** on platforms:
+top-10 format or individually. Currently tested on all versions between **1.16.5** and **1.19** on platforms:
 - Bukkit
 - Spigot
 - Paper
@@ -24,9 +24,13 @@ top-10 format or individually. Currently tested on all versions between **1.18**
        ![New_Numbers](src/main/resources/images/new_numbers.png)
      - Guide you through the available options while you type with an extensive **tab-complete** feature
        ![Tab_Complete](src/main/resources/images/tab_complete.png)
-     - See the output in a readable format that makes sense in the Minecraft world, with more information in hover-text:
+     - See the output in a **readable format** that makes sense in the Minecraft world, with more information in hover-text:
        ![Distance_Format](src/main/resources/images/distance_format.png)
        ![Damage_Format](src/main/resources/images/damage_format.png)
+     - **Share statistics** that you look up with the other players in chat!
+     <p align="center">
+           <img src="src/main/resources/images/sharing_top_10.png">
+       </p>
 
 * **No set-up required**
    - PlayerStats will work correctly regardless of how long your server has already existed - it doesn't 
@@ -49,15 +53,17 @@ top-10 format or individually. Currently tested on all versions between **1.18**
         ![Translated](src/main/resources/images/translated.png)   
       - Only show statistics for **whitelisted** players
       - Exclude statistics from **banned** players
+      - Limit who is allowed to **share statistics** in chat and how often players can share
       - Limit statistics based on when a player **last joined**.  
         This option can be particularly useful if you have had a lot of players join your server in the past
         whose statistics aren't of particular interest to your current player-base.
-        On top of that, limiting the amount of players shown in the top 10 will greatly increase performance speed.
+        On top of that, limiting the amount of players shown in the top 10 can greatly increase performance speed.
       - The **colors** you want the output to be
       - You can go for default Minecraft chat colors, or use **hex colors**!
       - Whether you want the output to have additional **style**, such as italics 
     - You can configure the following **permissions**:
       - `playerstats.stat` for using the general command (true for everyone by default)
+      - `playerstats.share` for sharing statistics in chat (true for everyone by default)
       - `playerstats.reload` for reloading the config (only for OP players by default)
 
 ## Disclaimer
