@@ -4,135 +4,296 @@ import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
+
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.*;
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.function.BiFunction;
 
 import static net.kyori.adventure.text.Component.*;
 
-/** Composes messages to send to Players or Console. This class is responsible
+/** Composes messages to send to a Player or Console. This class is responsible
  for constructing a final Component with the text content of the desired message.
- The component parts (with appropriate formatting) are supplied by a ComponentFactory.*/
+ The component parts (with appropriate formatting) are supplied by a ComponentFactory.
+ By default, this class works with the default ComponentFactory, but you can
+ give it a different ComponentFactory upon creation.*/
 public class MessageWriter {
 
-    private static ConfigHandler config;
-    private static ComponentFactory componentFactory;
+    protected static ConfigHandler config;
+
+    private final ComponentFactory componentFactory;
     private final LanguageKeyHandler languageKeyHandler;
     private final NumberFormatter formatter;
 
-    public MessageWriter(ConfigHandler c) {
-        config = c;
+    public MessageWriter(ConfigHandler config) {
+        this (config, new ComponentFactory(config));
+    }
+
+    public MessageWriter(ConfigHandler configHandler, ComponentFactory factory) {
+        config = configHandler;
+        componentFactory = factory;
+
         formatter = new NumberFormatter();
         languageKeyHandler = new LanguageKeyHandler();
-        getComponentFactory();
+        MyLogger.logMsg("MessageWriter created with factory: " + componentFactory.getClass().getSimpleName(), DebugLevel.MEDIUM);
     }
 
-    public static void updateComponentFactory() {
-        getComponentFactory();
-    }
-
-    private static void getComponentFactory() {
-        if (config.useFestiveFormatting() || config.useRainbowMode()) {
-            componentFactory = new PrideComponentFactory(config);
-        }
-        else {
-            componentFactory = new ComponentFactory(config);
-        }
-    }
-
-    public TextComponent reloadedConfig(boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent reloadedConfig() {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content("Config reloaded!"));
     }
 
-    public TextComponent stillReloading(boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent stillReloading() {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(
                 "The plugin is (re)loading, your request will be processed when it is done!"));
     }
 
-    public TextComponent waitAMoment(boolean longWait, boolean isBukkitConsole) {
+    public TextComponent waitAMoment(boolean longWait) {
         String msg = longWait ? "Calculating statistics, this may take a minute..." :
                 "Calculating statistics, this may take a few moments...";
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(msg));
     }
 
-    public TextComponent missingStatName(boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent missingStatName() {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(
                 "Please provide a valid statistic name!"));
     }
 
-    public TextComponent missingSubStatName(Statistic.Type statType, boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent missingSubStatName(Statistic.Type statType) {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(
                 "Please add a valid " + EnumHandler.getSubStatTypeName(statType) + " to look up this statistic!"));
     }
 
-    public TextComponent missingPlayerName(boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent missingPlayerName() {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(
                 "Please specify a valid player-name!"));
     }
 
-    public TextComponent wrongSubStatType(Statistic.Type statType, String subStatEntry, boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent wrongSubStatType(Statistic.Type statType, String subStatName) {
+        return componentFactory.pluginPrefixComponent()
+                .append(space())
+                .append(componentFactory.messageAccentComponent().content("\"" + subStatName + "\""))
                 .append(space())
                 .append(componentFactory.messageComponent().content(
-                "\"" + subStatEntry + "\" is not a valid " + EnumHandler.getSubStatTypeName(statType) + "!"));
+                "is not a valid " + EnumHandler.getSubStatTypeName(statType) + "!"));
     }
 
-    public TextComponent requestAlreadyRunning(boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    public TextComponent requestAlreadyRunning() {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(
                         "Please wait for your previous lookup to finish!"));
     }
 
-    public TextComponent unknownError(boolean isBukkitConsole) {
-        return componentFactory.pluginPrefixComponent(isBukkitConsole)
+    //TODO Make this say amount of time left
+    public TextComponent stillOnShareCoolDown() {
+        int waitTime = config.getStatShareWaitingTime();
+        String minutes = waitTime == 1 ? " minute" : " minutes";
+
+        return componentFactory.pluginPrefixComponent()
+                .append(space())
+                .append(componentFactory.messageComponent().content("You need to wait")
+                        .append(space())
+                        .append(componentFactory.messageAccentComponent()
+                                .content(waitTime + minutes))
+                        .append(space())
+                        .append(text("between sharing!")));
+    }
+
+    public TextComponent resultsAlreadyShared() {
+        return componentFactory.pluginPrefixComponent()
+                .append(space())
+                .append(componentFactory.messageComponent().content("You already shared these results!"));
+    }
+
+    public TextComponent statResultsTooOld() {
+        return componentFactory.pluginPrefixComponent()
+                .append(space())
+                .append(componentFactory.messageComponent().content(
+                        "It has been too long since you looked up this statistic, please repeat the original command!"));
+    }
+
+    public TextComponent unknownError() {
+        return componentFactory.pluginPrefixComponent()
                 .append(space())
                 .append(componentFactory.messageComponent().content(
                 "Something went wrong with your request, " +
                         "please try again or see /statistic for a usage explanation!"));
     }
 
-    public TextComponent formatPlayerStat(int stat, @NotNull StatRequest request) {
-        return Component.text()
+    public TextComponent usageExamples() {
+        return new ExampleMessage(componentFactory);
+    }
+
+    public TextComponent helpMsg(boolean isConsoleSender) {
+        return new HelpMessage(componentFactory,
+                (!isConsoleSender && config.useHoverText()),
+                config.getTopListMaxSize());
+    }
+
+    public BiFunction<UUID, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull StatRequest request) {
+        TextComponent playerStat = Component.text()
                 .append(componentFactory.playerNameBuilder(request.getPlayerName(), Target.PLAYER)
                         .append(text(":"))
                         .append(space()))
                 .append(getStatNumberComponent(request.getStatistic(), stat, Target.PLAYER, request.isConsoleSender()))
                 .append(space())
                 .append(getStatNameComponent(request))
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))
-                .build();  //space is provided by statUnitComponent
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnitComponent
+                .build();
+
+        return getFormattingFunction(playerStat, Target.PLAYER);
     }
 
-    public TextComponent formatTopStats(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
-        TextComponent.Builder topList = Component.text()
-                .append(newline())
-                .append(componentFactory.pluginPrefixComponent(request.isBukkitConsoleSender())).append(space())
-                .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
-                .append(componentFactory.titleNumberComponent(topStats.size())).append(space())
-                .append(getStatNameComponent(request))  //space is provided by statUnitComponent
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()));
+    public BiFunction<UUID, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequest request) {
+        TextComponent serverStat = text()
+                .append(componentFactory.titleComponent(config.getServerTitle(), Target.SERVER))
+                .append(space())
+                .append(componentFactory.serverNameComponent(config.getServerName()))
+                .append(space())
+                .append(getStatNumberComponent(request.getStatistic(), stat, Target.SERVER, request.isConsoleSender()))
+                .append(space())
+                .append(getStatNameComponent(request))
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnit
+                .build();
 
+        return getFormattingFunction(serverStat, Target.SERVER);
+    }
+
+    public BiFunction<UUID, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
+        final TextComponent title = getTopStatsTitle(request, topStats.size());
+        final TextComponent shortTitle = getTopStatsTitleShort(request, topStats.size());
+        final TextComponent list = getTopStatList(topStats, request);
+        final boolean useEnters = config.useEnters(Target.TOP, false);
+        final boolean useEntersForShared = config.useEnters(Target.TOP, true);
+
+        return (shareCode, sender) -> {
+            TextComponent.Builder topBuilder = text();
+
+            //if we're adding a share-button
+            if (shareCode != null) {
+                if (useEnters) {
+                    topBuilder.append(newline());
+                }
+                topBuilder.append(title)
+                            .append(space())
+                            .append(componentFactory.shareButtonComponent(shareCode))
+                        .append(list);
+            }
+            //if we're adding a "shared by" component
+            else if (sender != null) {
+                if (useEntersForShared) {
+                    topBuilder.append(newline());
+                }
+                topBuilder.append(shortTitle)
+                            .append(space())
+                            .append(componentFactory.hoveringStatResultComponent(text()
+                                    .append(title)
+                                    .append(list)
+                                    .build()))
+                        .append(newline())
+                        .append(componentFactory.messageSharedComponent(
+                                getSharerNameComponent(sender)));
+            }
+            //if we're not adding a share-button or a "shared by" component
+            else {
+                if (useEnters) {
+                    topBuilder.append(newline());
+                }
+                topBuilder.append(title)
+                        .append(list);
+            }
+            return topBuilder.build();
+        };
+    }
+
+    private BiFunction<UUID, CommandSender, TextComponent> getFormattingFunction(@NotNull TextComponent statResult, Target selection) {
+        boolean useEnters = config.useEnters(selection, false);
+        boolean useEntersForShared = config.useEnters(selection, true);
+
+        return (shareCode, sender) -> {
+            TextComponent.Builder statBuilder = text();
+
+            //if we're adding a share-button
+            if (shareCode != null) {
+                if (useEnters) {
+                    statBuilder.append(newline());
+                }
+                statBuilder.append(statResult)
+                        .append(space())
+                        .append(componentFactory.shareButtonComponent(shareCode));
+            }
+            //if we're adding a "shared by" component
+            else if (sender != null) {
+                if (useEntersForShared) {
+                    statBuilder.append(newline());
+                }
+                statBuilder.append(statResult)
+                        .append(newline())
+                        .append(componentFactory.messageSharedComponent(
+                                getSharerNameComponent(sender)));
+            }
+            //if we're not adding a share-button or a "shared by" component
+            else {
+                if (useEnters) {
+                    statBuilder.append(newline());
+                }
+                statBuilder.append(statResult);
+            }
+            return statBuilder.build();
+        };
+    }
+
+    private Component getSharerNameComponent(CommandSender sender) {
+        if (sender instanceof Player player) {
+            Component senderName = EasterEggProvider.getPlayerName(player);
+            if (senderName != null) {
+                return senderName;
+            }
+        }
+        return componentFactory.sharerNameComponent(sender.getName());
+    }
+
+    private TextComponent getTopStatsTitle(StatRequest request, int statListSize) {
+        return Component.text()
+                .append(componentFactory.pluginPrefixComponent()).append(space())
+                .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
+                .append(componentFactory.titleNumberComponent(statListSize)).append(space())
+                .append(getStatNameComponent(request))  //space is provided by statUnitComponent
+                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))
+                .build();
+    }
+
+    private TextComponent getTopStatsTitleShort(StatRequest request, int statListSize) {
+        return Component.text()
+                .append(componentFactory.titleComponent(config.getTopStatsTitle(), Target.TOP)).append(space())
+                .append(componentFactory.titleNumberComponent(statListSize)).append(space())
+                .append(getStatNameComponent(request))  //space is provided by statUnitComponent
+                .build();
+    }
+
+    private TextComponent getTopStatList(LinkedHashMap<String, Integer> topStats, StatRequest request) {
+        TextComponent.Builder topList = Component.text();
         boolean useDots = config.useDots();
         boolean boldNames = config.playerNameIsBold();
         Set<String> playerNames = topStats.keySet();
@@ -141,7 +302,7 @@ public class MessageWriter {
         for (String playerName : playerNames) {
             TextComponent.Builder playerNameBuilder = componentFactory.playerNameBuilder(playerName, Target.TOP);
             topList.append(newline())
-                    .append(componentFactory.rankingNumberComponent(++count + "."))
+                    .append(componentFactory.rankingNumberComponent(" " + ++count + "."))
                     .append(space());
             if (useDots) {
                 topList.append(playerNameBuilder)
@@ -157,30 +318,6 @@ public class MessageWriter {
             topList.append(space()).append(getStatNumberComponent(request.getStatistic(), topStats.get(playerName), Target.TOP, request.isConsoleSender()));
         }
         return topList.build();
-    }
-
-    public TextComponent formatServerStat(long stat, @NotNull StatRequest request) {
-        return Component.text()
-                .append(componentFactory.titleComponent(config.getServerTitle(), Target.SERVER))
-                .append(space())
-                .append(componentFactory.serverNameComponent(config.getServerName()))
-                .append(space())
-                .append(getStatNumberComponent(request.getStatistic(), stat, Target.SERVER, request.isConsoleSender()))
-                .append(space())
-                .append(getStatNameComponent(request))
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnit
-                .build();
-    }
-
-    public TextComponent usageExamples(boolean isBukkitConsole) {
-        return new ExampleMessage(componentFactory, isBukkitConsole);
-    }
-
-    public TextComponent helpMsg(boolean isConsoleSender) {
-        return new HelpMessage(componentFactory,
-                config.useHoverText() && !isConsoleSender,
-                isConsoleSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit"),
-                config.getTopListMaxSize());
     }
 
     /** Depending on the config settings, return either a TranslatableComponent representing

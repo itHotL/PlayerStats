@@ -1,12 +1,11 @@
 package com.gmail.artemis.the.gr8.playerstats.msg.msgutils;
 
-import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
+import com.gmail.artemis.the.gr8.playerstats.msg.BukkitConsoleComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.msg.ComponentFactory;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.Style;
-import net.kyori.adventure.text.format.TextColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -19,37 +18,35 @@ public class ExampleMessage implements TextComponent {
     private final TextComponent exampleMessage;
     private final ComponentFactory componentFactory;
 
-    public ExampleMessage(ComponentFactory componentFactory, boolean isBukkitConsole) {
-        this.componentFactory = componentFactory;
-        exampleMessage = getExampleMessage(isBukkitConsole);
+    public ExampleMessage(ComponentFactory factory) {
+        componentFactory = factory;
+        exampleMessage = getExampleMessage();
     }
 
-    public TextComponent getExampleMessage(boolean isBukkitConsole) {
-        TextColor mainColor = isBukkitConsole ? PluginColor.GOLD.getConsoleColor() : PluginColor.GOLD.getColor();
-        TextColor accentColor1 = isBukkitConsole ? PluginColor.MEDIUM_GOLD.getConsoleColor() : PluginColor.MEDIUM_GOLD.getColor();
-        TextColor accentColor3 = isBukkitConsole ? PluginColor.LIGHT_YELLOW.getConsoleColor() : PluginColor.LIGHT_YELLOW.getColor();
-        String arrow = isBukkitConsole ? "    -> " : "    → ";  //4 spaces, alt + 26, 1 space
+    public TextComponent getExampleMessage() {
+        String arrow = componentFactory instanceof BukkitConsoleComponentFactory ? "    -> " : "    → ";  //4 spaces, alt + 26, 1 space
 
         return Component.newline()
-                .append(componentFactory.prefixTitleComponent(isBukkitConsole))
+                .append(componentFactory.prefixTitleComponent())
                 .append(Component.newline())
-                .append(text("Examples: ").color(mainColor))
+                .append(text("Examples: ").color(componentFactory.msgMain2()))
                 .append(Component.newline())
-                .append(text(arrow).color(mainColor)
+                .append(text(arrow).color(componentFactory.msgMain2())
                         .append(text("/statistic ")
-                                .append(text("animals_bred ").color(accentColor1)
-                                        .append(text("top").color(accentColor3)))))
+                                .append(text("animals_bred ").color(componentFactory.msgAccent2A())
+                                        .append(text("top").color(componentFactory.msgAccent2B())))))
                 .append(Component.newline())
-                .append(text(arrow).color(mainColor)
+                .append(text(arrow).color(componentFactory.msgMain2())
                         .append(text("/statistic ")
-                                .append(text("mine_block diorite ").color(accentColor1)
-                                        .append(text("me").color(accentColor3)))))
+                                .append(text("mine_block diorite ").color(componentFactory.msgAccent2A())
+                                        .append(text("me").color(componentFactory.msgAccent2B())))))
                 .append(Component.newline())
-                .append(text(arrow).color(mainColor)
+                .append(text(arrow).color(componentFactory.msgMain2())
                         .append(text("/statistic ")
-                                .append(text("deaths ").color(accentColor1)
-                                        .append(text("player ").color(accentColor3)
-                                                .append(text("Artemis_the_gr8"))))));
+                                .append(text("deaths ").color(componentFactory.msgAccent2A())
+                                        .append(text("player ").color(componentFactory.msgAccent2B())
+                                                .append(text("Artemis_the_gr8")
+                                                        .color(componentFactory.getExampleNameColor()))))));
     }
 
     @Override

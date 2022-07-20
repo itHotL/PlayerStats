@@ -7,7 +7,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class JoinListener implements Listener {
 
-    private final ThreadManager threadManager;
+    private static ThreadManager threadManager;
 
     public JoinListener(ThreadManager t) {
         threadManager = t;

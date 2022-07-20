@@ -1,14 +1,12 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
+import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
+import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.TextComponent;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
@@ -18,39 +16,34 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 
 public class StatCommand implements CommandExecutor {
 
-    private final BukkitAudiences adventure;
-    private final MessageWriter messageWriter;
-    private final ThreadManager threadManager;
+    private static ThreadManager threadManager;
+    private static OutputManager outputManager;
+    private final OfflinePlayerHandler offlinePlayerHandler;
 
-    public StatCommand(BukkitAudiences a, MessageWriter m, ThreadManager t) {
-        adventure = a;
-        messageWriter = m;
+    public StatCommand(OutputManager m, ThreadManager t, OfflinePlayerHandler o) {
         threadManager = t;
+        outputManager = m;
+        offlinePlayerHandler = o;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
-        boolean isBukkitConsole = sender instanceof ConsoleCommandSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit");
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {  //in case of less than 1 argument or "help", display the help message
-            adventure.sender(sender).sendMessage(messageWriter.helpMsg(sender instanceof ConsoleCommandSender));
+            outputManager.sendHelp(sender);
         }
         else if (args[0].equalsIgnoreCase("examples") ||
                 args[0].equalsIgnoreCase("example")) {  //in case of "statistic examples", show examples
-            adventure.sender(sender).sendMessage(messageWriter.usageExamples(isBukkitConsole));
+            outputManager.sendExamples(sender);
         }
         else {
             StatRequest request = generateRequest(sender, args);
-            TextComponent issues = checkRequest(request, isBukkitConsole);
-            if (issues == null) {
+            if (requestIsValid(request)) {
                 threadManager.startStatThread(request);
-            }
-            else {
-                adventure.sender(sender).sendMessage(issues);
+            } else {
                 return false;
             }
         }
@@ -90,7 +83,7 @@ public class StatCommand implements CommandExecutor {
                     request.setSelection(Target.SERVER);
                 }
             }
-            else if (OfflinePlayerHandler.isRelevantPlayer(arg) && request.getPlayerName() == null) {
+            else if (offlinePlayerHandler.isRelevantPlayer(arg) && request.getPlayerName() == null) {
                 request.setPlayerName(arg);
                 request.setSelection(Target.PLAYER);
             }
@@ -136,28 +129,32 @@ public class StatCommand implements CommandExecutor {
         }
     }
 
-    /** This method validates the StatRequest and returns feedback in the form of a TextComponent.
+    /** This method validates the StatRequest and returns feedback to the player if it returns false.
      It checks the following:
      <p>1. Is a Statistic set?</p>
      <p>2. Is a subStat needed, and is a subStat Enum Constant present? (block/entity/item)</p>
      <p>3. If the target is PLAYER, is a valid PlayerName provided? </p>
-     @return null if the Request is valid, and an explanation message otherwise. */
-    private @Nullable TextComponent checkRequest(StatRequest request, boolean isBukkitConsole) {
+     @return true if the Request is valid, and false + an explanation message otherwise. */
+    private boolean requestIsValid(StatRequest request) {
         if (request.getStatistic() == null) {
-            return messageWriter.missingStatName(isBukkitConsole);
+            outputManager.sendFeedbackMsg(request.getCommandSender(), StandardMessage.MISSING_STAT_NAME);
+            return false;
         }
         Statistic.Type type = request.getStatistic().getType();
         if (request.getSubStatEntry() == null && type != Statistic.Type.UNTYPED) {
-            return messageWriter.missingSubStatName(type, isBukkitConsole);
+            outputManager.sendFeedbackMsgMissingSubStat(request.getCommandSender(), type);
+            return false;
         }
         else if (!matchingSubStat(request)) {
-            return messageWriter.wrongSubStatType(type, request.getSubStatEntry(), isBukkitConsole);
+            outputManager.sendFeedbackMsgWrongSubStat(request.getCommandSender(), type, request.getSubStatEntry());
+            return false;
         }
         else if (request.getSelection() == Target.PLAYER && request.getPlayerName() == null) {
-            return messageWriter.missingPlayerName(isBukkitConsole);
+            outputManager.sendFeedbackMsg(request.getCommandSender(), StandardMessage.MISSING_PLAYER_NAME);
+            return false;
         }
         else {
-            return null;
+            return true;
         }
     }
 

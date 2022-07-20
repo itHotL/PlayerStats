@@ -1,17 +1,17 @@
 package com.gmail.artemis.the.gr8.playerstats.reload;
 
+import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
+import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
+import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Set;
@@ -22,24 +22,26 @@ import java.util.function.Predicate;
 
 public class ReloadThread extends Thread {
 
-    private final int threshold;
-    private final int reloadThreadID;
-
-    private final BukkitAudiences adventure;
     private static ConfigHandler config;
-    private static MessageWriter messageWriter;
+    private static OutputManager messageSender;
+    private final OfflinePlayerHandler offlinePlayerHandler;
 
+    private static ShareManager shareManager;
+
+    private final int reloadThreadID;
     private final StatThread statThread;
+
     private final CommandSender sender;
 
-    public ReloadThread(BukkitAudiences a, ConfigHandler c, MessageWriter m, int threshold, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
-        this.threshold = threshold;
-        reloadThreadID = ID;
 
-        adventure = a;
+    public ReloadThread(ConfigHandler c, OutputManager m, OfflinePlayerHandler o, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
         config = c;
-        messageWriter = m;
+        messageSender = m;
+        offlinePlayerHandler = o;
 
+        shareManager = ShareManager.getInstance(c);
+
+        reloadThreadID = ID;
         statThread = s;
         sender = se;
 
@@ -57,31 +59,34 @@ public class ReloadThread extends Thread {
                 MyLogger.waitingForOtherThread(this.getName(), statThread.getName());
                 statThread.join();
             } catch (InterruptedException e) {
-                MyLogger.logException(e, "ReloadThread", "run(), trying to join" + statThread.getName());
+                MyLogger.logException(e, "ReloadThread", "run(), trying to join " + statThread.getName());
                 throw new RuntimeException(e);
             }
         }
 
         if (reloadThreadID != 1 && config.reloadConfig()) {  //during a reload
             MyLogger.logMsg("Reloading!", false);
-            MyLogger.setDebugLevel(config.getDebugLevel());
-            MessageWriter.updateComponentFactory();
-            loadOfflinePlayers();
+            reloadEverything();
 
-            boolean isBukkitConsole = sender instanceof ConsoleCommandSender && Bukkit.getName().equalsIgnoreCase("CraftBukkit");
             if (sender != null) {
-                adventure.sender(sender).sendMessage(
-                        messageWriter.reloadedConfig(isBukkitConsole));
+                messageSender.sendFeedbackMsg(sender, StandardMessage.RELOADED_CONFIG);
             }
         }
         else {  //during first start-up
             MyLogger.setDebugLevel(config.getDebugLevel());
-            loadOfflinePlayers();
+            offlinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
             ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
         }
     }
 
-    private void loadOfflinePlayers() {
+    private void reloadEverything() {
+        MyLogger.setDebugLevel(config.getDebugLevel());
+        messageSender.updateMessageWriters(config);
+        offlinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
+        shareManager.updateSettings(config);
+    }
+
+    private ConcurrentHashMap<String, UUID> loadOfflinePlayers() {
         long time = System.currentTimeMillis();
 
         OfflinePlayer[] offlinePlayers;
@@ -114,13 +119,13 @@ public class ReloadThread extends Thread {
         int size = offlinePlayers != null ? offlinePlayers.length : 16;
         ConcurrentHashMap<String, UUID> playerMap = new ConcurrentHashMap<>(size);
 
-        ReloadAction task = new ReloadAction(threshold, offlinePlayers, config.getLastPlayedLimit(), playerMap);
+        ReloadAction task = new ReloadAction(offlinePlayers, config.getLastPlayedLimit(), playerMap);
         MyLogger.actionCreated((offlinePlayers != null) ? offlinePlayers.length : 0);
         ForkJoinPool.commonPool().invoke(task);
         MyLogger.actionFinished(1);
 
-        OfflinePlayerHandler.updateOfflinePlayerList(playerMap);
         MyLogger.logTimeTaken("ReloadThread",
-                ("loaded " + OfflinePlayerHandler.getOfflinePlayerCount() + " offline players"), time);
+                ("loaded " + playerMap.size() + " offline players"), time);
+        return playerMap;
     }
 }

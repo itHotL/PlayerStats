@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.config;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -11,7 +12,7 @@ import com.tchristofferson.configupdater.ConfigUpdater;
 public class ConfigUpdateHandler {
 
     /** Add new key-value pairs to the config without losing comments, using <a href="https://github.com/tchristofferson/Config-Updater">tchristofferson's Config-Updater</a> */
-    public ConfigUpdateHandler(Main plugin, File configFile, double configVersion) {
+    public ConfigUpdateHandler(Main plugin, File configFile, int configVersion) {
         YamlConfiguration configuration = YamlConfiguration.loadConfiguration(configFile);
         updateTopListDefault(configuration);
         updateDefaultColors(configuration);
@@ -19,14 +20,14 @@ public class ConfigUpdateHandler {
         try {
             configuration.save(configFile);
             ConfigUpdater.update(plugin, configFile.getName(), configFile);
-            plugin.getLogger().warning("Your config has been updated to version " + configVersion +
-                    ". This version includes some slight changes in the default color scheme, but none of your custom settings should have been changed!");
+            MyLogger.logMsg("Your config has been updated to version " + configVersion +
+                    ", but all of your custom settings should still be there!");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    /** Adjusts the value for "top-list" to migrate the config file from versions 1 or 2 to version 3.*/
+    /** Adjusts the value for "top-list" to migrate the config file from versions 1 or 2 to version 3 and above.*/
     private void updateTopListDefault(YamlConfiguration configuration) {
         String oldTitle = configuration.getString("top-list-title");
         if (oldTitle != null && oldTitle.equalsIgnoreCase("Top [x]")) {
@@ -34,11 +35,14 @@ public class ConfigUpdateHandler {
         }
     }
 
-    /** Adjusts some of the default colors to migrate from versions 2 or 3 to version 4.1.*/
+    /** Adjusts some of the default colors to migrate from versions 2 or 3 to version 4 and above.*/
     private void updateDefaultColors(YamlConfiguration configuration) {
         updateColor(configuration, "top-list.title", "yellow", "#FFD52B");
+        updateColor(configuration, "top-list.title", "#FFEA40", "#FFD52B");
         updateColor(configuration, "top-list.stat-names", "yellow", "#FFD52B");
+        updateColor(configuration, "top-list.stat-names", "#FFEA40", "#FFD52B");
         updateColor(configuration, "top-list.sub-stat-names", "#FFD52B", "yellow");
+
         updateColor(configuration, "individual-statistics.stat-names", "yellow", "#FFD52B");
         updateColor(configuration, "individual-statistics.sub-stat-names", "#FFD52B", "yellow");
         updateColor(configuration, "total-server.title", "gold", "#55AAFF");

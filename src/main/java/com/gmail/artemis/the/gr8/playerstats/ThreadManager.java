@@ -1,51 +1,69 @@
 package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
-import com.gmail.artemis.the.gr8.playerstats.msg.MessageWriter;
+import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
+import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;
 
+public final class ThreadManager {
 
-public class ThreadManager {
+    private static volatile ThreadManager instance;
 
-    private final int threshold = 10;
+    private final static int threshold = 10;
     private int statThreadID;
     private int reloadThreadID;
 
-    private final Main plugin;
-    private final BukkitAudiences adventure;
     private static ConfigHandler config;
-    private static MessageWriter messageWriter;
+    private static OutputManager messageSender;
+    private final OfflinePlayerHandler offlinePlayerHandler;
 
     private ReloadThread lastActiveReloadThread;
     private StatThread lastActiveStatThread;
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    public ThreadManager(BukkitAudiences a, ConfigHandler c, MessageWriter m, Main p) {
-        adventure = a;
+    private ThreadManager(ConfigHandler c, OutputManager m, OfflinePlayerHandler o) {
         config = c;
-        messageWriter = m;
-        plugin = p;
+        messageSender = m;
+        offlinePlayerHandler = o;
 
         statThreads = new HashMap<>();
         statThreadID = 0;
         reloadThreadID = 0;
         lastRecordedCalcTime = 0;
+
         startReloadThread(null);
+    }
+
+    public static ThreadManager getInstance(ConfigHandler config, OutputManager messageSender, OfflinePlayerHandler offlinePlayerHandler) {
+        ThreadManager threadManager = instance;
+        if (threadManager != null) {
+            return threadManager;
+        }
+        synchronized (ThreadManager.class) {
+            if (instance == null) {
+                instance = new ThreadManager(config, messageSender, offlinePlayerHandler);
+            }
+            return instance;
+        }
+    }
+
+    public static int getTaskThreshold() {
+        return threshold;
     }
 
     public void startReloadThread(CommandSender sender) {
         if (lastActiveReloadThread == null || !lastActiveReloadThread.isAlive()) {
             reloadThreadID += 1;
 
-            lastActiveReloadThread = new ReloadThread(adventure, config, messageWriter, threshold, reloadThreadID, lastActiveStatThread, sender);
+            lastActiveReloadThread = new ReloadThread(config, messageSender, offlinePlayerHandler, reloadThreadID, lastActiveStatThread, sender);
             lastActiveReloadThread.start();
         }
         else {
@@ -60,7 +78,7 @@ public class ThreadManager {
         if (config.limitStatRequests() && statThreads.containsKey(cmdSender)) {
             Thread runningThread = statThreads.get(cmdSender);
             if (runningThread.isAlive()) {
-                adventure.sender(request.getCommandSender()).sendMessage(messageWriter.requestAlreadyRunning(request.isBukkitConsoleSender()));
+                messageSender.sendFeedbackMsg(request.getCommandSender(), StandardMessage.REQUEST_ALREADY_RUNNING);
             } else {
                 startNewStatThread(request);
             }
@@ -82,7 +100,7 @@ public class ThreadManager {
     }
 
     private void startNewStatThread(StatRequest request) {
-        lastActiveStatThread = new StatThread(adventure, config, messageWriter, plugin, statThreadID, threshold, request, lastActiveReloadThread);
+        lastActiveStatThread = new StatThread(config, messageSender, offlinePlayerHandler, statThreadID, request, lastActiveReloadThread);
         statThreads.put(request.getCommandSender().getName(), lastActiveStatThread);
         lastActiveStatThread.start();
     }

@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ReloadCommand implements CommandExecutor {
 
-    private final ThreadManager threadManager;
+    private static ThreadManager threadManager;
 
     public ReloadCommand(ThreadManager t) {
         threadManager = t;

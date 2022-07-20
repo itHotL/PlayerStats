@@ -8,10 +8,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TabCompleteHelper {
+public final class TabCompleteHelper {
 
     private static List<String> itemBrokenSuggestions;
-    private static List<String> entityKilledSuggestions;
+    private static List<String> entitySuggestions;
 
     public TabCompleteHelper() {
         prepareLists();
@@ -29,12 +29,13 @@ public class TabCompleteHelper {
         return EnumHandler.getBlockNames();
     }
 
-    public List<String> getEntityKilledSuggestions() {
-        return entityKilledSuggestions;
+    public List<String> getEntitySuggestions() {
+        return entitySuggestions;
     }
 
 
     private static void prepareLists() {
+        //breaking an item means running its durability negative
         itemBrokenSuggestions = Arrays.stream(Material.values())
                 .parallel()
                 .filter(Material::isItem)
@@ -43,7 +44,8 @@ public class TabCompleteHelper {
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
 
-        entityKilledSuggestions = Arrays.stream(EntityType.values())
+        //the only statistics dealing with entities are killed_entity and entity_killed_by
+        entitySuggestions = Arrays.stream(EntityType.values())
                 .parallel()
                 .filter(EntityType::isAlive)
                 .map(EntityType::toString)

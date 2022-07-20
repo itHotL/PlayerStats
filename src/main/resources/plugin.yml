@@ -1,7 +1,7 @@
 main: com.gmail.artemis.the.gr8.playerstats.Main
 name: PlayerStats
-version: 1.5
-api-version: 1.18
+version: 1.6
+api-version: 1.13
 description: adds commands to view player statistics in chat
 author: Artemis_the_gr8
 commands:
@@ -11,16 +11,26 @@ commands:
       - stats
     description: general statistic command
     permission: playerstats.stat
+  statisticshare:
+    aliases:
+      - statshare
+      - statsshare
+    description: shares last stat lookup in chat
+    usage: "§b/statshare"
+    permission: playerstats.share
   statisticreload:
     aliases:
       - statreload
       - statsreload
     description: reloads the config
-    usage: "§a/statisticreload"
+    usage: "§a/statreload"
     permission: playerstats.reload
 permissions:
   playerstats.stat:
     description: allows usage of /statistic
+    default: true
+  playerstats.share:
+    description: allows sharing stats in chat
     default: true
   playerstats.reload:
     description: allows usage of /statreload

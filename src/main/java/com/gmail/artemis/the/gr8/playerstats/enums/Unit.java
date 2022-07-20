@@ -3,7 +3,6 @@ package com.gmail.artemis.the.gr8.playerstats.enums;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.NotNull;
 
-
 public enum Unit {
     NUMBER (Type.UNTYPED, "Times"),
     KM (Type.DISTANCE, "km"),

@@ -14,18 +14,21 @@ import java.util.stream.Collectors;
 
 public class TabCompleter implements org.bukkit.command.TabCompleter {
 
-    private final List<String> commandOptions;
+    private final OfflinePlayerHandler offlinePlayerHandler;
     private final TabCompleteHelper tabCompleteHelper;
 
-    //TODO add "example" to the list
-    public TabCompleter() {
+    private final List<String> commandOptions;
+
+    public TabCompleter(OfflinePlayerHandler o) {
+        offlinePlayerHandler = o;
+        tabCompleteHelper = new TabCompleteHelper();
+
         commandOptions = new ArrayList<>();
         commandOptions.add("top");
         commandOptions.add("player");
         commandOptions.add("server");
         commandOptions.add("me");
 
-        tabCompleteHelper = new TabCompleteHelper();
     }
 
     //args[0] = statistic                                                                        (length = 1)
@@ -37,34 +40,31 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         List<String> tabSuggestions = new ArrayList<>();
 
-        //after typing "stat", suggest a list of viable statistics
         if (args.length >= 1) {
             String currentArg = args[args.length -1];
 
-            if (args.length == 1) {
-                tabSuggestions = getTabSuggestions(EnumHandler.getStatNames(), args[0]);
+            if (args.length == 1) {  //after typing "stat", suggest a list of viable statistics
+                tabSuggestions = getFirstArgSuggestions(args[0]);
             }
 
-            //after checking if args[0] is a viable statistic, suggest substatistic OR commandOptions
-            else {
+            else {   //after checking if args[0] is a viable statistic, suggest substatistic OR commandOptions
                 String previousArg = args[args.length -2];
 
                 if (EnumHandler.isStatistic(previousArg)) {
                     Statistic stat = EnumHandler.getStatEnum(previousArg);
-
                     if (stat != null) {
                         tabSuggestions = getTabSuggestions(getRelevantList(stat), currentArg);
                     }
                 }
 
-                //if previous arg = "player", suggest playerNames
+                //if previous arg = "player"
                 else if (previousArg.equalsIgnoreCase("player")) {
-                    //if args.length-3 is kill_entity or entity_killed_by
+
                     if (args.length >= 3 && EnumHandler.isEntityStatistic(args[args.length-3])) {
-                        tabSuggestions = commandOptions;
+                        tabSuggestions = commandOptions;  //if arg before "player" was entity-stat, suggest commandOptions
                     }
-                    else {
-                        tabSuggestions = getTabSuggestions(OfflinePlayerHandler.getOfflinePlayerNames(), currentArg);
+                    else {  //otherwise "player" is target-flag: suggest playerNames
+                        tabSuggestions = getTabSuggestions(offlinePlayerHandler.getOfflinePlayerNames(), currentArg);
                     }
                 }
 
@@ -75,6 +75,13 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
             }
         }
         return tabSuggestions;
+    }
+
+    private List<String> getFirstArgSuggestions(String currentArg) {
+        List<String> suggestions = EnumHandler.getStatNames();
+        suggestions.add("examples");
+        suggestions.add("help");
+        return getTabSuggestions(suggestions, currentArg);
     }
 
     private List<String> getTabSuggestions(List<String> completeList, String currentArg) {
@@ -91,14 +98,12 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
             case ITEM -> {
                 if (stat == Statistic.BREAK_ITEM) {
                     return tabCompleteHelper.getItemBrokenSuggestions();
-                } else if (stat == Statistic.CRAFT_ITEM) {
-                    return tabCompleteHelper.getAllItemNames();  //TODO fix
                 } else {
                     return tabCompleteHelper.getAllItemNames();
                 }
             }
             case ENTITY -> {
-                return tabCompleteHelper.getEntityKilledSuggestions();
+                return tabCompleteHelper.getEntitySuggestions();
             }
             default -> {
                 return commandOptions;
