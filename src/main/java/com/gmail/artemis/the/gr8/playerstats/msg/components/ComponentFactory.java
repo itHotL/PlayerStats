@@ -1,4 +1,4 @@
-package com.gmail.artemis.the.gr8.playerstats.msg;
+package com.gmail.artemis.the.gr8.playerstats.msg.components;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
@@ -34,14 +34,17 @@ public class ComponentFactory {
     protected TextColor PREFIX;  //gold
     protected TextColor BRACKETS;  //gray
     protected TextColor UNDERSCORE;  //dark_purple
+
     protected TextColor MSG_MAIN;  //medium_blue
     protected TextColor MSG_ACCENT; //blue
+
     protected TextColor MSG_MAIN_2;  //gold
     protected TextColor MSG_ACCENT_2A;  //medium_gold
     protected TextColor MSG_ACCENT_2B;  //light_yellow
-    protected TextColor HOVER_MSG;  //light_blue
-    protected TextColor CLICKED_MSG;  //light_purple
-    protected TextColor HOVER_ACCENT;  //light_gold
+
+    protected TextColor MSG_HOVER;  //light_blue
+    protected TextColor MSG_CLICKED;  //light_purple
+    protected TextColor MSG_HOVER_ACCENT;  //light_gold
 
 
     public ComponentFactory(ConfigHandler c) {
@@ -53,48 +56,17 @@ public class ComponentFactory {
         PREFIX = PluginColor.GOLD.getColor();
         BRACKETS = PluginColor.GRAY.getColor();
         UNDERSCORE = PluginColor.DARK_PURPLE.getColor();
+
         MSG_MAIN = PluginColor.MEDIUM_BLUE.getColor();
         MSG_ACCENT = PluginColor.BLUE.getColor();
+
         MSG_MAIN_2 = PluginColor.GOLD.getColor();
         MSG_ACCENT_2A = PluginColor.MEDIUM_GOLD.getColor();
         MSG_ACCENT_2B = PluginColor.LIGHT_YELLOW.getColor();
-        CLICKED_MSG = PluginColor.LIGHT_PURPLE.getColor();
-        HOVER_MSG = PluginColor.LIGHT_BLUE.getColor();
-        HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
-    }
 
-    public TextColor prefix() {
-        return PREFIX;
-    }
-    public TextColor brackets() {
-        return BRACKETS;
-    }
-    public TextColor underscore() {
-        return UNDERSCORE;
-    }
-    public TextColor msgMain() {
-        return MSG_MAIN;
-    }
-    public TextColor msgAccent() {
-        return MSG_ACCENT;
-    }
-    public TextColor msgMain2() {
-        return MSG_MAIN_2;
-    }
-    public TextColor msgAccent2A() {
-        return MSG_ACCENT_2A;
-    }
-    public TextColor msgAccent2B() {
-        return MSG_ACCENT_2B;
-    }
-    public TextColor clickedMsg() {
-        return CLICKED_MSG;
-    }
-    public TextColor hoverMsg() {
-        return HOVER_MSG;
-    }
-    public TextColor hoverAccent() {
-        return HOVER_ACCENT;
+        MSG_HOVER = PluginColor.LIGHT_BLUE.getColor();
+        MSG_HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
+        MSG_CLICKED = PluginColor.LIGHT_PURPLE.getColor();
     }
 
     public TextColor getExampleNameColor() {
@@ -106,7 +78,7 @@ public class ComponentFactory {
 
 
     /** Returns [PlayerStats]. */
-    public TextComponent pluginPrefixComponent() {
+    public TextComponent pluginPrefix() {
         return text("[")
                 .color(BRACKETS)
                 .append(text("PlayerStats").color(PREFIX))
@@ -114,73 +86,125 @@ public class ComponentFactory {
     }
 
     /** Returns [PlayerStats] surrounded by underscores on both sides. */
-    public TextComponent prefixTitleComponent() {
+    public TextComponent pluginPrefixAsTitle() {
         //12 underscores for both console and in-game
         return text("____________").color(UNDERSCORE)
                 .append(text("    "))  //4 spaces
-                .append(pluginPrefixComponent())
+                .append(pluginPrefix())
                 .append(text("    "))  //4 spaces
                 .append(text("____________"));
     }
 
     /** Returns a TextComponent with the input String as content, with color Gray and decoration Italic.*/
-    public TextComponent subTitleComponent(String content) {
+    public TextComponent subTitle(String content) {
         return text(content).color(BRACKETS).decorate(TextDecoration.ITALIC);
     }
 
     /** Returns a TextComponents in the style of a default plugin message, with color Medium_Blue. */
-    public TextComponent messageComponent() {
+    public TextComponent message() {
         return text().color(MSG_MAIN).build();
     }
 
-    public TextComponent messageAccentComponent() {
+    public TextComponent messageAccent() {
         return text().color(MSG_ACCENT).build();
     }
 
-    public TextComponent.Builder playerNameBuilder(String playerName, Target selection) {
-        return getComponentBuilder(playerName,
+    public TextComponent title(String content, Target selection) {
+        return getComponent(content,
+                getColorFromString(config.getTitleDecoration(selection, false)),
+                getStyleFromString(config.getTitleDecoration(selection, true)));
+    }
+
+    public TextComponent titleNumber(int number) {
+        return getComponent(number + "",
+                getColorFromString(config.getTitleNumberDecoration(false)),
+                getStyleFromString(config.getTitleNumberDecoration(true)));
+    }
+
+    public TextComponent rankNumber(String number) {
+        return getComponent(number,
+                getColorFromString(config.getRankNumberDecoration(false)),
+                getStyleFromString(config.getRankNumberDecoration(true)));
+    }
+
+    public TextComponent dots() {
+        return getComponent(null,
+                getColorFromString(config.getDotsDecoration(false)),
+                getStyleFromString(config.getDotsDecoration(true)));
+    }
+
+    public TextComponent serverName(String serverName) {
+        TextComponent colon = text(":").color(getColorFromString(config.getServerNameDecoration(false)));
+        return getComponent(serverName,
+                getColorFromString(config.getServerNameDecoration(false)),
+                getStyleFromString(config.getServerNameDecoration(true)))
+                .append(colon);
+    }
+
+    public TextComponent playerName(String playerName, Target selection) {
+        return getComponent(playerName,
                 getColorFromString(config.getPlayerNameDecoration(selection, false)),
                 getStyleFromString(config.getPlayerNameDecoration(selection, true)));
     }
 
+    public TextComponent sharerName(String sharerName) {
+        return getComponent(sharerName,
+                getSharerNameColor(),
+                getStyleFromString(config.getSharerNameDecoration(true)));
+    }
+
+    public TextComponent shareButton(UUID shareCode) {
+        return surroundingBrackets(
+                text("Share")
+                        .color(MSG_HOVER)
+                        .clickEvent(ClickEvent.runCommand("/statshare " + shareCode))
+                        .hoverEvent(HoverEvent.showText(text("Click here to share this statistic in chat!")
+                                .color(MSG_HOVER_ACCENT))));
+    }
+
+    public TextComponent sharedByMessage(Component playerName) {
+        return surroundingBrackets(
+                text().append(
+                                getComponent("Shared by",
+                                        getColorFromString(config.getSharedByTextDecoration(false)),
+                                        getStyleFromString(config.getSharedByTextDecoration(true))))
+                        .append(space())
+                        .append(playerName)
+                        .build());
+    }
+
+    public TextComponent statResultInHoverText(TextComponent statResult) {
+        return surroundingBrackets(
+                text().append(text("Hover Here")
+                                .color(MSG_CLICKED)
+                                .decorate(TextDecoration.ITALIC)
+                                .hoverEvent(HoverEvent.showText(statResult)))
+                        .build());
+    }
+
     /** @param prettyStatName a statName with underscores removed and each word capitalized
      @param prettySubStatName if present, a subStatName with underscores removed and each word capitalized*/
-    public TextComponent statNameTextComponent(String prettyStatName, @Nullable String prettySubStatName, Target selection) {
+    public TextComponent statAndSubStatName(String prettyStatName, @Nullable String prettySubStatName, Target selection) {
         TextComponent.Builder totalStatNameBuilder =  getComponentBuilder(prettyStatName,
                 getColorFromString(config.getStatNameDecoration(selection, false)),
                 getStyleFromString(config.getStatNameDecoration(selection, true)));
-        TextComponent subStat = subStatNameTextComponent(prettySubStatName, selection);
+        TextComponent subStat = subStatName(prettySubStatName, selection);
 
         if (!subStat.equals(Component.empty())) {
                 totalStatNameBuilder
                         .append(space().decorations(TextDecoration.NAMES.values(), false))
-                        .append(subStatNameTextComponent(prettySubStatName, selection));
+                        .append(subStatName(prettySubStatName, selection));
         }
         return totalStatNameBuilder.build();
     }
 
-    /** Returns a TextComponent for the subStatName, or an empty component.*/
-    private TextComponent subStatNameTextComponent(@Nullable String prettySubStatName, Target selection) {
-        if (prettySubStatName == null) {
-            return Component.empty();
-        } else {
-            return getComponentBuilder(null,
-                    getColorFromString(config.getSubStatNameDecoration(selection, false)),
-                    getStyleFromString(config.getSubStatNameDecoration(selection, true)))
-                            .append(text("("))
-                            .append(text(prettySubStatName))
-                            .append(text(")"))
-                    .build();
-        }
-    }
-
     /** Returns a TextComponent with TranslatableComponent as a child.*/
-    public TextComponent statNameTransComponent(String statKey, String subStatKey, Target selection) {
+    public TextComponent statAndSubStatNameTranslatable(String statKey, String subStatKey, Target selection) {
         TextComponent.Builder totalStatNameBuilder = getComponentBuilder(null,
                 getColorFromString(config.getStatNameDecoration(selection, false)),
                 getStyleFromString(config.getStatNameDecoration(selection, true)));
 
-        TextComponent subStat = subStatNameTransComponent(subStatKey, selection);
+        TextComponent subStat = subStatNameTranslatable(subStatKey, selection);
         if (statKey.equalsIgnoreCase("stat_type.minecraft.killed")) {
             return totalStatNameBuilder.append(killEntityBuilder(subStat)).build();
         }
@@ -198,8 +222,72 @@ public class ComponentFactory {
         }
     }
 
+    public TextComponent statNumber(String prettyNumber, Target selection) {
+        return getComponent(prettyNumber,
+                getColorFromString(config.getStatNumberDecoration(selection, false)),
+                getStyleFromString(config.getStatNumberDecoration(selection, true)));
+    }
+
+    public TextComponent statNumberWithHoverText(String mainNumber, String hoverNumber, @Nullable String hoverUnitName, @Nullable String hoverUnitKey, Target selection) {
+        return statNumberWithHoverText(mainNumber, hoverNumber, hoverUnitName, hoverUnitKey, null, selection);
+    }
+
+    public TextComponent damageNumberWithHoverText(String mainNumber, String hoverNumber, TextComponent heart, Target selection) {
+        return statNumberWithHoverText(mainNumber, hoverNumber, null, null, heart, selection);
+    }
+
+    public TextComponent statUnit(String unitName, String unitKey, Target selection) {
+        if (!(unitName == null && unitKey == null)) {
+            TextComponent.Builder statUnitBuilder = getComponentBuilder(null,
+                    getColorFromString(config.getSubStatNameDecoration(selection, false)),
+                    getStyleFromString(config.getSubStatNameDecoration(selection, true)));
+            if (unitKey != null) {
+                statUnitBuilder.append(translatable()
+                        .key(unitKey));
+            } else {
+                statUnitBuilder.append(text(unitName));
+            }
+            return surroundingBrackets(statUnitBuilder.build());
+        }
+        else {
+            return Component.empty();
+        }
+    }
+
+    public TextComponent heart(boolean isConsoleSender, boolean isHoverUnit) {
+        TextColor heartColor = TextColor.fromHexString("#FF1313");
+        char heart = isConsoleSender ? '\u2665' : '\u2764';
+        if (isHoverUnit) {
+            return Component.text(heart).color(heartColor);
+        }
+        TextComponent.Builder heartComponent = Component.text()
+                .content(String.valueOf(heart))
+                .color(heartColor);
+        if (config.useHoverText()) {
+            heartComponent.hoverEvent(HoverEvent.showText(
+                    text(Unit.HEART.getLabel())
+                            .color(MSG_HOVER_ACCENT)));
+        }
+        return surroundingBrackets(heartComponent.build());
+    }
+
+    /** Returns a TextComponent for the subStatName, or an empty component.*/
+    private TextComponent subStatName(@Nullable String prettySubStatName, Target selection) {
+        if (prettySubStatName == null) {
+            return Component.empty();
+        } else {
+            return getComponentBuilder(null,
+                    getColorFromString(config.getSubStatNameDecoration(selection, false)),
+                    getStyleFromString(config.getSubStatNameDecoration(selection, true)))
+                    .append(text("("))
+                    .append(text(prettySubStatName))
+                    .append(text(")"))
+                    .build();
+        }
+    }
+
     /** Returns a TranslatableComponent for the subStatName, or an empty component.*/
-    private TextComponent subStatNameTransComponent(String subStatKey, Target selection) {
+    private TextComponent subStatNameTranslatable(String subStatKey, Target selection) {
         if (subStatKey != null) {
             return getComponentBuilder(null,
                     getColorFromString(config.getSubStatNameDecoration(selection, false)),
@@ -234,21 +322,7 @@ public class ComponentFactory {
                         .args(subStat));
     }
 
-    public TextComponent statNumberComponent(String prettyNumber, Target selection) {
-        return getComponent(prettyNumber,
-                getColorFromString(config.getStatNumberDecoration(selection, false)),
-                getStyleFromString(config.getStatNumberDecoration(selection, true)));
-    }
-
-    public TextComponent damageNumberHoverComponent(String mainNumber, String hoverNumber, TextComponent heart, Target selection) {
-        return statNumberHoverComponent(mainNumber, hoverNumber, null, null, heart, selection);
-    }
-
-    public TextComponent statNumberHoverComponent(String mainNumber, String hoverNumber, @Nullable String hoverUnitName, @Nullable String hoverUnitKey, Target selection) {
-        return statNumberHoverComponent(mainNumber, hoverNumber, hoverUnitName, hoverUnitKey, null, selection);
-    }
-
-    private TextComponent statNumberHoverComponent(String mainNumber, String hoverNumber, @Nullable String hoverUnitName, @Nullable String hoverUnitKey, @Nullable TextComponent heart, Target selection) {
+    private TextComponent statNumberWithHoverText(String mainNumber, String hoverNumber, @Nullable String hoverUnitName, @Nullable String hoverUnitKey, @Nullable TextComponent heart, Target selection) {
         TextColor baseColor = getColorFromString(config.getStatNumberDecoration(selection, false));
         TextDecoration style = getStyleFromString(config.getStatNumberDecoration(selection, true));
 
@@ -268,113 +342,11 @@ public class ComponentFactory {
         return getComponent(mainNumber, baseColor, style).hoverEvent(HoverEvent.showText(hoverText));
     }
 
-    public TextComponent statUnitComponent(String unitName, String unitKey, Target selection) {
-        if (!(unitName == null && unitKey == null)) {
-            TextComponent.Builder statUnitBuilder = getComponentBuilder(null,
-                    getColorFromString(config.getSubStatNameDecoration(selection, false)),
-                    getStyleFromString(config.getSubStatNameDecoration(selection, true)));
-            if (unitKey != null) {
-                statUnitBuilder.append(translatable()
-                        .key(unitKey));
-            } else {
-                statUnitBuilder.append(text(unitName));
-            }
-            return surroundingBracketComponent(statUnitBuilder.build());
-        }
-        else {
-            return Component.empty();
-        }
-    }
-
-    public TextComponent heartComponent(boolean isConsoleSender, boolean isHoverUnit) {
-        TextColor heartColor = TextColor.fromHexString("#FF1313");
-        char heart = isConsoleSender ? '\u2665' : '\u2764';
-        if (isHoverUnit) {
-            return Component.text(heart).color(heartColor);
-        }
-        TextComponent.Builder heartComponent = Component.text()
-                .content(String.valueOf(heart))
-                .color(heartColor);
-        if (config.useHoverText()) {
-            heartComponent.hoverEvent(HoverEvent.showText(
-                    text(Unit.HEART.getLabel())
-                            .color(HOVER_ACCENT)));
-        }
-        return surroundingBracketComponent(heartComponent.build());
-    }
-
-    public TextComponent shareButtonComponent(UUID shareCode) {
-        return surroundingBracketComponent(
-                text("Share")
-                        .color(HOVER_MSG)
-                        .clickEvent(ClickEvent.runCommand("/statshare " + shareCode))
-                        .hoverEvent(HoverEvent.showText(text("Click here to share this statistic in chat!")
-                                .color(HOVER_ACCENT))));
-    }
-
-    public TextComponent hoveringStatResultComponent(TextComponent statResult) {
-        return surroundingBracketComponent(
-                text().append(text("Hover Here")
-                        .color(CLICKED_MSG)
-                        .decorate(TextDecoration.ITALIC)
-                        .hoverEvent(HoverEvent.showText(statResult)))
-                        .build());
-    }
-
-    public TextComponent messageSharedComponent(Component playerName) {
-        return surroundingBracketComponent(
-                text().append(
-                        getComponent("Shared by",
-                                getColorFromString(config.getSharedByTextDecoration(false)),
-                                getStyleFromString(config.getSharedByTextDecoration(true))))
-                        .append(space())
-                        .append(playerName)
-                        .build());
-    }
-
-    public TextComponent sharerNameComponent(String sharerName) {
-        return getComponent(sharerName,
-                getSharerNameColor(),
-                getStyleFromString(config.getSharerNameDecoration(true)));
-    }
-
-    private TextComponent surroundingBracketComponent(TextComponent component) {
+    private TextComponent surroundingBrackets(TextComponent component) {
         return getComponent(null, BRACKETS, null)
                 .append(text("["))
                 .append(component)
                 .append(text("]"));
-    }
-
-    public TextComponent titleComponent(String content, Target selection) {
-        return getComponent(content,
-                getColorFromString(config.getTitleDecoration(selection, false)),
-                getStyleFromString(config.getTitleDecoration(selection, true)));
-    }
-
-    public TextComponent titleNumberComponent(int number) {
-        return getComponent(number + "",
-                getColorFromString(config.getTitleNumberDecoration(false)),
-                getStyleFromString(config.getTitleNumberDecoration(true)));
-    }
-
-    public TextComponent serverNameComponent(String serverName) {
-        TextComponent colon = text(":").color(getColorFromString(config.getServerNameDecoration(false)));
-        return getComponent(serverName,
-                getColorFromString(config.getServerNameDecoration(false)),
-                getStyleFromString(config.getServerNameDecoration(true)))
-                .append(colon);
-    }
-
-    public TextComponent rankingNumberComponent(String number) {
-        return getComponent(number,
-                getColorFromString(config.getRankNumberDecoration(false)),
-                getStyleFromString(config.getRankNumberDecoration(true)));
-    }
-
-    public TextComponent.Builder dotsBuilder() {
-        return getComponentBuilder(null,
-                getColorFromString(config.getDotsDecoration(false)),
-                getStyleFromString(config.getDotsDecoration(true)));
     }
 
     protected TextComponent getComponent(String content, @NotNull TextColor color, @Nullable TextDecoration style) {

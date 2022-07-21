@@ -1,7 +1,5 @@
-package com.gmail.artemis.the.gr8.playerstats.msg.msgutils;
+package com.gmail.artemis.the.gr8.playerstats.msg.components;
 
-import com.gmail.artemis.the.gr8.playerstats.msg.BukkitConsoleComponentFactory;
-import com.gmail.artemis.the.gr8.playerstats.msg.ComponentFactory;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TextComponent;
@@ -16,37 +14,39 @@ import static net.kyori.adventure.text.Component.text;
 public class ExampleMessage implements TextComponent {
 
     private final TextComponent exampleMessage;
-    private final ComponentFactory componentFactory;
 
-    public ExampleMessage(ComponentFactory factory) {
-        componentFactory = factory;
-        exampleMessage = getExampleMessage();
+    private ExampleMessage(ComponentFactory factory) {
+        exampleMessage = buildMessage(factory);
     }
 
-    public TextComponent getExampleMessage() {
-        String arrow = componentFactory instanceof BukkitConsoleComponentFactory ? "    -> " : "    → ";  //4 spaces, alt + 26, 1 space
+    public static ExampleMessage construct(ComponentFactory factory) {
+        return new ExampleMessage(factory);
+    }
+
+    private TextComponent buildMessage(ComponentFactory factory) {
+        String arrow = factory instanceof BukkitConsoleComponentFactory ? "    -> " : "    → ";  //4 spaces, alt + 26, 1 space
 
         return Component.newline()
-                .append(componentFactory.prefixTitleComponent())
+                .append(factory.pluginPrefixAsTitle())
                 .append(Component.newline())
-                .append(text("Examples: ").color(componentFactory.msgMain2()))
+                .append(text("Examples: ").color(factory.MSG_MAIN_2))
                 .append(Component.newline())
-                .append(text(arrow).color(componentFactory.msgMain2())
+                .append(text(arrow).color(factory.MSG_MAIN_2)
                         .append(text("/statistic ")
-                                .append(text("animals_bred ").color(componentFactory.msgAccent2A())
-                                        .append(text("top").color(componentFactory.msgAccent2B())))))
+                                .append(text("animals_bred ").color(factory.MSG_ACCENT_2A)
+                                        .append(text("top").color(factory.MSG_ACCENT_2B)))))
                 .append(Component.newline())
-                .append(text(arrow).color(componentFactory.msgMain2())
+                .append(text(arrow).color(factory.MSG_MAIN_2)
                         .append(text("/statistic ")
-                                .append(text("mine_block diorite ").color(componentFactory.msgAccent2A())
-                                        .append(text("me").color(componentFactory.msgAccent2B())))))
+                                .append(text("mine_block diorite ").color(factory.MSG_ACCENT_2A)
+                                        .append(text("me").color(factory.MSG_ACCENT_2B)))))
                 .append(Component.newline())
-                .append(text(arrow).color(componentFactory.msgMain2())
+                .append(text(arrow).color(factory.MSG_MAIN_2)
                         .append(text("/statistic ")
-                                .append(text("deaths ").color(componentFactory.msgAccent2A())
-                                        .append(text("player ").color(componentFactory.msgAccent2B())
+                                .append(text("deaths ").color(factory.MSG_ACCENT_2A)
+                                        .append(text("player ").color(factory.MSG_ACCENT_2B)
                                                 .append(text("Artemis_the_gr8")
-                                                        .color(componentFactory.getExampleNameColor()))))));
+                                                        .color(factory.getExampleNameColor()))))));
     }
 
     @Override

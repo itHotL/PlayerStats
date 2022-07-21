@@ -5,6 +5,8 @@ import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
+import com.gmail.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
@@ -129,16 +131,16 @@ public class OutputManager {
         boolean isBukkit = Bukkit.getName().equalsIgnoreCase("CraftBukkit");
         if (config.useRainbowMode() ||
                 (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) {
-            msg = new MessageWriter(config, new PrideComponentFactory(config));
+            msg = MessageWriter.fromComponentFactory(config, new PrideComponentFactory(config));
         }
         else {
-            msg = new MessageWriter(config);
+            msg = MessageWriter.defaultWriter(config);
         }
 
         if (!isBukkit) {
             consoleMsg = msg;
         } else {
-            consoleMsg = new MessageWriter(config, new BukkitConsoleComponentFactory(config));
+            consoleMsg = MessageWriter.fromComponentFactory(config, new BukkitConsoleComponentFactory(config));
         }
     }
 

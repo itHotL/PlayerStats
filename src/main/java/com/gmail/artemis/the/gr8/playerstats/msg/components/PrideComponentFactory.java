@@ -1,4 +1,4 @@
-package com.gmail.artemis.the.gr8.playerstats.msg;
+package com.gmail.artemis.the.gr8.playerstats.msg.components;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 
@@ -23,14 +23,17 @@ public class PrideComponentFactory extends ComponentFactory {
         PREFIX = PluginColor.GOLD.getColor();
         BRACKETS = PluginColor.GRAY.getColor();
         UNDERSCORE = PluginColor.DARK_PURPLE.getColor();
+
         MSG_MAIN = PluginColor.GRAY.getColor();  //difference 1
         MSG_ACCENT = PluginColor.LIGHT_GOLD.getColor();  //difference 2
+
         MSG_MAIN_2 = PluginColor.GOLD.getColor();
         MSG_ACCENT_2A = PluginColor.MEDIUM_GOLD.getColor();
         MSG_ACCENT_2B = PluginColor.LIGHT_YELLOW.getColor();
-        CLICKED_MSG = PluginColor.LIGHT_PURPLE.getColor();
-        HOVER_MSG = PluginColor.LIGHT_BLUE.getColor();
-        HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
+
+        MSG_HOVER = PluginColor.LIGHT_BLUE.getColor();
+        MSG_CLICKED = PluginColor.LIGHT_PURPLE.getColor();
+        MSG_HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
     }
 
     @Override
@@ -44,7 +47,7 @@ public class PrideComponentFactory extends ComponentFactory {
     }
 
     @Override
-    public TextComponent prefixTitleComponent() {
+    public TextComponent pluginPrefixAsTitle() {
         String title = "<rainbow:16>____________    [PlayerStats]    ____________</rainbow>"; //12 underscores
         return text()
                 .append(MiniMessage.miniMessage().deserialize(title))
@@ -52,7 +55,7 @@ public class PrideComponentFactory extends ComponentFactory {
     }
 
     @Override
-    public TextComponent pluginPrefixComponent() {
+    public TextComponent pluginPrefix() {
         Random randomizer = new Random();
         if (randomizer.nextBoolean()) {
             return backwardsPluginPrefixComponent();

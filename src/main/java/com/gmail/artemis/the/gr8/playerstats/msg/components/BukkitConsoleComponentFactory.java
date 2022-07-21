@@ -1,4 +1,4 @@
-package com.gmail.artemis.the.gr8.playerstats.msg;
+package com.gmail.artemis.the.gr8.playerstats.msg.components;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
@@ -22,13 +22,17 @@ public class BukkitConsoleComponentFactory extends ComponentFactory {
         PREFIX = PluginColor.GOLD.getConsoleColor();
         BRACKETS = PluginColor.GRAY.getConsoleColor();
         UNDERSCORE = PluginColor.DARK_PURPLE.getConsoleColor();
+
         MSG_MAIN = PluginColor.MEDIUM_BLUE.getConsoleColor();
+        MSG_ACCENT = PluginColor.BLUE.getConsoleColor();
+
         MSG_MAIN_2 = PluginColor.GOLD.getConsoleColor();
         MSG_ACCENT_2A = PluginColor.MEDIUM_GOLD.getConsoleColor();
         MSG_ACCENT_2B = PluginColor.LIGHT_YELLOW.getConsoleColor();
-        CLICKED_MSG = PluginColor.LIGHT_PURPLE.getConsoleColor();
-        HOVER_MSG = PluginColor.LIGHT_BLUE.getConsoleColor();
-        HOVER_ACCENT = PluginColor.LIGHT_GOLD.getConsoleColor();
+
+        MSG_HOVER = PluginColor.LIGHT_BLUE.getConsoleColor();
+        MSG_CLICKED = PluginColor.LIGHT_PURPLE.getConsoleColor();
+        MSG_HOVER_ACCENT = PluginColor.LIGHT_GOLD.getConsoleColor();
     }
 
     @Override
