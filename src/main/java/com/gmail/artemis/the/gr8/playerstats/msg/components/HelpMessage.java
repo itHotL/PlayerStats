@@ -13,7 +13,7 @@ import java.util.List;
 
 import static net.kyori.adventure.text.Component.text;
 
-public class HelpMessage implements TextComponent {
+public final class HelpMessage implements TextComponent {
 
     private final TextComponent helpMessage;
 

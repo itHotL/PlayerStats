@@ -11,7 +11,7 @@ import java.util.List;
 
 import static net.kyori.adventure.text.Component.text;
 
-public class ExampleMessage implements TextComponent {
+public final class ExampleMessage implements TextComponent {
 
     private final TextComponent exampleMessage;
 

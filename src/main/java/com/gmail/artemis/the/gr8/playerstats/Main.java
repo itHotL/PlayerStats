@@ -30,24 +30,24 @@ public class Main extends JavaPlugin {
         //initialize the Adventure library
         adventure = BukkitAudiences.create(this);
 
-        //first get an instance of all the classes that need to be initialized or passed along to different classes
+        //first get an instance of all the classes that need to be passed along to different classes
         ConfigHandler config = new ConfigHandler(this);
-        OutputManager sender = new OutputManager(config);
         OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler();
 
-        ThreadManager threadManager = ThreadManager.getInstance(config, sender, offlinePlayerHandler);
+        OutputManager outputManager = OutputManager.getInstance(config);
+        ThreadManager threadManager = ThreadManager.getInstance(config, outputManager, offlinePlayerHandler);
         ShareManager shareManager = ShareManager.getInstance(config);
 
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(sender, threadManager, offlinePlayerHandler));
+            statcmd.setExecutor(new StatCommand(outputManager, threadManager, offlinePlayerHandler));
             statcmd.setTabCompleter(new TabCompleter(offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
         if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));
         PluginCommand sharecmd = this.getCommand("statisticshare");
-        if (sharecmd != null) sharecmd.setExecutor(new ShareCommand(shareManager, sender));
+        if (sharecmd != null) sharecmd.setExecutor(new ShareCommand(shareManager, outputManager));
 
         //register the listener
         Bukkit.getPluginManager().registerEvents(new JoinListener(threadManager), this);

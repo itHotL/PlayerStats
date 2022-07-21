@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
-public class MyLogger {
+public final class MyLogger {
 
     private static final Logger logger;
     private static DebugLevel debugLevel;

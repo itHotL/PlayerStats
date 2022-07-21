@@ -31,7 +31,7 @@ import static net.kyori.adventure.text.Component.*;
  give it a different ComponentFactory upon creation.*/
 public class MessageWriter {
 
-    protected static ConfigHandler config;
+    private static ConfigHandler config;
 
     private final ComponentFactory componentFactory;
     private final LanguageKeyHandler languageKeyHandler;

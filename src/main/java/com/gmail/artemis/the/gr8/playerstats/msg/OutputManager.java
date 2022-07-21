@@ -25,21 +25,36 @@ import java.util.function.Function;
 
 import static com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage.*;
 
-public class OutputManager {
+public final class OutputManager {
+
+    private static volatile OutputManager instance;
 
     private static BukkitAudiences adventure;
     private static ShareManager shareManager;
-    private static MessageWriter msg;
-    private static MessageWriter consoleMsg;
+    private static MessageWriter writer;
+    private static MessageWriter consoleWriter;
 
     private static EnumMap<StandardMessage, Function<MessageWriter, TextComponent>> standardMessages;
 
-    public OutputManager(ConfigHandler config) {
+    private OutputManager(ConfigHandler config) {
         adventure = Main.adventure();
         shareManager = ShareManager.getInstance(config);
 
         getMessageWriters(config);
         prepareFunctions();
+    }
+
+    public static OutputManager getInstance(ConfigHandler config) {
+        OutputManager outputManager = instance;
+        if (outputManager != null) {
+            return outputManager;
+        }
+        synchronized (OutputManager.class) {
+            if (instance == null) {
+                instance = new OutputManager(config);
+            }
+            return instance;
+        }
     }
 
     public void updateMessageWriters(ConfigHandler config) {
@@ -124,23 +139,23 @@ public class OutputManager {
     }
 
     private MessageWriter getWriter(CommandSender sender) {
-        return sender instanceof ConsoleCommandSender ? consoleMsg : msg;
+        return sender instanceof ConsoleCommandSender ? consoleWriter : writer;
     }
 
     private void getMessageWriters(ConfigHandler config) {
         boolean isBukkit = Bukkit.getName().equalsIgnoreCase("CraftBukkit");
         if (config.useRainbowMode() ||
                 (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) {
-            msg = MessageWriter.fromComponentFactory(config, new PrideComponentFactory(config));
+            writer = MessageWriter.fromComponentFactory(config, new PrideComponentFactory(config));
         }
         else {
-            msg = MessageWriter.defaultWriter(config);
+            writer = MessageWriter.defaultWriter(config);
         }
 
         if (!isBukkit) {
-            consoleMsg = msg;
+            consoleWriter = writer;
         } else {
-            consoleMsg = MessageWriter.fromComponentFactory(config, new BukkitConsoleComponentFactory(config));
+            consoleWriter = MessageWriter.fromComponentFactory(config, new BukkitConsoleComponentFactory(config));
         }
     }
 

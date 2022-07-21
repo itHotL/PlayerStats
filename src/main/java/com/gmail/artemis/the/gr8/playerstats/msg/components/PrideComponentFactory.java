@@ -13,7 +13,6 @@ import static net.kyori.adventure.text.Component.*;
 
 public class PrideComponentFactory extends ComponentFactory {
 
-
     public PrideComponentFactory(ConfigHandler c) {
         super(c);
     }
