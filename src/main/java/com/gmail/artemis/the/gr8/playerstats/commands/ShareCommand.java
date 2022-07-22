@@ -24,7 +24,7 @@ public class ShareCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
-        if (args.length == 1 && shareManager.isEnabled()) {
+        if (args.length == 1 && ShareManager.isEnabled()) {
             UUID shareCode;
             try {
                 shareCode = UUID.fromString(args[0]);
@@ -43,7 +43,7 @@ public class ShareCommand implements CommandExecutor {
                 if (result == null) {  //at this point the only possible cause of statResult being null is the request being older than 25 player-requests ago
                     outputManager.sendFeedbackMsg(sender, StandardMessage.STAT_RESULTS_TOO_OLD);
                 } else {
-                    outputManager.shareStatResults(result.statResult());
+                    outputManager.sendToAllPlayers(result.statResult());
                 }
             }
         }

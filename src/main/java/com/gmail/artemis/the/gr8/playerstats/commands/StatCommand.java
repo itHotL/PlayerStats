@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
+import com.gmail.artemis.the.gr8.playerstats.api.RequestManager;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
@@ -18,7 +19,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 
-public class StatCommand implements CommandExecutor {
+public class StatCommand implements CommandExecutor, RequestManager {
 
     private static ThreadManager threadManager;
     private static OutputManager outputManager;
@@ -51,7 +52,8 @@ public class StatCommand implements CommandExecutor {
     }
 
     /** Create a StatRequest Object with all the relevant information from the args[]. */
-    private StatRequest generateRequest(CommandSender sender, String[] args) {
+    @Override
+    public StatRequest generateRequest(CommandSender sender, String[] args) {
         StatRequest request = new StatRequest(sender);
         for (String arg : args) {
             //check for statName
@@ -134,8 +136,9 @@ public class StatCommand implements CommandExecutor {
      <p>1. Is a Statistic set?</p>
      <p>2. Is a subStat needed, and is a subStat Enum Constant present? (block/entity/item)</p>
      <p>3. If the target is PLAYER, is a valid PlayerName provided? </p>
-     @return true if the Request is valid, and false + an explanation message otherwise. */
-    private boolean requestIsValid(StatRequest request) {
+     @return true if the RequestManager is valid, and false + an explanation message otherwise. */
+    @Override
+    public boolean requestIsValid(StatRequest request) {
         if (request.getStatistic() == null) {
             outputManager.sendFeedbackMsg(request.getCommandSender(), StandardMessage.MISSING_STAT_NAME);
             return false;

@@ -1,8 +1,14 @@
 package com.gmail.artemis.the.gr8.playerstats.msg.msgutils;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
@@ -45,7 +51,7 @@ public final class EasterEggProvider {
             }
             case "46dd0c5a-2b51-4ee6-80e8-29deca6dedc1" -> {
                 if (sillyNumberIsBetween(sillyNumber, 0, 20)) {
-                    playerName = "<gradient:#f74040:#FF6600:#f74040>fire demon</gradient>";
+                    playerName = "<papi:luckperms_prefix><gradient:#f74040:#FF6600:#f74040>fire demon</gradient>";
                 }
                 else if (sillyNumberIsBetween(sillyNumber, 69, 69)) {
                     playerName = "<gradient:blue:#b01bd1:blue>best admin</gradient>";
@@ -85,7 +91,7 @@ public final class EasterEggProvider {
         if (playerName == null) {
             return null;
         } else {
-            return MiniMessage.miniMessage().deserialize(playerName);
+            return MiniMessage.miniMessage().deserialize(playerName, papiTag(player));
         }
     }
 
@@ -95,5 +101,17 @@ public final class EasterEggProvider {
 
     private static boolean sillyNumberIsBetween(int sillyNumber, int lowerBound, int upperBound) {
         return sillyNumber >= lowerBound && sillyNumber <= upperBound;
+    }
+
+    private static TagResolver papiTag(final @NotNull Player player) {
+        return TagResolver.resolver("papi", (argumentQueue, context) -> {
+            final String papiPlaceholder = argumentQueue.popOr("papi tag requires an argument").value();
+            final String parsedPlaceholder = PlaceholderAPI.setPlaceholders(player, '%' + papiPlaceholder + '%');
+            TextComponent componentPlaceholder = LegacyComponentSerializer.legacyAmpersand().deserialize(parsedPlaceholder);
+            if (!componentPlaceholder.content().isEmpty()) {
+                componentPlaceholder = componentPlaceholder.toBuilder().append(Component.space()).build();
+            }
+            return Tag.selfClosingInserting(componentPlaceholder);
+        });
     }
 }

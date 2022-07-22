@@ -80,6 +80,10 @@ public final class MyLogger {
         }
     }
 
+    public static void logException(@NotNull Exception exception, String caughtBy) {
+        logException(exception, caughtBy, null);
+    }
+
     /** Log the encountered exception as a warning to console,
      with some information about which class/method caught it
      and with a printStackTrace if DebugLevel is HIGH.
@@ -96,33 +100,33 @@ public final class MyLogger {
         }
     }
 
-    /** If DebugLevel is MEDIUM or HIGH, logs when the while loop in MessageWriter, getLanguageKey is being run. */
+    /** If DebugLevel is MEDIUM or HIGH, logs when the while loop in MessageBuilder, getLanguageKey is being run. */
     public static void replacingUnderscores() {
         if (debugLevel != DebugLevel.LOW) {
             logger.info("Replacing underscores and capitalizing names...");
         }
     }
 
-    /** Output to console that the given thread has been created (but not started yet).*/
+    /** StatFormatter to console that the given thread has been created (but not started yet).*/
     public static void threadCreated(String threadName) {
         if (debugLevel != DebugLevel.LOW) {
             logger.info(threadName + " created!");
         }
     }
 
-    /** Output to console that the given thread has been started. */
+    /** StatFormatter to console that the given thread has been started. */
     public static void threadStart(String threadName) {
         if (debugLevel == DebugLevel.MEDIUM || debugLevel == DebugLevel.HIGH) {
             logger.info(threadName + " started!");
         }
     }
 
-    /** Output to console that another reloadThread is already running. */
+    /** StatFormatter to console that another reloadThread is already running. */
     public static void threadAlreadyRunning(String threadName) {
         logger.info("Another reloadThread is already running! (" + threadName + ")");
     }
 
-    /** Output to console that the executingThread is waiting for otherThread to finish up. */
+    /** StatFormatter to console that the executingThread is waiting for otherThread to finish up. */
     public static void waitingForOtherThread(String executingThread, String otherThread) {
         logger.info(executingThread + ": Waiting for " + otherThread + " to finish up...");
     }
@@ -171,7 +175,7 @@ public final class MyLogger {
         }
     }
 
-    /** Output to console that an action has finished.
+    /** StatFormatter to console that an action has finished.
      <p>For the ReloadThread, if DebugLevel is HIGH, output the left-over processed players.
      For both threads, if DebugLevel is MEDIUM or HIGH, output the names of the threads that were used.</p>
      @param thread 1 for ReloadThread, 2 for StatThread */
@@ -190,7 +194,7 @@ public final class MyLogger {
         }
     }
 
-    /** Output to console how long a certain task has taken (regardless of DebugLevel).
+    /** StatFormatter to console how long a certain task has taken (regardless of DebugLevel).
      @param className Name of the class executing the task
      @param methodName Name or description of the task
      @param startTime Timestamp marking the beginning of the task */
@@ -198,7 +202,7 @@ public final class MyLogger {
         logTimeTaken(className, methodName, startTime, DebugLevel.LOW);
     }
 
-    /** Output to console how long a certain task has taken if DebugLevel is equal to or higher than the specified threshold.
+    /** StatFormatter to console how long a certain task has taken if DebugLevel is equal to or higher than the specified threshold.
      @param className Name of the class executing the task
      @param methodName Name or description of the task
      @param startTime Timestamp marking the beginning of the task

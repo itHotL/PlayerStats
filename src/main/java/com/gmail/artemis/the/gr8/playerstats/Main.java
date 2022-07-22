@@ -51,7 +51,7 @@ public class Main extends JavaPlugin {
 
         //register the listener
         Bukkit.getPluginManager().registerEvents(new JoinListener(threadManager), this);
-
+        
         //finish up
         this.getLogger().info("Enabled PlayerStats!");
     }

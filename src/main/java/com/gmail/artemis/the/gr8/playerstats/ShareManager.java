@@ -49,6 +49,10 @@ public final class ShareManager {
         }
     }
 
+    public static boolean isEnabled() {
+        return isEnabled;
+    }
+
     public synchronized void updateSettings(ConfigHandler config) {
         isEnabled = config.allowStatSharing() && config.useHoverText();
         waitingTime = config.getStatShareWaitingTime();
@@ -72,10 +76,6 @@ public final class ShareManager {
                         "Enable hover-text, or disable stat-sharing to stop seeing this message.", true);
             }
         }
-    }
-
-    public boolean isEnabled() {
-        return isEnabled;
     }
 
     public boolean senderHasPermission(CommandSender sender) {

@@ -10,6 +10,7 @@ import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.google.common.collect.ImmutableList;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,12 +67,14 @@ public class StatThread extends Thread {
 
         Target selection = request.getSelection();
         try {
-            switch (selection) {
-                case PLAYER -> outputManager.sendPlayerStat(request, getIndividualStat());
-                case TOP -> outputManager.sendTopStat(request, getTopStats());
-                case SERVER -> outputManager.sendServerStat(request, getServerTotal());
-            }
-        } catch (ConcurrentModificationException e) {
+            TextComponent statResult = switch (selection) {
+                case PLAYER -> outputManager.formatPlayerStat(request, getIndividualStat());
+                case TOP -> outputManager.formatTopStat(request, getTopStats());
+                case SERVER -> outputManager.formatServerStat(request, getServerStat());
+            };
+            outputManager.sendToCommandSender(request.getCommandSender(), statResult);
+        }
+        catch (ConcurrentModificationException e) {
             if (!request.isConsoleSender()) {
                 outputManager.sendFeedbackMsg(request.getCommandSender(), StandardMessage.UNKNOWN_ERROR);
             }
@@ -84,7 +87,7 @@ public class StatThread extends Thread {
                 .limit(config.getTopListMaxSize()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
-    private long getServerTotal() {
+    private long getServerStat() {
         List<Integer> numbers = getAllStats().values().parallelStream().toList();
         return numbers.parallelStream().mapToLong(Integer::longValue).sum();
     }

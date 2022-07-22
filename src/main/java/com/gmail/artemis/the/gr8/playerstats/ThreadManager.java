@@ -21,7 +21,7 @@ public final class ThreadManager {
     private int reloadThreadID;
 
     private static ConfigHandler config;
-    private static OutputManager messageSender;
+    private static OutputManager outputManager;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
     private ReloadThread lastActiveReloadThread;
@@ -31,7 +31,7 @@ public final class ThreadManager {
 
     private ThreadManager(ConfigHandler c, OutputManager m, OfflinePlayerHandler o) {
         config = c;
-        messageSender = m;
+        outputManager = m;
         offlinePlayerHandler = o;
 
         statThreads = new HashMap<>();
@@ -63,7 +63,7 @@ public final class ThreadManager {
         if (lastActiveReloadThread == null || !lastActiveReloadThread.isAlive()) {
             reloadThreadID += 1;
 
-            lastActiveReloadThread = new ReloadThread(config, messageSender, offlinePlayerHandler, reloadThreadID, lastActiveStatThread, sender);
+            lastActiveReloadThread = new ReloadThread(config, outputManager, offlinePlayerHandler, reloadThreadID, lastActiveStatThread, sender);
             lastActiveReloadThread.start();
         }
         else {
@@ -78,7 +78,7 @@ public final class ThreadManager {
         if (config.limitStatRequests() && statThreads.containsKey(cmdSender)) {
             Thread runningThread = statThreads.get(cmdSender);
             if (runningThread.isAlive()) {
-                messageSender.sendFeedbackMsg(request.getCommandSender(), StandardMessage.REQUEST_ALREADY_RUNNING);
+                outputManager.sendFeedbackMsg(request.getCommandSender(), StandardMessage.REQUEST_ALREADY_RUNNING);
             } else {
                 startNewStatThread(request);
             }
@@ -100,7 +100,7 @@ public final class ThreadManager {
     }
 
     private void startNewStatThread(StatRequest request) {
-        lastActiveStatThread = new StatThread(config, messageSender, offlinePlayerHandler, statThreadID, request, lastActiveReloadThread);
+        lastActiveStatThread = new StatThread(config, outputManager, offlinePlayerHandler, statThreadID, request, lastActiveReloadThread);
         statThreads.put(request.getCommandSender().getName(), lastActiveStatThread);
         lastActiveStatThread.start();
     }

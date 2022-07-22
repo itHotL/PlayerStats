@@ -105,4 +105,24 @@ public final class StatRequest {
     public Material getItem() {
         return item;
     }
+
+    /** Returns true if this StatRequest has all the information needed for a Statistic lookup to succeed.*/
+    public boolean isValid() {
+        if (statistic == null) return false;
+        switch (statistic.getType()) {
+            case BLOCK -> {
+                if (block == null) return false;
+            }
+            case ENTITY -> {
+                if (entity == null) return false;
+            }
+            case ITEM -> {
+                if (item == null) return false;
+            }
+            case UNTYPED -> {
+                if (subStatEntry != null) return false;
+            }
+        }  //if target = PLAYER and playerName = null, return false, otherwise return true
+        return selection != Target.PLAYER || playerName != null;
+    }
 }

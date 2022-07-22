@@ -29,7 +29,7 @@ import static net.kyori.adventure.text.Component.*;
  The component parts (with appropriate formatting) are supplied by a ComponentFactory.
  By default, this class works with the default ComponentFactory, but you can
  give it a different ComponentFactory upon creation.*/
-public class MessageWriter {
+public class MessageBuilder {
 
     private static ConfigHandler config;
 
@@ -37,25 +37,25 @@ public class MessageWriter {
     private final LanguageKeyHandler languageKeyHandler;
     private final NumberFormatter formatter;
 
-    private MessageWriter(ConfigHandler config) {
+    private MessageBuilder(ConfigHandler config) {
         this (config, new ComponentFactory(config));
     }
 
-    private MessageWriter(ConfigHandler configHandler, ComponentFactory factory) {
+    private MessageBuilder(ConfigHandler configHandler, ComponentFactory factory) {
         config = configHandler;
         componentFactory = factory;
 
         formatter = new NumberFormatter();
         languageKeyHandler = new LanguageKeyHandler();
-        MyLogger.logMsg("MessageWriter created with factory: " + componentFactory.getClass().getSimpleName(), DebugLevel.MEDIUM);
+        MyLogger.logMsg("MessageBuilder created with factory: " + componentFactory.getClass().getSimpleName(), DebugLevel.MEDIUM);
     }
 
-    public static MessageWriter defaultWriter(ConfigHandler config) {
-        return new MessageWriter(config);
+    public static MessageBuilder defaultBuilder(ConfigHandler config) {
+        return new MessageBuilder(config);
     }
 
-    public static MessageWriter fromComponentFactory(ConfigHandler config, ComponentFactory factory) {
-        return new MessageWriter(config, factory);
+    public static MessageBuilder fromComponentFactory(ConfigHandler config, ComponentFactory factory) {
+        return new MessageBuilder(config, factory);
     }
 
     public TextComponent reloadedConfig() {
