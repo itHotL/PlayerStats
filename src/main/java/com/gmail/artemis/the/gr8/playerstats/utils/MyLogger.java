@@ -1,5 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
+import com.gmail.artemis.the.gr8.playerstats.api.PlayerStats;
+import com.gmail.artemis.the.gr8.playerstats.api.PlayerStatsAPI;
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;

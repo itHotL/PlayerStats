@@ -1,5 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats;
 
+import com.gmail.artemis.the.gr8.playerstats.api.PlayerStats;
+import com.gmail.artemis.the.gr8.playerstats.api.PlayerStatsAPI;
 import com.gmail.artemis.the.gr8.playerstats.commands.ReloadCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.ShareCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
@@ -17,12 +19,20 @@ import org.jetbrains.annotations.NotNull;
 public class Main extends JavaPlugin {
 
     private static BukkitAudiences adventure;
+    private static PlayerStats playerStatsAPI;
 
     public static @NotNull BukkitAudiences adventure() {
         if (adventure == null) {
             throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
         }
         return adventure;
+    }
+
+    public static @NotNull PlayerStats getPlayerStatsAPI() {
+        if (playerStatsAPI == null) {
+            playerStatsAPI = new PlayerStatsAPI();
+        }
+        return playerStatsAPI;
     }
 
     @Override
