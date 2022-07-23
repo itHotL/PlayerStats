@@ -62,8 +62,11 @@ public final class EasterEggProvider {
                 }
             }
             case "e4c5dfef-bbcc-4012-9f74-879d28fff431" -> {
-                if (sillyNumberIsBetween(sillyNumber, 69, 69)) {
-                    playerName = "<gradient:blue:#03befc:blue>nice admin</gradient>";
+                if (sillyNumberIsBetween(sillyNumber, 0, 15)) {
+                    playerName = "<gradient:blue:#03befc:blue>big bad admin</gradient>";
+                }
+                else if (sillyNumberIsBetween(sillyNumber, 15, 20)) {
+                    playerName = "<gradient:#03b6fc:#f73bdb>zombie fucker</gradient>";
                 }
             }
             case "29c0911d-695a-4c31-817f-3a065a7144b7" -> {
@@ -77,8 +80,16 @@ public final class EasterEggProvider {
                 }
             }
             case "0bd803b6-f6c2-41bd-9872-74d8754a29fd" -> {
-                if (sillyNumberIsBetween(sillyNumber, 0, 30)) {
+                if (sillyNumberIsBetween(sillyNumber, 0, 20)) {
                     playerName = "<gradient:#14f7a0:#4287f5>Bradwurst</gradient>";
+                }
+            }
+            case "de8891b3-ab99-4e63-934f-1a5571c42057" -> {
+                if (sillyNumberIsBetween(sillyNumber, 0, 10)) {
+                    playerName = "<gradient:#00ff7b:#03befc:blue>JahWeeeeee</gradient>";
+                }
+                else if (sillyNumberIsBetween(sillyNumber, 10, 20)) {
+                    playerName = "<gradient:gold:#00ff7b:#03b6fc>he plays guitar I dunno - Tz</gradient>";
                 }
             }
         }
