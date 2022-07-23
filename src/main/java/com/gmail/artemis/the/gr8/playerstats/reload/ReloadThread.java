@@ -20,10 +20,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
 
+/** The Thread that is in charge of reloading PlayerStats. */
 public class ReloadThread extends Thread {
 
     private static ConfigHandler config;
-    private static OutputManager messageSender;
+    private static OutputManager outputManager;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
     private static ShareManager shareManager;
@@ -33,10 +34,9 @@ public class ReloadThread extends Thread {
 
     private final CommandSender sender;
 
-
     public ReloadThread(ConfigHandler c, OutputManager m, OfflinePlayerHandler o, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
         config = c;
-        messageSender = m;
+        outputManager = m;
         offlinePlayerHandler = o;
 
         shareManager = ShareManager.getInstance(c);
@@ -49,6 +49,10 @@ public class ReloadThread extends Thread {
         MyLogger.threadCreated(this.getName());
     }
 
+    /** This method will perform a series of tasks. If a {@link StatThread} is still running,
+     it will join the statThread and wait for it to finish. Then, it will reload the config,
+     update the offlinePlayerList in the {@link OfflinePlayerHandler}, update the {@link DebugLevel},
+     update the share-settings in {@link ShareManager} and update the MessageBuilders in the {@link OutputManager}.*/
     @Override
     public void run() {
         long time = System.currentTimeMillis();
@@ -69,7 +73,7 @@ public class ReloadThread extends Thread {
             reloadEverything();
 
             if (sender != null) {
-                messageSender.sendFeedbackMsg(sender, StandardMessage.RELOADED_CONFIG);
+                outputManager.sendFeedbackMsg(sender, StandardMessage.RELOADED_CONFIG);
             }
         }
         else {  //during first start-up
@@ -81,7 +85,7 @@ public class ReloadThread extends Thread {
 
     private void reloadEverything() {
         MyLogger.setDebugLevel(config.getDebugLevel());
-        messageSender.updateMessageWriters(config);
+        outputManager.updateMessageWriters(config);
         offlinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
         shareManager.updateSettings(config);
     }

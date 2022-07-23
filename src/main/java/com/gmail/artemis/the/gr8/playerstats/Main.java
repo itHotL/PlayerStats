@@ -2,7 +2,6 @@ package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.api.PlayerStats;
 import com.gmail.artemis.the.gr8.playerstats.api.PlayerStatsAPI;
-import com.gmail.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.gmail.artemis.the.gr8.playerstats.commands.ReloadCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.ShareCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
@@ -23,14 +22,14 @@ public class Main extends JavaPlugin {
     private static BukkitAudiences adventure;
     private static PlayerStats playerStatsAPI;
 
-    public static @NotNull BukkitAudiences adventure() {
+    public static @NotNull BukkitAudiences adventure() throws IllegalStateException {
         if (adventure == null) {
             throw new IllegalStateException("Tried to access Adventure without PlayerStats being enabled!");
         }
         return adventure;
     }
 
-    public static @NotNull PlayerStats getPlayerStatsAPI() {
+    public static @NotNull PlayerStats getPlayerStatsAPI() throws IllegalStateException {
         if (playerStatsAPI == null) {
             throw new IllegalStateException("PlayerStats does not seem to be loaded!");
         }

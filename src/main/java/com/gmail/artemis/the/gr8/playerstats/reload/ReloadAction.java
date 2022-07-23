@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RecursiveAction;
 
+/** The action that is executed when a reload-command is triggered. */
 public final class ReloadAction extends RecursiveAction {
 
     private static int threshold;

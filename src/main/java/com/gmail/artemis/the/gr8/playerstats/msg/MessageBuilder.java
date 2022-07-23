@@ -26,7 +26,7 @@ import static net.kyori.adventure.text.Component.*;
 
 /** Composes messages to send to a Player or Console. This class is responsible
  for constructing a final Component with the text content of the desired message.
- The component parts (with appropriate formatting) are supplied by a ComponentFactory.
+ The component parts (with appropriate formatting) are supplied by a {@link ComponentFactory}.
  By default, this class works with the default ComponentFactory, but you can
  give it a different ComponentFactory upon creation.*/
 public class MessageBuilder {

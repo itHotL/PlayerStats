@@ -2,7 +2,6 @@ package com.gmail.artemis.the.gr8.playerstats.api;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
-import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
 import net.kyori.adventure.text.TextComponent;
@@ -12,7 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import static org.jetbrains.annotations.ApiStatus.Internal;
 
-/** This class implements the API*/
+/** This is the implementation of the API Interface */
 public final class PlayerStatsAPI extends JavaPlugin implements PlayerStats {
 
     private final Main plugin;
@@ -34,10 +33,10 @@ public final class PlayerStatsAPI extends JavaPlugin implements PlayerStats {
     }
 
     @Override
-    public TextComponent getFancyStat(Target selection, CommandSender sender, String[] args) throws IllegalArgumentException {
+    public TextComponent getFancyStat(CommandSender sender, String[] args) throws IllegalArgumentException {
         StatRequest request = statManager.generateRequest(sender, args);
         if (statManager.requestIsValid(request)) {
-            switch (selection) {
+            switch (request.getSelection()) {
                 case PLAYER -> {
                     int stat = statManager.getPlayerStat(request);
                     return statFormatter.formatPlayerStat(request, stat);
@@ -53,5 +52,9 @@ public final class PlayerStatsAPI extends JavaPlugin implements PlayerStats {
             throw new IllegalArgumentException("This is not a valid stat-request!");
         }
         return null;
+    }
+
+    public String componentToString(TextComponent component) {
+        return statFormatter.toString(component);
     }
 }

@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
+/** The PlayerStats Logger*/
 public final class MyLogger {
 
     private static final Logger logger;

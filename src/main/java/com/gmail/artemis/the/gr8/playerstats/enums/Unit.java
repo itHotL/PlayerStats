@@ -3,6 +3,7 @@ package com.gmail.artemis.the.gr8.playerstats.enums;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.NotNull;
 
+/** All the units PlayerStats can display statistics in, separated by Type.*/
 public enum Unit {
     NUMBER (Type.UNTYPED, "Times"),
     KM (Type.DISTANCE, "km"),
@@ -31,10 +32,15 @@ public enum Unit {
         return this.label;
     }
 
+    /** Returns the Type this enum constant belongs to.*/
     public Type getType() {
         return this.type;
     }
 
+    /** For Type Time, Damage and Distance, this will return a smaller Unit than the current one
+     (if there is a smaller Unit, that is, otherwise it will return itself).
+     So for DAY, for example, it can return HOUR, MINUTE or SECOND.
+     @param stepsSmaller how many steps smaller the returned Unit should be*/
     public Unit getSmallerUnit(int stepsSmaller) {
         switch (this) {
             case DAY -> {
@@ -93,6 +99,7 @@ public enum Unit {
         }
     }
 
+    /** Converts the current Unit into seconds (and returns -1 if the current Unit is not of Type TIME)*/
     public double getSeconds() {
         return switch (this) {
             case DAY -> 86400;

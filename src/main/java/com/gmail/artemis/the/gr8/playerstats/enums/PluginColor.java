@@ -6,34 +6,61 @@ import net.kyori.adventure.text.format.TextColor;
 import java.util.Random;
 
 /** This enum represents the colorscheme PlayerStats uses in its output messages.
- <p>GRAY: ChatColor Gray</p>
- <p>DARK_PURPLE: #6E3485 (used for default sub-titles, title-underscores and brackets)</p>
- <p>MEDIUM_BLUE: #55AAFF (used for all plain feedback and error messages)</p>
- <p>LIGHT_BLUE: #55C6FF (used for default hover-text)</p>
- <p>GOLD: ChatColor Gold (used for first parts of usage messages and for first parts of hover-text accent)</p>
- <p>MEDIUM_GOLD: #FFD52B (used for second parts of usage messages and for second parts of hover-text accent) </p>
- <p>LIGHT_GOLD: #FFEA40 (used for third parts of usage messages)</p>
- <p>LIGHT_YELLOW: #FFFF8E (used for last parts of explanation message)</p>
- */
+ The first set of colors is used throughout the plugin, while the set of NAME-colors
+ represents the colors that player-names can be in the "shared by player-name" section of shared statistics.*/
 public enum PluginColor {
-    GRAY (NamedTextColor.GRAY),  //#AAAAAA
+    /** ChatColor Gray (#AAAAAA) */
+    GRAY (NamedTextColor.GRAY),
+
+    /** A Dark Purple that is mainly used for title-underscores (#6E3485).*/
     DARK_PURPLE (TextColor.fromHexString("#6E3485")),
+
+    /** A Light Purple that is meant to simulate the color of a clicked link.
+     Used for the "Hover Here" part of shared statistics (#845EC2).*/
     LIGHT_PURPLE (TextColor.fromHexString("#845EC2")),
+
+    /** ChatColor Blue (#5555FF)*/
     BLUE (NamedTextColor.BLUE),
+
+    /** A Medium Blue that is used for default feedback and error messages (#55AAFF).*/
     MEDIUM_BLUE (TextColor.fromHexString("#55AAFF")),
+
+    /** A Light Blue that is used for hover-messages and the share-button (#55C6FF). */
     LIGHT_BLUE (TextColor.fromHexString("#55C6FF")),
-    GOLD (NamedTextColor.GOLD),  //#FFAA00
+
+    /** ChatColor Gold (#FFAA00)*/
+    GOLD (NamedTextColor.GOLD),
+
+    /** A Medium Gold that is used for the example message and for hover-text accents (#FFD52B).*/
     MEDIUM_GOLD (TextColor.fromHexString("#FFD52B")),
+
+    /** A Light Gold that is used for the example message and for hover-text accents (#FFEA40).*/
     LIGHT_GOLD (TextColor.fromHexString("#FFEA40")),
+
+    /** A Light Yellow that is used for final accents in the example message (#FFFF8E).*/
     LIGHT_YELLOW (TextColor.fromHexString("#FFFF8E")),
 
+
+    /** ChatColor Blue (#5555FF)*/
     NAME_1 (NamedTextColor.BLUE), //#5555FF - blue
-    NAME_2 (TextColor.fromHexString("#4287F5")),  //between blue and medium_blue
-    NAME_3 (TextColor.fromHexString("#55AAFF")), //same as medium_blue
-    NAME_4 (TextColor.fromHexString("#D65DB1")), //magenta-purple
-    NAME_5 (TextColor.fromHexString("#EE8A19")), //dark orange
-    NAME_6 (TextColor.fromHexString("#01C1A7")), //aqua-cyan-green-ish
-    NAME_7 (TextColor.fromHexString("#46D858"));  //light green
+
+    /** A shade of blue between Blue and Medium Blue (#4287F5)*/
+    NAME_2 (TextColor.fromHexString("#4287F5")),
+
+    /** Medium Blue (#55AAFF)*/
+    NAME_3 (TextColor.fromHexString("#55AAFF")),
+
+    /** A shade of magenta/purple (#D65DB1)*/
+    NAME_4 (TextColor.fromHexString("#D65DB1")),
+
+    /** A dark shade of orange (#EE8A19)*/
+    NAME_5 (TextColor.fromHexString("#EE8A19")),
+
+    /** A shade of green/aqua/cyan-ish (#01C1A7)*/
+    NAME_6 (TextColor.fromHexString("#01C1A7")),
+
+    /** A light shade of green (#46D858)*/
+    NAME_7 (TextColor.fromHexString("#46D858"));
 
 
     private final TextColor color;
@@ -42,18 +69,23 @@ public enum PluginColor {
         this.color = color;
     }
 
+    /** Returns the TextColor value belonging to the corresponding enum constant.*/
     public TextColor getColor() {
         return color;
     }
 
+    /** Gets the nearest NamedTextColor for the corresponding enum constant.*/
     public TextColor getConsoleColor() {
         return NamedTextColor.nearestTo(color);
     }
 
+    /** Randomly selects one of the 7 different NAME-colors.*/
     public static TextColor getRandomNameColor() {
         return getRandomNameColor(false);
     }
 
+    /** Randomly selects one of the 7 different NAME-colors, and if isConsole is true,
+     returns the closest NamedTextColor.*/
     public static TextColor getRandomNameColor(boolean isConsole) {
         Random randomizer = new Random();
         PluginColor color = switch (randomizer.nextInt(7)) {

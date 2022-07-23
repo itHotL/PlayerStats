@@ -4,6 +4,9 @@ import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 
 import java.text.DecimalFormat;
 
+/** A utility class that formats statistic numbers into something more readable.
+ It transforms {@link Unit} Type TIME, DAMAGE, and DISTANCE into a more Minecraft-appropriate Unit,
+ and adds commas to break up large numbers.*/
 public final class NumberFormatter {
 
     private final DecimalFormat format;

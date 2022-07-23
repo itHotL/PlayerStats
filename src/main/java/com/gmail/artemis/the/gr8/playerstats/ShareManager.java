@@ -20,6 +20,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
+/** The manager of all Player-prompted statistic-sharing. If sharing is enabled, this class will save the
+ results of past stat-lookups, so the results can be retrieved and shared when a Player clicks the share-button.*/
 public final class ShareManager {
 
     private static volatile ShareManager instance;

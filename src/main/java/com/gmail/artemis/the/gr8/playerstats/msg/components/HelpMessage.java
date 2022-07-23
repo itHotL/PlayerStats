@@ -13,6 +13,7 @@ import java.util.List;
 
 import static net.kyori.adventure.text.Component.text;
 
+/** The help message that explains how to use PlayerStats.*/
 public final class HelpMessage implements TextComponent {
 
     private final TextComponent helpMessage;

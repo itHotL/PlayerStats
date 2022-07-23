@@ -11,7 +11,6 @@ import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.text.TextComponent;
-import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
+/** The Thread that is in charge of getting and calculating statistics.*/
 public class StatThread extends Thread {
 
     private static ConfigHandler config;

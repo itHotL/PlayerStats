@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.utils;
 
+/** A small utility class that calculates with unix time.*/
 public final class UnixTimeHandler {
 
     private UnixTimeHandler() {

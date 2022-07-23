@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RecursiveAction;
 
-
+/** The action that is executed when a stat-command is triggered. */
 public final class StatAction extends RecursiveAction {
 
     private static int threshold;

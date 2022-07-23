@@ -28,6 +28,9 @@ import java.util.function.Function;
 import static org.jetbrains.annotations.ApiStatus.Internal;
 import static com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage.*;
 
+/** This class manages all PlayerStats output. It is the only place where messages are sent.
+ It gets the messages from a {@link MessageBuilder}, which is different for a Console as for Players
+ (mainly to deal with the lack of hover-text, and for Bukkit consoles to make up for the lack of hex-colors).*/
 public final class OutputManager implements StatFormatter {
 
     private static volatile OutputManager instance;

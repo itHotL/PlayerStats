@@ -8,6 +8,10 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
+/** The Object PlayerStats uses to calculate the appropriate statistic.
+ It is generated from the args provided by a CommandSender when /stat is called,
+ and always contains this CommandSender. By default, {@link #getSelection()}
+ will return {@link Target#TOP}, unless another selection is specified in the args.*/
 public final class StatRequest {
 
     private final CommandSender sender;
@@ -104,25 +108,5 @@ public final class StatRequest {
 
     public Material getItem() {
         return item;
-    }
-
-    /** Returns true if this StatRequest has all the information needed for a Statistic lookup to succeed.*/
-    public boolean isValid() {
-        if (statistic == null) return false;
-        switch (statistic.getType()) {
-            case BLOCK -> {
-                if (block == null) return false;
-            }
-            case ENTITY -> {
-                if (entity == null) return false;
-            }
-            case ITEM -> {
-                if (item == null) return false;
-            }
-            case UNTYPED -> {
-                if (subStatEntry != null) return false;
-            }
-        }  //if target = PLAYER and playerName = null, return false, otherwise return true
-        return selection != Target.PLAYER || playerName != null;
     }
 }

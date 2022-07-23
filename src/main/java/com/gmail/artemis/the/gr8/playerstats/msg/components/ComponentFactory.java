@@ -4,6 +4,7 @@ import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageBuilder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -24,9 +25,9 @@ import java.util.UUID;
 import static net.kyori.adventure.text.Component.*;
 import static net.kyori.adventure.text.Component.text;
 
-/** Creates Components with the desired formatting. This class can put Strings
- into formatted Components with TextColor and TextDecoration, or return empty Components
- or ComponentBuilders with the desired formatting.*/
+/** Creates Components with the desired formatting for the {@link MessageBuilder} to build messages with.
+ This class can put Strings into formatted Components with TextColor
+ and TextDecoration, or return empty Components with the desired formatting.*/
 public class ComponentFactory {
 
     private static ConfigHandler config;

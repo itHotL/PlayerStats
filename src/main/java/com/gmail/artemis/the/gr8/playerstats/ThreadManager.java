@@ -13,6 +13,11 @@ import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;
 
+/** The ThreadManager is in charge of the Threads that PlayerStats can utilize.
+ It keeps track of past and currently active Threads, to ensure a Player cannot
+ start multiple Threads at the same time (thereby limiting them to one stat-lookup at a time).
+ It also passes appropriate references along to the {@link StatThread} or {@link ReloadThread},
+ to ensure those will never run at the same time. */
 public final class ThreadManager {
 
     private static volatile ThreadManager instance;

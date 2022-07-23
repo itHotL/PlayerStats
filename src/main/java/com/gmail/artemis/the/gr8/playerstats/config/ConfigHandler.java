@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.config;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
+import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -29,7 +30,7 @@ public class ConfigHandler {
         MyLogger.setDebugLevel(getDebugLevel());
     }
 
-    /** Checks the number that "config-version" returns to see if the config needs updating, and if so, send it to the Updater.
+    /** Checks the number that "config-version" returns to see if the config needs updating, and if so, send it to the {@link ConfigUpdateHandler}.
      <p>PlayerStats 1.1: "config-version" doesn't exist.</p>
      <p>PlayerStats 1.2: "config-version" is 2.</p>
      <p>PlayerStats 1.3: "config-version" is 3. </P>
@@ -49,7 +50,7 @@ public class ConfigHandler {
     }
 
     /** Reloads the config from file, or creates a new file with default values if there is none.
-     Also reads the value for debug-level and passes it on to MyLogger. */
+     Also reads the value for debug-level and passes it on to {@link MyLogger}. */
     public boolean reloadConfig() {
         if (!configFile.exists()) {
             saveDefaultConfig();
@@ -135,6 +136,9 @@ public class ConfigHandler {
         return config.getBoolean("rainbow-mode", false);
     }
 
+    /** Whether to use enters before the statistic output in chat.
+     Enters create some separation between the previous things that have been said in chat and the stat-result.
+     <p>Default: true for non-shared top statistics, false for everything else</p>*/
     public boolean useEnters(Target selection, boolean getSharedSetting) {
         ConfigurationSection section = config.getConfigurationSection("use-enters");
         boolean def = selection == Target.TOP && !getSharedSetting;
@@ -354,7 +358,7 @@ public class ConfigHandler {
         return getDecorationString(Target.TOP, getStyleSetting, "dark_gray", "dots");
     }
 
-    /** Returns a String representing the Unit that should be used for a certain Unit.Type.
+    /** Returns a String representing the {@link Unit} that should be used for a certain {@link Unit.Type}.
      If no String can be retrieved from the config, the supplied defaultValue will be returned.
      If the defaultValue is different for hoverText, an optional String defaultHoverValue can be supplied.
      @param isHoverText if true, the unit for hovering text is returned, otherwise the unit for plain text

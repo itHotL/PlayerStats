@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.HashMap;
 
+/** A utility class that provides language keys to be put in a TranslatableComponent.*/
 public final class LanguageKeyHandler {
 
     private static HashMap<Statistic, String> statNameKeys;

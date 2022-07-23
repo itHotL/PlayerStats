@@ -7,6 +7,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/** A utility class that deals with OfflinePlayers. It stores a list of all OfflinePlayer-names
+ that need to be included in statistic calculations, and can retrieve the corresponding OfflinePlayer
+ object for a given player-name.*/
 public class OfflinePlayerHandler {
 
     private static ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;

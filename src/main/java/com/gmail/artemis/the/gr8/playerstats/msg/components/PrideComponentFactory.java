@@ -11,6 +11,7 @@ import java.util.Random;
 
 import static net.kyori.adventure.text.Component.*;
 
+/** A festive version of the {@link ComponentFactory}*/
 public class PrideComponentFactory extends ComponentFactory {
 
     public PrideComponentFactory(ConfigHandler c) {

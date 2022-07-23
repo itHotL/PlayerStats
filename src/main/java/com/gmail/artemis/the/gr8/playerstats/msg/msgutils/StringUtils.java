@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.msg.msgutils;
 
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 
+/** A small utility class that helps make enum constant names prettier for output in stat-messages.*/
 public final class StringUtils {
 
     private StringUtils() {
