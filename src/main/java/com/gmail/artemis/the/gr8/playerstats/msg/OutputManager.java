@@ -25,6 +25,7 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import static org.jetbrains.annotations.ApiStatus.Internal;
 import static com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage.*;
 
 public final class OutputManager implements StatFormatter {
@@ -63,14 +64,10 @@ public final class OutputManager implements StatFormatter {
         getMessageWriters(config);
     }
 
+    @Internal
     @Override
     public boolean saveOutputForSharing() {
         return true;
-    }
-
-    @Override
-    public String toString(@NotNull TextComponent component) {
-        return component.content();
     }
 
     @Override

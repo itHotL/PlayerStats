@@ -5,6 +5,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
@@ -22,6 +23,7 @@ public final class ThreadManager {
 
     private static ConfigHandler config;
     private static OutputManager outputManager;
+    private static StatManager statManager;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
     private ReloadThread lastActiveReloadThread;
@@ -29,9 +31,10 @@ public final class ThreadManager {
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    private ThreadManager(ConfigHandler c, OutputManager m, OfflinePlayerHandler o) {
+    private ThreadManager(ConfigHandler c, OutputManager m, StatManager s, OfflinePlayerHandler o) {
         config = c;
         outputManager = m;
+        statManager = s;
         offlinePlayerHandler = o;
 
         statThreads = new HashMap<>();
@@ -42,14 +45,14 @@ public final class ThreadManager {
         startReloadThread(null);
     }
 
-    public static ThreadManager getInstance(ConfigHandler config, OutputManager messageSender, OfflinePlayerHandler offlinePlayerHandler) {
+    public static ThreadManager getInstance(ConfigHandler config, OutputManager output, StatManager statManager, OfflinePlayerHandler offlinePlayerHandler) {
         ThreadManager threadManager = instance;
         if (threadManager != null) {
             return threadManager;
         }
         synchronized (ThreadManager.class) {
             if (instance == null) {
-                instance = new ThreadManager(config, messageSender, offlinePlayerHandler);
+                instance = new ThreadManager(config, output, statManager, offlinePlayerHandler);
             }
             return instance;
         }
@@ -100,7 +103,7 @@ public final class ThreadManager {
     }
 
     private void startNewStatThread(StatRequest request) {
-        lastActiveStatThread = new StatThread(config, outputManager, offlinePlayerHandler, statThreadID, request, lastActiveReloadThread);
+        lastActiveStatThread = new StatThread(config, outputManager, statManager, offlinePlayerHandler, statThreadID, request, lastActiveReloadThread);
         statThreads.put(request.getCommandSender().getName(), lastActiveStatThread);
         lastActiveStatThread.start();
     }

@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.api.PlayerStats;
 import com.gmail.artemis.the.gr8.playerstats.api.PlayerStatsAPI;
+import com.gmail.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.gmail.artemis.the.gr8.playerstats.commands.ReloadCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.ShareCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
@@ -9,6 +10,7 @@ import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
+import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bukkit.Bukkit;
@@ -23,35 +25,37 @@ public class Main extends JavaPlugin {
 
     public static @NotNull BukkitAudiences adventure() {
         if (adventure == null) {
-            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
+            throw new IllegalStateException("Tried to access Adventure without PlayerStats being enabled!");
         }
         return adventure;
     }
 
     public static @NotNull PlayerStats getPlayerStatsAPI() {
         if (playerStatsAPI == null) {
-            playerStatsAPI = new PlayerStatsAPI();
+            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
         }
         return playerStatsAPI;
     }
 
     @Override
     public void onEnable() {
-        //initialize the Adventure library
-        adventure = BukkitAudiences.create(this);
-
         //first get an instance of all the classes that need to be passed along to different classes
         ConfigHandler config = new ConfigHandler(this);
         OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler();
 
         OutputManager outputManager = OutputManager.getInstance(config);
-        ThreadManager threadManager = ThreadManager.getInstance(config, outputManager, offlinePlayerHandler);
+        StatManager statManager = StatManager.getInstance(outputManager, offlinePlayerHandler);
+        ThreadManager threadManager = ThreadManager.getInstance(config, outputManager, statManager, offlinePlayerHandler);
         ShareManager shareManager = ShareManager.getInstance(config);
+
+        //initialize the Adventure library and the API
+        adventure = BukkitAudiences.create(this);
+        playerStatsAPI = PlayerStatsAPI.load(this, threadManager, outputManager, statManager);
 
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(outputManager, threadManager, offlinePlayerHandler));
+            statcmd.setExecutor(new StatCommand(outputManager, threadManager, statManager));
             statcmd.setTabCompleter(new TabCompleter(offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");

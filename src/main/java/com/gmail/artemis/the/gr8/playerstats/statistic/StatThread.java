@@ -23,15 +23,18 @@ import java.util.stream.Collectors;
 public class StatThread extends Thread {
 
     private static ConfigHandler config;
-    private final OutputManager outputManager;
+    private static OutputManager outputManager;
+    private static StatManager statManager;
+
     private final OfflinePlayerHandler offlinePlayerHandler;
 
     private final ReloadThread reloadThread;
     private final StatRequest request;
 
-    public StatThread(ConfigHandler c, OutputManager m, OfflinePlayerHandler o, int ID, StatRequest s, @Nullable ReloadThread r) {
+    public StatThread(ConfigHandler c, OutputManager m, StatManager t, OfflinePlayerHandler o, int ID, StatRequest s, @Nullable ReloadThread r) {
         config = c;
         outputManager = m;
+        statManager = t;
         offlinePlayerHandler = o;
 
         reloadThread = r;
@@ -68,7 +71,7 @@ public class StatThread extends Thread {
         Target selection = request.getSelection();
         try {
             TextComponent statResult = switch (selection) {
-                case PLAYER -> outputManager.formatPlayerStat(request, getIndividualStat());
+                case PLAYER -> outputManager.formatPlayerStat(request, statManager.getPlayerStat(request));
                 case TOP -> outputManager.formatTopStat(request, getTopStats());
                 case SERVER -> outputManager.formatServerStat(request, getServerStat());
             };
@@ -118,20 +121,5 @@ public class StatThread extends Thread {
         MyLogger.logTimeTaken("StatThread", "calculated all stats", time);
 
         return playerStats;
-    }
-
-    /** Gets the statistic data for an individual player. If somehow the player
-     cannot be found, this returns 0.*/
-    private int getIndividualStat() {
-        OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(request.getPlayerName());
-        if (player != null) {
-            return switch (request.getStatistic().getType()) {
-                case UNTYPED -> player.getStatistic(request.getStatistic());
-                case ENTITY -> player.getStatistic(request.getStatistic(), request.getEntity());
-                case BLOCK -> player.getStatistic(request.getStatistic(), request.getBlock());
-                case ITEM -> player.getStatistic(request.getStatistic(), request.getItem());
-            };
-        }
-        return 0;
     }
 }
