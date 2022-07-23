@@ -24,8 +24,6 @@ import static java.time.temporal.ChronoUnit.SECONDS;
  results of past stat-lookups, so the results can be retrieved and shared when a Player clicks the share-button.*/
 public final class ShareManager {
 
-    private static volatile ShareManager instance;
-
     private static boolean isEnabled;
     private static int waitingTime;
 
@@ -34,21 +32,8 @@ public final class ShareManager {
     private ConcurrentHashMap<String, Instant> shareTimeStamp;
     private ArrayBlockingQueue<UUID> sharedResults;
 
-    private ShareManager(ConfigHandler config) {
+    public ShareManager(ConfigHandler config) {
        updateSettings(config);
-    }
-
-    public static ShareManager getInstance(ConfigHandler config) {
-        ShareManager shareManager = instance;
-        if (shareManager != null) {
-            return shareManager;
-        }
-        synchronized (ShareManager.class) {
-            if (instance == null) {
-                instance = new ShareManager(config);
-            }
-            return instance;
-        }
     }
 
     public static boolean isEnabled() {

@@ -20,8 +20,6 @@ import java.util.HashMap;
  to ensure those will never run at the same time. */
 public final class ThreadManager {
 
-    private static volatile ThreadManager instance;
-
     private final static int threshold = 10;
     private int statThreadID;
     private int reloadThreadID;
@@ -36,11 +34,11 @@ public final class ThreadManager {
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    private ThreadManager(ConfigHandler c, OutputManager m, StatManager s, OfflinePlayerHandler o) {
-        config = c;
-        outputManager = m;
-        statManager = s;
-        offlinePlayerHandler = o;
+    public ThreadManager(ConfigHandler config, StatManager statManager, OutputManager outputManager, OfflinePlayerHandler offlinePlayerHandler) {
+        ThreadManager.config = config;
+        ThreadManager.outputManager = outputManager;
+        ThreadManager.statManager = statManager;
+        this.offlinePlayerHandler = offlinePlayerHandler;
 
         statThreads = new HashMap<>();
         statThreadID = 0;
@@ -48,19 +46,6 @@ public final class ThreadManager {
         lastRecordedCalcTime = 0;
 
         startReloadThread(null);
-    }
-
-    public static ThreadManager getInstance(ConfigHandler config, OutputManager output, StatManager statManager, OfflinePlayerHandler offlinePlayerHandler) {
-        ThreadManager threadManager = instance;
-        if (threadManager != null) {
-            return threadManager;
-        }
-        synchronized (ThreadManager.class) {
-            if (instance == null) {
-                instance = new ThreadManager(config, output, statManager, offlinePlayerHandler);
-            }
-            return instance;
-        }
     }
 
     public static int getTaskThreshold() {
@@ -108,7 +93,7 @@ public final class ThreadManager {
     }
 
     private void startNewStatThread(StatRequest request) {
-        lastActiveStatThread = new StatThread(config, outputManager, statManager, offlinePlayerHandler, statThreadID, request, lastActiveReloadThread);
+        lastActiveStatThread = new StatThread(outputManager, statManager, statThreadID, request, lastActiveReloadThread);
         statThreads.put(request.getCommandSender().getName(), lastActiveStatThread);
         lastActiveStatThread.start();
     }

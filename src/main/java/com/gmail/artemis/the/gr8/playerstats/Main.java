@@ -21,20 +21,11 @@ public class Main extends JavaPlugin {
 
     private static BukkitAudiences adventure;
     private static PlayerStats playerStatsAPI;
+    private static OutputManager outputManager;
+    private static ShareManager shareManager;
+    private static StatManager statManager;
+    private static ThreadManager threadManager;
 
-    public static @NotNull BukkitAudiences adventure() throws IllegalStateException {
-        if (adventure == null) {
-            throw new IllegalStateException("Tried to access Adventure without PlayerStats being enabled!");
-        }
-        return adventure;
-    }
-
-    public static @NotNull PlayerStats getPlayerStatsAPI() throws IllegalStateException {
-        if (playerStatsAPI == null) {
-            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
-        }
-        return playerStatsAPI;
-    }
 
     @Override
     public void onEnable() {
@@ -42,14 +33,8 @@ public class Main extends JavaPlugin {
         ConfigHandler config = new ConfigHandler(this);
         OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler();
 
-        OutputManager outputManager = OutputManager.getInstance(config);
-        StatManager statManager = StatManager.getInstance(outputManager, offlinePlayerHandler);
-        ThreadManager threadManager = ThreadManager.getInstance(config, outputManager, statManager, offlinePlayerHandler);
-        ShareManager shareManager = ShareManager.getInstance(config);
-
-        //initialize the Adventure library and the API
-        adventure = BukkitAudiences.create(this);
-        playerStatsAPI = PlayerStatsAPI.load(this, threadManager, outputManager, statManager);
+        //initialize all the Managers and the API
+        initializeMainClasses(config, offlinePlayerHandler);
 
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
@@ -76,5 +61,58 @@ public class Main extends JavaPlugin {
             adventure = null;
         }
         this.getLogger().info("Disabled PlayerStats!");
+    }
+
+    public static @NotNull BukkitAudiences getAdventure() throws IllegalStateException {
+        if (adventure == null) {
+            throw new IllegalStateException("Tried to access Adventure without PlayerStats being enabled!");
+        }
+        return adventure;
+    }
+
+    public static @NotNull PlayerStats getPlayerStatsAPI() throws IllegalStateException {
+        if (playerStatsAPI == null) {
+            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
+        }
+        return playerStatsAPI;
+    }
+
+    public static @NotNull OutputManager getOutputManager() throws IllegalStateException {
+        if (outputManager == null) {
+            throw new IllegalStateException("The OutputManager is not loaded! Is PlayerStats enabled?");
+        }
+        return outputManager;
+    }
+
+    public static @NotNull ShareManager getShareManager() throws IllegalStateException {
+        if (shareManager == null) {
+            throw new IllegalStateException("The ShareManager is not loaded! Is PlayerStats enabled?");
+        }
+        return shareManager;
+    }
+
+    public static @NotNull StatManager getStatManager() throws IllegalStateException {
+        if (statManager == null) {
+            throw new IllegalStateException("The StatManager is not loaded! Is PlayerStats enabled?");
+        }
+        return statManager;
+    }
+
+    public static @NotNull ThreadManager getThreadManager() throws IllegalStateException {
+        if (threadManager == null) {
+            throw new IllegalStateException("The ThreadManager is not loaded! Is PlayerStats enabled?");
+        }
+        return threadManager;
+    }
+
+    private void initializeMainClasses(ConfigHandler config, OfflinePlayerHandler offlinePlayerHandler) {
+        adventure = BukkitAudiences.create(this);
+
+        shareManager = new ShareManager(config);
+        outputManager = new OutputManager(getAdventure(), config, shareManager);
+        statManager = new StatManager(outputManager, offlinePlayerHandler, config.getTopListMaxSize());
+        threadManager = new ThreadManager(config, statManager, outputManager, offlinePlayerHandler);
+
+        playerStatsAPI = PlayerStatsAPI.load(statManager, outputManager);
     }
 }

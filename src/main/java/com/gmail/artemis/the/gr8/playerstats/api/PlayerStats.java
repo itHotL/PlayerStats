@@ -27,7 +27,8 @@ public interface PlayerStats {
      <p>- if applicable, a sub-stat-name (example: diorite)(</p>
      <p>- a target for this lookup: can be "top", "server", "player" (or "me" to indicate the current CommandSender)</p>
      <p>- if "player" was chosen, include a player-name</p>
-     @param sender the CommandSender that requested this specific statistic*/
+     @param sender the CommandSender that requested this specific statistic
+     @throws IllegalArgumentException if the args do not result in a valid statistic look-up*/
     TextComponent getFancyStat(CommandSender sender, String[] args) throws IllegalArgumentException;
 
     /** Turns a TextComponent into its String representation. It will lose all color and style,

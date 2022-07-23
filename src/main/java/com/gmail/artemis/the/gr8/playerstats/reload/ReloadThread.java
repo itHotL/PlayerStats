@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.reload;
 
+import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
@@ -7,6 +8,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
+import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import org.bukkit.Bukkit;
@@ -25,9 +27,9 @@ public class ReloadThread extends Thread {
 
     private static ConfigHandler config;
     private static OutputManager outputManager;
-    private final OfflinePlayerHandler offlinePlayerHandler;
-
     private static ShareManager shareManager;
+
+    private final OfflinePlayerHandler offlinePlayerHandler;
 
     private final int reloadThreadID;
     private final StatThread statThread;
@@ -39,7 +41,7 @@ public class ReloadThread extends Thread {
         outputManager = m;
         offlinePlayerHandler = o;
 
-        shareManager = ShareManager.getInstance(c);
+        shareManager = Main.getShareManager();
 
         reloadThreadID = ID;
         statThread = s;
@@ -52,7 +54,8 @@ public class ReloadThread extends Thread {
     /** This method will perform a series of tasks. If a {@link StatThread} is still running,
      it will join the statThread and wait for it to finish. Then, it will reload the config,
      update the offlinePlayerList in the {@link OfflinePlayerHandler}, update the {@link DebugLevel},
-     update the share-settings in {@link ShareManager} and update the MessageBuilders in the {@link OutputManager}.*/
+     update the share-settings in {@link ShareManager} and topListSize-settings in {@link StatManager},
+     and update the MessageBuilders in the {@link OutputManager}.*/
     @Override
     public void run() {
         long time = System.currentTimeMillis();
@@ -88,6 +91,7 @@ public class ReloadThread extends Thread {
         outputManager.updateMessageWriters(config);
         offlinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
         shareManager.updateSettings(config);
+        StatManager.updateSettings(config.getTopListMaxSize());
     }
 
     private ConcurrentHashMap<String, UUID> loadOfflinePlayers() {

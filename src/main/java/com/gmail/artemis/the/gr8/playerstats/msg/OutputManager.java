@@ -1,6 +1,5 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
-import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
@@ -33,8 +32,6 @@ import static com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage.*;
  (mainly to deal with the lack of hover-text, and for Bukkit consoles to make up for the lack of hex-colors).*/
 public final class OutputManager implements StatFormatter {
 
-    private static volatile OutputManager instance;
-
     private static BukkitAudiences adventure;
     private static ShareManager shareManager;
     private static MessageBuilder writer;
@@ -42,25 +39,12 @@ public final class OutputManager implements StatFormatter {
 
     private static EnumMap<StandardMessage, Function<MessageBuilder, TextComponent>> standardMessages;
 
-    private OutputManager(ConfigHandler config) {
-        adventure = Main.adventure();
-        shareManager = ShareManager.getInstance(config);
+    public OutputManager(BukkitAudiences adventure, ConfigHandler config, ShareManager shareManager) {
+        OutputManager.adventure = adventure;
+        OutputManager.shareManager = shareManager;
 
         getMessageWriters(config);
         prepareFunctions();
-    }
-
-    public static OutputManager getInstance(ConfigHandler config) {
-        OutputManager outputManager = instance;
-        if (outputManager != null) {
-            return outputManager;
-        }
-        synchronized (OutputManager.class) {
-            if (instance == null) {
-                instance = new OutputManager(config);
-            }
-            return instance;
-        }
     }
 
     public void updateMessageWriters(ConfigHandler config) {

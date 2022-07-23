@@ -1,35 +1,30 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
-import com.gmail.artemis.the.gr8.playerstats.Main;
-import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.java.JavaPlugin;
 
+
+import java.util.LinkedHashMap;
 
 import static org.jetbrains.annotations.ApiStatus.Internal;
 
-/** This is the implementation of the API Interface */
-public final class PlayerStatsAPI extends JavaPlugin implements PlayerStats {
+/** The implementation of the API Interface */
+public final class PlayerStatsAPI implements PlayerStats {
 
-    private final Main plugin;
-    private static ThreadManager threadManager;
     private static StatFormatter statFormatter;
     private static StatManager statManager;
 
     @Internal
-    private PlayerStatsAPI(Main plugin, ThreadManager thread, StatFormatter format, StatManager stat) {
-        this.plugin = plugin;
-        threadManager = thread;
+    private PlayerStatsAPI(StatManager stat, StatFormatter format) {
         statFormatter = format;
         statManager = stat;
     }
 
     @Internal
-    public static PlayerStatsAPI load(Main plugin, ThreadManager threadManager, StatFormatter formatter, StatManager statManager) {
-        return new PlayerStatsAPI(plugin, threadManager, formatter, statManager);
+    public static PlayerStatsAPI load(StatManager statManager, StatFormatter statFormatter) {
+        return new PlayerStatsAPI(statManager, statFormatter);
     }
 
     @Override
@@ -42,16 +37,16 @@ public final class PlayerStatsAPI extends JavaPlugin implements PlayerStats {
                     return statFormatter.formatPlayerStat(request, stat);
                 }
                 case SERVER -> {
-                    //do something async
+                    long stat = statManager.getServerStat(request);
+                    return statFormatter.formatServerStat(request, stat);
                 }
                 case TOP -> {
-                    //also do something async
+                    LinkedHashMap<String, Integer> stats = statManager.getTopStats(request);
+                    return statFormatter.formatTopStat(request, stats);
                 }
             }
-        } else {
-            throw new IllegalArgumentException("This is not a valid stat-request!");
         }
-        return null;
+        throw new IllegalArgumentException("This is not a valid stat-request!");
     }
 
     public String componentToString(TextComponent component) {

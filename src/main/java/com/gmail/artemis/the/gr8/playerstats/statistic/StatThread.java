@@ -9,33 +9,23 @@ import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.text.TextComponent;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ForkJoinPool;
-import java.util.stream.Collectors;
 
 /** The Thread that is in charge of getting and calculating statistics.*/
 public class StatThread extends Thread {
 
-    private static ConfigHandler config;
     private static OutputManager outputManager;
     private static StatManager statManager;
-
-    private final OfflinePlayerHandler offlinePlayerHandler;
 
     private final ReloadThread reloadThread;
     private final StatRequest request;
 
-    public StatThread(ConfigHandler c, OutputManager m, StatManager t, OfflinePlayerHandler o, int ID, StatRequest s, @Nullable ReloadThread r) {
-        config = c;
+    public StatThread(OutputManager m, StatManager t, int ID, StatRequest s, @Nullable ReloadThread r) {
         outputManager = m;
         statManager = t;
-        offlinePlayerHandler = o;
 
         reloadThread = r;
         request = s;
@@ -72,8 +62,8 @@ public class StatThread extends Thread {
         try {
             TextComponent statResult = switch (selection) {
                 case PLAYER -> outputManager.formatPlayerStat(request, statManager.getPlayerStat(request));
-                case TOP -> outputManager.formatTopStat(request, getTopStats());
-                case SERVER -> outputManager.formatServerStat(request, getServerStat());
+                case TOP -> outputManager.formatTopStat(request, statManager.getTopStats(request));
+                case SERVER -> outputManager.formatServerStat(request, statManager.getServerStat(request));
             };
             outputManager.sendToCommandSender(request.getCommandSender(), statResult);
         }
@@ -82,44 +72,5 @@ public class StatThread extends Thread {
                 outputManager.sendFeedbackMsg(request.getCommandSender(), StandardMessage.UNKNOWN_ERROR);
             }
         }
-    }
-
-    private LinkedHashMap<String, Integer> getTopStats() throws ConcurrentModificationException {
-        return getAllStats().entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .limit(config.getTopListMaxSize()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-    }
-
-    private long getServerStat() {
-        List<Integer> numbers = getAllStats().values().parallelStream().toList();
-        return numbers.parallelStream().mapToLong(Integer::longValue).sum();
-    }
-
-    //invokes a bunch of worker pool threads to divide and conquer (get the statistics for all players in the list)
-    private @NotNull ConcurrentHashMap<String, Integer> getAllStats() throws ConcurrentModificationException {
-        long time = System.currentTimeMillis();
-
-        int size = offlinePlayerHandler.getOfflinePlayerCount() != 0 ? offlinePlayerHandler.getOfflinePlayerCount() : 16;
-        ConcurrentHashMap<String, Integer> playerStats = new ConcurrentHashMap<>(size);
-        ImmutableList<String> playerNames = ImmutableList.copyOf(offlinePlayerHandler.getOfflinePlayerNames());
-
-        StatAction task = new StatAction(offlinePlayerHandler, playerNames, request, playerStats);
-        MyLogger.actionCreated(playerNames.size());
-        ForkJoinPool commonPool = ForkJoinPool.commonPool();
-
-        try {
-            commonPool.invoke(task);
-        } catch (ConcurrentModificationException e) {
-            MyLogger.logMsg("The request could not be executed due to a ConcurrentModificationException. " +
-                    "This likely happened because Bukkit hasn't fully initialized all player-data yet. " +
-                    "Try again and it should be fine!", true);
-            throw new ConcurrentModificationException(e.toString());
-        }
-
-        MyLogger.actionFinished(2);
-        ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
-        MyLogger.logTimeTaken("StatThread", "calculated all stats", time);
-
-        return playerStats;
     }
 }
