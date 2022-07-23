@@ -1,7 +1,9 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
+import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
 
 /** The {@link RequestGenerator} will help you turn a String (such as "stat animals_bred") into a specific {@link StatRequest}
  with all the information {@link PlayerStatsAPI} needs to work with. You'll need this StatRequest Object to get the statistic
@@ -16,11 +18,5 @@ public interface RequestGenerator {
      @param sender the CommandSender that requested this specific statistic*/
     StatRequest generateRequest(CommandSender sender, String[] args);
 
-    /** This method validates the {@link StatRequest} and returns feedback to the player if it returns false.
-     It checks the following:
-     <p>1. Is a Statistic set?</p>
-     <p>2. Is a subStat needed, and is a subStat Enum constant present? (block/entity/item)</p>
-     <p>3. If the target is PLAYER, is a valid PlayerName provided? </p>
-     @return true if the StatRequest is valid, and false + an explanation message otherwise. */
-    boolean requestIsValid(StatRequest request);
+    StatRequest generateRequest(CommandSender sender, String statName, @Nullable String subStatName, Target selection, @Nullable String PlayerName);
 }

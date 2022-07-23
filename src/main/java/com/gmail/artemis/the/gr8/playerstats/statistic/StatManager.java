@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
-public final class StatManager implements RequestGenerator, StatGetter {
+public final class StatManager implements StatGetter {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
     private static OutputManager outputManager;
@@ -120,6 +120,12 @@ public final class StatManager implements RequestGenerator, StatGetter {
         }
     }
 
+    /** This method validates the {@link StatRequest} and returns feedback to the player if it returns false.
+     It checks the following:
+     <p>1. Is a Statistic set?</p>
+     <p>2. Is a subStat needed, and is a subStat Enum constant present? (block/entity/item)</p>
+     <p>3. If the target is PLAYER, is a valid PlayerName provided? </p>
+     @return true if the StatRequest is valid, and false + an explanation message otherwise. */
     public boolean requestIsValid(StatRequest request) {
         if (request.getStatistic() == null) {
             outputManager.sendFeedbackMsg(request.getCommandSender(), StandardMessage.MISSING_STAT_NAME);

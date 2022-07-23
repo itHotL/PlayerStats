@@ -1,9 +1,13 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
+import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
 import net.kyori.adventure.text.TextComponent;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
 
 
 import java.util.LinkedHashMap;
@@ -27,6 +31,7 @@ public final class PlayerStatsAPI implements PlayerStats {
         return new PlayerStatsAPI(statManager, statFormatter);
     }
 
+
     @Override
     public TextComponent getFancyStat(CommandSender sender, String[] args) throws IllegalArgumentException {
         StatRequest request = statManager.generateRequest(sender, args);
@@ -49,7 +54,7 @@ public final class PlayerStatsAPI implements PlayerStats {
         throw new IllegalArgumentException("This is not a valid stat-request!");
     }
 
-    public String componentToString(TextComponent component) {
+    public String statResultComponentToString(TextComponent component) {
         return statFormatter.toString(component);
     }
 }
