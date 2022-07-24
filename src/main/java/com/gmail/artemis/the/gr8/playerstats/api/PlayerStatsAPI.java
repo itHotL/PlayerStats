@@ -31,52 +31,52 @@ public final class PlayerStatsAPI implements PlayerStats {
     }
 
     @Override
-    public TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull String playerName) throws IllegalArgumentException {
+    public TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull String playerName) throws NullPointerException {
         return getFormattedStatistic(Target.PLAYER, statistic, null, null, playerName);
     }
 
     @Override
-    public TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull Material material, @NotNull String playerName) throws IllegalArgumentException {
+    public TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull Material material, @NotNull String playerName) throws NullPointerException {
         return getFormattedStatistic(Target.PLAYER, statistic, material, null, playerName);
     }
 
     @Override
-    public TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull EntityType entity, @NotNull String playerName) throws IllegalArgumentException {
+    public TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull EntityType entity, @NotNull String playerName) throws NullPointerException {
         return getFormattedStatistic(Target.PLAYER, statistic, null, entity, playerName);
     }
 
     @Override
-    public TextComponent getServerStat(@NotNull Statistic statistic) throws IllegalArgumentException {
+    public TextComponent getServerStat(@NotNull Statistic statistic) throws NullPointerException {
         return getFormattedStatistic(Target.SERVER, statistic, null, null, null);
     }
 
     @Override
-    public TextComponent getServerStat(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
+    public TextComponent getServerStat(@NotNull Statistic statistic, @NotNull Material material) throws NullPointerException {
         return getFormattedStatistic(Target.SERVER, statistic, material, null, null);
     }
 
     @Override
-    public TextComponent getServerStat(@NotNull Statistic statistic, @NotNull EntityType entity) throws IllegalArgumentException {
+    public TextComponent getServerStat(@NotNull Statistic statistic, @NotNull EntityType entity) throws NullPointerException {
         return getFormattedStatistic(Target.SERVER, statistic, null, entity, null);
     }
 
     @Override
-    public TextComponent getTopStats(@NotNull Statistic statistic) throws IllegalArgumentException {
+    public TextComponent getTopStats(@NotNull Statistic statistic) throws NullPointerException {
         return getFormattedStatistic(Target.TOP, statistic, null, null, null);
     }
 
     @Override
-    public TextComponent getTopStats(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
+    public TextComponent getTopStats(@NotNull Statistic statistic, @NotNull Material material) throws NullPointerException {
         return getFormattedStatistic(Target.TOP, statistic, material, null, null);
     }
 
     @Override
-    public TextComponent getTopStats(@NotNull Statistic statistic, @NotNull EntityType entity) throws IllegalArgumentException {
+    public TextComponent getTopStats(@NotNull Statistic statistic, @NotNull EntityType entity) throws NullPointerException {
         return getFormattedStatistic(Target.TOP, statistic, null, entity, null);
     }
 
     private TextComponent getFormattedStatistic(@NotNull Target selection, @NotNull Statistic statistic,
-                                                @Nullable Material material, @Nullable EntityType entity, @Nullable String playerName) throws IllegalArgumentException {
+                                                @Nullable Material material, @Nullable EntityType entity, @Nullable String playerName) throws NullPointerException {
         StatRequest request = requestManager.generateRequest(selection, statistic, material, entity, playerName);
         if (requestManager.validateAPIRequest(request)) {
             switch (selection) {
@@ -94,6 +94,7 @@ public final class PlayerStatsAPI implements PlayerStats {
                 }
             }
         }
-        throw new IllegalArgumentException("This is not a valid stat-request!");
+        throw new NullPointerException("Not enough parameters are present for a valid statistic look-up! " +
+                "Make sure you include a block/item/entity if Statistic.Type is not Untyped, and include a playerName if you want a player-statistic");
     }
 }
