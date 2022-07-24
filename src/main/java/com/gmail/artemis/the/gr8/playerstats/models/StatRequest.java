@@ -1,6 +1,5 @@
 package com.gmail.artemis.the.gr8.playerstats.models;
 
-import com.gmail.artemis.the.gr8.playerstats.api.SimpleRequest;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -13,9 +12,10 @@ import org.jetbrains.annotations.NotNull;
  It is generated from the args provided by a CommandSender when /stat is called,
  and always contains this CommandSender. By default, {@link #getSelection()}
  will return {@link Target#TOP}, unless another selection is specified in the args.*/
-public final class StatRequest implements SimpleRequest {
+public final class StatRequest {
 
-    private CommandSender sender;
+    private final CommandSender sender;
+    private final boolean isAPIRequest;
     private Statistic statistic;
     private String playerName;
     private Target selection;
@@ -26,17 +26,20 @@ public final class StatRequest implements SimpleRequest {
     private Material item;
     private boolean playerFlag;
 
-    //make a SimpleRequest for a given CommandSender with some default values
-    public StatRequest(CommandSender s) {
-        if (s != null) {
-            setCommandSender(s);
-        }
+    //make a SimpleStatRequest for a given CommandSender with some default values
+    public StatRequest(@NotNull CommandSender sender) {
+        this(sender, false);
+    }
+
+    public StatRequest(@NotNull CommandSender sender, boolean isAPIRequest) {
+        this.sender = sender;
+        this.isAPIRequest = isAPIRequest;
         selection = Target.TOP;
         playerFlag = false;
     }
 
-    public void setCommandSender(@NotNull CommandSender sender) {
-        this.sender = sender;
+    public boolean isAPIRequest() {
+        return isAPIRequest;
     }
 
     public @NotNull CommandSender getCommandSender() {

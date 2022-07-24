@@ -51,30 +51,27 @@ public final class OutputManager implements StatFormatter {
     }
 
     @Override
-    public TextComponent formatPlayerStat(@NotNull StatRequest request, int playerStat, boolean isAPIRequest) {
-        CommandSender sender = request.getCommandSender();
+    public TextComponent formatPlayerStat(@NotNull StatRequest request, int playerStat) {
         BiFunction<UUID, CommandSender, TextComponent> playerStatFunction =
-                getWriter(sender).formattedPlayerStatFunction(playerStat, request);
+                getWriter(request).formattedPlayerStatFunction(playerStat, request);
 
-        return processBuildFunction(sender, playerStatFunction);
+        return processFunction(request.getCommandSender(), playerStatFunction);
     }
 
     @Override
-    public TextComponent formatServerStat(@NotNull StatRequest request, long serverStat, boolean isAPIRequest) {
-        CommandSender sender = request.getCommandSender();
+    public TextComponent formatServerStat(@NotNull StatRequest request, long serverStat) {
         BiFunction<UUID, CommandSender, TextComponent> serverStatFunction =
-                getWriter(sender).formattedServerStatFunction(serverStat, request);
+                getWriter(request).formattedServerStatFunction(serverStat, request);
 
-        return processBuildFunction(sender, serverStatFunction);
+        return processFunction(request.getCommandSender(), serverStatFunction);
     }
 
     @Override
-    public TextComponent formatTopStat(@NotNull StatRequest request, @NotNull LinkedHashMap<String, Integer> topStats, boolean isAPIRequest) {
-        CommandSender sender = request.getCommandSender();
+    public TextComponent formatTopStat(@NotNull StatRequest request, @NotNull LinkedHashMap<String, Integer> topStats) {
         BiFunction<UUID, CommandSender, TextComponent> topStatFunction =
-                getWriter(sender).formattedTopStatFunction(topStats, request);
+                getWriter(request).formattedTopStatFunction(topStats, request);
 
-        return processBuildFunction(sender, topStatFunction);
+        return processFunction(request.getCommandSender(), topStatFunction);
     }
 
     public void sendFeedbackMsg(@NotNull CommandSender sender, StandardMessage message) {
@@ -121,24 +118,31 @@ public final class OutputManager implements StatFormatter {
         adventure.sender(sender).sendMessage(component);
     }
 
-    private TextComponent processBuildFunction(@Nullable CommandSender sender, @NotNull BiFunction<UUID, CommandSender, TextComponent> buildFunction) {
-        boolean saveOutput = sender != null &&
+    private TextComponent processFunction(CommandSender sender, @NotNull BiFunction<UUID, CommandSender, TextComponent> statResultFunction) {
+        boolean saveOutput = !(sender instanceof ConsoleCommandSender) &&
                 ShareManager.isEnabled() &&
                 shareManager.senderHasPermission(sender);
 
         if (saveOutput) {
             UUID shareCode =
-                    shareManager.saveStatResult(sender.getName(), buildFunction.apply(null, sender));
-            return buildFunction.apply(shareCode, null);
+                    shareManager.saveStatResult(sender.getName(), statResultFunction.apply(null, sender));
+            return statResultFunction.apply(shareCode, null);
         }
         else {
-            return buildFunction.apply(null, null);
+            return statResultFunction.apply(null, null);
         }
     }
 
-    /** If sender == null, this will return the regular writer*/
     private MessageBuilder getWriter(CommandSender sender) {
         return sender instanceof ConsoleCommandSender ? consoleWriter : writer;
+    }
+
+    private MessageBuilder getWriter(StatRequest request) {
+        if (request.isAPIRequest() || !request.isConsoleSender()) {
+            return writer;
+        } else {
+            return consoleWriter;
+        }
     }
 
     private void getMessageWriters(ConfigHandler config) {

@@ -1,15 +1,15 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
+import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.RequestManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 
 import java.util.LinkedHashMap;
@@ -20,84 +20,80 @@ import static org.jetbrains.annotations.ApiStatus.Internal;
 public final class PlayerStatsAPI implements PlayerStats {
 
     private static RequestManager requestManager;
-    private static StatFormatter statFormatter;
     private static StatManager statManager;
+    private static StatFormatter statFormatter;
 
     @Internal
     public PlayerStatsAPI(RequestManager request, StatManager stat, StatFormatter format) {
         requestManager = request;
-        statFormatter = format;
         statManager = stat;
+        statFormatter = format;
     }
 
-    private TextComponent getFancyStat(CommandSender sender, String[] args) throws IllegalArgumentException {
-        StatRequest request = requestManager.generateRequest(sender, args);
-        if (requestManager.requestIsValid(request)) {
-            switch (request.getSelection()) {
+    @Override
+    public TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull String playerName) throws IllegalArgumentException {
+        return getFormattedStatistic(Target.PLAYER, statistic, null, null, playerName);
+    }
+
+    @Override
+    public TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull Material material, @NotNull String playerName) throws IllegalArgumentException {
+        return getFormattedStatistic(Target.PLAYER, statistic, material, null, playerName);
+    }
+
+    @Override
+    public TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull EntityType entity, @NotNull String playerName) throws IllegalArgumentException {
+        return getFormattedStatistic(Target.PLAYER, statistic, null, entity, playerName);
+    }
+
+    @Override
+    public TextComponent getServerStat(@NotNull Statistic statistic) throws IllegalArgumentException {
+        return getFormattedStatistic(Target.SERVER, statistic, null, null, null);
+    }
+
+    @Override
+    public TextComponent getServerStat(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
+        return getFormattedStatistic(Target.SERVER, statistic, material, null, null);
+    }
+
+    @Override
+    public TextComponent getServerStat(@NotNull Statistic statistic, @NotNull EntityType entity) throws IllegalArgumentException {
+        return getFormattedStatistic(Target.SERVER, statistic, null, entity, null);
+    }
+
+    @Override
+    public TextComponent getTopStats(@NotNull Statistic statistic) throws IllegalArgumentException {
+        return getFormattedStatistic(Target.TOP, statistic, null, null, null);
+    }
+
+    @Override
+    public TextComponent getTopStats(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
+        return getFormattedStatistic(Target.TOP, statistic, material, null, null);
+    }
+
+    @Override
+    public TextComponent getTopStats(@NotNull Statistic statistic, @NotNull EntityType entity) throws IllegalArgumentException {
+        return getFormattedStatistic(Target.TOP, statistic, null, entity, null);
+    }
+
+    private TextComponent getFormattedStatistic(@NotNull Target selection, @NotNull Statistic statistic,
+                                                @Nullable Material material, @Nullable EntityType entity, @Nullable String playerName) throws IllegalArgumentException {
+        StatRequest request = requestManager.generateRequest(selection, statistic, material, entity, playerName);
+        if (requestManager.validateAPIRequest(request)) {
+            switch (selection) {
                 case PLAYER -> {
                     int stat = statManager.getPlayerStat(request);
-                    return statFormatter.formatPlayerStat(request, stat, true);
+                    return statFormatter.formatPlayerStat(request, stat);
                 }
                 case SERVER -> {
                     long stat = statManager.getServerStat(request);
-                    return statFormatter.formatServerStat(request, stat, true);
+                    return statFormatter.formatServerStat(request, stat);
                 }
                 case TOP -> {
                     LinkedHashMap<String, Integer> stats = statManager.getTopStats(request);
-                    return statFormatter.formatTopStat(request, stats, true);
+                    return statFormatter.formatTopStat(request, stats);
                 }
             }
         }
         throw new IllegalArgumentException("This is not a valid stat-request!");
-    }
-
-    @Override
-    public TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull OfflinePlayer player) {
-        return null;
-    }
-
-    @Override
-    public TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull Material material, @NotNull OfflinePlayer player) {
-        return null;
-    }
-
-    @Override
-    public TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull EntityType entity, @NotNull OfflinePlayer player) {
-        return null;
-    }
-
-    @Override
-    public TextComponent getServerStat(@NotNull Statistic statistic) {
-        return null;
-    }
-
-    @Override
-    public TextComponent getServerStat(@NotNull Statistic statistic, @NotNull Material material) {
-        return null;
-    }
-
-    @Override
-    public TextComponent getServerStat(@NotNull Statistic statistic, @NotNull EntityType entity) {
-        return null;
-    }
-
-    @Override
-    public TextComponent getTopStats(@NotNull Statistic statistic) {
-        return null;
-    }
-
-    @Override
-    public TextComponent getTopStats(@NotNull Statistic statistic, @NotNull Material material) {
-        return null;
-    }
-
-    @Override
-    public TextComponent getTopStats(@NotNull Statistic statistic, @NotNull EntityType entity) {
-        return null;
-    }
-
-    @Override
-    public String statResultComponentToString(TextComponent component) {
-        return statFormatter.statResultToString(component);
     }
 }

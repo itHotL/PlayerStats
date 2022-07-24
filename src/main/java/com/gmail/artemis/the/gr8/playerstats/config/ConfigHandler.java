@@ -31,10 +31,11 @@ public class ConfigHandler {
     }
 
     /** Checks the number that "config-version" returns to see if the config needs updating, and if so, send it to the {@link ConfigUpdateHandler}.
-     <p>PlayerStats 1.1: "config-version" doesn't exist.</p>
-     <p>PlayerStats 1.2: "config-version" is 2.</p>
-     <p>PlayerStats 1.3: "config-version" is 3. </P>
-     <p>PlayerStats 1.4: "config-version" is 4.</p>*/
+     <br></br>
+     <br>PlayerStats 1.1: "config-version" doesn't exist.</br>
+     <br>PlayerStats 1.2: "config-version" is 2.</br>
+     <br>PlayerStats 1.3: "config-version" is 3. </br>
+     <br>PlayerStats 1.4: "config-version" is 4.</br>*/
     private void checkConfigVersion() {
         if (!config.contains("config-version") || config.getInt("config-version") != configVersion) {
             new ConfigUpdateHandler(plugin, configFile, configVersion);
@@ -66,79 +67,81 @@ public class ConfigHandler {
     }
 
     /** Returns the desired debugging level.
-     <p>1 = low (only show unexpected errors)</p>
-     <p>2 = medium (detail all encountered exceptions, log main tasks and show time taken)</p>
-     <p>3 = high (log all tasks and time taken)</p>
-     <p>Default: 1</p>*/
+     <br></br>
+     <br>1 = low (only show unexpected errors)</br>
+     <br>2 = medium (detail all encountered exceptions, log main tasks and show time taken)</br>
+     <br>3 = high (log all tasks and time taken)</br>
+     <br></br>
+     <br>Default: 1</br>*/
     public int getDebugLevel() {
         return config.getInt("debug-level", 1);
     }
 
     /** Returns true if command-senders should be limited to one stat-request at a time.
-     <p>Default: true</p>*/
+     <br>Default: true</br>*/
     public boolean limitStatRequests() {
         return config.getBoolean("only-allow-one-lookup-at-a-time-per-player", true);
     }
 
     /** Returns true if stat-sharing is allowed.
-     <p>Default: true</p>*/
+     <br>Default: true</br>*/
     public boolean allowStatSharing() {
         return config.getBoolean("enable-stat-sharing", true);
     }
 
     /** Returns the number of minutes a player has to wait before being able to
      share another stat-result.
-     <p>Default: 0</p>*/
+     <br>Default: 0</br>*/
     public int getStatShareWaitingTime() {
         return config.getInt("waiting-time-before-sharing-again", 0);
     }
 
     /** Returns the config setting for include-whitelist-only.
-     <p>Default: false</p>*/
+     <br>Default: false</br>*/
     public boolean whitelistOnly() {
         return config.getBoolean("include-whitelist-only", false);
     }
 
     /** Returns the config setting for exclude-banned-players.
-     <p>Default: false</p>*/
+     <br>Default: false</br>*/
     public boolean excludeBanned() {
         return config.getBoolean("exclude-banned-players", false);
     }
 
     /** Returns the number of maximum days since a player has last been online.
-     <p>Default: 0 (which signals not to use this limit)</p>*/
+     <br>Default: 0 (which signals not to use this limit)</br>*/
     public int getLastPlayedLimit() {
         return config.getInt("number-of-days-since-last-joined", 0);
     }
 
     /** Whether to use TranslatableComponents wherever possible.
      Currently supported: statistic, block, item and entity names.
-     <p>Default: true</p>*/
+     <br>Default: true</br>*/
     public boolean useTranslatableComponents() {
         return config.getBoolean("translate-to-client-language", true);
     }
 
     /** Whether to use HoverComponents for additional information.
-     <p>Default: true</p>*/
+     <br>Default: true</br>*/
     public boolean useHoverText() {
         return config.getBoolean("enable-hover-text", true);
     }
 
     /** Whether to use festive formatting, such as pride colors.
-     <p>Default: true</p> */
+     <br>Default: true</br> */
     public boolean useFestiveFormatting() {
         return config.getBoolean("enable-festive-formatting", true);
     }
 
     /** Whether to use rainbow colors for the [PlayerStats] prefix rather than the default gold/purple.
-     <p>Default: false</p> */
+     <br>Default: false</br> */
     public boolean useRainbowMode() {
         return config.getBoolean("rainbow-mode", false);
     }
 
     /** Whether to use enters before the statistic output in chat.
      Enters create some separation between the previous things that have been said in chat and the stat-result.
-     <p>Default: true for non-shared top statistics, false for everything else</p>*/
+     <br>Default: true for non-shared top statistics, false for everything else</br>*/
     public boolean useEnters(Target selection, boolean getSharedSetting) {
         ConfigurationSection section = config.getConfigurationSection("use-enters");
         boolean def = selection == Target.TOP && !getSharedSetting;
@@ -157,49 +160,49 @@ public class ConfigHandler {
     }
 
     /** Returns the config setting for use-dots.
-     <p>Default: true</p>*/
+     <br>Default: true</br>*/
     public boolean useDots() {
         return config.getBoolean("use-dots", true);
     }
 
     /** Returns the config setting for top-list-max-size.
-     <p>Default: 10</p> */
+     <br>Default: 10</br> */
     public int getTopListMaxSize() {
         return config.getInt("top-list-max-size", 10);
     }
 
     /** Returns a String that represents the title for a top statistic.
-     <p>Default: "Top"</p>*/
+     <br>Default: "Top"</br>*/
     public String getTopStatsTitle() {
         return config.getString("top-list-title", "Top");
     }
 
     /** Returns a String that represents the title for a server stat.
-     <p>Default: "Total on"</p> */
+     <br>Default: "Total on"</br> */
     public String getServerTitle() {
         return config.getString("total-server-stat-title", "Total on");
     }
 
     /** Returns the specified server name for a server stat title.
-     <p>Default: "this server"</p>*/
+     <br>Default: "this server"</br>*/
     public String getServerName() {
         return config.getString("your-server-name", "this server");
     }
 
     /** Returns the unit that should be used for distance-related statistics.
-     <p>Default: Blocks for plain text, km for hover-text</p>*/
+     <br>Default: Blocks for plain text, km for hover-text</br>*/
     public String getDistanceUnit(boolean isHoverText) {
         return getUnitString(isHoverText, "blocks", "km", "distance-unit");
     }
 
     /** Returns the unit that should be used for damage-based statistics.
-     <p>Default: Hearts for plain text, HP for hover-text.</p>*/
+     <br>Default: Hearts for plain text, HP for hover-text.</br>*/
     public String getDamageUnit(boolean isHoverText) {
         return getUnitString(isHoverText, "hearts", "hp", "damage-unit");
     }
 
     /** Whether PlayerStats should automatically detect the most suitable unit to use for time-based statistics.
-     <p>Default: true</p>*/
+     <br>Default: true</br>*/
     public boolean autoDetectTimeUnit(boolean isHoverText) {
         String path = "auto-detect-biggest-time-unit";
         if (isHoverText) {
@@ -210,7 +213,7 @@ public class ConfigHandler {
     }
 
     /** How many additional units should be displayed next to the most suitable largest unit for time-based statistics.
-     <p>Default: 1 for plain text, 0 for hover-text</p>*/
+     <br>Default: 1 for plain text, 0 for hover-text</br>*/
     public int getNumberOfExtraTimeUnits(boolean isHoverText) {
         String path = "number-of-extra-units";
         if (isHoverText) {
@@ -222,14 +225,14 @@ public class ConfigHandler {
 
     /** Returns the unit that should be used for time-based statistics.
      (this will return the largest unit that should be used).
-     <p>Default: days for plain text, hours for hover-text</p>*/
+     <br>Default: days for plain text, hours for hover-text</br>*/
     public String getTimeUnit(boolean isHoverText) {
         return getTimeUnit(isHoverText, false);
     }
 
     /** Returns the unit that should be used for time-based statistics. If the optional smallUnit flag is true,
      this will return the smallest unit (and otherwise the largest).
-     <p>Default: hours for plain text, seconds for hover-text</p>*/
+     <br>Default: hours for plain text, seconds for hover-text</br>*/
     public String getTimeUnit(boolean isHoverText, boolean smallUnit) {
         if (smallUnit) {
             return getUnitString(isHoverText, "hours", "seconds", "smallest-time-unit");
@@ -239,30 +242,30 @@ public class ConfigHandler {
 
     /** Returns an integer between 0 and 100 that represents how much lighter a hoverColor should be.
      So 20 would mean 20% lighter.
-     <p>Default: 20</p>*/
+     <br>Default: 20</br>*/
     public int getHoverTextAmountLighter() {
         return config.getInt("hover-text-amount-lighter", 20);
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
-     * <p>Style: "italic"</p>
-     * <p>Color: "gray"</p>*/
+     * <br>Style: "italic"</br>
+     * <br>Color: "gray"</br>*/
     public String getSharedByTextDecoration(boolean getStyleSetting) {
         String def = getStyleSetting ? "italic" : "gray";
         return getDecorationString(null, getStyleSetting, def, "shared-by");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
-     * <p>Style: "none"</p>
-     * <p>Color: "#845EC2"</p>*/
+     * <br>Style: "none"</br>
+     * <br>Color: "#845EC2"</br>*/
     public String getSharerNameDecoration(boolean getStyleSetting) {
        return getDecorationString(null, getStyleSetting, "#845EC2", "player-name");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
-     <p>Style: "none"</p>
-     <p>Color Top: "green"</p>
-     <p>Color Individual/Server: "gold"</p>*/
+     <br>Style: "none"</br>
+     <br>Color Top: "green"</br>
+     <br>Color Individual/Server: "gold"</br>*/
     public String getPlayerNameDecoration(Target selection, boolean getStyleSetting) {
         String def;
         if (selection == Target.TOP) {
@@ -275,7 +278,7 @@ public class ConfigHandler {
     }
 
     /** Returns true if playerNames Style is "bold", false if it is not.
-     <p>Default: false</p>*/
+     <br>Default: false</br>*/
     public boolean playerNameIsBold() {
         ConfigurationSection style = getRelevantSection(Target.PLAYER);
 
@@ -287,23 +290,23 @@ public class ConfigHandler {
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
-     <p>Style: "none"</p>
-     <p>Color: "yellow"</p>*/
+     <br>Style: "none"</br>
+     <br>Color: "yellow"</br>*/
     public String getStatNameDecoration(Target selection, boolean getStyleSetting) {
         return getDecorationString(selection, getStyleSetting, "yellow", "stat-names");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or a Style. Default values are:
-     <p>Style: "none"</p>
-     <p>Color: "#FFD52B"</p>*/
+     <br>Style: "none"</br>
+     <br>Color: "#FFD52B"</br>*/
     public String getSubStatNameDecoration(Target selection, boolean getStyleSetting) {
         return getDecorationString(selection, getStyleSetting, "#FFD52B", "sub-stat-names");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
-     <p>Style: "none"</p>
-     <p>Color Top: "#55AAFF"</p>
-     <p>Color Individual/Server: "#ADE7FF"</p> */
+     <br>Style: "none"</br>
+     <br>Color Top: "#55AAFF"</br>
+     <br>Color Individual/Server: "#ADE7FF"</br> */
     public String getStatNumberDecoration(Target selection, boolean getStyleSetting) {
         String def;
         if (selection == Target.TOP) {
@@ -316,9 +319,9 @@ public class ConfigHandler {
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
-     <p>Style: "none"</p>
-     <p>Color Top: "yellow"</p>
-     <p>Color Server: "gold"</p>*/
+     <br>Style: "none"</br>
+     <br>Color Top: "yellow"</br>
+     <br>Color Server: "gold"</br>*/
     public String getTitleDecoration(Target selection, boolean getStyleSetting) {
         String def;
         if (selection == Target.TOP) {
@@ -331,29 +334,29 @@ public class ConfigHandler {
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
-     <p>Style: "none"</p>
-     <p>Color: "gold"</p>*/
+     <br>Style: "none"</br>
+     <br>Color: "gold"</br>*/
     public String getTitleNumberDecoration(boolean getStyleSetting) {
         return getDecorationString(Target.TOP, getStyleSetting, "gold", "title-number");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
-     <p>Style: "none"</p>
-     <p>Color: "#FFB80E"</p>*/
+     <br>Style: "none"</br>
+     <br>Color: "#FFB80E"</br>*/
     public String getServerNameDecoration(boolean getStyleSetting) {
         return getDecorationString(Target.SERVER, getStyleSetting, "#FFB80E", "server-name");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
-     <p>Style: "none"</p>
-     <p>Color: "gold"</p>*/
+     <br>Style: "none"</br>
+     <br>Color: "gold"</br>*/
     public String getRankNumberDecoration(boolean getStyleSetting) {
         return getDecorationString(Target.TOP, getStyleSetting, "gold", "rank-numbers");
     }
 
     /** Returns a String that represents either a Chat Color, hex color code, or Style. Default values are:
-     <p>Style: "none"</p>
-     <p>Color: "dark_gray"</p> */
+     <br>Style: "none"</br>
+     <br>Color: "dark_gray"</br> */
     public String getDotsDecoration(boolean getStyleSetting) {
         return getDecorationString(Target.TOP, getStyleSetting, "dark_gray", "dots");
     }

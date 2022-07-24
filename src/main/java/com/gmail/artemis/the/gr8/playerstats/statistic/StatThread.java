@@ -59,9 +59,9 @@ public class StatThread extends Thread {
         Target selection = request.getSelection();
         try {
             TextComponent statResult = switch (selection) {
-                case PLAYER -> outputManager.formatPlayerStat(request, statManager.getPlayerStat(request), false);
-                case TOP -> outputManager.formatTopStat(request, statManager.getTopStats(request), false);
-                case SERVER -> outputManager.formatServerStat(request, statManager.getServerStat(request), false);
+                case PLAYER -> outputManager.formatPlayerStat(request, statManager.getPlayerStat(request));
+                case TOP -> outputManager.formatTopStat(request, statManager.getTopStats(request));
+                case SERVER -> outputManager.formatServerStat(request, statManager.getServerStat(request));
             };
             outputManager.sendToCommandSender(request.getCommandSender(), statResult);
         }

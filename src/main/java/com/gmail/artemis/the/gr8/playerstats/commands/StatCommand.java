@@ -1,18 +1,13 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
-import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.RequestManager;
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-
-import java.awt.*;
 
 
 public class StatCommand implements CommandExecutor {
@@ -38,7 +33,7 @@ public class StatCommand implements CommandExecutor {
         }
         else {
             StatRequest request = requestManager.generateRequest(sender, args);
-            if (requestManager.requestIsValid(request)) {
+            if (requestManager.validateRequest(request)) {
                 threadManager.startStatThread(request);
             } else {
                 return false;

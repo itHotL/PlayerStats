@@ -2,21 +2,19 @@ package com.gmail.artemis.the.gr8.playerstats.api;
 
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 
 import java.util.LinkedHashMap;
 
-/** Interface that defines the output functionality PlayerStats should have.
- This is meant for an outgoing API - for internal use, more output functionality may exist. */
+/** The {@link StatFormatter} defines what the output of any given statistic look-up should be.
+ <br></br>
+ <p>The Formatter takes a {@link StatRequest} and the result of {@link StatCalculator} calculations, and transforms the
+ request object and raw numbers into a pretty message (TextComponent) with all the relevant information in it.
+ This output is ready to be sent to a Player or Console, or can be turned into a String representation if necessary.*/
 public interface StatFormatter {
 
-    default String statResultToString(TextComponent statResult) {
-        return MiniMessage.miniMessage().serialize(statResult);
-    }
+    TextComponent formatPlayerStat(StatRequest request, int playerStat);
 
-    TextComponent formatPlayerStat(StatRequest request, int playerStat, boolean isAPIRequest);
+    TextComponent formatServerStat(StatRequest request, long serverStat);
 
-    TextComponent formatServerStat(StatRequest request, long serverStat, boolean isAPIRequest);
-
-    TextComponent formatTopStat(StatRequest request, LinkedHashMap<String, Integer> topStats, boolean isAPIRequest);
+    TextComponent formatTopStat(StatRequest request, LinkedHashMap<String, Integer> topStats);
 }

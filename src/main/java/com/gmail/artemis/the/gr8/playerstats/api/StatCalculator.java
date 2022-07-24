@@ -4,7 +4,9 @@ import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 
 import java.util.LinkedHashMap;
 
-public interface StatGetter {
+/** The {@link StatCalculator} represents the actual statistic-getting magic that happens once a valid
+ {@link StatRequest} has been obtained. It takes a valid StatRequest, and returns (a map of) numbers. */
+public interface StatCalculator {
 
     int getPlayerStat(StatRequest request);
 
