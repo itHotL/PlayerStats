@@ -9,6 +9,7 @@ import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
+import com.gmail.artemis.the.gr8.playerstats.statistic.RequestManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -22,6 +23,7 @@ public class Main extends JavaPlugin {
     private static BukkitAudiences adventure;
     private static PlayerStats playerStatsAPI;
     private static OutputManager outputManager;
+    private static RequestManager requestManager;
     private static ShareManager shareManager;
     private static StatManager statManager;
     private static ThreadManager threadManager;
@@ -39,7 +41,7 @@ public class Main extends JavaPlugin {
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(outputManager, threadManager, statManager));
+            statcmd.setExecutor(new StatCommand(outputManager, threadManager, requestManager));
             statcmd.setTabCompleter(new TabCompleter(offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
@@ -109,10 +111,11 @@ public class Main extends JavaPlugin {
         adventure = BukkitAudiences.create(this);
 
         shareManager = new ShareManager(config);
+        statManager = new StatManager(offlinePlayerHandler, config.getTopListMaxSize());
         outputManager = new OutputManager(getAdventure(), config, shareManager);
-        statManager = new StatManager(outputManager, offlinePlayerHandler, config.getTopListMaxSize());
+        requestManager = new RequestManager(offlinePlayerHandler, outputManager);
         threadManager = new ThreadManager(config, statManager, outputManager, offlinePlayerHandler);
 
-        playerStatsAPI = PlayerStatsAPI.load(statManager, outputManager);
+        playerStatsAPI = new PlayerStatsAPI(requestManager, statManager, outputManager);
     }
 }

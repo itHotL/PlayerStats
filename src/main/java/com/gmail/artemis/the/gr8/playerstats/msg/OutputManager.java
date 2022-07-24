@@ -24,7 +24,6 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static org.jetbrains.annotations.ApiStatus.Internal;
 import static com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage.*;
 
 /** This class manages all PlayerStats output. It is the only place where messages are sent.
@@ -51,14 +50,8 @@ public final class OutputManager implements StatFormatter {
         getMessageWriters(config);
     }
 
-    @Internal
     @Override
-    public boolean saveOutputForSharing() {
-        return true;
-    }
-
-    @Override
-    public TextComponent formatPlayerStat(@NotNull StatRequest request, int playerStat) {
+    public TextComponent formatPlayerStat(@NotNull StatRequest request, int playerStat, boolean isAPIRequest) {
         CommandSender sender = request.getCommandSender();
         BiFunction<UUID, CommandSender, TextComponent> playerStatFunction =
                 getWriter(sender).formattedPlayerStatFunction(playerStat, request);
@@ -67,7 +60,7 @@ public final class OutputManager implements StatFormatter {
     }
 
     @Override
-    public TextComponent formatServerStat(@NotNull StatRequest request, long serverStat) {
+    public TextComponent formatServerStat(@NotNull StatRequest request, long serverStat, boolean isAPIRequest) {
         CommandSender sender = request.getCommandSender();
         BiFunction<UUID, CommandSender, TextComponent> serverStatFunction =
                 getWriter(sender).formattedServerStatFunction(serverStat, request);
@@ -76,7 +69,7 @@ public final class OutputManager implements StatFormatter {
     }
 
     @Override
-    public TextComponent formatTopStat(@NotNull StatRequest request, LinkedHashMap<String, Integer> topStats) {
+    public TextComponent formatTopStat(@NotNull StatRequest request, @NotNull LinkedHashMap<String, Integer> topStats, boolean isAPIRequest) {
         CommandSender sender = request.getCommandSender();
         BiFunction<UUID, CommandSender, TextComponent> topStatFunction =
                 getWriter(sender).formattedTopStatFunction(topStats, request);
@@ -84,24 +77,24 @@ public final class OutputManager implements StatFormatter {
         return processBuildFunction(sender, topStatFunction);
     }
 
-    public void sendFeedbackMsg(CommandSender sender, StandardMessage message) {
+    public void sendFeedbackMsg(@NotNull CommandSender sender, StandardMessage message) {
         if (message != null) {
             adventure.sender(sender).sendMessage(standardMessages.get(message)
                     .apply(getWriter(sender)));
         }
     }
 
-    public void sendFeedbackMsgWaitAMoment(CommandSender sender, boolean longWait) {
+    public void sendFeedbackMsgWaitAMoment(@NotNull CommandSender sender, boolean longWait) {
         adventure.sender(sender).sendMessage(getWriter(sender)
                 .waitAMoment(longWait));
     }
 
-    public void sendFeedbackMsgMissingSubStat(CommandSender sender, Statistic.Type statType) {
+    public void sendFeedbackMsgMissingSubStat(@NotNull CommandSender sender, Statistic.Type statType) {
         adventure.sender(sender).sendMessage(getWriter(sender)
                 .missingSubStatName(statType));
     }
 
-    public void sendFeedbackMsgWrongSubStat(CommandSender sender, Statistic.Type statType, String subStatName) {
+    public void sendFeedbackMsgWrongSubStat(@NotNull CommandSender sender, Statistic.Type statType, @Nullable String subStatName) {
         if (subStatName == null) {
             sendFeedbackMsgMissingSubStat(sender, statType);
         } else {
@@ -110,12 +103,12 @@ public final class OutputManager implements StatFormatter {
         }
     }
 
-    public void sendExamples(CommandSender sender) {
+    public void sendExamples(@NotNull CommandSender sender) {
         adventure.sender(sender).sendMessage(getWriter(sender)
                 .usageExamples());
     }
 
-    public void sendHelp(CommandSender sender) {
+    public void sendHelp(@NotNull CommandSender sender) {
         adventure.sender(sender).sendMessage(getWriter(sender)
                 .helpMsg(sender instanceof ConsoleCommandSender));
     }
@@ -124,13 +117,12 @@ public final class OutputManager implements StatFormatter {
         adventure.players().sendMessage(component);
     }
 
-    public void sendToCommandSender(CommandSender sender, TextComponent component) {
+    public void sendToCommandSender(@NotNull CommandSender sender, @NotNull TextComponent component) {
         adventure.sender(sender).sendMessage(component);
     }
 
-    private TextComponent processBuildFunction(@Nullable CommandSender sender, BiFunction<UUID, CommandSender, TextComponent> buildFunction) {
-        boolean saveOutput = saveOutputForSharing() &&
-                sender != null &&
+    private TextComponent processBuildFunction(@Nullable CommandSender sender, @NotNull BiFunction<UUID, CommandSender, TextComponent> buildFunction) {
+        boolean saveOutput = sender != null &&
                 ShareManager.isEnabled() &&
                 shareManager.senderHasPermission(sender);
 
@@ -144,6 +136,7 @@ public final class OutputManager implements StatFormatter {
         }
     }
 
+    /** If sender == null, this will return the regular writer*/
     private MessageBuilder getWriter(CommandSender sender) {
         return sender instanceof ConsoleCommandSender ? consoleWriter : writer;
     }

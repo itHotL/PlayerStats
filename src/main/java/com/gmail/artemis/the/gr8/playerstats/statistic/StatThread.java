@@ -6,9 +6,7 @@ import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
-import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
-import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.text.TextComponent;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,9 +59,9 @@ public class StatThread extends Thread {
         Target selection = request.getSelection();
         try {
             TextComponent statResult = switch (selection) {
-                case PLAYER -> outputManager.formatPlayerStat(request, statManager.getPlayerStat(request));
-                case TOP -> outputManager.formatTopStat(request, statManager.getTopStats(request));
-                case SERVER -> outputManager.formatServerStat(request, statManager.getServerStat(request));
+                case PLAYER -> outputManager.formatPlayerStat(request, statManager.getPlayerStat(request), false);
+                case TOP -> outputManager.formatTopStat(request, statManager.getTopStats(request), false);
+                case SERVER -> outputManager.formatServerStat(request, statManager.getServerStat(request), false);
             };
             outputManager.sendToCommandSender(request.getCommandSender(), statResult);
         }

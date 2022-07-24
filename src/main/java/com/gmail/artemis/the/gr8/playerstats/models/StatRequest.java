@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.models;
 
+import com.gmail.artemis.the.gr8.playerstats.api.SimpleRequest;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -12,9 +13,9 @@ import org.jetbrains.annotations.NotNull;
  It is generated from the args provided by a CommandSender when /stat is called,
  and always contains this CommandSender. By default, {@link #getSelection()}
  will return {@link Target#TOP}, unless another selection is specified in the args.*/
-public final class StatRequest {
+public final class StatRequest implements SimpleRequest {
 
-    private final CommandSender sender;
+    private CommandSender sender;
     private Statistic statistic;
     private String playerName;
     private Target selection;
@@ -25,11 +26,17 @@ public final class StatRequest {
     private Material item;
     private boolean playerFlag;
 
-    //make a StatRequest for a given CommandSender with some default values
-    public StatRequest(@NotNull CommandSender s) {
-        sender = s;
+    //make a SimpleRequest for a given CommandSender with some default values
+    public StatRequest(CommandSender s) {
+        if (s != null) {
+            setCommandSender(s);
+        }
         selection = Target.TOP;
         playerFlag = false;
+    }
+
+    public void setCommandSender(@NotNull CommandSender sender) {
+        this.sender = sender;
     }
 
     public @NotNull CommandSender getCommandSender() {
@@ -74,7 +81,7 @@ public final class StatRequest {
 
     /** The "player" arg is a special case, because it could either be a valid subStatEntry, or indicate that the lookup action should target a specific player.
      This is why the playerFlag exists - if this is true, and playerName is null, subStatEntry should be set to "player". */
-    public boolean playerFlag() {
+    public boolean getPlayerFlag() {
         return playerFlag;
     }
 

@@ -12,10 +12,11 @@ import org.jetbrains.annotations.NotNull;
 
 /** This Interface is the outgoing API that provides access to the core functionality of PlayerStats.
  To work with it, you can call PlayerStats.{@link #getAPI()} to get an instance of {@link PlayerStatsAPI}.
- You can then use this object to call any of the below methods. Since calculating a
- top or server statistics can take some time, it is recommended to call any of the
+ You can then use this object to get formatted statistics.
+
+ <p>Since calculating a top or server statistics can take some time, it is recommended to call any of the
  getServerStat() or getTopStats() methods asynchronously. Otherwise, the main Thread will have
- to wait until all calculations are done, and this might cause lag spikes on the server.
+ to wait until all calculations are done, and this might cause lag spikes on the server.</p>
 
  <p>The result of the methods in PlayerStats' API are returned in the form of a TextComponent,
  which can be sent directly to a Minecraft client with the Adventure library,
@@ -28,20 +29,6 @@ public interface PlayerStats {
     static @NotNull PlayerStats getAPI() throws IllegalStateException {
         return Main.getPlayerStatsAPI();
     }
-
-    /** Returns a stat-result as if the caller ran the /stat command in Minecraft chat. Since calculating the
-     top or server statistics can take some time, it is recommended to call this method asynchronously
-     (otherwise the main Thread will have to wait until the calculations are done).
-
-     @param args an Array of args very similar to the input a CommandSender would put in Minecraft chat:
-     <p>- a stat-name (example: "mine_block")</p>
-     <p>- if applicable, a sub-stat-name (example: diorite)(</p>
-     <p>- a target for this lookup: can be "top", "server", "player" (or "me" to indicate the current CommandSender)</p>
-     <p>- if "player" was chosen, include a player-name</p>
-     @param sender the CommandSender that requested this specific statistic
-     @throws IllegalArgumentException if the args do not result in a valid statistic look-up*/
-    TextComponent getFancyStat(CommandSender sender, String[] args) throws IllegalArgumentException;
-
 
     /** Get a formatted player-statistic of Statistic.Type UNTYPED.*/
     TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull OfflinePlayer player);
