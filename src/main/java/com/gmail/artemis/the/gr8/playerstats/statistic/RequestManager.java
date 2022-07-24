@@ -67,8 +67,9 @@ public class RequestManager implements RequestGenerator {
         return request;
     }
 
+    /** This method will generate a {@link StatRequest} for a stat-request arriving through the API.*/
     public StatRequest generateRequest(@NotNull Target selection, @NotNull Statistic statistic, Material material, EntityType entity, String playerName) {
-        StatRequest request = new StatRequest(Bukkit.getConsoleSender());
+        StatRequest request = new StatRequest(Bukkit.getConsoleSender(), true);
         request.setSelection(selection);
         request.setStatistic(statistic);
         switch (statistic.getType()) {

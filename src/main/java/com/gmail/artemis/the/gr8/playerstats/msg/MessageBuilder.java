@@ -352,7 +352,7 @@ public class MessageBuilder {
     /** Depending on the config settings, return either a TranslatableComponent representing
      the statName (and potential subStatName), or a TextComponent with capitalized English names.*/
     private TextComponent getStatNameComponent(StatRequest request) {
-        if (config.useTranslatableComponents()) {
+        if (config.useTranslatableComponents() && !request.isAPIRequest()) {
             String statKey = languageKeyHandler.getStatKey(request.getStatistic());
             String subStatKey = request.getSubStatEntry();
             if (subStatKey != null) {
