@@ -4,10 +4,15 @@ import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.RequestManager;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Color;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+
+import java.awt.*;
 
 
 public class StatCommand implements CommandExecutor {
@@ -30,6 +35,13 @@ public class StatCommand implements CommandExecutor {
         else if (args[0].equalsIgnoreCase("examples") ||
                 args[0].equalsIgnoreCase("example")) {  //in case of "statistic examples", show examples
             outputManager.sendExamples(sender);
+        }
+        else if (args[0].equalsIgnoreCase(">:(")) {
+            java.awt.Color color = new java.awt.Color(178, 102, 255);
+            ChatColor one = ChatColor.of(color);
+            TextComponent msg = new TextComponent(">:(((((");
+            msg.setColor(one);
+            sender.spigot().sendMessage(msg);
         }
         else {
             StatRequest request = requestManager.generateRequest(sender, args);

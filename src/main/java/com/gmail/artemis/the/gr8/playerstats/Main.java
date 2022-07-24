@@ -18,7 +18,7 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-public class Main extends JavaPlugin {
+public final class Main extends JavaPlugin {
 
     private static BukkitAudiences adventure;
     private static PlayerStats playerStatsAPI;
@@ -31,6 +31,7 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        //TODO fix (move these two into initializeMainClasses also, and remove all the Main.get... methods)
         //first get an instance of all the classes that need to be passed along to different classes
         ConfigHandler config = new ConfigHandler(this);
         OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler();
