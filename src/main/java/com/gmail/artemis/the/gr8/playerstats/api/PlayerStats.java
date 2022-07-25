@@ -50,7 +50,7 @@ public interface PlayerStats {
      Adventure's TextComponents, you can call this method to turn any stat-result into a String.
      @return a String representation of this TextComponent, without color and style, but with line-breaks*/
     default String statResultComponentToString(TextComponent statResult) {
-        return LegacyComponentSerializer.builder().hexColors().build().serialize(statResult);
+        return LegacyComponentSerializer.builder().hexColors().useUnusualXRepeatedCharacterHexFormat().build().serialize(statResult);
     }
 
     /** Get a formatted player-statistic of Statistic.Type UNTYPED.

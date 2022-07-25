@@ -51,7 +51,7 @@ public final class EasterEggProvider {
             }
             case "46dd0c5a-2b51-4ee6-80e8-29deca6dedc1" -> {
                 if (sillyNumberIsBetween(sillyNumber, 0, 20)) {
-                    playerName = "<papi:luckperms_prefix><gradient:#f74040:#FF6600:#f74040>fire demon</gradient>";
+                    playerName = "<gradient:#f74040:#FF6600:#f74040>fire demon</gradient>";
                 }
                 else if (sillyNumberIsBetween(sillyNumber, 69, 69)) {
                     playerName = "<gradient:blue:#b01bd1:blue>best admin</gradient>";

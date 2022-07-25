@@ -77,6 +77,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>3.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>23.0.0</version>
@@ -126,6 +133,10 @@
                         <relocation>
                             <pattern>com.tchristofferson</pattern>
                             <shadedPattern>com.gmail.artemis.the.gr8.tchristofferson</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.bstats</pattern>
+                            <shadedPattern>com.gmail.artemis.the.gr8.bstats</shadedPattern>
                         </relocation>
                     </relocations>
                     <filters>

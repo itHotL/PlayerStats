@@ -4,6 +4,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.RequestManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -79,6 +80,7 @@ public final class PlayerStatsAPI implements PlayerStats {
                                                 @Nullable Material material, @Nullable EntityType entity, @Nullable String playerName) throws NullPointerException {
         StatRequest request = requestManager.generateRequest(selection, statistic, material, entity, playerName);
         if (requestManager.validateAPIRequest(request)) {
+            MyLogger.logMsg("API is being called! We are calculating a " + selection + "for " + statistic);
             switch (selection) {
                 case PLAYER -> {
                     int stat = statManager.getPlayerStat(request);

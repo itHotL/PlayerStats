@@ -13,6 +13,7 @@ import com.gmail.artemis.the.gr8.playerstats.statistic.RequestManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -32,6 +33,8 @@ public final class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         //TODO fix (move these two into initializeMainClasses also, and remove all the Main.get... methods)
+        Metrics metrics = new Metrics(this, 15923);
+
         //first get an instance of all the classes that need to be passed along to different classes
         ConfigHandler config = new ConfigHandler(this);
         OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler();
