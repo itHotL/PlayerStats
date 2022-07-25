@@ -4,15 +4,14 @@ import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.RequestManager;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Color;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-
-import java.awt.*;
 
 
 public class StatCommand implements CommandExecutor {
@@ -38,10 +37,28 @@ public class StatCommand implements CommandExecutor {
         }
         else if (args[0].equalsIgnoreCase(">:(")) {
             java.awt.Color color = new java.awt.Color(178, 102, 255);
-            ChatColor one = ChatColor.of(color);
-            TextComponent msg = new TextComponent(">:(((((");
-            msg.setColor(one);
-            sender.spigot().sendMessage(msg);
+//            ChatColor one = ChatColor.of(color);
+//            TextComponent msg = new TextComponent(">:(((((");
+//            msg.setColor(one);
+//            sender.spigot().sendMessage(msg);
+//            sender.sendMessage("regular msg with ChatColor: " + one + ">:((((((");
+//            sender.sendMessage("regular msg Component.toLegacyText: " + msg.toLegacyText());
+//            sender.sendMessage("regular msg Component.toString: " + msg);
+        }
+        else if (args[0].equalsIgnoreCase(">:((")) {
+            Component msg = MiniMessage.miniMessage().deserialize("<gradient:#f74040:#FF6600:#f74040>fire demon</gradient>");
+            String msgString = LegacyComponentSerializer.builder().hexColors().build().serialize(msg);
+            sender.sendMessage("LCS.hexColors(): " + msgString);
+            MyLogger.logMsg(msgString);
+
+            String msgString2 = LegacyComponentSerializer.legacySection().serialize(msg);
+            sender.sendMessage("LCS.legacySection: " + msgString2);
+            MyLogger.logMsg(msgString2);
+
+            //only this one works both in-game and in-console
+            String msgString3 = LegacyComponentSerializer.builder().hexColors().useUnusualXRepeatedCharacterHexFormat().build().serialize(msg);
+            sender.sendMessage("LCS.hexColors().spigotformat...: " + msgString3);
+            MyLogger.logMsg(msgString3);
         }
         else {
             StatRequest request = requestManager.generateRequest(sender, args);

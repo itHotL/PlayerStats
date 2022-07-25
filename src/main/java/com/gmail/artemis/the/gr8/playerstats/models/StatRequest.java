@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public final class StatRequest {
 
     private final CommandSender sender;
-    private final boolean isAPIRequest;
+    private boolean isAPIRequest;
     private Statistic statistic;
     private String playerName;
     private Target selection;
@@ -36,6 +36,10 @@ public final class StatRequest {
         this.isAPIRequest = isAPIRequest;
         selection = Target.TOP;
         playerFlag = false;
+    }
+
+    public void setAPIRequest() {
+        this.isAPIRequest = true;
     }
 
     public boolean isAPIRequest() {

@@ -2,13 +2,21 @@ package com.gmail.artemis.the.gr8.playerstats.api;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentIteratorType;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Locale;
+
+import static net.kyori.adventure.translation.GlobalTranslator.renderer;
 
 /** This is the outgoing API that you can use to access the core functionality of PlayerStats.
  To work with it, you need to call PlayerStats.{@link #getAPI()} to get an instance of {@link PlayerStatsAPI}.
@@ -42,7 +50,7 @@ public interface PlayerStats {
      Adventure's TextComponents, you can call this method to turn any stat-result into a String.
      @return a String representation of this TextComponent, without color and style, but with line-breaks*/
     default String statResultComponentToString(TextComponent statResult) {
-        return PlainTextComponentSerializer.plainText().serialize(statResult);
+        return LegacyComponentSerializer.builder().hexColors().build().serialize(statResult);
     }
 
     /** Get a formatted player-statistic of Statistic.Type UNTYPED.

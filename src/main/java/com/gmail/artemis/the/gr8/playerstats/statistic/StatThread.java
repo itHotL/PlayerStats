@@ -8,6 +8,8 @@ import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -63,7 +65,16 @@ public class StatThread extends Thread {
                 case TOP -> outputManager.formatTopStat(request, statManager.getTopStats(request));
                 case SERVER -> outputManager.formatServerStat(request, statManager.getServerStat(request));
             };
-            outputManager.sendToCommandSender(request.getCommandSender(), statResult);
+            if (request.isAPIRequest()) {
+                String msg = LegacyComponentSerializer.builder().hexColors().build().serialize(statResult);
+                request.getCommandSender().sendMessage(msg);
+
+                String msg2 = LegacyComponentSerializer.builder().hexColors().useUnusualXRepeatedCharacterHexFormat().build().serialize(statResult);
+                request.getCommandSender().sendMessage(msg2);
+            }
+            else {
+                outputManager.sendToCommandSender(request.getCommandSender(), statResult);
+            }
         }
         catch (ConcurrentModificationException e) {
             if (!request.isConsoleSender()) {

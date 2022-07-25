@@ -62,6 +62,9 @@ public class RequestManager implements RequestGenerator {
                 request.setPlayerName(arg);
                 request.setSelection(Target.PLAYER);
             }
+            else if (arg.equalsIgnoreCase("api")) {
+                request.setAPIRequest();
+            }
         }
         patchRequest(request);
         return request;
