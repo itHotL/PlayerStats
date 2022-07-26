@@ -307,7 +307,7 @@ public class ComponentFactory {
      @return a TranslatableComponent Builder with the subStat Component as args.*/
     private TranslatableComponent.Builder killEntityBuilder(@NotNull TextComponent subStat) {
         return translatable()
-                .key("commands.kill.success.single")  //"Killed %s"
+                .key(LanguageKeyHandler.getAlternativeKeyForKillEntity())  //"Killed %s"
                 .args(subStat);
     }
 
@@ -317,10 +317,10 @@ public class ComponentFactory {
      with book.byAuthor as key and the subStat Component as args.*/
     private TranslatableComponent.Builder entityKilledByBuilder(@NotNull TextComponent subStat) {
         return translatable()
-                .key("stat.minecraft.deaths")  //"Number of Deaths"
+                .key(LanguageKeyHandler.getAlternativeKeyForEntityKilledBy())  //"Number of Deaths"
                 .append(space())
                 .append(translatable()
-                        .key("book.byAuthor") //"by %s"
+                        .key(LanguageKeyHandler.getAlternativeKeyForEntityKilledByArg()) //"by %s"
                         .args(subStat));
     }
 
