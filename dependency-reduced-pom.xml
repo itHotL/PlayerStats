@@ -39,11 +39,15 @@
           <relocations>
             <relocation>
               <pattern>net.kyori</pattern>
-              <shadedPattern>com.gmail.artemis.the.gr8.kyori</shadedPattern>
+              <shadedPattern>com.gmail.artemis.the.gr8.lib</shadedPattern>
             </relocation>
             <relocation>
               <pattern>com.tchristofferson</pattern>
-              <shadedPattern>com.gmail.artemis.the.gr8.tchristofferson</shadedPattern>
+              <shadedPattern>com.gmail.artemis.the.gr8.util</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.bstats</pattern>
+              <shadedPattern>com.gmail.artemis.the.gr8.util</shadedPattern>
             </relocation>
           </relocations>
           <filters>
@@ -67,8 +71,26 @@
                 <exclude>META-INF/**</exclude>
               </excludes>
             </filter>
+            <filter>
+              <artifact>org.bstats:*</artifact>
+              <excludes>
+                <exclude>META-INF/**</exclude>
+              </excludes>
+            </filter>
           </filters>
         </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.2.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
