@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
+import com.gmail.artemis.the.gr8.playerstats.api.PlayerStats;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
@@ -8,8 +9,6 @@ import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -66,11 +65,8 @@ public class StatThread extends Thread {
                 case SERVER -> outputManager.formatServerStat(request, statManager.getServerStat(request));
             };
             if (request.isAPIRequest()) {
-                String msg = LegacyComponentSerializer.builder().hexColors().build().serialize(statResult);
+                String msg = PlayerStats.getAPI().statResultComponentToString(statResult);
                 request.getCommandSender().sendMessage(msg);
-
-                String msg2 = LegacyComponentSerializer.builder().hexColors().useUnusualXRepeatedCharacterHexFormat().build().serialize(statResult);
-                request.getCommandSender().sendMessage(msg2);
             }
             else {
                 outputManager.sendToCommandSender(request.getCommandSender(), statResult);

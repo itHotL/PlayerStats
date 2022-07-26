@@ -1,6 +1,5 @@
 package com.gmail.artemis.the.gr8.playerstats.reload;
 
-import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
@@ -27,21 +26,15 @@ public class ReloadThread extends Thread {
 
     private static ConfigHandler config;
     private static OutputManager outputManager;
-    private static ShareManager shareManager;
-
-    private final OfflinePlayerHandler offlinePlayerHandler;
 
     private final int reloadThreadID;
     private final StatThread statThread;
 
     private final CommandSender sender;
 
-    public ReloadThread(ConfigHandler c, OutputManager m, OfflinePlayerHandler o, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
+    public ReloadThread(ConfigHandler c, OutputManager m, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
         config = c;
         outputManager = m;
-        offlinePlayerHandler = o;
-
-        shareManager = Main.getShareManager();
 
         reloadThreadID = ID;
         statThread = s;
@@ -81,16 +74,16 @@ public class ReloadThread extends Thread {
         }
         else {  //during first start-up
             MyLogger.setDebugLevel(config.getDebugLevel());
-            offlinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
+            OfflinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
             ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
         }
     }
 
     private void reloadEverything() {
         MyLogger.setDebugLevel(config.getDebugLevel());
-        outputManager.updateMessageWriters(config);
-        offlinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
-        shareManager.updateSettings(config);
+        OutputManager.updateMessageWriters(config);
+        OfflinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
+        ShareManager.updateSettings(config);
         StatManager.updateSettings(config.getTopListMaxSize());
     }
 

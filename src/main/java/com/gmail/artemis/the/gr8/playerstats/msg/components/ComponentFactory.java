@@ -5,6 +5,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.PluginColor;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageBuilder;
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -206,10 +207,10 @@ public class ComponentFactory {
                 getStyleFromString(config.getStatNameDecoration(selection, true)));
 
         TextComponent subStat = subStatNameTranslatable(subStatKey, selection);
-        if (statKey.equalsIgnoreCase("stat_type.minecraft.killed")) {
+        if (LanguageKeyHandler.isKeyForKillEntity(statKey)) {
             return totalStatNameBuilder.append(killEntityBuilder(subStat)).build();
         }
-        else if (statKey.equalsIgnoreCase("stat_type.minecraft.killed_by")) {
+        else if (LanguageKeyHandler.isKeyForEntityKilledBy(statKey)) {
             return totalStatNameBuilder.append(entityKilledByBuilder(subStat)).build();
         }
         else {

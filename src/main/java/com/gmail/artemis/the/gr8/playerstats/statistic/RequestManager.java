@@ -18,10 +18,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class RequestManager implements RequestGenerator {
 
+    private final EnumHandler enumHandler;
     private final OfflinePlayerHandler offlinePlayerHandler;
     private static OutputManager outputManager;
 
-    public RequestManager(OfflinePlayerHandler offlinePlayerHandler, OutputManager outputManager) {
+    public RequestManager(EnumHandler enumHandler, OfflinePlayerHandler offlinePlayerHandler, OutputManager outputManager) {
+        this.enumHandler = enumHandler;
         this.offlinePlayerHandler = offlinePlayerHandler;
         RequestManager.outputManager = outputManager;
     }
@@ -30,11 +32,11 @@ public class RequestManager implements RequestGenerator {
         StatRequest request = new StatRequest(sender);
         for (String arg : args) {
             //check for statName
-            if (EnumHandler.isStatistic(arg) && request.getStatistic() == null) {
+            if (enumHandler.isStatistic(arg) && request.getStatistic() == null) {
                 request.setStatistic(EnumHandler.getStatEnum(arg));
             }
             //check for subStatEntry and playerFlag
-            else if (EnumHandler.isSubStatEntry(arg)) {
+            else if (enumHandler.isSubStatEntry(arg)) {
                 if (arg.equalsIgnoreCase("player") && !request.getPlayerFlag()) {
                     request.setPlayerFlag(true);
                 }

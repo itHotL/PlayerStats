@@ -20,6 +20,36 @@ public final class LanguageKeyHandler {
         statNameKeys = generateStatNameKeys();
     }
 
+    public static boolean isKeyForKillEntity(String statKey) {
+        return statKey.equalsIgnoreCase("stat_type.minecraft.killed");
+    }
+
+    public static boolean isKeyForEntityKilledBy(String statKey) {
+        return statKey.equalsIgnoreCase("stat_type.minecraft.killed_by");
+    }
+
+    public static String extractName(String nameSpacedKey) {
+        if (nameSpacedKey.equalsIgnoreCase("soundCategory.block")) {
+            return Unit.BLOCK.getLabel();
+        }
+        String toReplace = "";
+        if (nameSpacedKey.contains("stat")) {
+            if (nameSpacedKey.contains("type")) {
+                toReplace = "stat_type";
+            } else {
+                toReplace = "stat";
+            }
+        } else if (nameSpacedKey.contains("entity")) {
+            toReplace = "entity";
+        } else if (nameSpacedKey.contains("block")) {
+            toReplace = "block";
+        } else if (nameSpacedKey.contains("item")) {
+            toReplace = "item";
+        }
+        toReplace = toReplace + ".minecraft.";
+        return nameSpacedKey.replace(toReplace, "");
+    }
+
     public String getStatKey(@NotNull Statistic statistic) {
         if (statistic.getType() == Statistic.Type.UNTYPED) {
             return "stat.minecraft." + statNameKeys.get(statistic);

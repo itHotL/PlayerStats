@@ -19,54 +19,27 @@ import java.util.stream.Stream;
  and turn a name into its corresponding enum constant. */
 public final class EnumHandler {
 
-    private final static List<String> blockNames;
-    private final static List<String> entityNames;
-    private final static List<String> itemNames;
-    private final static List<String> statNames;
-    private final static List<String> subStatNames;
+    private static List<String> blockNames;
+    private static List<String> itemNames;
+    private static List<String> statNames;
+    private static List<String> subStatNames;
 
-    static {
-        blockNames = Arrays.stream(Material.values())
-                .filter(Material::isBlock)
-                .map(Material::toString)
-                .map(String::toLowerCase)
-                .collect(Collectors.toList());
-
-        entityNames = Arrays.stream(EntityType.values())
-                .map(EntityType::toString)
-                .map(String::toLowerCase)
-                .filter(entityName -> !entityName.equalsIgnoreCase("unknown"))
-                .collect(Collectors.toList());
-
-        itemNames = Arrays.stream(Material.values())
-                .filter(Material::isItem)
-                .map(Material::toString)
-                .map(String::toLowerCase)
-                .collect(Collectors.toList());
-
-        subStatNames = Stream.of(blockNames, entityNames, itemNames)
-                .flatMap(Collection::stream)
-                .distinct()
-                .collect(Collectors.toList());
-
-        statNames = Arrays.stream(Statistic.values())
-                .map(Statistic::toString)
-                .map(String::toLowerCase)
-                .collect(Collectors.toList());
+    public EnumHandler() {
+        prepareLists();
     }
 
     /** Returns all block-names in lowercase */
-    public static List<String> getBlockNames() {
+    public List<String> getBlockNames() {
         return blockNames;
     }
 
     /** Returns all item-names in lowercase*/
-    public static List<String> getItemNames() {
+    public List<String> getItemNames() {
         return itemNames;
     }
 
     /** Returns all statistic-names in lowercase */
-    public static List<String> getStatNames() {
+    public List<String> getStatNames() {
         return statNames;
     }
 
@@ -115,31 +88,50 @@ public final class EnumHandler {
 
     /** Checks if string is a valid statistic
      @param statName String, case-insensitive */
-    public static boolean isStatistic(@NotNull String statName) {
+    public boolean isStatistic(@NotNull String statName) {
         return statNames.contains(statName.toLowerCase());
     }
 
     /** Checks whether the given String equals the name of an entity-type statistic. */
-    public static boolean isEntityStatistic(String statName) {
+    public boolean isEntityStatistic(String statName) {
         return statName.equalsIgnoreCase(Statistic.ENTITY_KILLED_BY.toString()) ||
                 statName.equalsIgnoreCase(Statistic.KILL_ENTITY.toString());
     }
 
     /** Checks if this statistic is a subStatEntry, meaning it is a block, item or entity
      @param statName String, case-insensitive*/
-    public static boolean isSubStatEntry(@NotNull String statName) {
+    public boolean isSubStatEntry(@NotNull String statName) {
         return subStatNames.contains(statName.toLowerCase());
     }
 
-    /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */
-    public static String getSubStatTypeName(Statistic.Type statType) {
-        String subStat = "sub-statistic";
-        if (statType == null) return subStat;
-        switch (statType) {
-            case BLOCK -> subStat = "block";
-            case ENTITY -> subStat = "entity";
-            case ITEM -> subStat = "item";
-        }
-        return subStat;
+    private void prepareLists() {
+        List<String> entityNames = Arrays.stream(EntityType.values())
+                .map(EntityType::toString)
+                .map(String::toLowerCase)
+                .filter(entityName -> !entityName.equalsIgnoreCase("unknown"))
+                .collect(Collectors.toList());
+
+        blockNames = Arrays.stream(Material.values())
+                .filter(Material::isBlock)
+                .map(Material::toString)
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+
+        itemNames = Arrays.stream(Material.values())
+                .filter(Material::isItem)
+                .map(Material::toString)
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+
+        subStatNames = Stream.of(blockNames, entityNames, itemNames)
+                .flatMap(Collection::stream)
+                .distinct()
+                .collect(Collectors.toList());
+
+        statNames = Arrays.stream(Statistic.values())
+                .map(Statistic::toString)
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
     }
+
 }

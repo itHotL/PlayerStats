@@ -10,7 +10,6 @@ import com.gmail.artemis.the.gr8.playerstats.msg.components.ExampleMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.HelpMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.*;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
-import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -90,7 +89,7 @@ public class MessageBuilder {
         return componentFactory.pluginPrefix()
                 .append(space())
                 .append(componentFactory.message().content(
-                "Please add a valid " + EnumHandler.getSubStatTypeName(statType) + " to look up this statistic!"));
+                "Please add a valid " + getSubStatTypeName(statType) + " to look up this statistic!"));
     }
 
     public TextComponent missingPlayerName() {
@@ -106,7 +105,7 @@ public class MessageBuilder {
                 .append(componentFactory.messageAccent().content("\"" + subStatName + "\""))
                 .append(space())
                 .append(componentFactory.message().content(
-                "is not a valid " + EnumHandler.getSubStatTypeName(statType) + "!"));
+                "is not a valid " + getSubStatTypeName(statType) + "!"));
     }
 
     public TextComponent requestAlreadyRunning() {
@@ -482,5 +481,17 @@ public class MessageBuilder {
         }
         return Component.space()
                 .append(componentFactory.statUnit(statName, null, selection));
+    }
+
+    /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */
+    public static String getSubStatTypeName(Statistic.Type statType) {
+        String subStat = "sub-statistic";
+        if (statType == null) return subStat;
+        switch (statType) {
+            case BLOCK -> subStat = "block";
+            case ENTITY -> subStat = "entity";
+            case ITEM -> subStat = "item";
+        }
+        return subStat;
     }
 }

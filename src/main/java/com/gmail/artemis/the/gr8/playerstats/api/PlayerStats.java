@@ -1,22 +1,22 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.StringUtils;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.ComponentIteratorType;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.TranslatableComponent;
-import net.kyori.adventure.text.renderer.TranslatableComponentRenderer;
+import net.kyori.adventure.text.*;
+import net.kyori.adventure.text.flattener.ComponentFlattener;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.translation.GlobalTranslator;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
-
-import static net.kyori.adventure.translation.GlobalTranslator.renderer;
 
 /** This is the outgoing API that you can use to access the core functionality of PlayerStats.
  To work with it, you need to call PlayerStats.{@link #getAPI()} to get an instance of {@link PlayerStatsAPI}.
@@ -48,48 +48,60 @@ public interface PlayerStats {
 
     /** Turns a TextComponent into its String representation. If you don't want to work with
      Adventure's TextComponents, you can call this method to turn any stat-result into a String.
-     @return a String representation of this TextComponent, without color and style, but with line-breaks*/
+     @return a String representation of this TextComponent, without hover/click events, but with color, style and formatting */
     default String statResultComponentToString(TextComponent statResult) {
-        return LegacyComponentSerializer.builder().hexColors().useUnusualXRepeatedCharacterHexFormat().build().serialize(statResult);
+    ComponentFlattener flattener = ComponentFlattener.basic().toBuilder()
+            .mapper(TranslatableComponent.class, trans ->
+                    StringUtils.prettify(
+                            LanguageKeyHandler.extractName(
+                                    trans.key())))
+            .build();
+
+        return LegacyComponentSerializer.builder()
+                .hexColors()
+                .useUnusualXRepeatedCharacterHexFormat()
+                .flattener(flattener)
+                .build()
+                .serialize(statResult);
     }
 
-    /** Get a formatted player-statistic of Statistic.Type UNTYPED.
+    /** Get a formatted player-statistic of Statistic.Type Untyped.
      @return a TextComponent with the following parts:
      <br>[player-name]: [number] [stat-name]
      @throws NullPointerException if statistic or playerName is null*/
     TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull String playerName) throws NullPointerException;
 
-    /** Get a formatted player-statistic of Statistic.Type BLOCK or ITEM.
+    /** Get a formatted player-statistic of Statistic.Type Block or Item.
      @return a TextComponent with the following parts:
      <br>[player-name]: [number] [stat-name] [sub-stat-name]
      @throws NullPointerException if statistic, material or playerName is null*/
     TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull Material material, @NotNull String playerName) throws NullPointerException;
 
-    /** Get a formatted player-statistic of Statistic.Type ENTITY.
+    /** Get a formatted player-statistic of Statistic.Type Entity.
      @return a TextComponent with the following parts:
      <br>[player-name]: [number] [stat-name] [sub-stat-name]
      @throws NullPointerException if statistic, entity or playerName is null*/
     TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull EntityType entity, @NotNull String playerName) throws NullPointerException;
 
-    /** Get a formatted server-statistic of Statistic.Type UNTYPED. Not recommended to call this from the main Thread (see class description).
+    /** Get a formatted server-statistic of Statistic.Type Untyped. Don't call this from the main Thread (see class description)!
      @return a TextComponent with the following parts:
      <br>[Total on] [server-name]: [number] [stat-name]
      @throws NullPointerException if statistic is null*/
     TextComponent getServerStat(@NotNull Statistic statistic) throws NullPointerException;
 
-    /** Get a formatted server-statistic of Statistic.Type BLOCK or ITEM. Not recommended to call this from the main Thread (see class description).
+    /** Get a formatted server-statistic of Statistic.Type Block or Item. Don't call this from the main Thread (see class description)!
      @return a TextComponent with the following parts:
      <br>[Total on] [server-name]: [number] [stat-name] [sub-stat-name]
      @throws NullPointerException if statistic or material is null*/
     TextComponent getServerStat(@NotNull Statistic statistic, @NotNull Material material) throws NullPointerException;
 
-    /** Get a formatted server-statistic of Statistic.Type ENTITY. Not recommended to call this from the main Thread (see class description).
+    /** Get a formatted server-statistic of Statistic.Type Entity. Don't call this from the main Thread (see class description)!
      @return a TextComponent with the following parts:
      <br>[Total on] [server-name]: [number] [stat-name] [sub-stat-name]
      @throws NullPointerException if statistic or entity is null*/
     TextComponent getServerStat(@NotNull Statistic statistic, @NotNull EntityType entity) throws NullPointerException;
 
-    /** Get a formatted top-statistic of Statistic.Type UNTYPED. Not recommended to call this from the main Thread (see class description).
+    /** Get a formatted top-statistic of Statistic.Type Untyped. Don't call this from the main Thread (see class description)!
      @return a TextComponent with the following parts:
      <br>[PlayerStats] [Top 10] [stat-name]
      <br> [1.] [player-name] [number]
@@ -98,7 +110,7 @@ public interface PlayerStats {
      @throws NullPointerException if statistic is null*/
     TextComponent getTopStats(@NotNull Statistic statistic) throws NullPointerException;
 
-    /** Get a formatted top-statistic of Statistic.Type BLOCK or ITEM. Not recommended to call this from the main Thread (see class description).
+    /** Get a formatted top-statistic of Statistic.Type Block or Item. Don't call this from the main Thread (see class description)!
      @return a TextComponent with the following parts:
      <br>[PlayerStats] [Top 10] [stat-name] [sub-stat-name]
      <br> [1.] [player-name] [number]
@@ -107,7 +119,7 @@ public interface PlayerStats {
      @throws NullPointerException if statistic or material is null*/
     TextComponent getTopStats(@NotNull Statistic statistic, @NotNull Material material) throws NullPointerException;
 
-    /** Get a formatted top-statistic of Statistic.Type ENTITY. Not recommended to call this from the main Thread (see class description).
+    /** Get a formatted top-statistic of Statistic.Type Entity. Don't call this from the main Thread (see class description)!
      @return a TextComponent with the following parts:
      <br>[PlayerStats] [Top 10] [stat-name] [sub-stat-name]
      <br> [1.] [player-name] [number]

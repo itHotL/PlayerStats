@@ -10,15 +10,17 @@ import java.util.stream.Collectors;
 
 public final class TabCompleteHelper {
 
+    private final EnumHandler enumHandler;
     private static List<String> itemBrokenSuggestions;
     private static List<String> entitySuggestions;
 
-    public TabCompleteHelper() {
+    public TabCompleteHelper(EnumHandler enumHandler) {
+        this.enumHandler = enumHandler;
         prepareLists();
     }
 
     public List<String> getAllItemNames() {
-        return EnumHandler.getItemNames();
+        return enumHandler.getItemNames();
     }
 
     public List<String> getItemBrokenSuggestions() {
@@ -26,7 +28,7 @@ public final class TabCompleteHelper {
     }
 
     public List<String> getAllBlockNames() {
-        return EnumHandler.getBlockNames();
+        return enumHandler.getBlockNames();
     }
 
     public List<String> getEntitySuggestions() {

@@ -27,18 +27,16 @@ public final class ThreadManager {
     private static ConfigHandler config;
     private static OutputManager outputManager;
     private static StatManager statManager;
-    private final OfflinePlayerHandler offlinePlayerHandler;
 
     private ReloadThread lastActiveReloadThread;
     private StatThread lastActiveStatThread;
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    public ThreadManager(ConfigHandler config, StatManager statManager, OutputManager outputManager, OfflinePlayerHandler offlinePlayerHandler) {
+    public ThreadManager(ConfigHandler config, StatManager statManager, OutputManager outputManager) {
         ThreadManager.config = config;
         ThreadManager.outputManager = outputManager;
         ThreadManager.statManager = statManager;
-        this.offlinePlayerHandler = offlinePlayerHandler;
 
         statThreads = new HashMap<>();
         statThreadID = 0;
@@ -56,7 +54,7 @@ public final class ThreadManager {
         if (lastActiveReloadThread == null || !lastActiveReloadThread.isAlive()) {
             reloadThreadID += 1;
 
-            lastActiveReloadThread = new ReloadThread(config, outputManager, offlinePlayerHandler, reloadThreadID, lastActiveStatThread, sender);
+            lastActiveReloadThread = new ReloadThread(config, outputManager, reloadThreadID, lastActiveStatThread, sender);
             lastActiveReloadThread.start();
         }
         else {

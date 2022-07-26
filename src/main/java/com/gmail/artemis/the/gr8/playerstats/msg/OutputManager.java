@@ -46,7 +46,7 @@ public final class OutputManager implements StatFormatter {
         prepareFunctions();
     }
 
-    public void updateMessageWriters(ConfigHandler config) {
+    public static void updateMessageWriters(ConfigHandler config) {
         getMessageWriters(config);
     }
 
@@ -145,7 +145,7 @@ public final class OutputManager implements StatFormatter {
         }
     }
 
-    private void getMessageWriters(ConfigHandler config) {
+    private static void getMessageWriters(ConfigHandler config) {
         boolean isBukkit = Bukkit.getName().equalsIgnoreCase("CraftBukkit");
         if (config.useRainbowMode() ||
                 (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) {

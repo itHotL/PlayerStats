@@ -11,6 +11,7 @@ import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.RequestManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
+import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
@@ -33,20 +34,21 @@ public final class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         //TODO fix (move these two into initializeMainClasses also, and remove all the Main.get... methods)
-        Metrics metrics = new Metrics(this, 15923);
+        new Metrics(this, 15923);
 
         //first get an instance of all the classes that need to be passed along to different classes
         ConfigHandler config = new ConfigHandler(this);
+        EnumHandler enumHandler = new EnumHandler();
         OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler();
 
         //initialize all the Managers and the API
-        initializeMainClasses(config, offlinePlayerHandler);
+        initializeMainClasses(config, enumHandler, offlinePlayerHandler);
 
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
             statcmd.setExecutor(new StatCommand(outputManager, threadManager, requestManager));
-            statcmd.setTabCompleter(new TabCompleter(offlinePlayerHandler));
+            statcmd.setTabCompleter(new TabCompleter(enumHandler, offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
         if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));
@@ -83,42 +85,14 @@ public final class Main extends JavaPlugin {
         return playerStatsAPI;
     }
 
-    public static @NotNull OutputManager getOutputManager() throws IllegalStateException {
-        if (outputManager == null) {
-            throw new IllegalStateException("The OutputManager is not loaded! Is PlayerStats enabled?");
-        }
-        return outputManager;
-    }
-
-    public static @NotNull ShareManager getShareManager() throws IllegalStateException {
-        if (shareManager == null) {
-            throw new IllegalStateException("The ShareManager is not loaded! Is PlayerStats enabled?");
-        }
-        return shareManager;
-    }
-
-    public static @NotNull StatManager getStatManager() throws IllegalStateException {
-        if (statManager == null) {
-            throw new IllegalStateException("The StatManager is not loaded! Is PlayerStats enabled?");
-        }
-        return statManager;
-    }
-
-    public static @NotNull ThreadManager getThreadManager() throws IllegalStateException {
-        if (threadManager == null) {
-            throw new IllegalStateException("The ThreadManager is not loaded! Is PlayerStats enabled?");
-        }
-        return threadManager;
-    }
-
-    private void initializeMainClasses(ConfigHandler config, OfflinePlayerHandler offlinePlayerHandler) {
+    private void initializeMainClasses(ConfigHandler config, EnumHandler enumHandler, OfflinePlayerHandler offlinePlayerHandler) {
         adventure = BukkitAudiences.create(this);
 
         shareManager = new ShareManager(config);
         statManager = new StatManager(offlinePlayerHandler, config.getTopListMaxSize());
         outputManager = new OutputManager(getAdventure(), config, shareManager);
-        requestManager = new RequestManager(offlinePlayerHandler, outputManager);
-        threadManager = new ThreadManager(config, statManager, outputManager, offlinePlayerHandler);
+        requestManager = new RequestManager(enumHandler, offlinePlayerHandler, outputManager);
+        threadManager = new ThreadManager(config, statManager, outputManager);
 
         playerStatsAPI = new PlayerStatsAPI(requestManager, statManager, outputManager);
     }

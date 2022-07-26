@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /** A utility class that deals with OfflinePlayers. It stores a list of all OfflinePlayer-names
  that need to be included in statistic calculations, and can retrieve the corresponding OfflinePlayer
  object for a given player-name.*/
-public class OfflinePlayerHandler {
+public final class OfflinePlayerHandler {
 
     private static ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
     private static ArrayList<String> playerNames;
@@ -18,6 +18,16 @@ public class OfflinePlayerHandler {
     public OfflinePlayerHandler() {
         offlinePlayerUUIDs = new ConcurrentHashMap<>();
         playerNames = new ArrayList<>();
+    }
+
+    /**
+     * Get a new HashMap that stores the players to include in stat calculations.
+     * This HashMap is stored as a private variable in OfflinePlayerHandler.
+     * @param playerList ConcurrentHashMap with keys: playerNames and values: UUIDs
+     */
+    public static void updateOfflinePlayerList(ConcurrentHashMap<String, UUID> playerList) {
+        offlinePlayerUUIDs = playerList;
+        playerNames = Collections.list(offlinePlayerUUIDs.keys());
     }
 
     /** Checks if a given playerName is on the private HashMap of players that should be included in statistic calculations
@@ -34,16 +44,6 @@ public class OfflinePlayerHandler {
     /** Get an ArrayList of names from all OfflinePlayers that should be included in statistic calculations */
     public ArrayList<String> getOfflinePlayerNames() {
         return playerNames;
-    }
-
-    /**
-     * Get a new HashMap that stores the players to include in stat calculations.
-     * This HashMap is stored as a private variable in OfflinePlayerHandler.
-     * @param playerList ConcurrentHashMap with keys: playerNames and values: UUIDs
-     */
-    public void updateOfflinePlayerList(ConcurrentHashMap<String, UUID> playerList) {
-        offlinePlayerUUIDs = playerList;
-        playerNames = Collections.list(offlinePlayerUUIDs.keys());
     }
 
     /**

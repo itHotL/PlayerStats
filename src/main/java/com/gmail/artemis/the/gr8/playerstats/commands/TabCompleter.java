@@ -14,14 +14,16 @@ import java.util.stream.Collectors;
 
 public class TabCompleter implements org.bukkit.command.TabCompleter {
 
+    private final EnumHandler enumHandler;
     private final OfflinePlayerHandler offlinePlayerHandler;
     private final TabCompleteHelper tabCompleteHelper;
 
     private final List<String> commandOptions;
 
-    public TabCompleter(OfflinePlayerHandler o) {
-        offlinePlayerHandler = o;
-        tabCompleteHelper = new TabCompleteHelper();
+    public TabCompleter(EnumHandler enumHandler, OfflinePlayerHandler offlinePlayerHandler) {
+        this.enumHandler = enumHandler;
+        this.offlinePlayerHandler = offlinePlayerHandler;
+        tabCompleteHelper = new TabCompleteHelper(enumHandler);
 
         commandOptions = new ArrayList<>();
         commandOptions.add("top");
@@ -50,7 +52,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
             else {   //after checking if args[0] is a viable statistic, suggest substatistic OR commandOptions
                 String previousArg = args[args.length -2];
 
-                if (EnumHandler.isStatistic(previousArg)) {
+                if (enumHandler.isStatistic(previousArg)) {
                     Statistic stat = EnumHandler.getStatEnum(previousArg);
                     if (stat != null) {
                         tabSuggestions = getTabSuggestions(getRelevantList(stat), currentArg);
@@ -60,7 +62,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                 //if previous arg = "player"
                 else if (previousArg.equalsIgnoreCase("player")) {
 
-                    if (args.length >= 3 && EnumHandler.isEntityStatistic(args[args.length-3])) {
+                    if (args.length >= 3 && enumHandler.isEntityStatistic(args[args.length-3])) {
                         tabSuggestions = commandOptions;  //if arg before "player" was entity-stat, suggest commandOptions
                     }
                     else {  //otherwise "player" is target-flag: suggest playerNames
@@ -69,7 +71,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
                 }
 
                 //after a substatistic, suggest commandOptions
-                else if (EnumHandler.isSubStatEntry(previousArg)) {
+                else if (enumHandler.isSubStatEntry(previousArg)) {
                     tabSuggestions = commandOptions;
                 }
             }
@@ -78,7 +80,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
     }
 
     private List<String> getFirstArgSuggestions(String currentArg) {
-        List<String> suggestions = EnumHandler.getStatNames();
+        List<String> suggestions = enumHandler.getStatNames();
         suggestions.add("examples");
         suggestions.add("help");
         return getTabSuggestions(suggestions, currentArg);

@@ -27,10 +27,10 @@ public final class ShareManager {
     private static boolean isEnabled;
     private static int waitingTime;
 
-    private volatile AtomicInteger resultID;
-    private ConcurrentHashMap<UUID, StatResult> statResultQueue;
-    private ConcurrentHashMap<String, Instant> shareTimeStamp;
-    private ArrayBlockingQueue<UUID> sharedResults;
+    private static volatile AtomicInteger resultID;
+    private static ConcurrentHashMap<UUID, StatResult> statResultQueue;
+    private static ConcurrentHashMap<String, Instant> shareTimeStamp;
+    private static ArrayBlockingQueue<UUID> sharedResults;
 
     public ShareManager(ConfigHandler config) {
        updateSettings(config);
@@ -40,7 +40,7 @@ public final class ShareManager {
         return isEnabled;
     }
 
-    public synchronized void updateSettings(ConfigHandler config) {
+    public static synchronized void updateSettings(ConfigHandler config) {
         isEnabled = config.allowStatSharing() && config.useHoverText();
         waitingTime = config.getStatShareWaitingTime();
 

@@ -1,13 +1,17 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
+import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.RequestManager;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bukkit.Material;
+import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -36,16 +40,6 @@ public class StatCommand implements CommandExecutor {
             outputManager.sendExamples(sender);
         }
         else if (args[0].equalsIgnoreCase(">:(")) {
-            java.awt.Color color = new java.awt.Color(178, 102, 255);
-//            ChatColor one = ChatColor.of(color);
-//            TextComponent msg = new TextComponent(">:(((((");
-//            msg.setColor(one);
-//            sender.spigot().sendMessage(msg);
-//            sender.sendMessage("regular msg with ChatColor: " + one + ">:((((((");
-//            sender.sendMessage("regular msg Component.toLegacyText: " + msg.toLegacyText());
-//            sender.sendMessage("regular msg Component.toString: " + msg);
-        }
-        else if (args[0].equalsIgnoreCase(">:((")) {
             Component msg = MiniMessage.miniMessage().deserialize("<gradient:#f74040:#FF6600:#f74040>fire demon</gradient>");
             String msgString = LegacyComponentSerializer.builder().hexColors().build().serialize(msg);
             sender.sendMessage("LCS.hexColors(): " + msgString);
@@ -59,6 +53,16 @@ public class StatCommand implements CommandExecutor {
             String msgString3 = LegacyComponentSerializer.builder().hexColors().useUnusualXRepeatedCharacterHexFormat().build().serialize(msg);
             sender.sendMessage("LCS.hexColors().spigotformat...: " + msgString3);
             MyLogger.logMsg(msgString3);
+        }
+        else if (args[0].equalsIgnoreCase("test")) {
+            TranslatableComponent msg = Component.translatable(Statistic.ANIMALS_BRED.getKey().getNamespace() + "." + Statistic.ANIMALS_BRED.getKey().getKey());
+            TranslatableComponent msg2 = Component.translatable("stat." + Statistic.ANIMALS_BRED.getKey().getNamespace() + "." + Statistic.ANIMALS_BRED.getKey().getKey());
+            Main.getAdventure().console().sendMessage(msg);
+            Main.getAdventure().console().sendMessage(msg2);
+
+            MyLogger.logMsg("key to String: " + Statistic.KILL_ENTITY.getKey());
+            MyLogger.logMsg("key.getNamespace(): " + Statistic.KILL_ENTITY.getKey().getNamespace());
+            MyLogger.logMsg("key.getKey(): " + Statistic.KILL_ENTITY.getKey().getKey());
         }
         else {
             StatRequest request = requestManager.generateRequest(sender, args);
