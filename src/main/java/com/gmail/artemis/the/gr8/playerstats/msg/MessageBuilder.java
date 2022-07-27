@@ -177,7 +177,7 @@ public class MessageBuilder {
                 .append(getStatNumberComponent(request.getStatistic(), stat, Target.PLAYER, request.isConsoleSender()))
                 .append(space())
                 .append(getStatNameComponent(request))
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnitComponent
+                .append(getStatUnitComponent(request.getStatistic(), request.getTarget(), request.isConsoleSender()))  //space is provided by statUnitComponent
                 .build();
 
         return getFormattingFunction(playerStat, Target.PLAYER);
@@ -197,7 +197,7 @@ public class MessageBuilder {
                 .append(getStatNumberComponent(request.getStatistic(), stat, Target.SERVER, request.isConsoleSender()))
                 .append(space())
                 .append(getStatNameComponent(request))
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))  //space is provided by statUnit
+                .append(getStatUnitComponent(request.getStatistic(), request.getTarget(), request.isConsoleSender()))  //space is provided by statUnit
                 .build();
 
         return getFormattingFunction(serverStat, Target.SERVER);
@@ -308,7 +308,7 @@ public class MessageBuilder {
                 .append(componentFactory.title(config.getTopStatsTitle(), Target.TOP)).append(space())
                 .append(componentFactory.titleNumber(statListSize)).append(space())
                 .append(getStatNameComponent(request))  //space is provided by statUnitComponent
-                .append(getStatUnitComponent(request.getStatistic(), request.getSelection(), request.isConsoleSender()))
+                .append(getStatUnitComponent(request.getStatistic(), request.getTarget(), request.isConsoleSender()))
                 .build();
     }
 
@@ -353,7 +353,7 @@ public class MessageBuilder {
     private TextComponent getStatNameComponent(StatRequest request) {
         if (config.useTranslatableComponents()) {
             String statKey = languageKeyHandler.getStatKey(request.getStatistic());
-            String subStatKey = request.getSubStatEntry();
+            String subStatKey = request.getSubStatEntryName();
             if (subStatKey != null) {
                 switch (request.getStatistic().getType()) {
                     case BLOCK -> subStatKey = languageKeyHandler.getBlockKey(request.getBlock());
@@ -363,13 +363,13 @@ public class MessageBuilder {
                     }
                 }
             }
-            return componentFactory.statAndSubStatNameTranslatable(statKey, subStatKey, request.getSelection());
+            return componentFactory.statAndSubStatNameTranslatable(statKey, subStatKey, request.getTarget());
         }
         else {
             return componentFactory.statAndSubStatName(
                     StringUtils.prettify(request.getStatistic().toString()),
-                    StringUtils.prettify(request.getSubStatEntry()),
-                    request.getSelection());
+                    StringUtils.prettify(request.getSubStatEntryName()),
+                    request.getTarget());
         }
     }
 

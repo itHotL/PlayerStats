@@ -1,40 +1,70 @@
 package com.gmail.artemis.the.gr8.playerstats.models;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
+import com.gmail.artemis.the.gr8.playerstats.api.RequestGenerator;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-/** The Object PlayerStats uses to calculate the appropriate statistic.
- It is generated from the args provided by a CommandSender when /stat is called,
- and always contains this CommandSender. By default, {@link #getSelection()}
- will return {@link Target#TOP}, unless another selection is specified in the args.*/
-public final class StatRequest {
+/** A StatRequest is the object PlayerStats uses to calculate and format the requested statistic.
+ This object can be generated from two different sources:
+ <br>- Internally: by PlayerStats itself when /stat is called, using the args provided by the CommandSender.
+ <br>- Externally: through the API methods provided by the {@link RequestGenerator} interface.
+ <br>
+ <br>For this StatRequest to be valid, it needs the following values:
+ <ul>
+ <li> a {@link Statistic} <code>statistic</code> </li>
+ <li> if this Statistic is not of {@link Statistic.Type} Untyped, a <code>subStatEntryName</code> needs to be set,
+ together with one of the following values:
+ <br>- for Type.Block: a {@link Material} <code>blockMaterial</code>
+ <br>- for Type.Item: a {@link Material} <code>itemMaterial</code>
+ <br>- for Type.Entity: an {@link EntityType} <code>entityType</code>
+ <li> a {@link Target} <code>target</code> (automatically set for all API-requests)
+ <li> if the <code>target</code> is Target.Player, a <code>playerName</code> needs to be added
+ </ul>*/
+public class StatRequest {
 
     private final CommandSender sender;
     private boolean isAPIRequest;
     private Statistic statistic;
     private String playerName;
-    private Target selection;
+    private Target target;
 
-    private String subStatEntry;
+    private String subStatEntryName;
     private EntityType entity;
     private Material block;
     private Material item;
     private boolean playerFlag;
 
-    //make a SimpleStatRequest for a given CommandSender with some default values
+    /** Create a new {@link StatRequest} with default values:
+     <br>- CommandSender sender (provided)
+     <br>- Target <code>target</code> = {@link Target#TOP}
+     <br>- boolean <code>playerFlag</code> = false
+     <br>- boolean <code>isAPIRequest</code> = false
+
+     @param sender the CommandSender who prompted this RequestGenerator
+     */
     public StatRequest(@NotNull CommandSender sender) {
         this(sender, false);
     }
 
+    /** Create a new {@link StatRequest} with default values:
+     <br>- CommandSender sender (provided)
+     <br>- Target target = {@link Target#TOP}
+     <br>- boolean playerFlag = false
+     <br>- boolean isAPIRequest (provided)
+
+     @param sender the CommandSender who prompted this RequestGenerator
+     @param isAPIRequest whether this RequestGenerator is coming through the API or the onCommand
+     */
     public StatRequest(@NotNull CommandSender sender, boolean isAPIRequest) {
         this.sender = sender;
         this.isAPIRequest = isAPIRequest;
-        selection = Target.TOP;
+        target = Target.TOP;
         playerFlag = false;
     }
 
@@ -54,23 +84,30 @@ public final class StatRequest {
         return sender instanceof ConsoleCommandSender;
     }
 
+    /** Set a {@link Statistic} for this StatRequest.*/
     public void setStatistic(Statistic statistic) {
         this.statistic = statistic;
     }
 
-    /** Returns the set enum constant Statistic, or null if none was set. */
+    /** If a {@link Statistic} was set, this will return it.
+
+     @return the <code>statistic</code> for this RequestGenerator*/
     public Statistic getStatistic() {
         return statistic;
     }
 
-    /** Sets the subStatEntry, and automatically tries to get the corresponding item/block/entity if there is a valid statType present.
-    If the subStatEntry is set to null, any present item/block/entity is set to null again. */
-    public void setSubStatEntry(String subStatEntry) {
-        this.subStatEntry = subStatEntry;
+    /** Sets the <code>subStatEntryName</code> (a block-, item- or entity-name). */
+    public void setSubStatEntryName(String subStatEntry) {
+        this.subStatEntryName = subStatEntry;
     }
 
-    public String getSubStatEntry() {
-        return subStatEntry;
+    /** If a {@link Statistic} is set, and this Statistic is of Type Block, Item or Entity,
+     this will return the name of said block, item or entity
+     (in the way .toString would for the given enum constant).
+
+     @return the <code>subStatEntryName</code>*/
+    public @Nullable String getSubStatEntryName() {
+        return subStatEntryName;
     }
 
     public void setPlayerName(String playerName) {
@@ -86,18 +123,24 @@ public final class StatRequest {
         this.playerFlag = playerFlag;
     }
 
-    /** The "player" arg is a special case, because it could either be a valid subStatEntry, or indicate that the lookup action should target a specific player.
-     This is why the playerFlag exists - if this is true, and playerName is null, subStatEntry should be set to "player". */
+    /** For internal use. The "player" arg is a special case, because it could either be
+     a valid <code>subStatEntry</code>, or indicate that the lookup action should target
+     a specific player. This is why the <code>playerFlag</code> exists - if this flag true,
+     and <code>playerName</code> is null, the <code>subStatEntry</code> should be set to "player". */
     public boolean getPlayerFlag() {
         return playerFlag;
     }
 
-    public void setSelection(Target selection) {
-        this.selection = selection;
+    public void setTarget(Target target) {
+        this.target = target;
     }
 
-    public @NotNull Target getSelection() {
-        return selection;
+    /** Returns the {@link Target} for this StatRequest.
+     If no Target is explicitly set, this will return {@link Target#TOP}.
+     All static factory methods that create a {@link StatRequest} set the
+     appropriate Target for themselves, so there is no need to manually set the Target.*/
+    public @NotNull Target getTarget() {
+        return target;
     }
 
     public void setEntity(EntityType entity) {

@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /** The Thread that is in charge of getting and calculating statistics.*/
-public class StatThread extends Thread {
+public final class StatThread extends Thread {
 
     private static OutputManager outputManager;
     private static StatManager statManager;
@@ -57,7 +57,7 @@ public class StatThread extends Thread {
             outputManager.sendFeedbackMsgWaitAMoment(request.getCommandSender(), lastCalc > 20000);
         }
 
-        Target selection = request.getSelection();
+        Target selection = request.getTarget();
         try {
             TextComponent statResult = switch (selection) {
                 case PLAYER -> outputManager.formatPlayerStat(request, statManager.getPlayerStat(request));
@@ -65,7 +65,7 @@ public class StatThread extends Thread {
                 case SERVER -> outputManager.formatServerStat(request, statManager.getServerStat(request));
             };
             if (request.isAPIRequest()) {
-                String msg = PlayerStats.getAPI().statResultComponentToString(statResult);
+                String msg = PlayerStats.getAPI().statFormatter().statResultComponentToString(statResult);
                 request.getCommandSender().sendMessage(msg);
             }
             else {

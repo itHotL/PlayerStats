@@ -16,18 +16,31 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class RequestManager implements RequestGenerator {
+public final class RequestManager extends StatRequest implements RequestGenerator {
 
     private final EnumHandler enumHandler;
     private final OfflinePlayerHandler offlinePlayerHandler;
     private static OutputManager outputManager;
 
     public RequestManager(EnumHandler enumHandler, OfflinePlayerHandler offlinePlayerHandler, OutputManager outputManager) {
+        super(Bukkit.getConsoleSender());
         this.enumHandler = enumHandler;
         this.offlinePlayerHandler = offlinePlayerHandler;
         RequestManager.outputManager = outputManager;
     }
 
+    /** This will create a {@link StatRequest} from the provided args, with the requesting Player (or Console)
+     as CommandSender. This CommandSender will receive feedback messages if the StatRequest could not be created.
+
+     @param args an Array of args such as a CommandSender would put in Minecraft chat:
+     <p>- a <code>statName</code> (example: "mine_block")</p>
+     <p>- if applicable, a <code>subStatEntryName</code> (example: diorite)(</p>
+     <p>- a <code>target</code> for this lookup: can be "top", "server", "player" (or "me" to indicate the current CommandSender)</p>
+     <p>- if "player" was chosen, include a <code>playerName</code></p>
+
+     @param sender the CommandSender that requested this specific statistic
+     @return the generated StatRequest
+     */
     public StatRequest generateRequest(CommandSender sender, String[] args) {
         StatRequest request = new StatRequest(sender);
         for (String arg : args) {
@@ -41,28 +54,28 @@ public class RequestManager implements RequestGenerator {
                     request.setPlayerFlag(true);
                 }
                 else {
-                    if (request.getSubStatEntry() == null) request.setSubStatEntry(arg);
+                    if (request.getSubStatEntryName() == null) request.setSubStatEntryName(arg);
                 }
             }
             //check for selection
             else if (arg.equalsIgnoreCase("top")) {
-                request.setSelection(Target.TOP);
+                request.setTarget(Target.TOP);
             }
             else if (arg.equalsIgnoreCase("server")) {
-                request.setSelection(Target.SERVER);
+                request.setTarget(Target.SERVER);
             }
             else if (arg.equalsIgnoreCase("me")) {
                 if (sender instanceof Player) {
                     request.setPlayerName(sender.getName());
-                    request.setSelection(Target.PLAYER);
+                    request.setTarget(Target.PLAYER);
                 }
                 else if (sender instanceof ConsoleCommandSender) {
-                    request.setSelection(Target.SERVER);
+                    request.setTarget(Target.SERVER);
                 }
             }
             else if (offlinePlayerHandler.isRelevantPlayer(arg) && request.getPlayerName() == null) {
                 request.setPlayerName(arg);
-                request.setSelection(Target.PLAYER);
+                request.setTarget(Target.PLAYER);
             }
             else if (arg.equalsIgnoreCase("api")) {
                 request.setAPIRequest();
@@ -72,23 +85,38 @@ public class RequestManager implements RequestGenerator {
         return request;
     }
 
-    /** This method will generate a {@link StatRequest} for a stat-request arriving through the API.*/
-    public StatRequest generateRequest(@NotNull Target selection, @NotNull Statistic statistic, Material material, EntityType entity, String playerName) {
+    @Override
+    public StatRequest createPlayerStatRequest(String playerName, Statistic statistic, Material material, EntityType entity) {
+        return generateRequest(Target.PLAYER, statistic, material, entity, playerName);
+    }
+
+    @Override
+    public StatRequest createServerStatRequest(Statistic statistic, Material material, EntityType entityType) {
+        return generateRequest(Target.SERVER, statistic, material, entityType, null);
+    }
+
+    @Override
+    public StatRequest createTopStatRequest(Statistic statistic, Material material, EntityType entityType) {
+        return generateRequest(Target.TOP, statistic, material, entityType, null);
+    }
+
+    /** This method will generate a {@link StatRequest} for a request arriving through the API.*/
+    private StatRequest generateRequest(@NotNull Target selection, @NotNull Statistic statistic, Material material, EntityType entity, String playerName) {
         StatRequest request = new StatRequest(Bukkit.getConsoleSender(), true);
-        request.setSelection(selection);
+        request.setTarget(selection);
         request.setStatistic(statistic);
         switch (statistic.getType()) {
             case BLOCK -> {
                 request.setBlock(material);
-                request.setSubStatEntry(material.toString());
+                request.setSubStatEntryName(material.toString());
             }
             case ITEM -> {
                 request.setItem(material);
-                request.setSubStatEntry(material.toString());
+                request.setSubStatEntryName(material.toString());
             }
             case ENTITY -> {
                 request.setEntity(entity);
-                request.setSubStatEntry(entity.toString());
+                request.setSubStatEntryName(entity.toString());
             }
         }
         if (selection == Target.PLAYER) request.setPlayerName(playerName);
@@ -97,22 +125,30 @@ public class RequestManager implements RequestGenerator {
 
     /** Checks if a given {@link StatRequest} would result in a valid statistic look-up,
      and sends a feedback message to the CommandSender that prompted the request if it is invalid.
-     <p>The following is checked:
-     <br>1. Is a Statistic set?</br>
-     <br>2. Is a sub-Statistic needed, and if so, is a corresponding Material/EntityType present?</br>
-     <br>3. If the target is PLAYER, is a valid PlayerName provided? </br>
-     @return true if the StatRequest is valid, and false otherwise. */
+     <br> The following is checked:
+     <ul>
+     <li>Is a <code>statistic</code> set?
+     <li>Is a <code>subStatEntry</code> needed, and if so, is a corresponding Material/EntityType present?
+     <li>If the <code>target</code> is Player, is a valid <code>playerName</code> provided?
+     </ul>
+     @param request the StatRequest to check
+     @return true if the StatRequest is valid, and false otherwise.
+     */
     public boolean validateRequest(StatRequest request) {
         return validateRequestAndSendMessage(request, request.getCommandSender());
     }
 
     /** Checks if a given {@link StatRequest} would result in a valid statistic look-up,
      and sends a feedback message in the server console if it is invalid.
-     <p>The following is checked:
-     <br>1. Is a Statistic set?</br>
-     <br>2. Is a sub-Statistic needed, and if so, is a corresponding Material/EntityType present?</br>
-     <br>3. If the target is PLAYER, is a valid PlayerName provided? </br>
-     @return true if the StatRequest is valid, and false otherwise. */
+     <br> The following is checked:
+     <ul>
+     <li>Is a <code>statistic</code> set?
+     <li>Is a <code>subStatEntry</code> needed, and if so, is a corresponding Material/EntityType present?
+     <li>If the <code>target</code> is Player, is a valid <code>playerName</code> provided?
+     </ul>
+     @param request the StatRequest to check
+     @return true if the StatRequest is valid, and false otherwise.
+     */
     public boolean validateAPIRequest(StatRequest request) {
         return validateRequestAndSendMessage(request, Bukkit.getConsoleSender());
     }
@@ -123,15 +159,15 @@ public class RequestManager implements RequestGenerator {
             return false;
         }
         Statistic.Type type = request.getStatistic().getType();
-        if (request.getSubStatEntry() == null && type != Statistic.Type.UNTYPED) {
+        if (request.getSubStatEntryName() == null && type != Statistic.Type.UNTYPED) {
             outputManager.sendFeedbackMsgMissingSubStat(sender, type);
             return false;
         }
         else if (!hasMatchingSubStat(request)) {
-            outputManager.sendFeedbackMsgWrongSubStat(sender, type, request.getSubStatEntry());
+            outputManager.sendFeedbackMsgWrongSubStat(sender, type, request.getSubStatEntryName());
             return false;
         }
-        else if (request.getSelection() == Target.PLAYER && request.getPlayerName() == null) {
+        else if (request.getTarget() == Target.PLAYER && request.getPlayerName() == null) {
             outputManager.sendFeedbackMsg(sender, StandardMessage.MISSING_PLAYER_NAME);
             return false;
         }
@@ -148,15 +184,15 @@ public class RequestManager implements RequestGenerator {
             Statistic.Type type = request.getStatistic().getType();
 
             if (request.getPlayerFlag()) {  //unpack the playerFlag
-                if (type == Statistic.Type.ENTITY && request.getSubStatEntry() == null) {
-                    request.setSubStatEntry("player");
+                if (type == Statistic.Type.ENTITY && request.getSubStatEntryName() == null) {
+                    request.setSubStatEntryName("player");
                 }
                 else {
-                    request.setSelection(Target.PLAYER);
+                    request.setTarget(Target.PLAYER);
                 }
             }
 
-            String subStatEntry = request.getSubStatEntry();
+            String subStatEntry = request.getSubStatEntryName();
             switch (type) {  //attempt to convert relevant subStatEntries into their corresponding Enum Constant
                 case BLOCK -> {
                     Material block = EnumHandler.getBlockEnum(subStatEntry);
@@ -171,7 +207,7 @@ public class RequestManager implements RequestGenerator {
                     if (item != null) request.setItem(item);
                 }
                 case UNTYPED -> {  //remove unnecessary subStatEntries
-                    if (subStatEntry != null) request.setSubStatEntry(null);
+                    if (subStatEntry != null) request.setSubStatEntryName(null);
                 }
             }
         }

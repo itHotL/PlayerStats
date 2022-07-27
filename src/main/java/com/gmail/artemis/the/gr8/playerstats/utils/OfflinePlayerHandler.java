@@ -56,6 +56,7 @@ public final class OfflinePlayerHandler {
             return Bukkit.getOfflinePlayer(offlinePlayerUUIDs.get(playerName));
         }
         else {
+            MyLogger.logMsg("Cannot calculate statistics for player-name: " + playerName, true);
             return null;
         }
     }

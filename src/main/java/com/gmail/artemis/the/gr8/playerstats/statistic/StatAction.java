@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RecursiveTask;
 
 /** The action that is executed when a stat-command is triggered. */
-public final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>> {
+final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>> {
 
     private static int threshold;
 
