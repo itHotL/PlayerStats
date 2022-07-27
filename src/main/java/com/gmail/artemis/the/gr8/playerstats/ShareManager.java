@@ -13,7 +13,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,9 +27,9 @@ public final class ShareManager {
     private static int waitingTime;
 
     private static volatile AtomicInteger resultID;
-    private static ConcurrentHashMap<UUID, StatResult> statResultQueue;
+    private static ConcurrentHashMap<Integer, StatResult> statResultQueue;
     private static ConcurrentHashMap<String, Instant> shareTimeStamp;
-    private static ArrayBlockingQueue<UUID> sharedResults;
+    private static ArrayBlockingQueue<Integer> sharedResults;
 
     public ShareManager(ConfigHandler config) {
        updateSettings(config);
@@ -69,13 +68,14 @@ public final class ShareManager {
         return !(sender instanceof ConsoleCommandSender) && sender.hasPermission("playerstats.share");
     }
 
-    public UUID saveStatResult(String playerName, TextComponent statResult) {
+    public int saveStatResult(String playerName, TextComponent statResult) {
         removeExcessResults(playerName);
 
         int ID = getNextIDNumber();
-        UUID shareCode = UUID.randomUUID();
-
-        statResultQueue.put(shareCode, new StatResult(playerName, statResult, ID, shareCode));
+        //UUID shareCode = UUID.randomUUID();
+        StatResult result = new StatResult(playerName, statResult, ID);
+        int shareCode = result.hashCode();
+        statResultQueue.put(shareCode, result);
         MyLogger.logMsg("Saving statResults with no. " + ID, DebugLevel.MEDIUM);
         return shareCode;
     }
@@ -89,25 +89,25 @@ public final class ShareManager {
         }
     }
 
-    public boolean requestAlreadyShared(UUID shareCode) {
+    public boolean requestAlreadyShared(int shareCode) {
         return sharedResults.contains(shareCode);
     }
 
     /** Takes a statResult from the internal ConcurrentHashmap,
      puts the current time in the shareTimeStamp (ConcurrentHashMap),
-     puts the shareCode (UUID) in the sharedResults (ArrayBlockingQueue),
+     puts the shareCode (int hashCode) in the sharedResults (ArrayBlockingQueue),
      and returns the statResult. If no statResult was found, returns null.*/
-    public @Nullable StatResult getStatResult(String playerName, UUID shareCode) {
+    public @Nullable StatResult getStatResult(String playerName, int shareCode) {
         if (statResultQueue.containsKey(shareCode)) {
             shareTimeStamp.put(playerName, Instant.now());
 
             if (!sharedResults.offer(shareCode)) {  //create a new ArrayBlockingQueue if our queue is full
                 MyLogger.logMsg("500 stat-results have been shared, " +
                         "creating a new internal queue with the most recent 50 share-code-values and discarding the rest...", DebugLevel.MEDIUM);
-                ArrayBlockingQueue<UUID> newQueue = new ArrayBlockingQueue<>(500);
+                ArrayBlockingQueue<Integer> newQueue = new ArrayBlockingQueue<>(500);
 
                 synchronized (this) {  //put the last 50 values in the new Queue
-                    UUID[] lastValues = sharedResults.toArray(new UUID[0]);
+                    Integer[] lastValues = sharedResults.toArray(new Integer[500]);
                     Arrays.stream(Arrays.copyOfRange(lastValues, 450, 500))
                             .parallel().iterator()
                             .forEachRemaining(newQueue::offer);
@@ -128,16 +128,16 @@ public final class ShareManager {
     private void removeExcessResults(String playerName) {
         List<StatResult> alreadySavedResults = statResultQueue.values()
                 .parallelStream()
-                .filter(result -> result.playerName().equalsIgnoreCase(playerName))
+                .filter(result -> result.executorName().equalsIgnoreCase(playerName))
                 .toList();
 
         if (alreadySavedResults.size() > 25) {
-            UUID uuid = alreadySavedResults
+            int hashCode = alreadySavedResults
                     .parallelStream()
                     .min(Comparator.comparing(StatResult::ID))
-                    .orElseThrow().uuid();
-            MyLogger.logMsg("Removing old stat no. " + statResultQueue.get(uuid).ID() + " for player " + playerName, DebugLevel.MEDIUM);
-            statResultQueue.remove(uuid);
+                    .orElseThrow().hashCode();
+            MyLogger.logMsg("Removing old stat no. " + statResultQueue.get(hashCode).ID() + " for player " + playerName, DebugLevel.MEDIUM);
+            statResultQueue.remove(hashCode);
         }
     }
 

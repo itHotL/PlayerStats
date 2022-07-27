@@ -126,7 +126,7 @@ public class StatRequest {
     /** For internal use. The "player" arg is a special case, because it could either be
      a valid <code>subStatEntry</code>, or indicate that the lookup action should target
      a specific player. This is why the <code>playerFlag</code> exists - if this flag true,
-     and <code>playerName</code> is null, the <code>subStatEntry</code> should be set to "player". */
+     and <code>executorName</code> is null, the <code>subStatEntry</code> should be set to "player". */
     public boolean getPlayerFlag() {
         return playerFlag;
     }

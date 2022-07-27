@@ -10,8 +10,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.UUID;
-
 public class ShareCommand implements CommandExecutor {
 
     private static ShareManager shareManager;
@@ -25,11 +23,11 @@ public class ShareCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         if (args.length == 1 && ShareManager.isEnabled()) {
-            UUID shareCode;
+            int shareCode;
             try {
-                shareCode = UUID.fromString(args[0]);
+                shareCode = Integer.parseInt(args[0]);
             } catch (IllegalArgumentException e) {
-                MyLogger.logException(e, "ShareCommand", "/statshare is being called without a valid UUID argument");
+                MyLogger.logException(e, "ShareCommand", "/statshare is being called without a valid share-code!");
                 return false;
             }
             if (shareManager.requestAlreadyShared(shareCode)) {

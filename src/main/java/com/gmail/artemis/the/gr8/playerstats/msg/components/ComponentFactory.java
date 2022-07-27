@@ -21,8 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
-import java.util.UUID;
-
 import static net.kyori.adventure.text.Component.*;
 import static net.kyori.adventure.text.Component.text;
 
@@ -155,7 +153,7 @@ public class ComponentFactory {
                 getStyleFromString(config.getSharerNameDecoration(true)));
     }
 
-    public TextComponent shareButton(UUID shareCode) {
+    public TextComponent shareButton(int shareCode) {
         return surroundingBrackets(
                 text("Share")
                         .color(MSG_HOVER)

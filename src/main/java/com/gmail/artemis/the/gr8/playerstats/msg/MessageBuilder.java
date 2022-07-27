@@ -166,10 +166,10 @@ public class MessageBuilder {
 
     /** Returns a BiFunction for a player statistic. This BiFunction will return a statResult,
      the shape of which is determined by the 2 parameters the BiFunction gets.
-     <p>- UUID shareCode: if a shareCode is provided, a clickable "share" button will be added.
+     <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
      <br>- If both parameters are null, the statResult will be returned as is.</br>*/
-    public BiFunction<UUID, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull StatRequest request) {
+    public BiFunction<Integer, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull StatRequest request) {
         TextComponent playerStat = Component.text()
                 .append(componentFactory.playerName(request.getPlayerName(), Target.PLAYER)
                         .append(text(":"))
@@ -185,10 +185,10 @@ public class MessageBuilder {
 
     /** Returns a BiFunction for a server statistic. This BiFunction will return a statResult,
      the shape of which is determined by the 2 parameters the BiFunction gets.
-     <p>- UUID shareCode: if a shareCode is provided, a clickable "share" button will be added.
+     <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
      <br>- If both parameters are null, the statResult will be returned as is.</br>*/
-    public BiFunction<UUID, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequest request) {
+    public BiFunction<Integer, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequest request) {
         TextComponent serverStat = text()
                 .append(componentFactory.title(config.getServerTitle(), Target.SERVER))
                 .append(space())
@@ -205,10 +205,10 @@ public class MessageBuilder {
 
     /** Returns a BiFunction for a top statistic. This BiFunction will return a statResult,
      the shape of which is determined by the 2 parameters the BiFunction gets.
-     <p>- UUID shareCode: if a shareCode is provided, a clickable "share" button will be added.
+     <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
      <br>- If both parameters are null, the statResult will be returned as is.</br>*/
-    public BiFunction<UUID, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
+    public BiFunction<Integer, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest request) {
         final TextComponent title = getTopStatsTitleComponent(request, topStats.size());
         final TextComponent shortTitle = getTopStatsTitleShortComponent(request, topStats.size());
         final TextComponent list = getTopStatListComponent(topStats, request);
@@ -255,7 +255,7 @@ public class MessageBuilder {
         };
     }
 
-    private BiFunction<UUID, CommandSender, TextComponent> getFormattingFunction(@NotNull TextComponent statResult, Target selection) {
+    private BiFunction<Integer, CommandSender, TextComponent> getFormattingFunction(@NotNull TextComponent statResult, Target selection) {
         boolean useEnters = config.useEnters(selection, false);
         boolean useEntersForShared = config.useEnters(selection, true);
 

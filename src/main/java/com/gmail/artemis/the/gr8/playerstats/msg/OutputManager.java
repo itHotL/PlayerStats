@@ -21,7 +21,6 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
-import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -59,7 +58,7 @@ public final class OutputManager implements StatFormatter {
 
     @Override
     public TextComponent formatPlayerStat(@NotNull StatRequest request, int playerStat) {
-        BiFunction<UUID, CommandSender, TextComponent> playerStatFunction =
+        BiFunction<Integer, CommandSender, TextComponent> playerStatFunction =
                 getWriter(request).formattedPlayerStatFunction(playerStat, request);
 
         return processFunction(request.getCommandSender(), playerStatFunction);
@@ -67,7 +66,7 @@ public final class OutputManager implements StatFormatter {
 
     @Override
     public TextComponent formatServerStat(@NotNull StatRequest request, long serverStat) {
-        BiFunction<UUID, CommandSender, TextComponent> serverStatFunction =
+        BiFunction<Integer, CommandSender, TextComponent> serverStatFunction =
                 getWriter(request).formattedServerStatFunction(serverStat, request);
 
         return processFunction(request.getCommandSender(), serverStatFunction);
@@ -75,7 +74,7 @@ public final class OutputManager implements StatFormatter {
 
     @Override
     public TextComponent formatTopStat(@NotNull StatRequest request, @NotNull LinkedHashMap<String, Integer> topStats) {
-        BiFunction<UUID, CommandSender, TextComponent> topStatFunction =
+        BiFunction<Integer, CommandSender, TextComponent> topStatFunction =
                 getWriter(request).formattedTopStatFunction(topStats, request);
 
         return processFunction(request.getCommandSender(), topStatFunction);
@@ -125,13 +124,13 @@ public final class OutputManager implements StatFormatter {
         adventure.sender(sender).sendMessage(component);
     }
 
-    private TextComponent processFunction(CommandSender sender, @NotNull BiFunction<UUID, CommandSender, TextComponent> statResultFunction) {
+    private TextComponent processFunction(CommandSender sender, @NotNull BiFunction<Integer, CommandSender, TextComponent> statResultFunction) {
         boolean saveOutput = !(sender instanceof ConsoleCommandSender) &&
                 ShareManager.isEnabled() &&
                 shareManager.senderHasPermission(sender);
 
         if (saveOutput) {
-            UUID shareCode =
+            int shareCode =
                     shareManager.saveStatResult(sender.getName(), statResultFunction.apply(null, sender));
             return statResultFunction.apply(shareCode, null);
         }

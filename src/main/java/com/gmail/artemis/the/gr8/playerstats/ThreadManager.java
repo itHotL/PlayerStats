@@ -8,7 +8,6 @@ import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
-import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;

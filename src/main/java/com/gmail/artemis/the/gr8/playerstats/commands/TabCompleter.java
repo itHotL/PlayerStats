@@ -35,8 +35,8 @@ public class TabCompleter implements org.bukkit.command.TabCompleter {
 
     //args[0] = statistic                                                                        (length = 1)
     //args[1] = commandOption (top/player/me)   OR substatistic (block/item/entitytype)          (length = 2)
-    //args[2] = playerName                      OR commandOption (top/player/me)                 (length = 3)
-    //args[3] =                                    playerName                                    (length = 4)
+    //args[2] = executorName                      OR commandOption (top/player/me)                 (length = 3)
+    //args[3] =                                    executorName                                    (length = 4)
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
