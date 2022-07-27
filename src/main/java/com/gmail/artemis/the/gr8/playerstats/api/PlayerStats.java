@@ -1,18 +1,14 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
-import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
-import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.StringUtils;
-import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.*;
-import net.kyori.adventure.text.flattener.ComponentFlattener;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
 
 /** This is the outgoing API that you can use to access the core functionality of PlayerStats.
  To work with it, you need to call PlayerStats.{@link #getAPI()} to get an instance of {@link PlayerStatsAPI}.
@@ -42,45 +38,7 @@ public interface PlayerStats {
         return Main.getPlayerStatsAPI();
     }
 
-    /** Turns a TextComponent into its String representation. If you don't want to work with
-     Adventure's TextComponents, you can call this method to turn any stat-result into a String.
-     @return a String representation of this TextComponent, without hover/click events, but with color, style and formatting */
-    default String statResultComponentToString(TextComponent statResult) {
-        LegacyComponentSerializer serializer =
-                LegacyComponentSerializer
-                .builder()
-                .hexColors()
-                .useUnusualXRepeatedCharacterHexFormat()
-                .build();
-
-        ComponentFlattener flattener = ComponentFlattener.basic().toBuilder()
-            .mapper(TranslatableComponent.class, trans -> {
-                MyLogger.logMsg("Starting with: ");
-                Main.getAdventure().console().sendMessage(trans);
-                StringBuilder totalPrettyName = new StringBuilder();
-                trans.iterator(ComponentIteratorType.DEPTH_FIRST, ComponentIteratorFlag.INCLUDE_TRANSLATABLE_COMPONENT_ARGUMENTS)
-                        .forEachRemaining(component -> {
-//                    if (component instanceof TextComponent text) {
-//                        MyLogger.logMsg("TextComponent: ");
-//                        Main.getAdventure().console().sendMessage(text);
-//                        totalPrettyName.append(serializer.serialize(text));
-//                    }
-                    if (component instanceof TranslatableComponent translatable) {
-                        MyLogger.logMsg("TranslateComponent: ");
-                        Main.getAdventure().console().sendMessage(translatable);
-                        totalPrettyName.append(
-                                StringUtils.prettify(
-                                        LanguageKeyHandler.convertToName(
-                                                translatable.key())));
-                    }
-                });
-
-                return totalPrettyName.toString();
-            })
-            .build();
-
-        return serializer.toBuilder().flattener(flattener).build().serialize(statResult);
-    }
+    String statResultComponentToString(TextComponent component);
 
     /** Get a formatted player-statistic of Statistic.Type Untyped.
      @return a TextComponent with the following parts:

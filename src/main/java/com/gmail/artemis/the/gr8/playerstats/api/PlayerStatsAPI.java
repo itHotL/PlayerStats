@@ -32,6 +32,11 @@ public final class PlayerStatsAPI implements PlayerStats {
     }
 
     @Override
+    public String statResultComponentToString(TextComponent component) {
+        return statFormatter.statResultComponentToString(component);
+    }
+
+    @Override
     public TextComponent getPlayerStat(@NotNull Statistic statistic, @NotNull String playerName) throws NullPointerException {
         return getFormattedStatistic(Target.PLAYER, statistic, null, null, playerName);
     }

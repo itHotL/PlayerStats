@@ -7,6 +7,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.ComponentUtils;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
@@ -48,6 +49,12 @@ public final class OutputManager implements StatFormatter {
 
     public static void updateMessageWriters(ConfigHandler config) {
         getMessageWriters(config);
+    }
+
+    @Override
+    public String statResultComponentToString(TextComponent statResult) {
+        return ComponentUtils.getTranslatableComponentSerializer()
+                .serialize(statResult);
     }
 
     @Override

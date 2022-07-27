@@ -66,9 +66,9 @@ public final class LanguageKeyHandler {
         } else if (isKeyForKillEntity(key)) {
             return "times_killed";
         } else if (isKeyForEntityKilledBy(key)) {
-            return "number_of_times_killed";
-        } else if (isKeyForEntityKilledByArg(key)) {
-            return "by";
+            return "number_of_times_killed_by";
+        } else if (isKeyForEntityKilledByArg(key)) {  //this one returns nothing, because the previous one returns the full text
+            return "";
         }
         String toReplace = "";
         if (key.contains("stat")) {
@@ -77,7 +77,7 @@ public final class LanguageKeyHandler {
             } else {
                 toReplace = "stat";
             }
-        } else if (key.contains("entity")) {
+        } else if (key.contains("entity")) { //for the two entity-related ones, put brackets around it to make up for the multiple-keys/args-serializer issues
             toReplace = "entity";
         } else if (key.contains("block")) {
             toReplace = "block";
