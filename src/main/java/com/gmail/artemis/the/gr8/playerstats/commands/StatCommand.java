@@ -1,9 +1,9 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
-import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequestCore;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.gmail.artemis.the.gr8.playerstats.statistic.RequestManager;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.InternalStatFetcher;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -14,12 +14,12 @@ public final class StatCommand implements CommandExecutor {
 
     private static ThreadManager threadManager;
     private static OutputManager outputManager;
-    private final RequestManager requestManager;
+    private final InternalStatFetcher internalStatFetcher;
 
-    public StatCommand(OutputManager m, ThreadManager t, RequestManager r) {
+    public StatCommand(OutputManager m, ThreadManager t, InternalStatFetcher r) {
         threadManager = t;
         outputManager = m;
-        requestManager = r;
+        internalStatFetcher = r;
     }
 
     @Override
@@ -32,9 +32,9 @@ public final class StatCommand implements CommandExecutor {
             outputManager.sendExamples(sender);
         }
         else {
-            StatRequest statRequest = requestManager.generateRequest(sender, args);
-            if (requestManager.validateRequest(statRequest)) {
-                threadManager.startStatThread(statRequest);
+            StatRequestCore statRequestCore = internalStatFetcher.generateRequest(sender, args);
+            if (internalStatFetcher.validateRequest(statRequestCore)) {
+                threadManager.startStatThread(statRequestCore);
             } else {
                 return false;
             }

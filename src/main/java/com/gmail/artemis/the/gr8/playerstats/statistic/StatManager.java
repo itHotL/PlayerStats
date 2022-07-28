@@ -2,7 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.statistic;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.api.StatCalculator;
-import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequestCore;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.google.common.collect.ImmutableList;
@@ -30,28 +30,28 @@ public final class StatManager implements StatCalculator {
 
     /** Gets the statistic data for an individual player. If somehow the player
      cannot be found, this returns 0.*/
-    public int getPlayerStat(StatRequest statRequest) {
-        OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(statRequest.getPlayerName());
+    public int getPlayerStat(StatRequestCore statRequestCore) {
+        OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(statRequestCore.getPlayerName());
         if (player != null) {
-            return switch (statRequest.getStatistic().getType()) {
-                case UNTYPED -> player.getStatistic(statRequest.getStatistic());
-                case ENTITY -> player.getStatistic(statRequest.getStatistic(), statRequest.getEntity());
-                case BLOCK -> player.getStatistic(statRequest.getStatistic(), statRequest.getBlock());
-                case ITEM -> player.getStatistic(statRequest.getStatistic(), statRequest.getItem());
+            return switch (statRequestCore.getStatistic().getType()) {
+                case UNTYPED -> player.getStatistic(statRequestCore.getStatistic());
+                case ENTITY -> player.getStatistic(statRequestCore.getStatistic(), statRequestCore.getEntity());
+                case BLOCK -> player.getStatistic(statRequestCore.getStatistic(), statRequestCore.getBlock());
+                case ITEM -> player.getStatistic(statRequestCore.getStatistic(), statRequestCore.getItem());
             };
         }
         return 0;
     }
 
-    public LinkedHashMap<String, Integer> getTopStats(StatRequest statRequest) {
-        return getAllStatsAsync(statRequest).entrySet().stream()
+    public LinkedHashMap<String, Integer> getTopStats(StatRequestCore statRequestCore) {
+        return getAllStatsAsync(statRequestCore).entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(topListMaxSize)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
-    public long getServerStat(StatRequest statRequest) {
-        List<Integer> numbers = getAllStatsAsync(statRequest)
+    public long getServerStat(StatRequestCore statRequestCore) {
+        List<Integer> numbers = getAllStatsAsync(statRequestCore)
                 .values()
                 .parallelStream()
                 .toList();
@@ -60,14 +60,14 @@ public final class StatManager implements StatCalculator {
 
     /** Invokes a bunch of worker pool threads to divide and conquer (get the statistics for all players
      that are stored in the {@link OfflinePlayerHandler}) */
-    private @NotNull ConcurrentHashMap<String, Integer> getAllStatsAsync(StatRequest statRequest) {
+    private @NotNull ConcurrentHashMap<String, Integer> getAllStatsAsync(StatRequestCore statRequestCore) {
         long time = System.currentTimeMillis();
 
         ForkJoinPool commonPool = ForkJoinPool.commonPool();
         ConcurrentHashMap<String, Integer> allStats;
 
         try {
-            allStats = commonPool.invoke(getStatTask(statRequest));
+            allStats = commonPool.invoke(getStatTask(statRequestCore));
         } catch (ConcurrentModificationException e) {
             MyLogger.logMsg("The statRequest could not be executed due to a ConcurrentModificationException. " +
                     "This likely happened because Bukkit hasn't fully initialized all player-data yet. " +
@@ -82,12 +82,12 @@ public final class StatManager implements StatCalculator {
         return allStats;
     }
 
-    private StatAction getStatTask(StatRequest statRequest) {
+    private StatAction getStatTask(StatRequestCore statRequestCore) {
         int size = offlinePlayerHandler.getOfflinePlayerCount() != 0 ? offlinePlayerHandler.getOfflinePlayerCount() : 16;
         ConcurrentHashMap<String, Integer> allStats = new ConcurrentHashMap<>(size);
         ImmutableList<String> playerNames = ImmutableList.copyOf(offlinePlayerHandler.getOfflinePlayerNames());
 
-        StatAction task = new StatAction(offlinePlayerHandler, playerNames, statRequest, allStats);
+        StatAction task = new StatAction(offlinePlayerHandler, playerNames, statRequestCore, allStats);
         MyLogger.actionCreated(playerNames.size());
 
         return task;

@@ -5,7 +5,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 
-import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequestCore;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.ExampleMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.HelpMessage;
@@ -169,15 +169,15 @@ public final class MessageBuilder {
      <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
      <br>- If both parameters are null, the statResult will be returned as is.</br>*/
-    public BiFunction<Integer, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull StatRequest statRequest) {
+    public BiFunction<Integer, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull StatRequestCore statRequestCore) {
         TextComponent playerStat = Component.text()
-                .append(componentFactory.playerName(statRequest.getPlayerName(), Target.PLAYER)
+                .append(componentFactory.playerName(statRequestCore.getPlayerName(), Target.PLAYER)
                         .append(text(":"))
                         .append(space()))
-                .append(getStatNumberComponent(statRequest.getStatistic(), stat, Target.PLAYER, statRequest.isConsoleSender()))
+                .append(getStatNumberComponent(statRequestCore.getStatistic(), stat, Target.PLAYER, statRequestCore.isConsoleSender()))
                 .append(space())
-                .append(getStatNameComponent(statRequest))
-                .append(getStatUnitComponent(statRequest.getStatistic(), statRequest.getTarget(), statRequest.isConsoleSender()))  //space is provided by statUnitComponent
+                .append(getStatNameComponent(statRequestCore))
+                .append(getStatUnitComponent(statRequestCore.getStatistic(), statRequestCore.getTarget(), statRequestCore.isConsoleSender()))  //space is provided by statUnitComponent
                 .build();
 
         return getFormattingFunction(playerStat, Target.PLAYER);
@@ -188,16 +188,16 @@ public final class MessageBuilder {
      <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
      <br>- If both parameters are null, the statResult will be returned as is.</br>*/
-    public BiFunction<Integer, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequest statRequest) {
+    public BiFunction<Integer, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequestCore statRequestCore) {
         TextComponent serverStat = text()
                 .append(componentFactory.title(config.getServerTitle(), Target.SERVER))
                 .append(space())
                 .append(componentFactory.serverName(config.getServerName()))
                 .append(space())
-                .append(getStatNumberComponent(statRequest.getStatistic(), stat, Target.SERVER, statRequest.isConsoleSender()))
+                .append(getStatNumberComponent(statRequestCore.getStatistic(), stat, Target.SERVER, statRequestCore.isConsoleSender()))
                 .append(space())
-                .append(getStatNameComponent(statRequest))
-                .append(getStatUnitComponent(statRequest.getStatistic(), statRequest.getTarget(), statRequest.isConsoleSender()))  //space is provided by statUnit
+                .append(getStatNameComponent(statRequestCore))
+                .append(getStatUnitComponent(statRequestCore.getStatistic(), statRequestCore.getTarget(), statRequestCore.isConsoleSender()))  //space is provided by statUnit
                 .build();
 
         return getFormattingFunction(serverStat, Target.SERVER);
@@ -208,10 +208,10 @@ public final class MessageBuilder {
      <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
      <br>- If both parameters are null, the statResult will be returned as is.</br>*/
-    public BiFunction<Integer, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest statRequest) {
-        final TextComponent title = getTopStatsTitleComponent(statRequest, topStats.size());
-        final TextComponent shortTitle = getTopStatsTitleShortComponent(statRequest, topStats.size());
-        final TextComponent list = getTopStatListComponent(topStats, statRequest);
+    public BiFunction<Integer, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequestCore statRequestCore) {
+        final TextComponent title = getTopStatsTitleComponent(statRequestCore, topStats.size());
+        final TextComponent shortTitle = getTopStatsTitleShortComponent(statRequestCore, topStats.size());
+        final TextComponent list = getTopStatListComponent(topStats, statRequestCore);
         final boolean useEnters = config.useEnters(Target.TOP, false);
         final boolean useEntersForShared = config.useEnters(Target.TOP, true);
 
@@ -302,25 +302,25 @@ public final class MessageBuilder {
         return componentFactory.sharerName(sender.getName());
     }
 
-    private TextComponent getTopStatsTitleComponent(StatRequest statRequest, int statListSize) {
+    private TextComponent getTopStatsTitleComponent(StatRequestCore statRequestCore, int statListSize) {
         return Component.text()
                 .append(componentFactory.pluginPrefix()).append(space())
                 .append(componentFactory.title(config.getTopStatsTitle(), Target.TOP)).append(space())
                 .append(componentFactory.titleNumber(statListSize)).append(space())
-                .append(getStatNameComponent(statRequest))  //space is provided by statUnitComponent
-                .append(getStatUnitComponent(statRequest.getStatistic(), statRequest.getTarget(), statRequest.isConsoleSender()))
+                .append(getStatNameComponent(statRequestCore))  //space is provided by statUnitComponent
+                .append(getStatUnitComponent(statRequestCore.getStatistic(), statRequestCore.getTarget(), statRequestCore.isConsoleSender()))
                 .build();
     }
 
-    private TextComponent getTopStatsTitleShortComponent(StatRequest statRequest, int statListSize) {
+    private TextComponent getTopStatsTitleShortComponent(StatRequestCore statRequestCore, int statListSize) {
         return Component.text()
                 .append(componentFactory.title(config.getTopStatsTitle(), Target.TOP)).append(space())
                 .append(componentFactory.titleNumber(statListSize)).append(space())
-                .append(getStatNameComponent(statRequest))  //space is provided by statUnitComponent
+                .append(getStatNameComponent(statRequestCore))  //space is provided by statUnitComponent
                 .build();
     }
 
-    private TextComponent getTopStatListComponent(LinkedHashMap<String, Integer> topStats, StatRequest statRequest) {
+    private TextComponent getTopStatListComponent(LinkedHashMap<String, Integer> topStats, StatRequestCore statRequestCore) {
         TextComponent.Builder topList = Component.text();
         boolean useDots = config.useDots();
         boolean boldNames = config.playerNameIsBold();
@@ -335,7 +335,7 @@ public final class MessageBuilder {
             if (useDots) {
                 topList.append(playerNameBuilder)
                         .append(space());
-                int dots = FontUtils.getNumberOfDotsToAlign(count + ". " + playerName, statRequest.isConsoleSender(), boldNames);
+                int dots = FontUtils.getNumberOfDotsToAlign(count + ". " + playerName, statRequestCore.isConsoleSender(), boldNames);
                 if (dots >= 1) {
                     topList.append(componentFactory.dots().append(text((".".repeat(dots)))));
                 }
@@ -343,33 +343,33 @@ public final class MessageBuilder {
             else {
                 topList.append(playerNameBuilder.append(text(":")));
             }
-            topList.append(space()).append(getStatNumberComponent(statRequest.getStatistic(), topStats.get(playerName), Target.TOP, statRequest.isConsoleSender()));
+            topList.append(space()).append(getStatNumberComponent(statRequestCore.getStatistic(), topStats.get(playerName), Target.TOP, statRequestCore.isConsoleSender()));
         }
         return topList.build();
     }
 
     /** Depending on the config settings, return either a TranslatableComponent representing
      the statName (and potential subStatName), or a TextComponent with capitalized English names.*/
-    private TextComponent getStatNameComponent(StatRequest statRequest) {
+    private TextComponent getStatNameComponent(StatRequestCore statRequestCore) {
         if (config.useTranslatableComponents()) {
-            String statKey = languageKeyHandler.getStatKey(statRequest.getStatistic());
-            String subStatKey = statRequest.getSubStatEntryName();
+            String statKey = languageKeyHandler.getStatKey(statRequestCore.getStatistic());
+            String subStatKey = statRequestCore.getSubStatEntryName();
             if (subStatKey != null) {
-                switch (statRequest.getStatistic().getType()) {
-                    case BLOCK -> subStatKey = languageKeyHandler.getBlockKey(statRequest.getBlock());
-                    case ENTITY -> subStatKey = languageKeyHandler.getEntityKey(statRequest.getEntity());
-                    case ITEM -> subStatKey = languageKeyHandler.getItemKey(statRequest.getItem());
+                switch (statRequestCore.getStatistic().getType()) {
+                    case BLOCK -> subStatKey = languageKeyHandler.getBlockKey(statRequestCore.getBlock());
+                    case ENTITY -> subStatKey = languageKeyHandler.getEntityKey(statRequestCore.getEntity());
+                    case ITEM -> subStatKey = languageKeyHandler.getItemKey(statRequestCore.getItem());
                     default -> {
                     }
                 }
             }
-            return componentFactory.statAndSubStatNameTranslatable(statKey, subStatKey, statRequest.getTarget());
+            return componentFactory.statAndSubStatNameTranslatable(statKey, subStatKey, statRequestCore.getTarget());
         }
         else {
             return componentFactory.statAndSubStatName(
-                    StringUtils.prettify(statRequest.getStatistic().toString()),
-                    StringUtils.prettify(statRequest.getSubStatEntryName()),
-                    statRequest.getTarget());
+                    StringUtils.prettify(statRequestCore.getStatistic().toString()),
+                    StringUtils.prettify(statRequestCore.getSubStatEntryName()),
+                    statRequestCore.getTarget());
         }
     }
 

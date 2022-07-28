@@ -2,7 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
-import com.gmail.artemis.the.gr8.playerstats.models.InternalStatResult;
+import com.gmail.artemis.the.gr8.playerstats.statistic.result.InternalStatResult;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.command.Command;

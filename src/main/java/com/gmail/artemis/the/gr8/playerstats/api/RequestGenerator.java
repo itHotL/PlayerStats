@@ -1,36 +1,37 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
-import com.gmail.artemis.the.gr8.playerstats.enums.Target;
-import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequestCore;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
-/** Turns user input into a valid {@link StatRequest}. This StatRequest should hold all
+/** Turns user input into a valid {@link StatRequestCore}. This StatRequest should hold all
  the information PlayerStats needs to work with, and is used by the {@link StatCalculator}
  to get the desired statistic data.*/
 @Internal
-public interface RequestGenerator {
+public abstract class RequestGenerator {
 
-    /** This will create a {@link StatRequest} from the provided args, with the requesting Player (or Console)
-     as CommandSender. This CommandSender will receive feedback messages if the StatRequest could not be created.
+    protected StatRequestCore statRequest;
 
-     @param args an Array of args such as a CommandSender would put in Minecraft chat:
-     <p>- a <code>statName</code> (example: "mine_block")</p>
-     <p>- if applicable, a <code>subStatEntryName</code> (example: diorite)(</p>
-     <p>- a <code>target</code> for this lookup: can be "top", "server", "player" (or "me" to indicate the current CommandSender)</p>
-     <p>- if "player" was chosen, include a <code>playerName</code></p>
+    protected abstract StatRequestCore generateBaseRequest();
 
-     @param sender the CommandSender that requested this specific statistic
-     @return the generated StatRequest
-     */
-    StatRequest generateRequest(CommandSender sender, String[] args);
+    StatRequestCore untyped(Statistic statistic) {
+        statRequest.setStatistic(statistic);
+        return statRequest;
+    }
 
-    StatRequest generateAPIRequest(Target target, Statistic statistic, Material material, EntityType entity, String playerName);
+    StatRequestCore blockOrItemType(Statistic statistic, Material material) {
+        statRequest.setSubStatEntryName(material.toString());
+        if (statistic.getType() == Statistic.Type.BLOCK) {
+            statRequest.setBlock(material);
+        } else {
+            statRequest.setItem(material);
+        }
+        return statRequest;
+    }
 
-    boolean validateRequest(StatRequest request);
-
-    boolean validateAPIRequest(StatRequest request);
+    StatRequestCore entityType(Statistic statistic, EntityType entityType) {
+        return null;
+    }
 }

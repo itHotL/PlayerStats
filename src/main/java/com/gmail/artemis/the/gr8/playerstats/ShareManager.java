@@ -2,7 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
-import com.gmail.artemis.the.gr8.playerstats.models.InternalStatResult;
+import com.gmail.artemis.the.gr8.playerstats.statistic.result.InternalStatResult;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.command.CommandSender;

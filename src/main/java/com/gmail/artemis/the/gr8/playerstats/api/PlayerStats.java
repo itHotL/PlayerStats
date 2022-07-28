@@ -1,10 +1,9 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
-import com.gmail.artemis.the.gr8.playerstats.models.StatResult;
-import org.bukkit.Material;
-import org.bukkit.Statistic;
-import org.bukkit.entity.EntityType;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.PlayerStatFetcher;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.ServerStatFetcher;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.TopStatFetcher;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,9 +25,9 @@ public interface PlayerStats {
         return Main.getPlayerStatsAPI();
     }
 
-    PlayerRequest getPlayerStat(String playerName);
+    PlayerStatFetcher playerStat(String playerName);
 
-    StatResult<?> getServerStat(Statistic statistic, Material material, EntityType entity);
+    ServerStatFetcher serverStat();
 
-    StatResult<?> getTopStats(Statistic statistic, Material material, EntityType entity);
+    TopStatFetcher topStat(int topListSize);
 }

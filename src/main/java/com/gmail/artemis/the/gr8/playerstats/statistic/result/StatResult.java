@@ -1,4 +1,4 @@
-package com.gmail.artemis.the.gr8.playerstats.models;
+package com.gmail.artemis.the.gr8.playerstats.statistic.result;
 
 import net.kyori.adventure.text.TextComponent;
 

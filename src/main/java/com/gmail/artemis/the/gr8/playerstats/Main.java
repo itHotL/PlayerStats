@@ -9,7 +9,7 @@ import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.gmail.artemis.the.gr8.playerstats.statistic.RequestManager;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.InternalStatFetcher;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
@@ -25,7 +25,7 @@ public final class Main extends JavaPlugin {
     private static BukkitAudiences adventure;
     private static PlayerStats playerStatsAPI;
     private static OutputManager outputManager;
-    private static RequestManager requestManager;
+    private static InternalStatFetcher internalStatFetcher;
     private static ShareManager shareManager;
     private static ThreadManager threadManager;
 
@@ -46,7 +46,7 @@ public final class Main extends JavaPlugin {
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(outputManager, threadManager, requestManager));
+            statcmd.setExecutor(new StatCommand(outputManager, threadManager, internalStatFetcher));
             statcmd.setTabCompleter(new TabCompleter(enumHandler, offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
@@ -90,9 +90,9 @@ public final class Main extends JavaPlugin {
         shareManager = new ShareManager(config);
         StatManager statManager = new StatManager(offlinePlayerHandler, config.getTopListMaxSize());
         outputManager = new OutputManager(getAdventure(), config, shareManager);
-        requestManager = new RequestManager(enumHandler, offlinePlayerHandler, outputManager);
+        internalStatFetcher = new InternalStatFetcher(enumHandler, offlinePlayerHandler, outputManager);
         threadManager = new ThreadManager(config, statManager, outputManager);
 
-        playerStatsAPI = new PlayerStatsAPI(requestManager, statManager, outputManager);
+        playerStatsAPI = new PlayerStatsAPI(internalStatFetcher, statManager, outputManager);
     }
 }

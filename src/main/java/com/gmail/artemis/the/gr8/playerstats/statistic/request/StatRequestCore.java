@@ -1,4 +1,4 @@
-package com.gmail.artemis.the.gr8.playerstats.models;
+package com.gmail.artemis.the.gr8.playerstats.statistic.request;
 
 import com.gmail.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
  <li> a {@link Target} <code>target</code> (automatically set for all API-requests)
  <li> if the <code>target</code> is Target.Player, a <code>playerName</code> needs to be added
  </ul>*/
-public final class StatRequest {
+public final class StatRequestCore {
 
     private final CommandSender sender;
     private boolean isAPIRequest;
@@ -40,7 +40,7 @@ public final class StatRequest {
     private Material item;
     private boolean playerFlag;
 
-    /** Create a new {@link StatRequest} with default values:
+    /** Create a new {@link StatRequestCore} with default values:
      <br>- CommandSender sender (provided)
      <br>- Target <code>target</code> = {@link Target#TOP}
      <br>- boolean <code>playerFlag</code> = false
@@ -48,11 +48,11 @@ public final class StatRequest {
 
      @param sender the CommandSender who prompted this RequestGenerator
      */
-    public StatRequest(@NotNull CommandSender sender) {
+    public StatRequestCore(@NotNull CommandSender sender) {
         this(sender, false);
     }
 
-    /** Create a new {@link StatRequest} with default values:
+    /** Create a new {@link StatRequestCore} with default values:
      <br>- CommandSender sender (provided)
      <br>- Target target = {@link Target#TOP}
      <br>- boolean playerFlag = false
@@ -61,7 +61,7 @@ public final class StatRequest {
      @param sender the CommandSender who prompted this RequestGenerator
      @param isAPIRequest whether this RequestGenerator is coming through the API or the onCommand
      */
-    public StatRequest(@NotNull CommandSender sender, boolean isAPIRequest) {
+    public StatRequestCore(@NotNull CommandSender sender, boolean isAPIRequest) {
         this.sender = sender;
         this.isAPIRequest = isAPIRequest;
         target = Target.TOP;
