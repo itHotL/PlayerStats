@@ -19,8 +19,8 @@ public final class ConfigHandler {
     private File configFile;
     private FileConfiguration config;
 
-    public ConfigHandler(Main p) {
-        plugin = p;
+    public ConfigHandler(Main plugin) {
+        ConfigHandler.plugin = plugin;
         configVersion = 6;
 
         saveDefaultConfig();

@@ -6,10 +6,12 @@ import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 /** Turns user input into a valid {@link StatRequest}. This StatRequest should hold all
  the information PlayerStats needs to work with, and is used by the {@link StatCalculator}
  to get the desired statistic data.*/
+@Internal
 public interface RequestGenerator {
 
     /** This will create a {@link StatRequest} from the provided args, with the requesting Player (or Console)

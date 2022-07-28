@@ -8,14 +8,14 @@ import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-/** This is the outgoing API that you can use to access the core functionality of PlayerStats.
+/** The outgoing API that you can use to access the core functionality of PlayerStats!
  To work with it, you need to call PlayerStats.{@link #getAPI()} to get an instance of
  {@link PlayerStatsAPI}. You can then use this object to access any of the further methods.
  <br>
  <br>Since calculating a top or server statistics can take some time, I strongly
  encourage you to call all the getServerStat() and getTopStats() methods from the
  {@link StatCalculator} asynchronously. Otherwise, the main Thread will have to wait
- until all calculations are done, and this might severely impact server performance.
+ until all calculations are done, and this can severely impact server performance.
 */
 public interface PlayerStats {
 

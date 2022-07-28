@@ -4,6 +4,7 @@ import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.ComponentUtils;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.*;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.LinkedHashMap;
 
@@ -22,6 +23,7 @@ import java.util.LinkedHashMap;
  {@link #statResultComponentToString(TextComponent)}. Don't use Adventure's method .content()
  on your statResult to do this - because of the way the TextComponent is built by PlayerStats,
  you won't be able to get the full content that way.*/
+@Internal
 public interface StatFormatter {
 
     /** Turns a TextComponent into its String representation. If you don't want to work with

@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.api;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.LinkedHashMap;
 
@@ -17,6 +18,7 @@ import java.util.LinkedHashMap;
  <br>
  <br>For more information on how to create a valid StatRequest,
  see the class description for {@link StatRequest}.*/
+@Internal
 public interface StatCalculator {
 
     /** Returns the requested Statistic*/
