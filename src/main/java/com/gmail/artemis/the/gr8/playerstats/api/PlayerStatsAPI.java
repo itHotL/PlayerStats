@@ -27,12 +27,23 @@ public final class PlayerStatsAPI implements PlayerStats {
         statFormatter = format;
     }
 
+    public PlayerRequest getPlayerStat(String playerName) {
+        return ;
+    }
+
     @Override
-    public StatResult<Integer> getPlayerStat(String playerName, Statistic statistic, Material material, EntityType entity) {
-       StatRequest request = getStatRequest(Target.PLAYER, statistic, material, entity, playerName);
-       int stat = statCalculator.getPlayerStat(request);
-       TextComponent prettyStat = statFormatter.formatPlayerStat(request, stat);
-       return new PlayerStatResult(stat, prettyStat);
+    public StatResult<Integer> getPlayerStat(String playerName, Statistic statistic) {
+        return getPlayerStat(playerName, statistic, null, null);
+    }
+
+    @Override
+    public StatResult<?> getPlayerStat(String playerName, Statistic statistic, Material material) {
+        return getPlayerStat(playerName, statistic, material, null);
+    }
+
+    @Override
+    public StatResult<?> getPlayerStat(String playerName, Statistic statistic, EntityType entityType) {
+        return getPlayerStat(playerName, statistic, null, entityType);
     }
 
     @Override
@@ -49,6 +60,13 @@ public final class PlayerStatsAPI implements PlayerStats {
         LinkedHashMap<String, Integer> stat = statCalculator.getTopStats(request);
         TextComponent prettyStat = statFormatter.formatTopStat(request, stat);
         return new TopStatResult(stat, prettyStat);
+    }
+
+    private PlayerStatResult getPlayerStat(String playerName, Statistic statistic, Material material, EntityType entityType) {
+        StatRequest request = getStatRequest(Target.PLAYER, statistic, material, entityType, playerName);
+        int stat = statCalculator.getPlayerStat(request);
+        TextComponent prettyStat = statFormatter.formatPlayerStat(request, stat);
+        return new PlayerStatResult(stat, prettyStat);
     }
 
     private StatRequest getStatRequest(Target target, Statistic statistic, Material material, EntityType entity, String playerName) throws NullPointerException {

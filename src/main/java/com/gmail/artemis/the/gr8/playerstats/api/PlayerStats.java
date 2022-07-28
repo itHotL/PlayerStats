@@ -26,7 +26,7 @@ public interface PlayerStats {
         return Main.getPlayerStatsAPI();
     }
 
-    StatResult<?> getPlayerStat(String playerName, Statistic statistic, Material material, EntityType entity);
+    PlayerRequest getPlayerStat(String playerName);
 
     StatResult<?> getServerStat(Statistic statistic, Material material, EntityType entity);
 
