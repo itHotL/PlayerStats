@@ -1,7 +1,10 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
-import com.gmail.artemis.the.gr8.playerstats.enums.Target;
+import com.gmail.artemis.the.gr8.playerstats.models.StatResult;
+import org.bukkit.Material;
+import org.bukkit.Statistic;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,15 +26,9 @@ public interface PlayerStats {
         return Main.getPlayerStatsAPI();
     }
 
-    /** The {@link StatCalculator} is responsible for getting, calculating and/or ordering raw numbers.
-     It gets its data from the vanilla statistic files (stored by the server). It can return three kinds of data,
-     depending on the chosen {@link Target}:
-     <br>- int (for {@link Target#PLAYER})
-     <br>- long (for {@link Target#SERVER})
-     <br>- LinkedHashMap[String player-name, Integer number] (for {@link Target#TOP})*/
-    StatCalculator statCalculator();
+    StatResult<?> getPlayerStat(String playerName, Statistic statistic, Material material, EntityType entity);
 
-    RequestGenerator requestGenerator();
+    StatResult<?> getServerStat(Statistic statistic, Material material, EntityType entity);
 
-    StatFormatter statFormatter();
+    StatResult<?> getTopStats(Statistic statistic, Material material, EntityType entity);
 }

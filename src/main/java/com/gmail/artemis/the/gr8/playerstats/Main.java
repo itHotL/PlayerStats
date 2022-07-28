@@ -27,7 +27,6 @@ public final class Main extends JavaPlugin {
     private static OutputManager outputManager;
     private static RequestManager requestManager;
     private static ShareManager shareManager;
-    private static StatManager statManager;
     private static ThreadManager threadManager;
 
 
@@ -89,7 +88,7 @@ public final class Main extends JavaPlugin {
         adventure = BukkitAudiences.create(this);
 
         shareManager = new ShareManager(config);
-        statManager = new StatManager(offlinePlayerHandler, config.getTopListMaxSize());
+        StatManager statManager = new StatManager(offlinePlayerHandler, config.getTopListMaxSize());
         outputManager = new OutputManager(getAdventure(), config, shareManager);
         requestManager = new RequestManager(enumHandler, offlinePlayerHandler, outputManager);
         threadManager = new ThreadManager(config, statManager, outputManager);

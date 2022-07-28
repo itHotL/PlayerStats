@@ -22,7 +22,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
 
 /** The Thread that is in charge of reloading PlayerStats. */
-public class ReloadThread extends Thread {
+public final class ReloadThread extends Thread {
 
     private static ConfigHandler config;
     private static OutputManager outputManager;

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TabCompleter implements org.bukkit.command.TabCompleter {
+public final class TabCompleter implements org.bukkit.command.TabCompleter {
 
     private final EnumHandler enumHandler;
     private final OfflinePlayerHandler offlinePlayerHandler;

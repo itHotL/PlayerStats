@@ -30,28 +30,28 @@ public final class StatManager implements StatCalculator {
 
     /** Gets the statistic data for an individual player. If somehow the player
      cannot be found, this returns 0.*/
-    public int getPlayerStat(StatRequest request) {
-        OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(request.getPlayerName());
+    public int getPlayerStat(StatRequest statRequest) {
+        OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(statRequest.getPlayerName());
         if (player != null) {
-            return switch (request.getStatistic().getType()) {
-                case UNTYPED -> player.getStatistic(request.getStatistic());
-                case ENTITY -> player.getStatistic(request.getStatistic(), request.getEntity());
-                case BLOCK -> player.getStatistic(request.getStatistic(), request.getBlock());
-                case ITEM -> player.getStatistic(request.getStatistic(), request.getItem());
+            return switch (statRequest.getStatistic().getType()) {
+                case UNTYPED -> player.getStatistic(statRequest.getStatistic());
+                case ENTITY -> player.getStatistic(statRequest.getStatistic(), statRequest.getEntity());
+                case BLOCK -> player.getStatistic(statRequest.getStatistic(), statRequest.getBlock());
+                case ITEM -> player.getStatistic(statRequest.getStatistic(), statRequest.getItem());
             };
         }
         return 0;
     }
 
-    public LinkedHashMap<String, Integer> getTopStats(StatRequest request) {
-        return getAllStatsAsync(request).entrySet().stream()
+    public LinkedHashMap<String, Integer> getTopStats(StatRequest statRequest) {
+        return getAllStatsAsync(statRequest).entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(topListMaxSize)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
-    public long getServerStat(StatRequest request) {
-        List<Integer> numbers = getAllStatsAsync(request)
+    public long getServerStat(StatRequest statRequest) {
+        List<Integer> numbers = getAllStatsAsync(statRequest)
                 .values()
                 .parallelStream()
                 .toList();
@@ -60,16 +60,16 @@ public final class StatManager implements StatCalculator {
 
     /** Invokes a bunch of worker pool threads to divide and conquer (get the statistics for all players
      that are stored in the {@link OfflinePlayerHandler}) */
-    public @NotNull ConcurrentHashMap<String, Integer> getAllStatsAsync(StatRequest request) {
+    private @NotNull ConcurrentHashMap<String, Integer> getAllStatsAsync(StatRequest statRequest) {
         long time = System.currentTimeMillis();
 
         ForkJoinPool commonPool = ForkJoinPool.commonPool();
         ConcurrentHashMap<String, Integer> allStats;
 
         try {
-            allStats = commonPool.invoke(getStatTask(request));
+            allStats = commonPool.invoke(getStatTask(statRequest));
         } catch (ConcurrentModificationException e) {
-            MyLogger.logMsg("The request could not be executed due to a ConcurrentModificationException. " +
+            MyLogger.logMsg("The statRequest could not be executed due to a ConcurrentModificationException. " +
                     "This likely happened because Bukkit hasn't fully initialized all player-data yet. " +
                     "Try again and it should be fine!", true);
             throw new ConcurrentModificationException(e.toString());
@@ -82,12 +82,12 @@ public final class StatManager implements StatCalculator {
         return allStats;
     }
 
-    private StatAction getStatTask(StatRequest request) {
+    private StatAction getStatTask(StatRequest statRequest) {
         int size = offlinePlayerHandler.getOfflinePlayerCount() != 0 ? offlinePlayerHandler.getOfflinePlayerCount() : 16;
         ConcurrentHashMap<String, Integer> allStats = new ConcurrentHashMap<>(size);
         ImmutableList<String> playerNames = ImmutableList.copyOf(offlinePlayerHandler.getOfflinePlayerNames());
 
-        StatAction task = new StatAction(offlinePlayerHandler, playerNames, request, allStats);
+        StatAction task = new StatAction(offlinePlayerHandler, playerNames, statRequest, allStats);
         MyLogger.actionCreated(playerNames.size());
 
         return task;

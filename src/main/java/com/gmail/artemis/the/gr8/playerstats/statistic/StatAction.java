@@ -18,7 +18,7 @@ final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>>
 
     private final OfflinePlayerHandler offlinePlayerHandler;
     private final ImmutableList<String> playerNames;
-    private final StatRequest request;
+    private final StatRequest statRequest;
     private final ConcurrentHashMap<String, Integer> allStats;
 
     /**
@@ -34,7 +34,7 @@ final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>>
 
         this.offlinePlayerHandler = offlinePlayerHandler;
         this.playerNames = playerNames;
-        this.request = statRequest;
+        this.statRequest = statRequest;
         this.allStats = allStats;
 
         MyLogger.subActionCreated(Thread.currentThread().getName());
@@ -46,8 +46,8 @@ final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>>
             return getStatsDirectly();
         }
         else {
-            final StatAction subTask1 = new StatAction(offlinePlayerHandler, playerNames.subList(0, playerNames.size()/2), request, allStats);
-            final StatAction subTask2 = new StatAction(offlinePlayerHandler, playerNames.subList(playerNames.size()/2, playerNames.size()), request, allStats);
+            final StatAction subTask1 = new StatAction(offlinePlayerHandler, playerNames.subList(0, playerNames.size()/2), statRequest, allStats);
+            final StatAction subTask2 = new StatAction(offlinePlayerHandler, playerNames.subList(playerNames.size()/2, playerNames.size()), statRequest, allStats);
 
             //queue and compute all subtasks in the right order
             subTask1.fork();
@@ -65,11 +65,11 @@ final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>>
                 OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(playerName);
                 if (player != null) {
                     int statistic = 0;
-                    switch (request.getStatistic().getType()) {
-                        case UNTYPED -> statistic = player.getStatistic(request.getStatistic());
-                        case ENTITY -> statistic = player.getStatistic(request.getStatistic(), request.getEntity());
-                        case BLOCK -> statistic = player.getStatistic(request.getStatistic(), request.getBlock());
-                        case ITEM -> statistic = player.getStatistic(request.getStatistic(), request.getItem());
+                    switch (statRequest.getStatistic().getType()) {
+                        case UNTYPED -> statistic = player.getStatistic(statRequest.getStatistic());
+                        case ENTITY -> statistic = player.getStatistic(statRequest.getStatistic(), statRequest.getEntity());
+                        case BLOCK -> statistic = player.getStatistic(statRequest.getStatistic(), statRequest.getBlock());
+                        case ITEM -> statistic = player.getStatistic(statRequest.getStatistic(), statRequest.getItem());
                     }
                     if (statistic > 0) {
                         allStats.put(playerName, statistic);

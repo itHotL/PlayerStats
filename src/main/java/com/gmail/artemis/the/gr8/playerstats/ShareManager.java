@@ -2,7 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
-import com.gmail.artemis.the.gr8.playerstats.models.StatResult;
+import com.gmail.artemis.the.gr8.playerstats.models.InternalStatResult;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.command.CommandSender;
@@ -27,7 +27,7 @@ public final class ShareManager {
     private static int waitingTime;
 
     private static volatile AtomicInteger resultID;
-    private static ConcurrentHashMap<Integer, StatResult> statResultQueue;
+    private static ConcurrentHashMap<Integer, InternalStatResult> statResultQueue;
     private static ConcurrentHashMap<String, Instant> shareTimeStamp;
     private static ArrayBlockingQueue<Integer> sharedResults;
 
@@ -73,7 +73,7 @@ public final class ShareManager {
 
         int ID = getNextIDNumber();
         //UUID shareCode = UUID.randomUUID();
-        StatResult result = new StatResult(playerName, statResult, ID);
+        InternalStatResult result = new InternalStatResult(playerName, statResult, ID);
         int shareCode = result.hashCode();
         statResultQueue.put(shareCode, result);
         MyLogger.logMsg("Saving statResults with no. " + ID, DebugLevel.MEDIUM);
@@ -97,7 +97,7 @@ public final class ShareManager {
      puts the current time in the shareTimeStamp (ConcurrentHashMap),
      puts the shareCode (int hashCode) in the sharedResults (ArrayBlockingQueue),
      and returns the statResult. If no statResult was found, returns null.*/
-    public @Nullable StatResult getStatResult(String playerName, int shareCode) {
+    public @Nullable InternalStatResult getStatResult(String playerName, int shareCode) {
         if (statResultQueue.containsKey(shareCode)) {
             shareTimeStamp.put(playerName, Instant.now());
 
@@ -126,7 +126,7 @@ public final class ShareManager {
     /** If the given player already has more than x (in this case 25) StatResults saved,
       remove the oldest one.*/
     private void removeExcessResults(String playerName) {
-        List<StatResult> alreadySavedResults = statResultQueue.values()
+        List<InternalStatResult> alreadySavedResults = statResultQueue.values()
                 .parallelStream()
                 .filter(result -> result.executorName().equalsIgnoreCase(playerName))
                 .toList();
@@ -134,7 +134,7 @@ public final class ShareManager {
         if (alreadySavedResults.size() > 25) {
             int hashCode = alreadySavedResults
                     .parallelStream()
-                    .min(Comparator.comparing(StatResult::ID))
+                    .min(Comparator.comparing(InternalStatResult::ID))
                     .orElseThrow().hashCode();
             MyLogger.logMsg("Removing old stat no. " + statResultQueue.get(hashCode).ID() + " for player " + playerName, DebugLevel.MEDIUM);
             statResultQueue.remove(hashCode);

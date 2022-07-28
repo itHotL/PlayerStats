@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
+import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -15,18 +16,19 @@ public interface RequestGenerator {
      as CommandSender. This CommandSender will receive feedback messages if the StatRequest could not be created.
 
      @param args an Array of args such as a CommandSender would put in Minecraft chat:
-     <p>- a stat-name (example: "mine_block")</p>
-     <p>- if applicable, a sub-stat-name (example: diorite)(</p>
-     <p>- a target for this lookup: can be "top", "server", "player" (or "me" to indicate the current CommandSender)</p>
-     <p>- if "player" was chosen, include a player-name</p>
+     <p>- a <code>statName</code> (example: "mine_block")</p>
+     <p>- if applicable, a <code>subStatEntryName</code> (example: diorite)(</p>
+     <p>- a <code>target</code> for this lookup: can be "top", "server", "player" (or "me" to indicate the current CommandSender)</p>
+     <p>- if "player" was chosen, include a <code>playerName</code></p>
+
      @param sender the CommandSender that requested this specific statistic
      @return the generated StatRequest
-     @throws IllegalArgumentException if the args do not result in a valid statistic look-up*/
+     */
     StatRequest generateRequest(CommandSender sender, String[] args);
 
-    StatRequest createPlayerStatRequest(String playerName, Statistic statistic, Material material, EntityType entity);
+    StatRequest generateAPIRequest(Target target, Statistic statistic, Material material, EntityType entity, String playerName);
 
-    StatRequest createServerStatRequest(Statistic statistic, Material material, EntityType entityType);
+    boolean validateRequest(StatRequest request);
 
-    StatRequest createTopStatRequest(Statistic statistic, Material material, EntityType entityType);
+    boolean validateAPIRequest(StatRequest request);
 }

@@ -2,9 +2,9 @@ package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
+import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
-import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
@@ -61,19 +61,19 @@ public final class ThreadManager {
         }
     }
 
-    public void startStatThread(StatRequest request) {
+    public void startStatThread(StatRequest statRequest) {
         statThreadID += 1;
-        String cmdSender = request.getCommandSender().getName();
+        String cmdSender = statRequest.getCommandSender().getName();
 
         if (config.limitStatRequests() && statThreads.containsKey(cmdSender)) {
             Thread runningThread = statThreads.get(cmdSender);
             if (runningThread.isAlive()) {
-                outputManager.sendFeedbackMsg(request.getCommandSender(), StandardMessage.REQUEST_ALREADY_RUNNING);
+                outputManager.sendFeedbackMsg(statRequest.getCommandSender(), StandardMessage.REQUEST_ALREADY_RUNNING);
             } else {
-                startNewStatThread(request);
+                startNewStatThread(statRequest);
             }
         } else {
-            startNewStatThread(request);
+            startNewStatThread(statRequest);
         }
     }
 
@@ -89,9 +89,9 @@ public final class ThreadManager {
         return lastRecordedCalcTime;
     }
 
-    private void startNewStatThread(StatRequest request) {
-        lastActiveStatThread = new StatThread(outputManager, statManager, statThreadID, request, lastActiveReloadThread);
-        statThreads.put(request.getCommandSender().getName(), lastActiveStatThread);
+    private void startNewStatThread(StatRequest statRequest) {
+        lastActiveStatThread = new StatThread(outputManager, statManager, statThreadID, statRequest, lastActiveReloadThread);
+        statThreads.put(statRequest.getCommandSender().getName(), lastActiveStatThread);
         lastActiveStatThread.start();
     }
 }

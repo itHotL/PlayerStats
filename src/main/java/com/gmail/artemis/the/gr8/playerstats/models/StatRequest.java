@@ -1,7 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.models;
 
-import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.api.RequestGenerator;
+import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
  <li> a {@link Target} <code>target</code> (automatically set for all API-requests)
  <li> if the <code>target</code> is Target.Player, a <code>playerName</code> needs to be added
  </ul>*/
-public class StatRequest {
+public final class StatRequest {
 
     private final CommandSender sender;
     private boolean isAPIRequest;
@@ -84,28 +84,18 @@ public class StatRequest {
         return sender instanceof ConsoleCommandSender;
     }
 
-    /** Set a {@link Statistic} for this StatRequest.*/
     public void setStatistic(Statistic statistic) {
         this.statistic = statistic;
     }
 
-    /** If a {@link Statistic} was set, this will return it.
-
-     @return the <code>statistic</code> for this RequestGenerator*/
     public Statistic getStatistic() {
         return statistic;
     }
 
-    /** Sets the <code>subStatEntryName</code> (a block-, item- or entity-name). */
     public void setSubStatEntryName(String subStatEntry) {
         this.subStatEntryName = subStatEntry;
     }
 
-    /** If a {@link Statistic} is set, and this Statistic is of Type Block, Item or Entity,
-     this will return the name of said block, item or entity
-     (in the way .toString would for the given enum constant).
-
-     @return the <code>subStatEntryName</code>*/
     public @Nullable String getSubStatEntryName() {
         return subStatEntryName;
     }
@@ -118,15 +108,10 @@ public class StatRequest {
         return playerName;
     }
 
-    /** False by default, set to true if args[] contains "player". */
     public void setPlayerFlag(boolean playerFlag) {
         this.playerFlag = playerFlag;
     }
 
-    /** For internal use. The "player" arg is a special case, because it could either be
-     a valid <code>subStatEntry</code>, or indicate that the lookup action should target
-     a specific player. This is why the <code>playerFlag</code> exists - if this flag true,
-     and <code>executorName</code> is null, the <code>subStatEntry</code> should be set to "player". */
     public boolean getPlayerFlag() {
         return playerFlag;
     }
@@ -135,10 +120,6 @@ public class StatRequest {
         this.target = target;
     }
 
-    /** Returns the {@link Target} for this StatRequest.
-     If no Target is explicitly set, this will return {@link Target#TOP}.
-     All static factory methods that create a {@link StatRequest} set the
-     appropriate Target for themselves, so there is no need to manually set the Target.*/
     public @NotNull Target getTarget() {
         return target;
     }

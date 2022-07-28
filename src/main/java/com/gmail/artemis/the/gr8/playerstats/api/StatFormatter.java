@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
 import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.ComponentUtils;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.*;
 
@@ -28,20 +29,23 @@ public interface StatFormatter {
      @return a String representation of this TextComponent, without hover/click events,
      but with color, style and formatting. TranslatableComponents will be turned into
      plain English.*/
-    String statResultComponentToString(TextComponent statResult);
+    static String statResultComponentToString(TextComponent statResult) {
+        return ComponentUtils.getTranslatableComponentSerializer()
+                .serialize(statResult);
+    }
 
     /** @return a TextComponent with the following parts:
     <br>[player-name]: [number] [stat-name] {sub-stat-name}*/
-    TextComponent formatPlayerStat(StatRequest request, int playerStat);
+    TextComponent formatPlayerStat(StatRequest statRequest, int playerStat);
 
     /** @return a TextComponent with the following parts:
     <br>[Total on] [server-name]: [number] [stat-name] [sub-stat-name]*/
-    TextComponent formatServerStat(StatRequest request, long serverStat);
+    TextComponent formatServerStat(StatRequest statRequest, long serverStat);
 
     /** @return a TextComponent with the following parts:
     <br>[PlayerStats] [Top 10] [stat-name] [sub-stat-name]
     <br> [1.] [player-name] [number]
     <br> [2.] [player-name] [number]
     <br> [3.] etc...*/
-    TextComponent formatTopStat(StatRequest request, LinkedHashMap<String, Integer> topStats);
+    TextComponent formatTopStat(StatRequest statRequest, LinkedHashMap<String, Integer> topStats);
 }

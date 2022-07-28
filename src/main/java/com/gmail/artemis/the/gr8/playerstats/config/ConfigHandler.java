@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 
-public class ConfigHandler {
+public final class ConfigHandler {
 
     private static Main plugin;
     private static int configVersion;
