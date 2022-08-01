@@ -23,6 +23,7 @@ public final class Main extends JavaPlugin {
 
     private static BukkitAudiences adventure;
 
+    private static ConfigHandler config;
     private static OfflinePlayerHandler offlinePlayerHandler;
     private static EnumHandler enumHandler;
 
@@ -75,6 +76,13 @@ public final class Main extends JavaPlugin {
         return adventure;
     }
 
+    public static @NotNull ConfigHandler getConfigHandler() throws IllegalStateException {
+        if (config == null) {
+            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
+        }
+        return config;
+    }
+
     public static @NotNull EnumHandler getEnumHandler() {
         if (enumHandler == null) {
             enumHandler = new EnumHandler();
@@ -99,13 +107,13 @@ public final class Main extends JavaPlugin {
     private void initializeMainClasses() {
         adventure = BukkitAudiences.create(this);
 
-        offlinePlayerHandler = new OfflinePlayerHandler();
+        config = new ConfigHandler(this);
         enumHandler = new EnumHandler();
-        ConfigHandler config = new ConfigHandler(this);
+        offlinePlayerHandler = new OfflinePlayerHandler();
 
         shareManager = new ShareManager(config);
         outputManager = new OutputManager(getAdventure(), config, shareManager);
-        StatManager statManager = new StatManager(offlinePlayerHandler, config.getTopListMaxSize());
+        StatManager statManager = new StatManager(offlinePlayerHandler);
         threadManager = new ThreadManager(config, statManager, outputManager);
 
         playerStatsAPI = new PlayerStatsAPI(statManager, outputManager);

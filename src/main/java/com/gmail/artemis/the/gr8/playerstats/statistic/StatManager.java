@@ -17,19 +17,14 @@ import java.util.stream.Collectors;
 public final class StatManager implements StatCalculator {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
-    private static int topListMaxSize;
 
-    public StatManager(OfflinePlayerHandler offlinePlayerHandler, int topListMaxSize) {
+    public StatManager(OfflinePlayerHandler offlinePlayerHandler) {
         this.offlinePlayerHandler = offlinePlayerHandler;
-        StatManager.topListMaxSize = topListMaxSize;
-    }
-
-    public static void updateSettings(int topListMaxSize) {
-        StatManager.topListMaxSize = topListMaxSize;
     }
 
     /** Gets the statistic data for an individual player. If somehow the player
      cannot be found, this returns 0.*/
+    @Override
     public int getPlayerStat(StatRequest statRequest) {
         OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(statRequest.getPlayerName());
         if (player != null) {
@@ -43,13 +38,15 @@ public final class StatManager implements StatCalculator {
         return 0;
     }
 
+    @Override
     public LinkedHashMap<String, Integer> getTopStats(StatRequest statRequest) {
         return getAllStatsAsync(statRequest).entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .limit(topListMaxSize)
+                .limit(statRequest.getTopListSize())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
+    @Override
     public long getServerStat(StatRequest statRequest) {
         List<Integer> numbers = getAllStatsAsync(statRequest)
                 .values()

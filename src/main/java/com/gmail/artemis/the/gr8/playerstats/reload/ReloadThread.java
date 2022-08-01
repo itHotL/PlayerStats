@@ -84,7 +84,6 @@ public final class ReloadThread extends Thread {
         OutputManager.updateMessageWriters(config);
         OfflinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
         ShareManager.updateSettings(config);
-        StatManager.updateSettings(config.getTopListMaxSize());
     }
 
     private ConcurrentHashMap<String, UUID> loadOfflinePlayers() {

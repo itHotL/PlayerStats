@@ -12,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public record StatRequestHandler(StatRequest statRequest) implements RequestGenerator {
 
@@ -31,7 +32,7 @@ public record StatRequestHandler(StatRequest statRequest) implements RequestGene
     public static StatRequestHandler topRequestHandler(int topListSize) {
         StatRequest request = new StatRequest(Bukkit.getConsoleSender(), true);
         request.setTarget(Target.TOP);
-        request.setTopListSize(topListSize != 0 ? topListSize : 10);
+        request.setTopListSize(topListSize != 0 ? topListSize : Main.getConfigHandler().getTopListMaxSize());
         return new StatRequestHandler(request);
     }
 
@@ -44,27 +45,38 @@ public record StatRequestHandler(StatRequest statRequest) implements RequestGene
     }
 
     @Override
-    public StatRequest untyped(Statistic statistic) {
-        statRequest.setStatistic(statistic);
-        return statRequest;
+    public StatRequest untyped(@NotNull Statistic statistic) throws IllegalArgumentException {
+        if (statistic.getType() == Statistic.Type.UNTYPED) {
+            statRequest.setStatistic(statistic);
+            return statRequest;
+        }
+        throw new IllegalArgumentException("This statistic is not of Type.Untyped");
     }
 
     @Override
-    public StatRequest blockOrItemType(Statistic statistic, Material material) {
-        statRequest.setSubStatEntryName(material.toString());
-        if (statistic.getType() == Statistic.Type.BLOCK) {
+    public StatRequest blockOrItemType(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
+        Statistic.Type type = statistic.getType();
+        if (type == Statistic.Type.BLOCK && material.isBlock()) {
             statRequest.setBlock(material);
-        } else {
+        }
+        else if (type == Statistic.Type.ITEM && material.isItem()){
             statRequest.setItem(material);
         }
+        else {
+            throw new IllegalArgumentException("Either this statistic is not of Type.Block or Type.Item, or no valid block or item has been provided");
+        }
+        statRequest.setSubStatEntryName(material.toString());
         return statRequest;
     }
 
     @Override
-    public StatRequest entityType(Statistic statistic, EntityType entityType) {
-        statRequest.setSubStatEntryName(entityType.toString());
-        statRequest.setEntity(entityType);
-        return statRequest;
+    public StatRequest entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
+        if (statistic.getType() == Statistic.Type.ENTITY) {
+            statRequest.setSubStatEntryName(entityType.toString());
+            statRequest.setEntity(entityType);
+            return statRequest;
+        }
+        throw new IllegalArgumentException("This statistic is not of Type.Entity");
     }
 
     /**
