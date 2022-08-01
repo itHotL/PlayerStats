@@ -1,9 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.PlayerStatFetcher;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.ServerStatFetcher;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.TopStatFetcher;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.PlayerStatRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,9 +23,9 @@ public interface PlayerStats {
         return Main.getPlayerStatsAPI();
     }
 
-    PlayerStatFetcher playerStat(String playerName);
+    PlayerStatRequest playerStat(String playerName);
 
-    ServerStatFetcher serverStat();
+    RequestGenerator serverStat();
 
-    TopStatFetcher topStat(int topListSize);
+    RequestGenerator topStat(int topListSize);
 }

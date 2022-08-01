@@ -1,40 +1,40 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
 
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.InternalStatFetcher;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.PlayerStatFetcher;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.ServerStatFetcher;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.TopStatFetcher;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.PlayerStatRequest;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.RequestManager;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 
 import static org.jetbrains.annotations.ApiStatus.Internal;
 
 /** The implementation of the API Interface */
 public final class PlayerStatsAPI implements PlayerStats {
 
-    private static InternalStatFetcher requestGenerator;
     private static StatCalculator statCalculator;
     private static StatFormatter statFormatter;
 
     @Internal
-    public PlayerStatsAPI(InternalStatFetcher request, StatManager stat, StatFormatter format) {
-        PlayerStatsAPI.requestGenerator = request;
+    public PlayerStatsAPI(StatManager stat, StatFormatter format) {
         statCalculator = stat;
         statFormatter = format;
     }
 
     @Override
-    public PlayerStatFetcher playerStat(String playerName) {
-        return new PlayerStatFetcher(playerName);
+    public PlayerStatRequest playerStat(String playerName) {
+        StatRequest request = RequestManager.generateBasicPlayerRequest(playerName);
+        return new PlayerStatRequest(request);
     }
 
     @Override
-    public ServerStatFetcher serverStat() {
-        return new ServerStatFetcher();
+    public RequestGenerator serverStat() {
+        StatRequest request = RequestManager.generateBasicServerRequest();
+        return new RequestManager(request);
     }
 
     @Override
-    public TopStatFetcher topStat(int topListSize) {
-        return new TopStatFetcher(topListSize);
+    public RequestGenerator topStat(int topListSize) {
+        StatRequest request = RequestManager.generateBasicTopRequest(topListSize);
+        return new RequestManager(request);
     }
 }

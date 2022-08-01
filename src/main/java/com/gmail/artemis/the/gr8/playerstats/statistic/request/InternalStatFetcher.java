@@ -24,7 +24,7 @@ public final class InternalStatFetcher {
         InternalStatFetcher.outputManager = outputManager;
     }
 
-    /** This will create a {@link StatRequestCore} from the provided args, with the requesting Player (or Console)
+    /** This will create a {@link StatRequest} from the provided args, with the requesting Player (or Console)
      as CommandSender. This CommandSender will receive feedback messages if the StatRequest could not be created.
 
      @param args an Array of args such as a CommandSender would put in Minecraft chat:
@@ -36,51 +36,51 @@ public final class InternalStatFetcher {
      @param sender the CommandSender that requested this specific statistic
      @return the generated StatRequest
      */
-    public StatRequestCore generateRequest(CommandSender sender, String[] args) {
-        StatRequestCore statRequestCore = new StatRequestCore(sender);
+    public StatRequest generateRequest(CommandSender sender, String[] args) {
+        StatRequest statRequest = new StatRequest(sender);
         for (String arg : args) {
             //check for statName
-            if (enumHandler.isStatistic(arg) && statRequestCore.getStatistic() == null) {
-                statRequestCore.setStatistic(EnumHandler.getStatEnum(arg));
+            if (enumHandler.isStatistic(arg) && statRequest.getStatistic() == null) {
+                statRequest.setStatistic(EnumHandler.getStatEnum(arg));
             }
             //check for subStatEntry and playerFlag
             else if (enumHandler.isSubStatEntry(arg)) {
-                if (arg.equalsIgnoreCase("player") && !statRequestCore.getPlayerFlag()) {
-                    statRequestCore.setPlayerFlag(true);
+                if (arg.equalsIgnoreCase("player") && !statRequest.getPlayerFlag()) {
+                    statRequest.setPlayerFlag(true);
                 }
                 else {
-                    if (statRequestCore.getSubStatEntryName() == null) statRequestCore.setSubStatEntryName(arg);
+                    if (statRequest.getSubStatEntryName() == null) statRequest.setSubStatEntryName(arg);
                 }
             }
             //check for selection
             else if (arg.equalsIgnoreCase("top")) {
-                statRequestCore.setTarget(Target.TOP);
+                statRequest.setTarget(Target.TOP);
             }
             else if (arg.equalsIgnoreCase("server")) {
-                statRequestCore.setTarget(Target.SERVER);
+                statRequest.setTarget(Target.SERVER);
             }
             else if (arg.equalsIgnoreCase("me")) {
                 if (sender instanceof Player) {
-                    statRequestCore.setPlayerName(sender.getName());
-                    statRequestCore.setTarget(Target.PLAYER);
+                    statRequest.setPlayerName(sender.getName());
+                    statRequest.setTarget(Target.PLAYER);
                 }
                 else if (sender instanceof ConsoleCommandSender) {
-                    statRequestCore.setTarget(Target.SERVER);
+                    statRequest.setTarget(Target.SERVER);
                 }
             }
-            else if (offlinePlayerHandler.isRelevantPlayer(arg) && statRequestCore.getPlayerName() == null) {
-                statRequestCore.setPlayerName(arg);
-                statRequestCore.setTarget(Target.PLAYER);
+            else if (offlinePlayerHandler.isRelevantPlayer(arg) && statRequest.getPlayerName() == null) {
+                statRequest.setPlayerName(arg);
+                statRequest.setTarget(Target.PLAYER);
             }
             else if (arg.equalsIgnoreCase("api")) {
-                statRequestCore.setAPIRequest();
+                statRequest.setAPIRequest();
             }
         }
-        patchRequest(statRequestCore);
-        return statRequestCore;
+        patchRequest(statRequest);
+        return statRequest;
     }
 
-    /** Checks if a given {@link StatRequestCore} would result in a valid statistic look-up,
+    /** Checks if a given {@link StatRequest} would result in a valid statistic look-up,
      and sends a feedback message to the CommandSender that prompted the statRequest if it is invalid.
      <br> The following is checked:
      <ul>
@@ -88,14 +88,14 @@ public final class InternalStatFetcher {
      <li>Is a <code>subStatEntry</code> needed, and if so, is a corresponding Material/EntityType present?
      <li>If the <code>target</code> is Player, is a valid <code>playerName</code> provided?
      </ul>
-     @param statRequestCore the StatRequest to check
+     @param statRequest the StatRequest to check
      @return true if the StatRequest is valid, and false otherwise.
      */
-    public boolean validateRequest(StatRequestCore statRequestCore) {
-        return validateRequestAndSendMessage(statRequestCore, statRequestCore.getCommandSender());
+    public boolean validateRequest(StatRequest statRequest) {
+        return validateRequestAndSendMessage(statRequest, statRequest.getCommandSender());
     }
 
-    /** Checks if a given {@link StatRequestCore} would result in a valid statistic look-up,
+    /** Checks if a given {@link StatRequest} would result in a valid statistic look-up,
      and sends a feedback message if it is invalid.
      <br> The following is checked:
      <ul>
@@ -103,24 +103,24 @@ public final class InternalStatFetcher {
      <li>Is a <code>subStatEntry</code> needed, and if so, is a corresponding Material/EntityType present?
      <li>If the <code>target</code> is Player, is a valid <code>playerName</code> provided?
      </ul>
-     @param statRequestCore the StatRequest to check
+     @param statRequest the StatRequest to check
      @return true if the StatRequest is valid, and false otherwise.
      */
-    private boolean validateRequestAndSendMessage(StatRequestCore statRequestCore, CommandSender sender) {
-        if (statRequestCore.getStatistic() == null) {
+    private boolean validateRequestAndSendMessage(StatRequest statRequest, CommandSender sender) {
+        if (statRequest.getStatistic() == null) {
             outputManager.sendFeedbackMsg(sender, StandardMessage.MISSING_STAT_NAME);
             return false;
         }
-        Statistic.Type type = statRequestCore.getStatistic().getType();
-        if (statRequestCore.getSubStatEntryName() == null && type != Statistic.Type.UNTYPED) {
+        Statistic.Type type = statRequest.getStatistic().getType();
+        if (statRequest.getSubStatEntryName() == null && type != Statistic.Type.UNTYPED) {
             outputManager.sendFeedbackMsgMissingSubStat(sender, type);
             return false;
         }
-        else if (!hasMatchingSubStat(statRequestCore)) {
-            outputManager.sendFeedbackMsgWrongSubStat(sender, type, statRequestCore.getSubStatEntryName());
+        else if (!hasMatchingSubStat(statRequest)) {
+            outputManager.sendFeedbackMsgWrongSubStat(sender, type, statRequest.getSubStatEntryName());
             return false;
         }
-        else if (statRequestCore.getTarget() == Target.PLAYER && statRequestCore.getPlayerName() == null) {
+        else if (statRequest.getTarget() == Target.PLAYER && statRequest.getPlayerName() == null) {
             outputManager.sendFeedbackMsg(sender, StandardMessage.MISSING_PLAYER_NAME);
             return false;
         }
@@ -132,51 +132,51 @@ public final class InternalStatFetcher {
     /** Adjust the StatRequest object if needed: unpack the playerFlag into a subStatEntry,
      try to retrieve the corresponding Enum Constant for any relevant block/entity/item,
      and remove any unnecessary subStatEntries.*/
-    private void patchRequest(StatRequestCore statRequestCore) {
-        if (statRequestCore.getStatistic() != null) {
-            Statistic.Type type = statRequestCore.getStatistic().getType();
+    private void patchRequest(StatRequest statRequest) {
+        if (statRequest.getStatistic() != null) {
+            Statistic.Type type = statRequest.getStatistic().getType();
 
-            if (statRequestCore.getPlayerFlag()) {  //unpack the playerFlag
-                if (type == Statistic.Type.ENTITY && statRequestCore.getSubStatEntryName() == null) {
-                    statRequestCore.setSubStatEntryName("player");
+            if (statRequest.getPlayerFlag()) {  //unpack the playerFlag
+                if (type == Statistic.Type.ENTITY && statRequest.getSubStatEntryName() == null) {
+                    statRequest.setSubStatEntryName("player");
                 }
                 else {
-                    statRequestCore.setTarget(Target.PLAYER);
+                    statRequest.setTarget(Target.PLAYER);
                 }
             }
 
-            String subStatEntry = statRequestCore.getSubStatEntryName();
+            String subStatEntry = statRequest.getSubStatEntryName();
             switch (type) {  //attempt to convert relevant subStatEntries into their corresponding Enum Constant
                 case BLOCK -> {
                     Material block = EnumHandler.getBlockEnum(subStatEntry);
-                    if (block != null) statRequestCore.setBlock(block);
+                    if (block != null) statRequest.setBlock(block);
                 }
                 case ENTITY -> {
                     EntityType entity = EnumHandler.getEntityEnum(subStatEntry);
-                    if (entity != null) statRequestCore.setEntity(entity);
+                    if (entity != null) statRequest.setEntity(entity);
                 }
                 case ITEM -> {
                     Material item = EnumHandler.getItemEnum(subStatEntry);
-                    if (item != null) statRequestCore.setItem(item);
+                    if (item != null) statRequest.setItem(item);
                 }
                 case UNTYPED -> {  //remove unnecessary subStatEntries
-                    if (subStatEntry != null) statRequestCore.setSubStatEntryName(null);
+                    if (subStatEntry != null) statRequest.setSubStatEntryName(null);
                 }
             }
         }
     }
 
-    private boolean hasMatchingSubStat(StatRequestCore statRequestCore) {
-        Statistic.Type type = statRequestCore.getStatistic().getType();
+    private boolean hasMatchingSubStat(StatRequest statRequest) {
+        Statistic.Type type = statRequest.getStatistic().getType();
         switch (type) {
             case BLOCK -> {
-                return statRequestCore.getBlock() != null;
+                return statRequest.getBlock() != null;
             }
             case ENTITY -> {
-                return statRequestCore.getEntity() != null;
+                return statRequest.getEntity() != null;
             }
             case ITEM -> {
-                return statRequestCore.getItem() != null;
+                return statRequest.getItem() != null;
             }
             default -> {
                 return true;

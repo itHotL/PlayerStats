@@ -11,6 +11,7 @@ import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.InternalStatFetcher;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.RequestManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -87,12 +88,12 @@ public final class Main extends JavaPlugin {
     private void initializeMainClasses(ConfigHandler config, EnumHandler enumHandler, OfflinePlayerHandler offlinePlayerHandler) {
         adventure = BukkitAudiences.create(this);
 
-        shareManager = new ShareManager(config);
         StatManager statManager = new StatManager(offlinePlayerHandler, config.getTopListMaxSize());
+
+        shareManager = new ShareManager(config);
         outputManager = new OutputManager(getAdventure(), config, shareManager);
-        internalStatFetcher = new InternalStatFetcher(enumHandler, offlinePlayerHandler, outputManager);
         threadManager = new ThreadManager(config, statManager, outputManager);
 
-        playerStatsAPI = new PlayerStatsAPI(internalStatFetcher, statManager, outputManager);
+        playerStatsAPI = new PlayerStatsAPI(statManager, outputManager);
     }
 }

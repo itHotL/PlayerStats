@@ -1,7 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.commands;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequestCore;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.InternalStatFetcher;
 import org.bukkit.command.Command;
@@ -32,9 +32,9 @@ public final class StatCommand implements CommandExecutor {
             outputManager.sendExamples(sender);
         }
         else {
-            StatRequestCore statRequestCore = internalStatFetcher.generateRequest(sender, args);
-            if (internalStatFetcher.validateRequest(statRequestCore)) {
-                threadManager.startStatThread(statRequestCore);
+            StatRequest statRequest = internalStatFetcher.generateRequest(sender, args);
+            if (internalStatFetcher.validateRequest(statRequest)) {
+                threadManager.startStatThread(statRequest);
             } else {
                 return false;
             }

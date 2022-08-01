@@ -3,7 +3,7 @@ package com.gmail.artemis.the.gr8.playerstats.statistic;
 import com.gmail.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequestCore;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
@@ -20,16 +20,16 @@ public final class StatThread extends Thread {
     private static StatManager statManager;
 
     private final ReloadThread reloadThread;
-    private final StatRequestCore statRequestCore;
+    private final StatRequest statRequest;
 
-    public StatThread(OutputManager m, StatManager t, int ID, StatRequestCore s, @Nullable ReloadThread r) {
+    public StatThread(OutputManager m, StatManager t, int ID, StatRequest s, @Nullable ReloadThread r) {
         outputManager = m;
         statManager = t;
 
         reloadThread = r;
-        statRequestCore = s;
+        statRequest = s;
 
-        this.setName("StatThread-" + statRequestCore.getCommandSender().getName() + "-" + ID);
+        this.setName("StatThread-" + statRequest.getCommandSender().getName() + "-" + ID);
         MyLogger.threadCreated(this.getName());
     }
 
@@ -37,13 +37,13 @@ public final class StatThread extends Thread {
     public void run() throws IllegalStateException, NullPointerException {
         MyLogger.threadStart(this.getName());
 
-        if (statRequestCore == null) {
+        if (statRequest == null) {
             throw new NullPointerException("No statistic statRequest was found!");
         }
         if (reloadThread != null && reloadThread.isAlive()) {
             try {
                 MyLogger.waitingForOtherThread(this.getName(), reloadThread.getName());
-                outputManager.sendFeedbackMsg(statRequestCore.getCommandSender(), StandardMessage.STILL_RELOADING);
+                outputManager.sendFeedbackMsg(statRequest.getCommandSender(), StandardMessage.STILL_RELOADING);
                 reloadThread.join();
 
             } catch (InterruptedException e) {
@@ -54,27 +54,27 @@ public final class StatThread extends Thread {
 
         long lastCalc = ThreadManager.getLastRecordedCalcTime();
         if (lastCalc > 2000) {
-            outputManager.sendFeedbackMsgWaitAMoment(statRequestCore.getCommandSender(), lastCalc > 20000);
+            outputManager.sendFeedbackMsgWaitAMoment(statRequest.getCommandSender(), lastCalc > 20000);
         }
 
-        Target selection = statRequestCore.getTarget();
+        Target selection = statRequest.getTarget();
         try {
             TextComponent statResult = switch (selection) {
-                case PLAYER -> outputManager.formatPlayerStat(statRequestCore, statManager.getPlayerStat(statRequestCore));
-                case TOP -> outputManager.formatTopStat(statRequestCore, statManager.getTopStats(statRequestCore));
-                case SERVER -> outputManager.formatServerStat(statRequestCore, statManager.getServerStat(statRequestCore));
+                case PLAYER -> outputManager.formatPlayerStat(statRequest, statManager.getPlayerStat(statRequest));
+                case TOP -> outputManager.formatTopStat(statRequest, statManager.getTopStats(statRequest));
+                case SERVER -> outputManager.formatServerStat(statRequest, statManager.getServerStat(statRequest));
             };
-            if (statRequestCore.isAPIRequest()) {
+            if (statRequest.isAPIRequest()) {
                 String msg = StatFormatter.statResultComponentToString(statResult);
-                statRequestCore.getCommandSender().sendMessage(msg);
+                statRequest.getCommandSender().sendMessage(msg);
             }
             else {
-                outputManager.sendToCommandSender(statRequestCore.getCommandSender(), statResult);
+                outputManager.sendToCommandSender(statRequest.getCommandSender(), statResult);
             }
         }
         catch (ConcurrentModificationException e) {
-            if (!statRequestCore.isConsoleSender()) {
-                outputManager.sendFeedbackMsg(statRequestCore.getCommandSender(), StandardMessage.UNKNOWN_ERROR);
+            if (!statRequest.isConsoleSender()) {
+                outputManager.sendFeedbackMsg(statRequest.getCommandSender(), StandardMessage.UNKNOWN_ERROR);
             }
         }
     }
