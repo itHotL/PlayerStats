@@ -2,9 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.api;
 
 
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.PlayerStatRequest;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.RequestManager;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.*;
 
 import static org.jetbrains.annotations.ApiStatus.Internal;
 
@@ -22,19 +20,27 @@ public final class PlayerStatsAPI implements PlayerStats {
 
     @Override
     public PlayerStatRequest playerStat(String playerName) {
-        StatRequest request = RequestManager.generateBasicPlayerRequest(playerName);
-        return new PlayerStatRequest(request);
+        StatRequestHandler statRequestHandler = StatRequestHandler.playerRequestHandler(playerName);
+        return new PlayerStatRequest(statRequestHandler);
     }
 
     @Override
-    public RequestGenerator serverStat() {
-        StatRequest request = RequestManager.generateBasicServerRequest();
-        return new RequestManager(request);
+    public ServerStatRequest serverStat() {
+        StatRequestHandler statRequestHandler = StatRequestHandler.serverRequestHandler();
+        return new ServerStatRequest(statRequestHandler);
     }
 
     @Override
-    public RequestGenerator topStat(int topListSize) {
-        StatRequest request = RequestManager.generateBasicTopRequest(topListSize);
-        return new RequestManager(request);
+    public TopStatRequest topStat(int topListSize) {
+        StatRequestHandler statRequestHandler = StatRequestHandler.topRequestHandler(topListSize);
+        return new TopStatRequest(statRequestHandler);
+    }
+
+    static StatCalculator statCalculator() {
+        return statCalculator;
+    }
+
+    static StatFormatter statFormatter() {
+        return statFormatter;
     }
 }

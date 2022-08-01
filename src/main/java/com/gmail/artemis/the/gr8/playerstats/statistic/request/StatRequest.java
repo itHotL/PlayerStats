@@ -155,4 +155,34 @@ public final class StatRequest {
     public Material getItem() {
         return item;
     }
+
+    public boolean isValid() {
+        if (statistic == null) {
+            return false;
+        } else if (target == Target.PLAYER && playerName == null) {
+            return false;
+        } else if (statistic.getType() != Statistic.Type.UNTYPED &&
+                subStatEntryName == null) {
+            return false;
+        } else {
+            return hasMatchingSubStat();
+        }
+    }
+
+    private boolean hasMatchingSubStat() {
+        switch (statistic.getType()) {
+            case BLOCK -> {
+                return block != null;
+            }
+            case ENTITY -> {
+                return entity != null;
+            }
+            case ITEM -> {
+                return item != null;
+            }
+            default -> {
+                return true;
+            }
+        }
+    }
 }

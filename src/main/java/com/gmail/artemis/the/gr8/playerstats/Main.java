@@ -9,14 +9,13 @@ import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.InternalStatFetcher;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.RequestManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.Statistic;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
@@ -24,11 +23,15 @@ import org.jetbrains.annotations.NotNull;
 public final class Main extends JavaPlugin {
 
     private static BukkitAudiences adventure;
-    private static PlayerStats playerStatsAPI;
+
+    private static OfflinePlayerHandler offlinePlayerHandler;
+    private static EnumHandler enumHandler;
+
     private static OutputManager outputManager;
-    private static InternalStatFetcher internalStatFetcher;
     private static ShareManager shareManager;
     private static ThreadManager threadManager;
+
+    private static PlayerStats playerStatsAPI;
 
 
     @Override
@@ -36,18 +39,13 @@ public final class Main extends JavaPlugin {
         //TODO fix (move these two into initializeMainClasses also, and remove all the Main.get... methods)
         new Metrics(this, 15923);
 
-        //first get an instance of all the classes that need to be passed along to different classes
-        ConfigHandler config = new ConfigHandler(this);
-        EnumHandler enumHandler = new EnumHandler();
-        OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler();
-
-        //initialize all the Managers and the API
-        initializeMainClasses(config, enumHandler, offlinePlayerHandler);
+        //initialize all the Managers, singletons, ConfigHandler and the API
+        initializeMainClasses();
 
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(outputManager, threadManager, internalStatFetcher));
+            statcmd.setExecutor(new StatCommand(outputManager, threadManager));
             statcmd.setTabCompleter(new TabCompleter(enumHandler, offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
@@ -78,6 +76,20 @@ public final class Main extends JavaPlugin {
         return adventure;
     }
 
+    public static @NotNull EnumHandler getEnumHandler() {
+        if (enumHandler == null) {
+            enumHandler = new EnumHandler();
+        }
+        return enumHandler;
+    }
+
+    public static @NotNull OfflinePlayerHandler getOfflinePlayerHandler() throws IllegalStateException {
+        if (offlinePlayerHandler == null) {
+            throw new IllegalStateException("PlayerStats does not seem to be fully loaded!");
+        }
+        return offlinePlayerHandler;
+    }
+
     public static @NotNull PlayerStats getPlayerStatsAPI() throws IllegalStateException {
         if (playerStatsAPI == null) {
             throw new IllegalStateException("PlayerStats does not seem to be loaded!");
@@ -85,13 +97,16 @@ public final class Main extends JavaPlugin {
         return playerStatsAPI;
     }
 
-    private void initializeMainClasses(ConfigHandler config, EnumHandler enumHandler, OfflinePlayerHandler offlinePlayerHandler) {
+    private void initializeMainClasses() {
         adventure = BukkitAudiences.create(this);
 
-        StatManager statManager = new StatManager(offlinePlayerHandler, config.getTopListMaxSize());
+        offlinePlayerHandler = new OfflinePlayerHandler();
+        enumHandler = new EnumHandler();
+        ConfigHandler config = new ConfigHandler(this);
 
         shareManager = new ShareManager(config);
         outputManager = new OutputManager(getAdventure(), config, shareManager);
+        StatManager statManager = new StatManager(offlinePlayerHandler, config.getTopListMaxSize());
         threadManager = new ThreadManager(config, statManager, outputManager);
 
         playerStatsAPI = new PlayerStatsAPI(statManager, outputManager);
