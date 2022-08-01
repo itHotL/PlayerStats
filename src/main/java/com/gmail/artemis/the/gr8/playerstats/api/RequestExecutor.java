@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.NotNull;
 
 public interface RequestExecutor<T> {
 
@@ -18,9 +19,13 @@ public interface RequestExecutor<T> {
     return PlayerStatsAPI.statFormatter();
   }
 
-  StatResult<T> untyped(Statistic statistic);
+  StatResult<T> untyped(@NotNull Statistic statistic);
 
-  StatResult<T> blockOrItemType(Statistic statistic, Material material);
+  /** @throws IllegalArgumentException if <code>statistic</code> is not of Type.Block
+  (with a block as <code>material</code>), or <code>statistic</code> is not of Type.Item
+  (with an item as <code>material</code>)
+   @return a {@link StatResult} */
+  StatResult<T> blockOrItemType(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException;
 
-  StatResult<T> entityType(Statistic statistic, EntityType entityType);
+  StatResult<T> entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException;
 }

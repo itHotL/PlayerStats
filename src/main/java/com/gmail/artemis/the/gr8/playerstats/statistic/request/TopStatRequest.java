@@ -7,6 +7,7 @@ import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
 
@@ -19,19 +20,19 @@ public final class TopStatRequest implements RequestExecutor<LinkedHashMap<Strin
     }
 
     @Override
-    public StatResult<LinkedHashMap<String, Integer>> untyped(Statistic statistic) {
+    public StatResult<LinkedHashMap<String, Integer>> untyped(@NotNull Statistic statistic) {
         StatRequest completedRequest = statRequestHandler.untyped(statistic);
         return getStatResult(completedRequest);
     }
 
     @Override
-    public StatResult<LinkedHashMap<String, Integer>> blockOrItemType(Statistic statistic, Material material) {
+    public StatResult<LinkedHashMap<String, Integer>> blockOrItemType(@NotNull Statistic statistic, @NotNull Material material) {
         StatRequest completedRequest = statRequestHandler.blockOrItemType(statistic, material);
         return getStatResult(completedRequest);
     }
 
     @Override
-    public StatResult<LinkedHashMap<String, Integer>> entityType(Statistic statistic, EntityType entityType) {
+    public StatResult<LinkedHashMap<String, Integer>> entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
         StatRequest completedRequest = statRequestHandler.entityType(statistic, entityType);
         return getStatResult(completedRequest);
     }

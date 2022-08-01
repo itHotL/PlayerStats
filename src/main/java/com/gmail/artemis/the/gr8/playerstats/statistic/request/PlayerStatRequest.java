@@ -7,6 +7,7 @@ import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.NotNull;
 
 public final class PlayerStatRequest implements RequestExecutor<Integer> {
 
@@ -17,19 +18,19 @@ public final class PlayerStatRequest implements RequestExecutor<Integer> {
     }
 
     @Override
-    public StatResult<Integer> untyped(Statistic statistic) {
+    public StatResult<Integer> untyped(@NotNull Statistic statistic) {
         StatRequest completedRequest = statRequestHandler.untyped(statistic);
         return getStatResult(completedRequest);
     }
 
     @Override
-    public StatResult<Integer> blockOrItemType(Statistic statistic, Material material) {
+    public StatResult<Integer> blockOrItemType(@NotNull Statistic statistic, @NotNull Material material) {
         StatRequest completedRequest = statRequestHandler.blockOrItemType(statistic, material);
         return getStatResult(completedRequest);
     }
 
     @Override
-    public StatResult<Integer> entityType(Statistic statistic, EntityType entityType) {
+    public StatResult<Integer> entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
         StatRequest completedRequest = statRequestHandler.entityType(statistic, entityType);
         return getStatResult(completedRequest);
     }
