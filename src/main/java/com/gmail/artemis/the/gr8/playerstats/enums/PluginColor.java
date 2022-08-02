@@ -40,6 +40,8 @@ public enum PluginColor {
     /** A Light Yellow that is used for final accents in the example message (#FFFF8E).*/
     LIGHT_YELLOW (TextColor.fromHexString("#FFFF8E")),
 
+    /** The color of vanilla Minecraft hearts (#FF1313). */
+    RED (TextColor.fromHexString("#FF1313")),
 
     /** ChatColor Blue (#5555FF)*/
     NAME_1 (NamedTextColor.BLUE), //#5555FF - blue

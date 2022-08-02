@@ -191,53 +191,53 @@ public final class ConfigHandler {
 
     /** Returns the unit that should be used for distance-related statistics.
      <br>Default: Blocks for plain text, km for hover-text</br>*/
-    public String getDistanceUnit(boolean isHoverText) {
-        return getUnitString(isHoverText, "blocks", "km", "distance-unit");
+    public String getDistanceUnit(boolean isUnitForHoverText) {
+        return getUnitString(isUnitForHoverText, "blocks", "km", "distance-unit");
     }
 
     /** Returns the unit that should be used for damage-based statistics.
      <br>Default: Hearts for plain text, HP for hover-text.</br>*/
-    public String getDamageUnit(boolean isHoverText) {
-        return getUnitString(isHoverText, "hearts", "hp", "damage-unit");
+    public String getDamageUnit(boolean isUnitForHoverText) {
+        return getUnitString(isUnitForHoverText, "hearts", "hp", "damage-unit");
     }
 
     /** Whether PlayerStats should automatically detect the most suitable unit to use for time-based statistics.
      <br>Default: true</br>*/
-    public boolean autoDetectTimeUnit(boolean isHoverText) {
+    public boolean autoDetectTimeUnit(boolean isUnitForHoverText) {
         String path = "auto-detect-biggest-time-unit";
-        if (isHoverText) {
+        if (isUnitForHoverText) {
             path = path + "-for-hover-text";
         }
-        boolean defaultValue = !isHoverText;
+        boolean defaultValue = !isUnitForHoverText;
         return config.getBoolean(path, defaultValue);
     }
 
     /** How many additional units should be displayed next to the most suitable largest unit for time-based statistics.
      <br>Default: 1 for plain text, 0 for hover-text</br>*/
-    public int getNumberOfExtraTimeUnits(boolean isHoverText) {
+    public int getNumberOfExtraTimeUnits(boolean isUnitForHoverText) {
         String path = "number-of-extra-units";
-        if (isHoverText) {
+        if (isUnitForHoverText) {
             path = path + "-for-hover-text";
         }
-        int defaultValue = isHoverText ? 0 : 1;
+        int defaultValue = isUnitForHoverText ? 0 : 1;
         return config.getInt(path, defaultValue);
     }
 
     /** Returns the unit that should be used for time-based statistics.
      (this will return the largest unit that should be used).
      <br>Default: days for plain text, hours for hover-text</br>*/
-    public String getTimeUnit(boolean isHoverText) {
-        return getTimeUnit(isHoverText, false);
+    public String getTimeUnit(boolean isUnitForHoverText) {
+        return getTimeUnit(isUnitForHoverText, false);
     }
 
     /** Returns the unit that should be used for time-based statistics. If the optional smallUnit flag is true,
      this will return the smallest unit (and otherwise the largest).
      <br>Default: hours for plain text, seconds for hover-text</br>*/
-    public String getTimeUnit(boolean isHoverText, boolean smallUnit) {
+    public String getTimeUnit(boolean isUnitForHoverText, boolean smallUnit) {
         if (smallUnit) {
-            return getUnitString(isHoverText, "hours", "seconds", "smallest-time-unit");
+            return getUnitString(isUnitForHoverText, "hours", "seconds", "smallest-time-unit");
         }
-        return getUnitString(isHoverText, "days", "hours", "biggest-time-unit");
+        return getUnitString(isUnitForHoverText, "days", "hours", "biggest-time-unit");
     }
 
     /** Returns an integer between 0 and 100 that represents how much lighter a hoverColor should be.

@@ -31,28 +31,30 @@ import static com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage.*;
 public final class OutputManager implements StatFormatter {
 
     private static BukkitAudiences adventure;
+    private static ConfigHandler config;
     private static ShareManager shareManager;
-    private static MessageBuilder writer;
-    private static MessageBuilder consoleWriter;
+    private static MessageBuilder messageBuilder;
+    private static MessageBuilder consoleMessageBuilder;
 
     private static EnumMap<StandardMessage, Function<MessageBuilder, TextComponent>> standardMessages;
 
     public OutputManager(BukkitAudiences adventure, ConfigHandler config, ShareManager shareManager) {
         OutputManager.adventure = adventure;
+        OutputManager.config = config;
         OutputManager.shareManager = shareManager;
 
-        getMessageWriters(config);
+        getMessageBuilders();
         prepareFunctions();
     }
 
-    public static void updateMessageWriters(ConfigHandler config) {
-        getMessageWriters(config);
+    public static void updateMessageBuilders() {
+        getMessageBuilders();
     }
 
     @Override
     public TextComponent formatPlayerStat(@NotNull StatRequest statRequest, int playerStat) {
         BiFunction<Integer, CommandSender, TextComponent> playerStatFunction =
-                getWriter(statRequest).formattedPlayerStatFunction(playerStat, statRequest);
+                getMessageBuilder(statRequest).formattedPlayerStatFunction(playerStat, statRequest);
 
         return processFunction(statRequest.getCommandSender(), playerStatFunction);
     }
@@ -60,7 +62,7 @@ public final class OutputManager implements StatFormatter {
     @Override
     public TextComponent formatServerStat(@NotNull StatRequest statRequest, long serverStat) {
         BiFunction<Integer, CommandSender, TextComponent> serverStatFunction =
-                getWriter(statRequest).formattedServerStatFunction(serverStat, statRequest);
+                getMessageBuilder(statRequest).formattedServerStatFunction(serverStat, statRequest);
 
         return processFunction(statRequest.getCommandSender(), serverStatFunction);
     }
@@ -68,7 +70,7 @@ public final class OutputManager implements StatFormatter {
     @Override
     public TextComponent formatTopStat(@NotNull StatRequest statRequest, @NotNull LinkedHashMap<String, Integer> topStats) {
         BiFunction<Integer, CommandSender, TextComponent> topStatFunction =
-                getWriter(statRequest).formattedTopStatFunction(topStats, statRequest);
+                getMessageBuilder(statRequest).formattedTopStatFunction(topStats, statRequest);
 
         return processFunction(statRequest.getCommandSender(), topStatFunction);
     }
@@ -76,17 +78,17 @@ public final class OutputManager implements StatFormatter {
     public void sendFeedbackMsg(@NotNull CommandSender sender, StandardMessage message) {
         if (message != null) {
             adventure.sender(sender).sendMessage(standardMessages.get(message)
-                    .apply(getWriter(sender)));
+                    .apply(getMessageBuilder(sender)));
         }
     }
 
     public void sendFeedbackMsgWaitAMoment(@NotNull CommandSender sender, boolean longWait) {
-        adventure.sender(sender).sendMessage(getWriter(sender)
+        adventure.sender(sender).sendMessage(getMessageBuilder(sender)
                 .waitAMoment(longWait));
     }
 
     public void sendFeedbackMsgMissingSubStat(@NotNull CommandSender sender, Statistic.Type statType) {
-        adventure.sender(sender).sendMessage(getWriter(sender)
+        adventure.sender(sender).sendMessage(getMessageBuilder(sender)
                 .missingSubStatName(statType));
     }
 
@@ -94,18 +96,18 @@ public final class OutputManager implements StatFormatter {
         if (subStatName == null) {
             sendFeedbackMsgMissingSubStat(sender, statType);
         } else {
-            adventure.sender(sender).sendMessage(getWriter(sender)
+            adventure.sender(sender).sendMessage(getMessageBuilder(sender)
                     .wrongSubStatType(statType, subStatName));
         }
     }
 
     public void sendExamples(@NotNull CommandSender sender) {
-        adventure.sender(sender).sendMessage(getWriter(sender)
+        adventure.sender(sender).sendMessage(getMessageBuilder(sender)
                 .usageExamples());
     }
 
     public void sendHelp(@NotNull CommandSender sender) {
-        adventure.sender(sender).sendMessage(getWriter(sender)
+        adventure.sender(sender).sendMessage(getMessageBuilder(sender)
                 .helpMsg(sender instanceof ConsoleCommandSender));
     }
 
@@ -132,33 +134,47 @@ public final class OutputManager implements StatFormatter {
         }
     }
 
-    private MessageBuilder getWriter(CommandSender sender) {
-        return sender instanceof ConsoleCommandSender ? consoleWriter : writer;
+    private MessageBuilder getMessageBuilder(CommandSender sender) {
+        return sender instanceof ConsoleCommandSender ? consoleMessageBuilder : messageBuilder;
     }
 
-    private MessageBuilder getWriter(StatRequest statRequest) {
+    private MessageBuilder getMessageBuilder(StatRequest statRequest) {
         if (statRequest.isAPIRequest() || !statRequest.isConsoleSender()) {
-            return writer;
+            return messageBuilder;
         } else {
-            return consoleWriter;
+            return consoleMessageBuilder;
         }
     }
 
-    private static void getMessageWriters(ConfigHandler config) {
-        boolean isBukkit = Bukkit.getName().equalsIgnoreCase("CraftBukkit");
-        if (config.useRainbowMode() ||
-                (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) {
-            writer = MessageBuilder.fromComponentFactory(config, new PrideComponentFactory(config));
-        }
-        else {
-            writer = MessageBuilder.defaultBuilder(config);
-        }
+    private static void getMessageBuilders() {
+        messageBuilder = getClientMessageBuilder();
+        consoleMessageBuilder = getConsoleMessageBuilder();
+    }
 
-        if (!isBukkit) {
-            consoleWriter = writer;
-        } else {
-            consoleWriter = MessageBuilder.fromComponentFactory(config, new BukkitConsoleComponentFactory(config));
+    private static MessageBuilder getClientMessageBuilder() {
+        if (useRainbowStyle()) {
+            return MessageBuilder.fromComponentFactory(config, new PrideComponentFactory(config));
         }
+        return MessageBuilder.defaultBuilder(config);
+    }
+
+    private static MessageBuilder getConsoleMessageBuilder() {
+        MessageBuilder consoleBuilder;
+        if (isBukkit()) {
+            consoleBuilder = MessageBuilder.fromComponentFactory(config, new BukkitConsoleComponentFactory(config));
+        } else {
+            consoleBuilder = getClientMessageBuilder();
+        }
+        consoleBuilder.toggleHoverUse(false);
+        return consoleBuilder;
+    }
+
+    private static boolean useRainbowStyle() {
+        return config.useRainbowMode() || (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE));
+    }
+
+    private static boolean isBukkit() {
+        return Bukkit.getName().equalsIgnoreCase("CraftBukkit");
     }
 
     private void prepareFunctions() {

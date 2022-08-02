@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.statistic.request;
 
 import com.gmail.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
@@ -42,30 +43,27 @@ public final class StatRequest {
 
     /** Create a new {@link StatRequest} with default values:
      <br>- CommandSender sender (provided)
-     <br>- Target <code>target</code> = {@link Target#TOP}
-     <br>- boolean <code>playerFlag</code> = false
-     <br>- boolean <code>isAPIRequest</code> = false
-
-     @param sender the CommandSender who prompted this RequestGenerator
-     */
-    public StatRequest(@NotNull CommandSender sender) {
-        this(sender, false);
-    }
-
-    /** Create a new {@link StatRequest} with default values:
-     <br>- CommandSender sender (provided)
      <br>- Target target = {@link Target#TOP}
+     <br>- int topListSize = 10
      <br>- boolean playerFlag = false
-     <br>- boolean isAPIRequest (provided)
+     <br>- boolean isAPIRequest
 
      @param sender the CommandSender who prompted this RequestGenerator
      @param isAPIRequest whether this RequestGenerator is coming through the API or the onCommand
      */
-    public StatRequest(@NotNull CommandSender sender, boolean isAPIRequest) {
+    private StatRequest(@NotNull CommandSender sender, boolean isAPIRequest) {
         this.sender = sender;
         this.isAPIRequest = isAPIRequest;
         target = Target.TOP;
         playerFlag = false;
+    }
+
+    public static StatRequest getBasicRequest(CommandSender sender) {
+        return new StatRequest(sender, false);
+    }
+
+    public static StatRequest getBasicAPIRequest() {
+        return new StatRequest(Bukkit.getConsoleSender(), true);
     }
 
     public void setAPIRequest() {

@@ -24,6 +24,7 @@ public class BukkitConsoleComponentFactory extends ComponentFactory {
         PREFIX = PluginColor.GOLD.getConsoleColor();
         BRACKETS = PluginColor.GRAY.getConsoleColor();
         UNDERSCORE = PluginColor.DARK_PURPLE.getConsoleColor();
+        HEARTS = PluginColor.RED.getConsoleColor();
 
         MSG_MAIN = PluginColor.MEDIUM_BLUE.getConsoleColor();
         MSG_ACCENT = PluginColor.BLUE.getConsoleColor();

@@ -5,7 +5,6 @@ import com.gmail.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
@@ -17,20 +16,20 @@ import org.jetbrains.annotations.NotNull;
 public record StatRequestHandler(StatRequest statRequest) implements RequestGenerator {
 
     public static StatRequestHandler playerRequestHandler(String playerName) {
-        StatRequest request = new StatRequest(Bukkit.getConsoleSender(), true);
+        StatRequest request = StatRequest.getBasicAPIRequest();
         request.setTarget(Target.PLAYER);
         request.setPlayerName(playerName);
         return new StatRequestHandler(request);
     }
 
     public static StatRequestHandler serverRequestHandler() {
-        StatRequest request = new StatRequest(Bukkit.getConsoleSender(), true);
+        StatRequest request = StatRequest.getBasicAPIRequest();
         request.setTarget(Target.SERVER);
         return new StatRequestHandler(request);
     }
 
     public static StatRequestHandler topRequestHandler(int topListSize) {
-        StatRequest request = new StatRequest(Bukkit.getConsoleSender(), true);
+        StatRequest request = StatRequest.getBasicAPIRequest();
         request.setTarget(Target.TOP);
         request.setTopListSize(topListSize != 0 ? topListSize : Main.getConfigHandler().getTopListMaxSize());
         return new StatRequestHandler(request);
@@ -40,7 +39,8 @@ public record StatRequestHandler(StatRequest statRequest) implements RequestGene
      @param sender the CommandSender that requested this specific statistic
      */
     public static StatRequestHandler internalRequestHandler(CommandSender sender) {
-        StatRequest request = new StatRequest(sender);
+        StatRequest request = StatRequest.getBasicRequest(sender);
+        request.setTopListSize(Main.getConfigHandler().getTopListMaxSize());
         return new StatRequestHandler(request);
     }
 

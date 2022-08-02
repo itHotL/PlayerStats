@@ -31,6 +31,7 @@ import static net.kyori.adventure.text.Component.*;
 public final class MessageBuilder {
 
     private static ConfigHandler config;
+    private boolean useHoverText;
 
     private final ComponentFactory componentFactory;
     private final LanguageKeyHandler languageKeyHandler;
@@ -42,6 +43,7 @@ public final class MessageBuilder {
 
     private MessageBuilder(ConfigHandler configHandler, ComponentFactory factory) {
         config = configHandler;
+        useHoverText = config.useHoverText();
         componentFactory = factory;
 
         formatter = new NumberFormatter();
@@ -55,6 +57,12 @@ public final class MessageBuilder {
 
     public static MessageBuilder fromComponentFactory(ConfigHandler config, ComponentFactory factory) {
         return new MessageBuilder(config, factory);
+    }
+
+    /** Set whether this {@link MessageBuilder} should use hoverText.
+     By default, this follows the setting specified in the {@link ConfigHandler}. */
+    public void toggleHoverUse(boolean desiredSetting) {
+        useHoverText = desiredSetting;
     }
 
     public TextComponent reloadedConfig() {
@@ -157,7 +165,7 @@ public final class MessageBuilder {
 
     public TextComponent helpMsg(boolean isConsoleSender) {
         int listSize = config.getTopListMaxSize();
-        if (!isConsoleSender && config.useHoverText()) {
+        if (!isConsoleSender && useHoverText) {
             return HelpMessage.constructHoverMsg(componentFactory, listSize);
         } else {
             return HelpMessage.constructPlainMsg(componentFactory, listSize);
@@ -174,7 +182,7 @@ public final class MessageBuilder {
                 .append(componentFactory.playerName(statRequest.getPlayerName(), Target.PLAYER)
                         .append(text(":"))
                         .append(space()))
-                .append(getStatNumberComponent(statRequest.getStatistic(), stat, Target.PLAYER, statRequest.isConsoleSender()))
+                .append(getStatNumberComponent(statRequest, stat))
                 .append(space())
                 .append(getStatNameComponent(statRequest))
                 .append(getStatUnitComponent(statRequest.getStatistic(), statRequest.getTarget(), statRequest.isConsoleSender()))  //space is provided by statUnitComponent
@@ -194,7 +202,7 @@ public final class MessageBuilder {
                 .append(space())
                 .append(componentFactory.serverName(config.getServerName()))
                 .append(space())
-                .append(getStatNumberComponent(statRequest.getStatistic(), stat, Target.SERVER, statRequest.isConsoleSender()))
+                .append(getStatNumberComponent(statRequest, stat))
                 .append(space())
                 .append(getStatNameComponent(statRequest))
                 .append(getStatUnitComponent(statRequest.getStatistic(), statRequest.getTarget(), statRequest.isConsoleSender()))  //space is provided by statUnit
@@ -255,9 +263,9 @@ public final class MessageBuilder {
         };
     }
 
-    private BiFunction<Integer, CommandSender, TextComponent> getFormattingFunction(@NotNull TextComponent statResult, Target selection) {
-        boolean useEnters = config.useEnters(selection, false);
-        boolean useEntersForShared = config.useEnters(selection, true);
+    private BiFunction<Integer, CommandSender, TextComponent> getFormattingFunction(@NotNull TextComponent statResult, Target target) {
+        boolean useEnters = config.useEnters(target, false);
+        boolean useEntersForShared = config.useEnters(target, true);
 
         return (shareCode, sender) -> {
             TextComponent.Builder statBuilder = text();
@@ -343,7 +351,7 @@ public final class MessageBuilder {
             else {
                 topList.append(playerNameBuilder.append(text(":")));
             }
-            topList.append(space()).append(getStatNumberComponent(statRequest.getStatistic(), topStats.get(playerName), Target.TOP, statRequest.isConsoleSender()));
+            topList.append(space()).append(getStatNumberComponent(statRequest, topStats.get(playerName)));
         }
         return topList.build();
     }
@@ -373,58 +381,112 @@ public final class MessageBuilder {
         }
     }
 
-    private TextComponent getStatNumberComponent(Statistic statistic, long statNumber, Target selection, boolean isConsoleSender) {
-        Unit.Type type = Unit.getTypeFromStatistic(statistic);
-        Unit statUnit;
-        switch (type) {
-            case DISTANCE -> statUnit = Unit.fromString(config.getDistanceUnit(false));
-            case DAMAGE -> statUnit = Unit.fromString(config.getDamageUnit(false));
-            case TIME -> {
-                return getTimeNumberComponent(statNumber, selection, getTimeUnitRange(statNumber));
-            }
-            default -> statUnit = Unit.NUMBER;
-        }
-        String prettyNumber = formatter.format(statNumber, statUnit);
-        if (!config.useHoverText() || statUnit == Unit.NUMBER) {
-            return componentFactory.statNumber(prettyNumber, selection);
-        }
-        Unit hoverUnit = type == Unit.Type.DISTANCE ? Unit.fromString(config.getDistanceUnit(true)) :
-                Unit.fromString(config.getDamageUnit(true));
-        String prettyHoverNumber = formatter.format(statNumber, hoverUnit);
-        MyLogger.logMsg("mainNumber: " + prettyNumber + ", hoverNumber: " + prettyHoverNumber, DebugLevel.HIGH);
+    private TextComponent getStatNumberComponent(StatRequest request, long statNumber) {
+        Unit.Type statUnitType = Unit.getTypeFromStatistic(request.getStatistic());
+        Target target = request.getTarget();
+        return switch (statUnitType) {
+            case DISTANCE -> getDistanceNumberComponent(statNumber, target);
+            case DAMAGE -> getDamageNumberComponent(statNumber, target);
+            case TIME -> getTimeNumberComponent(statNumber, target);
+            default -> getDefaultNumberComponent(statNumber, target);
+        };
+    }
 
-        if (hoverUnit == Unit.HEART) {
-            return componentFactory.damageNumberWithHoverText(
-                    prettyNumber, prettyHoverNumber,
-                    componentFactory.heart(isConsoleSender, true), selection);
+    private TextComponent getDistanceNumberComponent(long statNumber, Target target) {
+        Unit statUnit = Unit.fromString(config.getDistanceUnit(false));
+        String prettyNumber = formatter.formatDistanceNumber(statNumber, statUnit);
+        if (!useHoverText) {
+            return componentFactory.distanceNumber(prettyNumber, target);
         }
+
+        Unit hoverUnit = Unit.fromString(config.getDistanceUnit(true));
+        String hoverNumber = formatter.formatDistanceNumber(statNumber, hoverUnit);
         if (config.useTranslatableComponents()) {
             String unitKey = languageKeyHandler.getUnitKey(hoverUnit);
             if (unitKey != null) {
-                return componentFactory.statNumberWithHoverText(prettyNumber, prettyHoverNumber, null, unitKey, selection);
+                return componentFactory.distanceNumberWithTranslatableHoverText(prettyNumber, hoverNumber, unitKey, target);
             }
         }
-        return componentFactory.statNumberWithHoverText(prettyNumber, prettyHoverNumber, hoverUnit.getLabel(), null, selection);
+        return componentFactory.distanceNumberWithHoverText(prettyNumber, hoverNumber, hoverUnit.getLabel(), target);
     }
 
-    private TextComponent getTimeNumberComponent(long statNumber, Target selection, ArrayList<Unit> unitRange) {
-        if (unitRange.size() <= 1 || (config.useHoverText() && unitRange.size() <= 3)) {
+    private TextComponent getDamageNumberComponent(long statNumber, Target target) {
+        Unit statUnit = Unit.fromString(config.getDamageUnit(false));
+        String prettyNumber = formatter.formatDamageNumber(statNumber, statUnit);
+        if (!useHoverText) {
+            return componentFactory.damageNumber(prettyNumber, target);
+        }
+
+        Unit hoverUnit = Unit.fromString(config.getDamageUnit(true));
+        String prettyHoverNumber = formatter.formatDamageNumber(statNumber, hoverUnit);
+        if (hoverUnit == Unit.HEART) {
+            return componentFactory.damageNumberWithHeartUnitInHoverText(prettyNumber, prettyHoverNumber, target);
+        }
+        return componentFactory.damageNumberWithHoverText(prettyNumber, prettyHoverNumber, hoverUnit.getLabel(), target);
+    }
+
+    private TextComponent getTimeNumberComponent(long statNumber, Target target) {
+        ArrayList<Unit> unitRange = getTimeUnitRange(statNumber);
+        if (unitRange.size() <= 1 || (useHoverText && unitRange.size() <= 3)) {
             MyLogger.logMsg(
                     "There is something wrong with the time-units you specified, please check your config!",
                     true);
-            return componentFactory.statNumber("-", selection);
+            return componentFactory.statNumber("-", target);
         }
         else {
-            String mainNumber = formatter.format(statNumber, unitRange.get(0), unitRange.get(1));
-            if (!config.useHoverText()) {
-                return componentFactory.statNumber(mainNumber, selection);
+            String mainNumber = formatter.formatTimeNumber(statNumber, unitRange.get(0), unitRange.get(1));
+            if (!useHoverText) {
+                return componentFactory.statNumber(mainNumber, target);
             } else {
-                String hoverNumber = formatter.format(statNumber, unitRange.get(2), unitRange.get(3));
+                String hoverNumber = formatter.formatTimeNumber(statNumber, unitRange.get(2), unitRange.get(3));
                 MyLogger.logMsg("mainNumber: " + mainNumber + ", hoverNumber: " + hoverNumber, DebugLevel.HIGH);
                 return componentFactory.statNumberWithHoverText(mainNumber, hoverNumber,
-                        null, null, selection);
+                        null, null, target);
             }
         }
+    }
+
+    private TextComponent getDefaultNumberComponent(long statNumber, Target target) {
+        return componentFactory.statNumber(formatter.formatNumber(statNumber), target);
+    }
+
+    private TextComponent getStatUnitComponent(Statistic statistic, Target target, boolean isConsoleSender) {
+        return switch (Unit.getTypeFromStatistic(statistic)) {
+            case DAMAGE -> getDamageUnit(target, isConsoleSender);
+            case DISTANCE -> getDistanceUnit(target);
+            default -> Component.empty();
+        };
+    }
+
+    private TextComponent getDistanceUnit(Target target) {
+        Unit statUnit = Unit.fromString(config.getDistanceUnit(false));
+        if (config.useTranslatableComponents()) {
+            String unitKey = languageKeyHandler.getUnitKey(statUnit);
+            if (unitKey != null) {
+                return Component.space()
+                        .append(componentFactory.statUnitTranslatable(unitKey, target));
+            }
+        }
+        return Component.space()
+                .append(componentFactory.statUnit(statUnit.getLabel(), target));
+    }
+
+    private TextComponent getDamageUnit(Target target, boolean isConsoleSender) {
+        Unit statUnit = Unit.fromString(config.getDamageUnit(false));
+        if (statUnit == Unit.HEART) {
+            TextComponent heartUnit;
+            if (isConsoleSender) {
+                heartUnit = componentFactory.consoleHeart();
+            } else if (useHoverText) {
+                heartUnit = componentFactory.clientHeartWithHoverText();
+            } else {
+                heartUnit = componentFactory.clientHeart(false);
+            }
+            return Component.space()
+                    .append(heartUnit);
+        }
+        return Component.space()
+                .append(componentFactory.statUnit(statUnit.getLabel(), target));
     }
 
     /** Get an ArrayList consisting of 2 or 4 timeUnits. The order of items is:
@@ -443,7 +505,7 @@ public final class MessageBuilder {
             unitRange.add(bigUnit);
             unitRange.add(bigUnit.getSmallerUnit(config.getNumberOfExtraTimeUnits(false)));
         }
-        if (config.useHoverText()) {
+        if (useHoverText) {
             if (!config.autoDetectTimeUnit(true)) {
                 unitRange.add(Unit.fromString(config.getTimeUnit(true)));
                 unitRange.add(Unit.fromString(config.getTimeUnit(true, true)));
@@ -456,31 +518,6 @@ public final class MessageBuilder {
         }
         MyLogger.logMsg("total selected unitRange for this statistic: " + unitRange, DebugLevel.MEDIUM);
         return unitRange;
-    }
-
-    private TextComponent getStatUnitComponent(Statistic statistic, Target selection, boolean isConsoleSender) {
-        Unit statUnit;
-        switch (Unit.getTypeFromStatistic(statistic)) {
-            case DAMAGE -> statUnit = Unit.fromString(config.getDamageUnit(false));
-            case DISTANCE -> statUnit = Unit.fromString(config.getDistanceUnit(false));
-            default -> {
-                return Component.empty();
-            }
-        }
-        if (config.useTranslatableComponents()) {
-            String unitKey = languageKeyHandler.getUnitKey(statUnit);
-            if (unitKey != null) {
-                return Component.space()
-                        .append(componentFactory.statUnit(null, unitKey, selection));
-            }
-        }
-        String statName = statUnit.getLabel();
-        if (statUnit == Unit.HEART) {  //console can do u2665, u2764 looks better in-game
-            return Component.space()
-                    .append(componentFactory.heart(isConsoleSender, false));
-        }
-        return Component.space()
-                .append(componentFactory.statUnit(statName, null, selection));
     }
 
     /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */
