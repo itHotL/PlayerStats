@@ -268,7 +268,7 @@ public final class MessageBuilder {
         };
     }
 
-    public TextComponent singleTopStatLine(int positionInTopList, String playerName, long statNumber, Unit statNumberUnit) {
+    public TextComponent singleTopStatLine(int positionInTopList, String playerName, long statNumber, Statistic statistic) {
         TextComponent.Builder topStatLineBuilder = Component.text()
                 .append(space())
                 .append(componentFactory.rankNumber(positionInTopList))
@@ -279,7 +279,11 @@ public final class MessageBuilder {
         } else {
             topStatLineBuilder.append(componentFactory.playerName(playerName + ":", Target.TOP));
         }
-        //TODO add formatted number here
+
+        return topStatLineBuilder
+                .append(space())
+                .append(getStatNumberComponent(statistic, Target.TOP, statNumber))
+                .build();
     }
 
     private Component getSharerNameComponent(CommandSender sender) {
@@ -370,20 +374,17 @@ public final class MessageBuilder {
     }
 
     private TextComponent getStatNumberComponent(StatRequest request, long statNumber) {
-        Unit.Type statUnitType = Unit.getTypeFromStatistic(request.getStatistic());
-        Target target = request.getTarget();
+        return getStatNumberComponent(request.getStatistic(), request.getTarget(), statNumber);
+    }
+
+    private TextComponent getStatNumberComponent(Statistic statistic, Target target, long statNumber) {
+        Unit.Type statUnitType = Unit.getTypeFromStatistic(statistic);
         return switch (statUnitType) {
             case DISTANCE -> getDistanceNumberComponent(statNumber, target);
             case DAMAGE -> getDamageNumberComponent(statNumber, target);
             case TIME -> getTimeNumberComponent(statNumber, target);
             default -> getDefaultNumberComponent(statNumber, target);
         };
-    }
-
-    private TextComponent getStatNumberComponent(Unit unit, Target target, long statNumber) {
-        return switch (unit.getType()) {
-            case DISTANCE ->
-        }
     }
 
     private TextComponent getDistanceNumberComponent(long statNumber, Target target) {

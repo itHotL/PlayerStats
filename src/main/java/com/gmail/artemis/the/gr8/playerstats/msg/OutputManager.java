@@ -4,7 +4,6 @@ import com.gmail.artemis.the.gr8.playerstats.ShareManager;
 import com.gmail.artemis.the.gr8.playerstats.api.Formatter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
-import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
@@ -78,8 +77,8 @@ public final class OutputManager implements Formatter {
     }
 
     @Override
-    public TextComponent formatSingleTopStatLine(int positionInTopList, String playerName, long statNumber, Unit statNumberUnit) {
-        return null;
+    public TextComponent formatSingleTopStatLine(int positionInTopList, String playerName, long statNumber, Statistic statistic) {
+        return messageBuilder.singleTopStatLine(positionInTopList, playerName, statNumber, statistic);
     }
 
     @Override
@@ -139,7 +138,7 @@ public final class OutputManager implements Formatter {
 
     public void sendHelp(@NotNull CommandSender sender) {
         adventure.sender(sender).sendMessage(getMessageBuilder(sender)
-                .helpMsg();
+                .helpMsg());
     }
 
     public void sendToAllPlayers(@NotNull TextComponent component) {

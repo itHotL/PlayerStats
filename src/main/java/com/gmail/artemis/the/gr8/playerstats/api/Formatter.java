@@ -1,7 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
-import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import net.kyori.adventure.text.TextComponent;
+import org.bukkit.Statistic;
 
 public interface Formatter extends StatFormatter {
 
@@ -15,5 +15,7 @@ public interface Formatter extends StatFormatter {
 
     TextComponent getRainbowPluginPrefixAsTitle();
 
-    TextComponent formatSingleTopStatLine(int positionInTopList, String playerName, long statNumber, Unit statNumberUnit);
+    /** @return a single line from a top-x statistic:
+     * <br> x. Player-name ......... number */
+    TextComponent formatSingleTopStatLine(int positionInTopList, String playerName, long statNumber, Statistic statistic);
 }
