@@ -24,6 +24,6 @@ public record InternalStatResult(String executorName, TextComponent statResult, 
 
     @Override
     public String getFormattedString() {
-        return StatFormatter.statResultComponentToString(statResult);
+        return StatFormatter.TextComponentToString(statResult);
     }
 }

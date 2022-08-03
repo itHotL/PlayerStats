@@ -20,20 +20,21 @@ import java.util.LinkedHashMap;
  <a href="https://docs.adventure.kyori.net/platform/bukkit.html">Adventure's website</a>.
  <br>
  <br>Alternatively, you can also turn your TextComponent into a plain String with
- {@link #statResultComponentToString(TextComponent)}. Don't use Adventure's method .content()
+ {@link #TextComponentToString(TextComponent)}. Don't use Adventure's method .content()
  on your statResult to do this - because of the way the TextComponent is built by PlayerStats,
  you won't be able to get the full content that way.*/
 @Internal
 public interface StatFormatter {
 
-    /** Turns a TextComponent into its String representation. If you don't want to work with
-     Adventure's TextComponents, you can call this method to turn any stat-result into a String.
+    /** Turns a TextComponent into its String representation. This method is equipped
+    to turn all PlayerStats' formatted statResults into String.
+
      @return a String representation of this TextComponent, without hover/click events,
      but with color, style and formatting. TranslatableComponents will be turned into
      plain English.*/
-    static String statResultComponentToString(TextComponent statResult) {
+    static String TextComponentToString(TextComponent component) {
         return ComponentUtils.getTranslatableComponentSerializer()
-                .serialize(statResult);
+                .serialize(component);
     }
 
     /** @return a TextComponent with the following parts:

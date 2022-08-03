@@ -32,6 +32,7 @@ public final class MessageBuilder {
 
     private static ConfigHandler config;
     private boolean useHoverText;
+    private boolean isConsoleBuilder;
 
     private final ComponentFactory componentFactory;
     private final LanguageKeyHandler languageKeyHandler;
@@ -63,6 +64,10 @@ public final class MessageBuilder {
      By default, this follows the setting specified in the {@link ConfigHandler}. */
     public void toggleHoverUse(boolean desiredSetting) {
         useHoverText = desiredSetting;
+    }
+
+    public void setConsoleBuilder(boolean isConsoleBuilder) {
+        this.isConsoleBuilder = isConsoleBuilder;
     }
 
     public TextComponent reloadedConfig() {
@@ -163,9 +168,9 @@ public final class MessageBuilder {
         return ExampleMessage.construct(componentFactory);
     }
 
-    public TextComponent helpMsg(boolean isConsoleSender) {
+    public TextComponent helpMsg() {
         int listSize = config.getTopListMaxSize();
-        if (!isConsoleSender && useHoverText) {
+        if (!isConsoleBuilder && useHoverText) {
             return HelpMessage.constructHoverMsg(componentFactory, listSize);
         } else {
             return HelpMessage.constructPlainMsg(componentFactory, listSize);
@@ -185,7 +190,7 @@ public final class MessageBuilder {
                 .append(getStatNumberComponent(statRequest, stat))
                 .append(space())
                 .append(getStatNameComponent(statRequest))
-                .append(getStatUnitComponent(statRequest.getStatistic(), statRequest.getTarget(), statRequest.isConsoleSender()))  //space is provided by statUnitComponent
+                .append(getStatUnitComponent(statRequest.getStatistic(), statRequest.getTarget()))  //space is provided by statUnitComponent
                 .build();
 
         return getFormattingFunction(playerStat, Target.PLAYER);
@@ -205,7 +210,7 @@ public final class MessageBuilder {
                 .append(getStatNumberComponent(statRequest, stat))
                 .append(space())
                 .append(getStatNameComponent(statRequest))
-                .append(getStatUnitComponent(statRequest.getStatistic(), statRequest.getTarget(), statRequest.isConsoleSender()))  //space is provided by statUnit
+                .append(getStatUnitComponent(statRequest.getStatistic(), statRequest.getTarget()))  //space is provided by statUnit
                 .build();
 
         return getFormattingFunction(serverStat, Target.SERVER);
@@ -218,7 +223,7 @@ public final class MessageBuilder {
      <br>- If both parameters are null, the statResult will be returned as is.</br>*/
     public BiFunction<Integer, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest statRequest) {
         final TextComponent title = getTopStatsTitleComponent(statRequest, topStats.size());
-        final TextComponent shortTitle = getTopStatsTitleShortComponent(statRequest, topStats.size());
+        final TextComponent shortTitle = getTopStatDescription(statRequest, topStats.size());
         final TextComponent list = getTopStatListComponent(topStats, statRequest);
         final boolean useEnters = config.useEnters(Target.TOP, false);
         final boolean useEntersForShared = config.useEnters(Target.TOP, true);
@@ -263,41 +268,18 @@ public final class MessageBuilder {
         };
     }
 
-    private BiFunction<Integer, CommandSender, TextComponent> getFormattingFunction(@NotNull TextComponent statResult, Target target) {
-        boolean useEnters = config.useEnters(target, false);
-        boolean useEntersForShared = config.useEnters(target, true);
+    public TextComponent singleTopStatLine(int positionInTopList, String playerName, long statNumber, Unit statNumberUnit) {
+        TextComponent.Builder topStatLineBuilder = Component.text()
+                .append(space())
+                .append(componentFactory.rankNumber(positionInTopList))
+                .append(space());
 
-        return (shareCode, sender) -> {
-            TextComponent.Builder statBuilder = text();
-
-            //if we're adding a share-button
-            if (shareCode != null) {
-                if (useEnters) {
-                    statBuilder.append(newline());
-                }
-                statBuilder.append(statResult)
-                        .append(space())
-                        .append(componentFactory.shareButton(shareCode));
-            }
-            //if we're adding a "shared by" component
-            else if (sender != null) {
-                if (useEntersForShared) {
-                    statBuilder.append(newline());
-                }
-                statBuilder.append(statResult)
-                        .append(newline())
-                        .append(componentFactory.sharedByMessage(
-                                getSharerNameComponent(sender)));
-            }
-            //if we're not adding a share-button or a "shared by" component
-            else {
-                if (useEnters) {
-                    statBuilder.append(newline());
-                }
-                statBuilder.append(statResult);
-            }
-            return statBuilder.build();
-        };
+        if (config.useDots()) {
+            topStatLineBuilder.append(getPlayerNameWithDotsComponent(positionInTopList, playerName));
+        } else {
+            topStatLineBuilder.append(componentFactory.playerName(playerName + ":", Target.TOP));
+        }
+        //TODO add formatted number here
     }
 
     private Component getSharerNameComponent(CommandSender sender) {
@@ -316,11 +298,11 @@ public final class MessageBuilder {
                 .append(componentFactory.title(config.getTopStatsTitle(), Target.TOP)).append(space())
                 .append(componentFactory.titleNumber(statListSize)).append(space())
                 .append(getStatNameComponent(statRequest))  //space is provided by statUnitComponent
-                .append(getStatUnitComponent(statRequest.getStatistic(), statRequest.getTarget(), statRequest.isConsoleSender()))
+                .append(getStatUnitComponent(statRequest.getStatistic(), statRequest.getTarget()))
                 .build();
     }
 
-    private TextComponent getTopStatsTitleShortComponent(StatRequest statRequest, int statListSize) {
+    private TextComponent getTopStatDescription(StatRequest statRequest, int statListSize) {
         return Component.text()
                 .append(componentFactory.title(config.getTopStatsTitle(), Target.TOP)).append(space())
                 .append(componentFactory.titleNumber(statListSize)).append(space())
@@ -330,30 +312,36 @@ public final class MessageBuilder {
 
     private TextComponent getTopStatListComponent(LinkedHashMap<String, Integer> topStats, StatRequest statRequest) {
         TextComponent.Builder topList = Component.text();
-        boolean useDots = config.useDots();
-        boolean boldNames = config.playerNameIsBold();
         Set<String> playerNames = topStats.keySet();
+        boolean useDots = config.useDots();
 
         int count = 0;
         for (String playerName : playerNames) {
-            TextComponent.Builder playerNameBuilder = componentFactory.playerName(playerName, Target.TOP).toBuilder();
             topList.append(newline())
-                    .append(componentFactory.rankNumber(" " + ++count + "."))
+                    .append(space())
+                    .append(componentFactory.rankNumber(++count))
                     .append(space());
             if (useDots) {
-                topList.append(playerNameBuilder)
-                        .append(space());
-                int dots = FontUtils.getNumberOfDotsToAlign(count + ". " + playerName, statRequest.isConsoleSender(), boldNames);
-                if (dots >= 1) {
-                    topList.append(componentFactory.dots().append(text((".".repeat(dots)))));
-                }
+                topList.append(getPlayerNameWithDotsComponent(count, playerName));
             }
             else {
-                topList.append(playerNameBuilder.append(text(":")));
+                topList.append(componentFactory.playerName(playerName + ":", Target.TOP));
             }
             topList.append(space()).append(getStatNumberComponent(statRequest, topStats.get(playerName)));
         }
         return topList.build();
+    }
+
+    private TextComponent getPlayerNameWithDotsComponent(int positionInTopList, String playerName) {
+        int dots = FontUtils.getNumberOfDotsToAlign(positionInTopList + ". " + playerName, isConsoleBuilder, config.playerNameIsBold());
+
+        TextComponent.Builder nameWithDots = Component.text()
+                .append(componentFactory.playerName(playerName, Target.TOP))
+                .append(space());
+        if (dots >= 1) {
+            nameWithDots.append(componentFactory.dots().append(text(".".repeat(dots))));
+        }
+        return nameWithDots.build();
     }
 
     /** Depending on the config settings, return either a TranslatableComponent representing
@@ -390,6 +378,12 @@ public final class MessageBuilder {
             case TIME -> getTimeNumberComponent(statNumber, target);
             default -> getDefaultNumberComponent(statNumber, target);
         };
+    }
+
+    private TextComponent getStatNumberComponent(Unit unit, Target target, long statNumber) {
+        return switch (unit.getType()) {
+            case DISTANCE ->
+        }
     }
 
     private TextComponent getDistanceNumberComponent(long statNumber, Target target) {
@@ -450,9 +444,9 @@ public final class MessageBuilder {
         return componentFactory.statNumber(formatter.formatNumber(statNumber), target);
     }
 
-    private TextComponent getStatUnitComponent(Statistic statistic, Target target, boolean isConsoleSender) {
+    private TextComponent getStatUnitComponent(Statistic statistic, Target target) {
         return switch (Unit.getTypeFromStatistic(statistic)) {
-            case DAMAGE -> getDamageUnit(target, isConsoleSender);
+            case DAMAGE -> getDamageUnit(target);
             case DISTANCE -> getDistanceUnit(target);
             default -> Component.empty();
         };
@@ -471,11 +465,11 @@ public final class MessageBuilder {
                 .append(componentFactory.statUnit(statUnit.getLabel(), target));
     }
 
-    private TextComponent getDamageUnit(Target target, boolean isConsoleSender) {
+    private TextComponent getDamageUnit(Target target) {
         Unit statUnit = Unit.fromString(config.getDamageUnit(false));
         if (statUnit == Unit.HEART) {
             TextComponent heartUnit;
-            if (isConsoleSender) {
+            if (isConsoleBuilder) {
                 heartUnit = componentFactory.consoleHeart();
             } else if (useHoverText) {
                 heartUnit = componentFactory.clientHeartWithHoverText();
@@ -487,6 +481,44 @@ public final class MessageBuilder {
         }
         return Component.space()
                 .append(componentFactory.statUnit(statUnit.getLabel(), target));
+    }
+
+
+    private BiFunction<Integer, CommandSender, TextComponent> getFormattingFunction(@NotNull TextComponent statResult, Target target) {
+        boolean useEnters = config.useEnters(target, false);
+        boolean useEntersForShared = config.useEnters(target, true);
+
+        return (shareCode, sender) -> {
+            TextComponent.Builder statBuilder = text();
+
+            //if we're adding a share-button
+            if (shareCode != null) {
+                if (useEnters) {
+                    statBuilder.append(newline());
+                }
+                statBuilder.append(statResult)
+                        .append(space())
+                        .append(componentFactory.shareButton(shareCode));
+            }
+            //if we're adding a "shared by" component
+            else if (sender != null) {
+                if (useEntersForShared) {
+                    statBuilder.append(newline());
+                }
+                statBuilder.append(statResult)
+                        .append(newline())
+                        .append(componentFactory.sharedByMessage(
+                                getSharerNameComponent(sender)));
+            }
+            //if we're not adding a share-button or a "shared by" component
+            else {
+                if (useEnters) {
+                    statBuilder.append(newline());
+                }
+                statBuilder.append(statResult);
+            }
+            return statBuilder.build();
+        };
     }
 
     /** Get an ArrayList consisting of 2 or 4 timeUnits. The order of items is:

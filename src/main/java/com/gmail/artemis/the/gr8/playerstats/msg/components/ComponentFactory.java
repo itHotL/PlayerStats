@@ -121,8 +121,8 @@ public class ComponentFactory {
                 getStyleFromString(config.getTitleNumberDecoration(true)));
     }
 
-    public TextComponent rankNumber(String number) {
-        return getComponent(number,
+    public TextComponent rankNumber(int number) {
+        return getComponent(number + ".",
                 getColorFromString(config.getRankNumberDecoration(false)),
                 getStyleFromString(config.getRankNumberDecoration(true)));
     }

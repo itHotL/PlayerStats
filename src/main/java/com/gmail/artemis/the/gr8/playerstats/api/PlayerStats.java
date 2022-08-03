@@ -53,4 +53,6 @@ public interface PlayerStats {
      @param topListSize how big the top-x should be (10 by default)
      @return a TopStatRequest that can be used to look up a top statistic*/
     TopStatRequest topStat(int topListSize);
+
+    Formatter getFormatter();
 }

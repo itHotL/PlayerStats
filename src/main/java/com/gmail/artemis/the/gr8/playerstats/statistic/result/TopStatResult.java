@@ -19,6 +19,6 @@ public record TopStatResult(LinkedHashMap<String, Integer> value, TextComponent 
 
     @Override
     public String getFormattedString() {
-        return StatFormatter.statResultComponentToString(formattedStatResult);
+        return StatFormatter.TextComponentToString(formattedStatResult);
     }
 }

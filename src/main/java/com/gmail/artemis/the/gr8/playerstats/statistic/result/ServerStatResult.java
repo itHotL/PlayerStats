@@ -17,6 +17,6 @@ public record ServerStatResult(long value, TextComponent formattedStatResult) im
 
     @Override
     public String getFormattedString() {
-        return StatFormatter.statResultComponentToString(formattedStatResult);
+        return StatFormatter.TextComponentToString(formattedStatResult);
     }
 }

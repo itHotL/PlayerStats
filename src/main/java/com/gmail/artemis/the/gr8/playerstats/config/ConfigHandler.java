@@ -277,10 +277,10 @@ public final class ConfigHandler {
         return getDecorationString(selection, getStyleSetting, def, "player-names");
     }
 
-    /** Returns true if playerNames Style is "bold", false if it is not.
+    /** Returns true if playerNames Style is "bold" for a top-stat, false if it is not.
      <br>Default: false</br>*/
     public boolean playerNameIsBold() {
-        ConfigurationSection style = getRelevantSection(Target.PLAYER);
+        ConfigurationSection style = getRelevantSection(Target.TOP);
 
         if (style != null) {
             String styleString = style.getString("player-names");

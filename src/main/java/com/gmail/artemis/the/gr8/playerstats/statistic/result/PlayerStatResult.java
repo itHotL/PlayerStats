@@ -17,6 +17,6 @@ public record PlayerStatResult(int value, TextComponent formattedValue) implemen
 
     @Override
     public String getFormattedString() {
-        return StatFormatter.statResultComponentToString(formattedValue);
+        return StatFormatter.TextComponentToString(formattedValue);
     }
 }

@@ -36,6 +36,11 @@ public final class PlayerStatsAPI implements PlayerStats {
         return new TopStatRequest(statRequestHandler);
     }
 
+    @Override
+    public Formatter getFormatter() {
+        return null;
+    }
+
     static StatCalculator statCalculator() {
         return statCalculator;
     }

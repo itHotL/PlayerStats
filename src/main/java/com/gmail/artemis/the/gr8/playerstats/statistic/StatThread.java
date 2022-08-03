@@ -65,7 +65,7 @@ public final class StatThread extends Thread {
                 case SERVER -> outputManager.formatServerStat(statRequest, statManager.getServerStat(statRequest));
             };
             if (statRequest.isAPIRequest()) {
-                String msg = StatFormatter.statResultComponentToString(statResult);
+                String msg = StatFormatter.TextComponentToString(statResult);
                 statRequest.getCommandSender().sendMessage(msg);
             }
             else {

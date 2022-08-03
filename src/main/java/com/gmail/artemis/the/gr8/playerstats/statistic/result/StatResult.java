@@ -13,8 +13,8 @@ import net.kyori.adventure.text.TextComponent;
  <li> <code>LinkedHashMap(String, Integer)</code> for topStat
  </ul>
  You can get the raw numbers with {@link #getNumericalValue()}. Additionally,
- you can get a formatted message that includes formatted numbers. This can either
- be a String or a {@link TextComponent}, and contains the following information:
+ you can get the default formatted message that includes formatted numbers. This can
+ either be a String or a {@link TextComponent}, and contains the following information:
  <ul>
  <li> for playerStat:
  <br> [player-name]: [formatted-number] [stat-name] [sub-stat-name]
@@ -26,7 +26,10 @@ import net.kyori.adventure.text.TextComponent;
  <br> [2.] [player-name] [.....] [formatted-number]
  <br> [3.] etc...
  </ul>
- The TextComponents can be sent directly to a Minecraft client or console with the
+ If you want the results to be formatted differently, you can get an instance of
+ the {@link com.gmail.artemis.the.gr8.playerstats.api.Formatter}.
+
+ Resulting TextComponents can be sent directly to a Minecraft client or console with the
  Adventure library. To send a Component, you need to get a {@link BukkitAudiences} object,
  and use that to send the desired Component. Normally you would have to add Adventure
  as a dependency to your project, but since the library is included in PlayerStats, you can

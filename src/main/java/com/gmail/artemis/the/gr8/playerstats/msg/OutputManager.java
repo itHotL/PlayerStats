@@ -1,9 +1,11 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.ShareManager;
-import com.gmail.artemis.the.gr8.playerstats.api.StatFormatter;
+import com.gmail.artemis.the.gr8.playerstats.api.Formatter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
+import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
+import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
@@ -28,7 +30,7 @@ import static com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage.*;
 /** This class manages all PlayerStats output. It is the only place where messages are sent.
  It gets the messages from a {@link MessageBuilder}, which is different for a Console as for Players
  (mainly to deal with the lack of hover-text, and for Bukkit consoles to make up for the lack of hex-colors).*/
-public final class OutputManager implements StatFormatter {
+public final class OutputManager implements Formatter {
 
     private static BukkitAudiences adventure;
     private static ConfigHandler config;
@@ -49,6 +51,35 @@ public final class OutputManager implements StatFormatter {
 
     public static void updateMessageBuilders() {
         getMessageBuilders();
+    }
+
+    @Override
+    public TextComponent getPluginPrefix() {
+        ComponentFactory factory = new ComponentFactory(config);
+        return factory.pluginPrefix();
+    }
+
+    @Override
+    public TextComponent getRainbowPluginPrefix() {
+        ComponentFactory prideFactory = new PrideComponentFactory(config);
+        return prideFactory.pluginPrefix();
+    }
+
+    @Override
+    public TextComponent getPluginPrefixAsTitle() {
+        ComponentFactory factory = new ComponentFactory(config);
+        return factory.pluginPrefixAsTitle();
+    }
+
+    @Override
+    public TextComponent getRainbowPluginPrefixAsTitle() {
+        ComponentFactory prideFactory = new PrideComponentFactory(config);
+        return prideFactory.pluginPrefixAsTitle();
+    }
+
+    @Override
+    public TextComponent formatSingleTopStatLine(int positionInTopList, String playerName, long statNumber, Unit statNumberUnit) {
+        return null;
     }
 
     @Override
@@ -108,7 +139,7 @@ public final class OutputManager implements StatFormatter {
 
     public void sendHelp(@NotNull CommandSender sender) {
         adventure.sender(sender).sendMessage(getMessageBuilder(sender)
-                .helpMsg(sender instanceof ConsoleCommandSender));
+                .helpMsg();
     }
 
     public void sendToAllPlayers(@NotNull TextComponent component) {
@@ -165,6 +196,7 @@ public final class OutputManager implements StatFormatter {
         } else {
             consoleBuilder = getClientMessageBuilder();
         }
+        consoleBuilder.setConsoleBuilder(true);
         consoleBuilder.toggleHoverUse(false);
         return consoleBuilder;
     }
