@@ -11,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
 
 import static net.kyori.adventure.text.Component.text;
 
+/** The {@link ComponentFactory} that is used to build messages for a Bukkit Console.
+ Bukkit consoles don't support hex colors, unlike Paper consoles.*/
 public class BukkitConsoleComponentFactory extends ComponentFactory {
 
     public BukkitConsoleComponentFactory(ConfigHandler config) {
@@ -22,6 +24,7 @@ public class BukkitConsoleComponentFactory extends ComponentFactory {
         PREFIX = PluginColor.GOLD.getConsoleColor();
         BRACKETS = PluginColor.GRAY.getConsoleColor();
         UNDERSCORE = PluginColor.DARK_PURPLE.getConsoleColor();
+        HEARTS = PluginColor.RED.getConsoleColor();
 
         MSG_MAIN = PluginColor.MEDIUM_BLUE.getConsoleColor();
         MSG_ACCENT = PluginColor.BLUE.getConsoleColor();

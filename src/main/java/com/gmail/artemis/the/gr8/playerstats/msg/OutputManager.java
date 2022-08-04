@@ -1,10 +1,11 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
-import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.ShareManager;
+import com.gmail.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
-import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentFactory;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -14,162 +15,210 @@ import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
-import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage.*;
 
-public final class OutputManager {
-
-    private static volatile OutputManager instance;
+/** This class manages all PlayerStats output. It is the only place where messages are sent.
+ It gets the messages from a {@link MessageBuilder}, which is different for a Console as for Players
+ (mainly to deal with the lack of hover-text, and for Bukkit consoles to make up for the lack of hex-colors).*/
+public final class OutputManager implements StatFormatter {
 
     private static BukkitAudiences adventure;
+    private static ConfigHandler config;
     private static ShareManager shareManager;
-    private static MessageWriter writer;
-    private static MessageWriter consoleWriter;
+    private static MessageBuilder messageBuilder;
+    private static MessageBuilder consoleMessageBuilder;
 
-    private static EnumMap<StandardMessage, Function<MessageWriter, TextComponent>> standardMessages;
+    private static EnumMap<StandardMessage, Function<MessageBuilder, TextComponent>> standardMessages;
 
-    private OutputManager(ConfigHandler config) {
-        adventure = Main.adventure();
-        shareManager = ShareManager.getInstance(config);
+    public OutputManager(BukkitAudiences adventure, ConfigHandler config, ShareManager shareManager) {
+        OutputManager.adventure = adventure;
+        OutputManager.config = config;
+        OutputManager.shareManager = shareManager;
 
-        getMessageWriters(config);
+        getMessageBuilders();
         prepareFunctions();
     }
 
-    public static OutputManager getInstance(ConfigHandler config) {
-        OutputManager outputManager = instance;
-        if (outputManager != null) {
-            return outputManager;
-        }
-        synchronized (OutputManager.class) {
-            if (instance == null) {
-                instance = new OutputManager(config);
-            }
-            return instance;
-        }
+    public static void updateMessageBuilders() {
+        getMessageBuilders();
     }
 
-    public void updateMessageWriters(ConfigHandler config) {
-        getMessageWriters(config);
+    @Override
+    public TextComponent getPluginPrefix() {
+        ComponentFactory factory = new ComponentFactory(config);
+        return factory.pluginPrefix();
     }
 
-    public void sendFeedbackMsg(CommandSender sender, StandardMessage message) {
+    @Override
+    public TextComponent getRainbowPluginPrefix() {
+        ComponentFactory prideFactory = new PrideComponentFactory(config);
+        return prideFactory.pluginPrefix();
+    }
+
+    @Override
+    public TextComponent getPluginPrefixAsTitle() {
+        ComponentFactory factory = new ComponentFactory(config);
+        return factory.pluginPrefixAsTitle();
+    }
+
+    @Override
+    public TextComponent getRainbowPluginPrefixAsTitle() {
+        ComponentFactory prideFactory = new PrideComponentFactory(config);
+        return prideFactory.pluginPrefixAsTitle();
+    }
+
+    @Override
+    public TextComponent formatPlayerStat(@NotNull StatRequest statRequest, int playerStat) {
+        BiFunction<Integer, CommandSender, TextComponent> playerStatFunction =
+                getMessageBuilder(statRequest).formattedPlayerStatFunction(playerStat, statRequest);
+
+        return processFunction(statRequest.getCommandSender(), playerStatFunction);
+    }
+
+    @Override
+    public TextComponent formatServerStat(@NotNull StatRequest statRequest, long serverStat) {
+        BiFunction<Integer, CommandSender, TextComponent> serverStatFunction =
+                getMessageBuilder(statRequest).formattedServerStatFunction(serverStat, statRequest);
+
+        return processFunction(statRequest.getCommandSender(), serverStatFunction);
+    }
+
+    @Override
+    public TextComponent formatSingleTopStatLine(int positionInTopList, String playerName, long statNumber, Statistic statistic) {
+        return messageBuilder.singleTopStatLine(positionInTopList, playerName, statNumber, statistic);
+    }
+
+    @Override
+    public TextComponent formatTopStat(@NotNull StatRequest statRequest, @NotNull LinkedHashMap<String, Integer> topStats) {
+        BiFunction<Integer, CommandSender, TextComponent> topStatFunction =
+                getMessageBuilder(statRequest).formattedTopStatFunction(topStats, statRequest);
+
+        return processFunction(statRequest.getCommandSender(), topStatFunction);
+    }
+
+    public void sendFeedbackMsg(@NotNull CommandSender sender, StandardMessage message) {
         if (message != null) {
             adventure.sender(sender).sendMessage(standardMessages.get(message)
-                    .apply(getWriter(sender)));
+                    .apply(getMessageBuilder(sender)));
         }
     }
 
-    public void sendFeedbackMsgWaitAMoment(CommandSender sender, boolean longWait) {
-        adventure.sender(sender).sendMessage(getWriter(sender)
+    public void sendFeedbackMsgWaitAMoment(@NotNull CommandSender sender, boolean longWait) {
+        adventure.sender(sender).sendMessage(getMessageBuilder(sender)
                 .waitAMoment(longWait));
     }
 
-    public void sendFeedbackMsgMissingSubStat(CommandSender sender, Statistic.Type statType) {
-        adventure.sender(sender).sendMessage(getWriter(sender)
+    public void sendFeedbackMsgMissingSubStat(@NotNull CommandSender sender, Statistic.Type statType) {
+        adventure.sender(sender).sendMessage(getMessageBuilder(sender)
                 .missingSubStatName(statType));
     }
 
-    public void sendFeedbackMsgWrongSubStat(CommandSender sender, Statistic.Type statType, String subStatName) {
+    public void sendFeedbackMsgWrongSubStat(@NotNull CommandSender sender, Statistic.Type statType, @Nullable String subStatName) {
         if (subStatName == null) {
             sendFeedbackMsgMissingSubStat(sender, statType);
         } else {
-            adventure.sender(sender).sendMessage(getWriter(sender)
+            adventure.sender(sender).sendMessage(getMessageBuilder(sender)
                     .wrongSubStatType(statType, subStatName));
         }
     }
 
-    public void sendExamples(CommandSender sender) {
-        adventure.sender(sender).sendMessage(getWriter(sender)
+    public void sendExamples(@NotNull CommandSender sender) {
+        adventure.sender(sender).sendMessage(getMessageBuilder(sender)
                 .usageExamples());
     }
 
-    public void sendHelp(CommandSender sender) {
-        adventure.sender(sender).sendMessage(getWriter(sender)
-                .helpMsg(sender instanceof ConsoleCommandSender));
+    public void sendHelp(@NotNull CommandSender sender) {
+        adventure.sender(sender).sendMessage(getMessageBuilder(sender)
+                .helpMsg());
     }
 
-    public void shareStatResults(@NotNull TextComponent statResult) {
-        adventure.players().sendMessage(statResult);
+    public void sendToAllPlayers(@NotNull TextComponent component) {
+        adventure.players().sendMessage(component);
     }
 
-    public void sendPlayerStat(@NotNull StatRequest request, int playerStat) {
-        CommandSender sender = request.getCommandSender();
-        BiFunction<UUID, CommandSender, TextComponent> buildFunction =
-                getWriter(sender).formattedPlayerStatFunction(playerStat, request);
-
-        processAndSend(sender, buildFunction);
+    public void sendToCommandSender(@NotNull CommandSender sender, @NotNull TextComponent component) {
+        adventure.sender(sender).sendMessage(component);
     }
 
-    public void sendServerStat(@NotNull StatRequest request, long serverStat) {
-        CommandSender sender = request.getCommandSender();
-        BiFunction<UUID, CommandSender, TextComponent> buildFunction =
-                getWriter(sender).formattedServerStatFunction(serverStat, request);
+    private TextComponent processFunction(CommandSender sender, @NotNull BiFunction<Integer, CommandSender, TextComponent> statResultFunction) {
+        boolean saveOutput = !(sender instanceof ConsoleCommandSender) &&
+                ShareManager.isEnabled() &&
+                shareManager.senderHasPermission(sender);
 
-        processAndSend(sender, buildFunction);
-    }
-
-    public void sendTopStat(@NotNull StatRequest request, LinkedHashMap<String, Integer> topStats) {
-        CommandSender sender = request.getCommandSender();
-        BiFunction<UUID, CommandSender, TextComponent> buildFunction =
-                getWriter(sender).formattedTopStatFunction(topStats, request);
-
-        processAndSend(sender, buildFunction);
-    }
-
-    private void processAndSend(CommandSender sender, BiFunction<UUID, CommandSender, TextComponent> buildFunction) {
-        if (shareManager.isEnabled() && shareManager.senderHasPermission(sender)) {
-
-            UUID shareCode = shareManager.saveStatResult(sender.getName(), buildFunction.apply(null, sender));
-            adventure.sender(sender).sendMessage(
-                    buildFunction.apply(shareCode, null));
+        if (saveOutput) {
+            int shareCode =
+                    shareManager.saveStatResult(sender.getName(), statResultFunction.apply(null, sender));
+            return statResultFunction.apply(shareCode, null);
         }
         else {
-            adventure.sender(sender).sendMessage(
-                    buildFunction.apply(null, null));
+            return statResultFunction.apply(null, null);
         }
     }
 
-    private MessageWriter getWriter(CommandSender sender) {
-        return sender instanceof ConsoleCommandSender ? consoleWriter : writer;
+    private MessageBuilder getMessageBuilder(CommandSender sender) {
+        return sender instanceof ConsoleCommandSender ? consoleMessageBuilder : messageBuilder;
     }
 
-    private void getMessageWriters(ConfigHandler config) {
-        boolean isBukkit = Bukkit.getName().equalsIgnoreCase("CraftBukkit");
-        if (config.useRainbowMode() ||
-                (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE))) {
-            writer = MessageWriter.fromComponentFactory(config, new PrideComponentFactory(config));
-        }
-        else {
-            writer = MessageWriter.defaultWriter(config);
-        }
-
-        if (!isBukkit) {
-            consoleWriter = writer;
+    private MessageBuilder getMessageBuilder(StatRequest statRequest) {
+        if (statRequest.isAPIRequest() || !statRequest.isConsoleSender()) {
+            return messageBuilder;
         } else {
-            consoleWriter = MessageWriter.fromComponentFactory(config, new BukkitConsoleComponentFactory(config));
+            return consoleMessageBuilder;
         }
+    }
+
+    private static void getMessageBuilders() {
+        messageBuilder = getClientMessageBuilder();
+        consoleMessageBuilder = getConsoleMessageBuilder();
+    }
+
+    private static MessageBuilder getClientMessageBuilder() {
+        if (useRainbowStyle()) {
+            return MessageBuilder.fromComponentFactory(config, new PrideComponentFactory(config));
+        }
+        return MessageBuilder.defaultBuilder(config);
+    }
+
+    private static MessageBuilder getConsoleMessageBuilder() {
+        MessageBuilder consoleBuilder;
+        if (isBukkit()) {
+            consoleBuilder = MessageBuilder.fromComponentFactory(config, new BukkitConsoleComponentFactory(config));
+        } else {
+            consoleBuilder = getClientMessageBuilder();
+        }
+        consoleBuilder.setConsoleBuilder(true);
+        consoleBuilder.toggleHoverUse(false);
+        return consoleBuilder;
+    }
+
+    private static boolean useRainbowStyle() {
+        return config.useRainbowMode() || (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE));
+    }
+
+    private static boolean isBukkit() {
+        return Bukkit.getName().equalsIgnoreCase("CraftBukkit");
     }
 
     private void prepareFunctions() {
         standardMessages = new EnumMap<>(StandardMessage.class);
 
-        standardMessages.put(RELOADED_CONFIG, (MessageWriter::reloadedConfig));
-        standardMessages.put(STILL_RELOADING, (MessageWriter::stillReloading));
-        standardMessages.put(MISSING_STAT_NAME, (MessageWriter::missingStatName));
-        standardMessages.put(MISSING_PLAYER_NAME, (MessageWriter::missingPlayerName));
-        standardMessages.put(REQUEST_ALREADY_RUNNING, (MessageWriter::requestAlreadyRunning));
-        standardMessages.put(STILL_ON_SHARE_COOLDOWN, (MessageWriter::stillOnShareCoolDown));
-        standardMessages.put(RESULTS_ALREADY_SHARED, (MessageWriter::resultsAlreadyShared));
-        standardMessages.put(STAT_RESULTS_TOO_OLD, (MessageWriter::statResultsTooOld));
-        standardMessages.put(UNKNOWN_ERROR, (MessageWriter::unknownError));
+        standardMessages.put(RELOADED_CONFIG, (MessageBuilder::reloadedConfig));
+        standardMessages.put(STILL_RELOADING, (MessageBuilder::stillReloading));
+        standardMessages.put(MISSING_STAT_NAME, (MessageBuilder::missingStatName));
+        standardMessages.put(MISSING_PLAYER_NAME, (MessageBuilder::missingPlayerName));
+        standardMessages.put(REQUEST_ALREADY_RUNNING, (MessageBuilder::requestAlreadyRunning));
+        standardMessages.put(STILL_ON_SHARE_COOLDOWN, (MessageBuilder::stillOnShareCoolDown));
+        standardMessages.put(RESULTS_ALREADY_SHARED, (MessageBuilder::resultsAlreadyShared));
+        standardMessages.put(STAT_RESULTS_TOO_OLD, (MessageBuilder::statResultsTooOld));
+        standardMessages.put(UNKNOWN_ERROR, (MessageBuilder::unknownError));
     }
 }

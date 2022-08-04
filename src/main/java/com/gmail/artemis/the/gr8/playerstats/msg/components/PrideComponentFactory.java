@@ -11,6 +11,7 @@ import java.util.Random;
 
 import static net.kyori.adventure.text.Component.*;
 
+/** A festive version of the {@link ComponentFactory}*/
 public class PrideComponentFactory extends ComponentFactory {
 
     public PrideComponentFactory(ConfigHandler c) {
@@ -22,6 +23,7 @@ public class PrideComponentFactory extends ComponentFactory {
         PREFIX = PluginColor.GOLD.getColor();
         BRACKETS = PluginColor.GRAY.getColor();
         UNDERSCORE = PluginColor.DARK_PURPLE.getColor();
+        HEARTS = PluginColor.RED.getColor();
 
         MSG_MAIN = PluginColor.GRAY.getColor();  //difference 1
         MSG_ACCENT = PluginColor.LIGHT_GOLD.getColor();  //difference 2

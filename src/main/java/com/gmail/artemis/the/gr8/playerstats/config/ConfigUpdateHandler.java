@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import com.tchristofferson.configupdater.ConfigUpdater;
 
-public class ConfigUpdateHandler {
+public final class ConfigUpdateHandler {
 
     /** Add new key-value pairs to the config without losing comments, using <a href="https://github.com/tchristofferson/Config-Updater">tchristofferson's Config-Updater</a> */
     public ConfigUpdateHandler(Main plugin, File configFile, int configVersion) {

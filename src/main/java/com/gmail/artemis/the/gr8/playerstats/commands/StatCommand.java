@@ -3,31 +3,24 @@ package com.gmail.artemis.the.gr8.playerstats.commands;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequestHandler;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
-import com.gmail.artemis.the.gr8.playerstats.models.StatRequest;
-import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 
-public class StatCommand implements CommandExecutor {
+public final class StatCommand implements CommandExecutor {
 
     private static ThreadManager threadManager;
     private static OutputManager outputManager;
-    private final OfflinePlayerHandler offlinePlayerHandler;
 
-    public StatCommand(OutputManager m, ThreadManager t, OfflinePlayerHandler o) {
+    public StatCommand(OutputManager m, ThreadManager t) {
         threadManager = t;
         outputManager = m;
-        offlinePlayerHandler = o;
     }
 
     @Override
@@ -40,138 +33,44 @@ public class StatCommand implements CommandExecutor {
             outputManager.sendExamples(sender);
         }
         else {
-            StatRequest request = generateRequest(sender, args);
-            if (requestIsValid(request)) {
-                threadManager.startStatThread(request);
+            StatRequestHandler statRequestHandler = StatRequestHandler.internalRequestHandler(sender);
+            StatRequest statRequest = statRequestHandler.getRequestFromArgs(args);
+
+            if (statRequest.isValid()) {
+                threadManager.startStatThread(statRequest);
             } else {
+                sendFeedback(statRequest);
                 return false;
             }
         }
         return true;
     }
 
-    /** Create a StatRequest Object with all the relevant information from the args[]. */
-    private StatRequest generateRequest(CommandSender sender, String[] args) {
-        StatRequest request = new StatRequest(sender);
-        for (String arg : args) {
-            //check for statName
-            if (EnumHandler.isStatistic(arg) && request.getStatistic() == null) {
-                request.setStatistic(EnumHandler.getStatEnum(arg));
-            }
-            //check for subStatEntry and playerFlag
-            else if (EnumHandler.isSubStatEntry(arg)) {
-                if (arg.equalsIgnoreCase("player") && !request.playerFlag()) {
-                    request.setPlayerFlag(true);
-                }
-                else {
-                    if (request.getSubStatEntry() == null) request.setSubStatEntry(arg);
-                }
-            }
-            //check for selection
-            else if (arg.equalsIgnoreCase("top")) {
-                request.setSelection(Target.TOP);
-            }
-            else if (arg.equalsIgnoreCase("server")) {
-                request.setSelection(Target.SERVER);
-            }
-            else if (arg.equalsIgnoreCase("me")) {
-                if (sender instanceof Player) {
-                    request.setPlayerName(sender.getName());
-                    request.setSelection(Target.PLAYER);
-                }
-                else if (sender instanceof ConsoleCommandSender) {
-                    request.setSelection(Target.SERVER);
-                }
-            }
-            else if (offlinePlayerHandler.isRelevantPlayer(arg) && request.getPlayerName() == null) {
-                request.setPlayerName(arg);
-                request.setSelection(Target.PLAYER);
-            }
-        }
-        patchRequest(request);
-        return request;
-    }
+    /** If a given {@link StatRequest} does not result in a valid statistic look-up,
+     this will send a feedback message to the CommandSender that made the request.
+     <br> The following is checked:
+     <ul>
+     <li>Is a <code>statistic</code> set?
+     <li>Is a <code>subStatEntry</code> needed, and if so, is a corresponding Material/EntityType present?
+     <li>If the <code>target</code> is Player, is a valid <code>playerName</code> provided?
+     </ul>
+     @param statRequest the StatRequest to give feedback on
+     */
+    private void sendFeedback(StatRequest statRequest) {
+        CommandSender sender = statRequest.getCommandSender();
 
-    /** Adjust the StatRequest object if needed: unpack the playerFlag into a subStatEntry,
-     try to retrieve the corresponding Enum Constant for any relevant block/entity/item,
-     and remove any unnecessary subStatEntries.*/
-    private void patchRequest(StatRequest request) {
-        if (request.getStatistic() != null) {
-            Statistic.Type type = request.getStatistic().getType();
-
-            if (request.playerFlag()) {  //unpack the playerFlag
-                if (type == Statistic.Type.ENTITY && request.getSubStatEntry() == null) {
-                    request.setSubStatEntry("player");
-                }
-                else {
-                    request.setSelection(Target.PLAYER);
-                }
-            }
-
-            String subStatEntry = request.getSubStatEntry();
-            switch (type) {  //attempt to convert relevant subStatEntries into their corresponding Enum Constant
-                case BLOCK -> {
-                    Material block = EnumHandler.getBlockEnum(subStatEntry);
-                    if (block != null) request.setBlock(block);
-                }
-                case ENTITY -> {
-                    EntityType entity = EnumHandler.getEntityEnum(subStatEntry);
-                    if (entity != null) request.setEntity(entity);
-                }
-                case ITEM -> {
-                    Material item = EnumHandler.getItemEnum(subStatEntry);
-                    if (item != null) request.setItem(item);
-                }
-                case UNTYPED -> {  //remove unnecessary subStatEntries
-                    if (subStatEntry != null) request.setSubStatEntry(null);
-                }
-            }
+        if (statRequest.getStatistic() == null) {
+            outputManager.sendFeedbackMsg(sender, StandardMessage.MISSING_STAT_NAME);
         }
-    }
-
-    /** This method validates the StatRequest and returns feedback to the player if it returns false.
-     It checks the following:
-     <p>1. Is a Statistic set?</p>
-     <p>2. Is a subStat needed, and is a subStat Enum Constant present? (block/entity/item)</p>
-     <p>3. If the target is PLAYER, is a valid PlayerName provided? </p>
-     @return true if the Request is valid, and false + an explanation message otherwise. */
-    private boolean requestIsValid(StatRequest request) {
-        if (request.getStatistic() == null) {
-            outputManager.sendFeedbackMsg(request.getCommandSender(), StandardMessage.MISSING_STAT_NAME);
-            return false;
-        }
-        Statistic.Type type = request.getStatistic().getType();
-        if (request.getSubStatEntry() == null && type != Statistic.Type.UNTYPED) {
-            outputManager.sendFeedbackMsgMissingSubStat(request.getCommandSender(), type);
-            return false;
-        }
-        else if (!matchingSubStat(request)) {
-            outputManager.sendFeedbackMsgWrongSubStat(request.getCommandSender(), type, request.getSubStatEntry());
-            return false;
-        }
-        else if (request.getSelection() == Target.PLAYER && request.getPlayerName() == null) {
-            outputManager.sendFeedbackMsg(request.getCommandSender(), StandardMessage.MISSING_PLAYER_NAME);
-            return false;
+        else if (statRequest.getTarget() == Target.PLAYER && statRequest.getPlayerName() == null) {
+            outputManager.sendFeedbackMsg(sender, StandardMessage.MISSING_PLAYER_NAME);
         }
         else {
-            return true;
-        }
-    }
-
-    private boolean matchingSubStat(StatRequest request) {
-        Statistic.Type type = request.getStatistic().getType();
-        switch (type) {
-            case BLOCK -> {
-                return request.getBlock() != null;
-            }
-            case ENTITY -> {
-                return request.getEntity() != null;
-            }
-            case ITEM -> {
-                return request.getItem() != null;
-            }
-            default -> {
-                return true;
+            Statistic.Type type = statRequest.getStatistic().getType();
+            if (type != Statistic.Type.UNTYPED && statRequest.getSubStatEntryName() == null) {
+                outputManager.sendFeedbackMsgMissingSubStat(sender, type);
+            } else {
+                outputManager.sendFeedbackMsgWrongSubStat(sender, type, statRequest.getSubStatEntryName());
             }
         }
     }

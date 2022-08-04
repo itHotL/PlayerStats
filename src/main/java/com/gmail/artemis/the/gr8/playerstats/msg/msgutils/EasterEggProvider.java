@@ -1,12 +1,18 @@
 package com.gmail.artemis.the.gr8.playerstats.msg.msgutils;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
-/**This class is just for fun, and adds some silly names for players on my server.
+/**This class is just for fun and adds some silly names for players on my server.
 It does not impact the rest of the plugin, and will only be used for the players mentioned in here.*/
 public final class EasterEggProvider {
 
@@ -96,7 +102,7 @@ public final class EasterEggProvider {
         if (playerName == null) {
             return null;
         } else {
-            return MiniMessage.miniMessage().deserialize(playerName);
+            return MiniMessage.miniMessage().deserialize(playerName, papiTag(player));
         }
     }
 
@@ -106,5 +112,17 @@ public final class EasterEggProvider {
 
     private static boolean sillyNumberIsBetween(int sillyNumber, int lowerBound, int upperBound) {
         return sillyNumber >= lowerBound && sillyNumber <= upperBound;
+    }
+
+    private static TagResolver papiTag(final @NotNull Player player) {
+        return TagResolver.resolver("papi", (argumentQueue, context) -> {
+            final String papiPlaceholder = argumentQueue.popOr("papi tag requires an argument").value();
+            final String parsedPlaceholder = PlaceholderAPI.setPlaceholders(player, '%' + papiPlaceholder + '%');
+            TextComponent componentPlaceholder = LegacyComponentSerializer.legacyAmpersand().deserialize(parsedPlaceholder);
+            if (!componentPlaceholder.content().isEmpty()) {
+                componentPlaceholder = componentPlaceholder.toBuilder().append(Component.space()).build();
+            }
+            return Tag.selfClosingInserting(componentPlaceholder);
+        });
     }
 }

@@ -7,6 +7,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
+import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import org.bukkit.Bukkit;
@@ -20,26 +21,20 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
 
-public class ReloadThread extends Thread {
+/** The Thread that is in charge of reloading PlayerStats. */
+public final class ReloadThread extends Thread {
 
     private static ConfigHandler config;
-    private static OutputManager messageSender;
-    private final OfflinePlayerHandler offlinePlayerHandler;
-
-    private static ShareManager shareManager;
+    private static OutputManager outputManager;
 
     private final int reloadThreadID;
     private final StatThread statThread;
 
     private final CommandSender sender;
 
-
-    public ReloadThread(ConfigHandler c, OutputManager m, OfflinePlayerHandler o, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
+    public ReloadThread(ConfigHandler c, OutputManager m, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
         config = c;
-        messageSender = m;
-        offlinePlayerHandler = o;
-
-        shareManager = ShareManager.getInstance(c);
+        outputManager = m;
 
         reloadThreadID = ID;
         statThread = s;
@@ -49,6 +44,11 @@ public class ReloadThread extends Thread {
         MyLogger.threadCreated(this.getName());
     }
 
+    /** This method will perform a series of tasks. If a {@link StatThread} is still running,
+     it will join the statThread and wait for it to finish. Then, it will reload the config,
+     update the offlinePlayerList in the {@link OfflinePlayerHandler}, update the {@link DebugLevel},
+     update the share-settings in {@link ShareManager} and topListSize-settings in {@link StatManager},
+     and update the MessageBuilders in the {@link OutputManager}.*/
     @Override
     public void run() {
         long time = System.currentTimeMillis();
@@ -69,21 +69,21 @@ public class ReloadThread extends Thread {
             reloadEverything();
 
             if (sender != null) {
-                messageSender.sendFeedbackMsg(sender, StandardMessage.RELOADED_CONFIG);
+                outputManager.sendFeedbackMsg(sender, StandardMessage.RELOADED_CONFIG);
             }
         }
         else {  //during first start-up
             MyLogger.setDebugLevel(config.getDebugLevel());
-            offlinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
+            OfflinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
             ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
         }
     }
 
     private void reloadEverything() {
         MyLogger.setDebugLevel(config.getDebugLevel());
-        messageSender.updateMessageWriters(config);
-        offlinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
-        shareManager.updateSettings(config);
+        OutputManager.updateMessageBuilders();
+        OfflinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
+        ShareManager.updateSettings(config);
     }
 
     private ConcurrentHashMap<String, UUID> loadOfflinePlayers() {
@@ -125,7 +125,7 @@ public class ReloadThread extends Thread {
         MyLogger.actionFinished(1);
 
         MyLogger.logTimeTaken("ReloadThread",
-                ("loaded " + playerMap.size() + " offline players"), time);
+                ("loaded " + playerMap.size() + " offline players"), time, DebugLevel.LOW);
         return playerMap;
     }
 }

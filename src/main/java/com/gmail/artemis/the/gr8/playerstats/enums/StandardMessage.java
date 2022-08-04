@@ -1,5 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.enums;
 
+/** All standard messages PlayerStats can send as feedback.
+ These are all the messages that can be sent without needing additional parameters.*/
 public enum StandardMessage {
     RELOADED_CONFIG,
     STILL_RELOADING,

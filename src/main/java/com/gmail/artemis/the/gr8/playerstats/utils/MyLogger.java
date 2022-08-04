@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
+/** The PlayerStats Logger*/
 public final class MyLogger {
 
     private static final Logger logger;
@@ -36,10 +37,10 @@ public final class MyLogger {
     }
 
     /** Sets the desired debugging level.
-     <p>1 = low (only show unexpected errors)</p>
-     <p>2 = medium (detail all encountered exceptions, log main tasks and show time taken)</p>
-     <p>3 = high (log all tasks and time taken)</p>
-     <p>Default: 1</p>*/
+     <br>1 = low (only show unexpected errors)</br>
+     <br>2 = medium (detail all encountered exceptions, log main tasks and show time taken)</br>
+     <br>3 = high (log all tasks and time taken)</br>
+     <br>Default: 1</br>*/
     public static void setDebugLevel(int level) {
         if (level == 2) {
             debugLevel = DebugLevel.MEDIUM;
@@ -80,6 +81,10 @@ public final class MyLogger {
         }
     }
 
+    public static void logException(@NotNull Exception exception, String caughtBy) {
+        logException(exception, caughtBy, null);
+    }
+
     /** Log the encountered exception as a warning to console,
      with some information about which class/method caught it
      and with a printStackTrace if DebugLevel is HIGH.
@@ -96,7 +101,7 @@ public final class MyLogger {
         }
     }
 
-    /** If DebugLevel is MEDIUM or HIGH, logs when the while loop in MessageWriter, getLanguageKey is being run. */
+    /** If DebugLevel is MEDIUM or HIGH, logs when the while loop in MessageBuilder, getLanguageKey is being run. */
     public static void replacingUnderscores() {
         if (debugLevel != DebugLevel.LOW) {
             logger.info("Replacing underscores and capitalizing names...");
@@ -105,14 +110,14 @@ public final class MyLogger {
 
     /** Output to console that the given thread has been created (but not started yet).*/
     public static void threadCreated(String threadName) {
-        if (debugLevel != DebugLevel.LOW) {
+        if (debugLevel == DebugLevel.HIGH) {
             logger.info(threadName + " created!");
         }
     }
 
     /** Output to console that the given thread has been started. */
     public static void threadStart(String threadName) {
-        if (debugLevel == DebugLevel.MEDIUM || debugLevel == DebugLevel.HIGH) {
+        if (debugLevel == DebugLevel.HIGH) {
             logger.info(threadName + " started!");
         }
     }
@@ -188,14 +193,6 @@ public final class MyLogger {
         if (debugLevel == DebugLevel.HIGH) {
             logger.info(Collections.list(threadNames.keys()).toString());
         }
-    }
-
-    /** Output to console how long a certain task has taken (regardless of DebugLevel).
-     @param className Name of the class executing the task
-     @param methodName Name or description of the task
-     @param startTime Timestamp marking the beginning of the task */
-    public static void logTimeTaken(String className, String methodName, long startTime) {
-        logTimeTaken(className, methodName, startTime, DebugLevel.LOW);
     }
 
     /** Output to console how long a certain task has taken if DebugLevel is equal to or higher than the specified threshold.

@@ -39,11 +39,15 @@
           <relocations>
             <relocation>
               <pattern>net.kyori</pattern>
-              <shadedPattern>com.gmail.artemis.the.gr8.kyori</shadedPattern>
+              <shadedPattern>com.gmail.artemis.the.gr8.lib.kyori</shadedPattern>
             </relocation>
             <relocation>
               <pattern>com.tchristofferson</pattern>
-              <shadedPattern>com.gmail.artemis.the.gr8.tchristofferson</shadedPattern>
+              <shadedPattern>com.gmail.artemis.the.gr8.util.tchristofferson</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.bstats</pattern>
+              <shadedPattern>com.gmail.artemis.the.gr8.util.bstats</shadedPattern>
             </relocation>
           </relocations>
           <filters>
@@ -67,8 +71,26 @@
                 <exclude>META-INF/**</exclude>
               </excludes>
             </filter>
+            <filter>
+              <artifact>org.bstats:*</artifact>
+              <excludes>
+                <exclude>META-INF/**</exclude>
+              </excludes>
+            </filter>
           </filters>
         </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.2.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -85,12 +107,22 @@
       <id>maven-central</id>
       <url>https://oss.sonatype.org/content/groups/public</url>
     </repository>
+    <repository>
+      <id>placeholderapi</id>
+      <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+    </repository>
   </repositories>
   <dependencies>
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
       <version>1.19-R0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>me.clip</groupId>
+      <artifactId>placeholderapi</artifactId>
+      <version>2.11.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

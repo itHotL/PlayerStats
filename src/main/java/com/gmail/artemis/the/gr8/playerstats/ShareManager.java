@@ -2,7 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
-import com.gmail.artemis.the.gr8.playerstats.models.StatResult;
+import com.gmail.artemis.the.gr8.playerstats.statistic.result.InternalStatResult;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.command.CommandSender;
@@ -13,43 +13,33 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
+/** The manager of all Player-prompted statistic-sharing. If sharing is enabled, this class will save the
+ results of past stat-lookups, so the results can be retrieved and shared when a Player clicks the share-button.*/
 public final class ShareManager {
-
-    private static volatile ShareManager instance;
 
     private static boolean isEnabled;
     private static int waitingTime;
 
-    private volatile AtomicInteger resultID;
-    private ConcurrentHashMap<UUID, StatResult> statResultQueue;
-    private ConcurrentHashMap<String, Instant> shareTimeStamp;
-    private ArrayBlockingQueue<UUID> sharedResults;
+    private static volatile AtomicInteger resultID;
+    private static ConcurrentHashMap<Integer, InternalStatResult> statResultQueue;
+    private static ConcurrentHashMap<String, Instant> shareTimeStamp;
+    private static ArrayBlockingQueue<Integer> sharedResults;
 
-    private ShareManager(ConfigHandler config) {
+    public ShareManager(ConfigHandler config) {
        updateSettings(config);
     }
 
-    public static ShareManager getInstance(ConfigHandler config) {
-        ShareManager shareManager = instance;
-        if (shareManager != null) {
-            return shareManager;
-        }
-        synchronized (ShareManager.class) {
-            if (instance == null) {
-                instance = new ShareManager(config);
-            }
-            return instance;
-        }
+    public static boolean isEnabled() {
+        return isEnabled;
     }
 
-    public synchronized void updateSettings(ConfigHandler config) {
+    public static synchronized void updateSettings(ConfigHandler config) {
         isEnabled = config.allowStatSharing() && config.useHoverText();
         waitingTime = config.getStatShareWaitingTime();
 
@@ -74,21 +64,18 @@ public final class ShareManager {
         }
     }
 
-    public boolean isEnabled() {
-        return isEnabled;
-    }
-
     public boolean senderHasPermission(CommandSender sender) {
         return !(sender instanceof ConsoleCommandSender) && sender.hasPermission("playerstats.share");
     }
 
-    public UUID saveStatResult(String playerName, TextComponent statResult) {
+    public int saveStatResult(String playerName, TextComponent statResult) {
         removeExcessResults(playerName);
 
         int ID = getNextIDNumber();
-        UUID shareCode = UUID.randomUUID();
-
-        statResultQueue.put(shareCode, new StatResult(playerName, statResult, ID, shareCode));
+        //UUID shareCode = UUID.randomUUID();
+        InternalStatResult result = new InternalStatResult(playerName, statResult, ID);
+        int shareCode = result.hashCode();
+        statResultQueue.put(shareCode, result);
         MyLogger.logMsg("Saving statResults with no. " + ID, DebugLevel.MEDIUM);
         return shareCode;
     }
@@ -102,25 +89,25 @@ public final class ShareManager {
         }
     }
 
-    public boolean requestAlreadyShared(UUID shareCode) {
+    public boolean requestAlreadyShared(int shareCode) {
         return sharedResults.contains(shareCode);
     }
 
-    /** Takes a statResult from the internal ConcurrentHashmap,
+    /** Takes a formattedValue from the internal ConcurrentHashmap,
      puts the current time in the shareTimeStamp (ConcurrentHashMap),
-     puts the shareCode (UUID) in the sharedResults (ArrayBlockingQueue),
-     and returns the statResult. If no statResult was found, returns null.*/
-    public @Nullable StatResult getStatResult(String playerName, UUID shareCode) {
+     puts the shareCode (int hashCode) in the sharedResults (ArrayBlockingQueue),
+     and returns the formattedValue. If no formattedValue was found, returns null.*/
+    public @Nullable InternalStatResult getStatResult(String playerName, int shareCode) {
         if (statResultQueue.containsKey(shareCode)) {
             shareTimeStamp.put(playerName, Instant.now());
 
             if (!sharedResults.offer(shareCode)) {  //create a new ArrayBlockingQueue if our queue is full
                 MyLogger.logMsg("500 stat-results have been shared, " +
                         "creating a new internal queue with the most recent 50 share-code-values and discarding the rest...", DebugLevel.MEDIUM);
-                ArrayBlockingQueue<UUID> newQueue = new ArrayBlockingQueue<>(500);
+                ArrayBlockingQueue<Integer> newQueue = new ArrayBlockingQueue<>(500);
 
                 synchronized (this) {  //put the last 50 values in the new Queue
-                    UUID[] lastValues = sharedResults.toArray(new UUID[0]);
+                    Integer[] lastValues = sharedResults.toArray(new Integer[500]);
                     Arrays.stream(Arrays.copyOfRange(lastValues, 450, 500))
                             .parallel().iterator()
                             .forEachRemaining(newQueue::offer);
@@ -139,18 +126,18 @@ public final class ShareManager {
     /** If the given player already has more than x (in this case 25) StatResults saved,
       remove the oldest one.*/
     private void removeExcessResults(String playerName) {
-        List<StatResult> alreadySavedResults = statResultQueue.values()
+        List<InternalStatResult> alreadySavedResults = statResultQueue.values()
                 .parallelStream()
-                .filter(result -> result.playerName().equalsIgnoreCase(playerName))
+                .filter(result -> result.executorName().equalsIgnoreCase(playerName))
                 .toList();
 
         if (alreadySavedResults.size() > 25) {
-            UUID uuid = alreadySavedResults
+            int hashCode = alreadySavedResults
                     .parallelStream()
-                    .min(Comparator.comparing(StatResult::ID))
-                    .orElseThrow().uuid();
-            MyLogger.logMsg("Removing old stat no. " + statResultQueue.get(uuid).ID() + " for player " + playerName, DebugLevel.MEDIUM);
-            statResultQueue.remove(uuid);
+                    .min(Comparator.comparing(InternalStatResult::ID))
+                    .orElseThrow().hashCode();
+            MyLogger.logMsg("Removing old stat no. " + statResultQueue.get(hashCode).ID() + " for player " + playerName, DebugLevel.MEDIUM);
+            statResultQueue.remove(hashCode);
         }
     }
 

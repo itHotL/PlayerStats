@@ -1,5 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats;
 
+import com.gmail.artemis.the.gr8.playerstats.api.PlayerStats;
+import com.gmail.artemis.the.gr8.playerstats.api.PlayerStatsAPI;
 import com.gmail.artemis.the.gr8.playerstats.commands.ReloadCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.ShareCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
@@ -7,42 +9,44 @@ import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
+import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
+import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-public class Main extends JavaPlugin {
+public final class Main extends JavaPlugin {
 
     private static BukkitAudiences adventure;
 
-    public static @NotNull BukkitAudiences adventure() {
-        if (adventure == null) {
-            throw new IllegalStateException("Tried to access Adventure when the plugin was disabled!");
-        }
-        return adventure;
-    }
+    private static ConfigHandler config;
+    private static OfflinePlayerHandler offlinePlayerHandler;
+    private static EnumHandler enumHandler;
+
+    private static OutputManager outputManager;
+    private static ShareManager shareManager;
+    private static ThreadManager threadManager;
+
+    private static PlayerStats playerStatsAPI;
+
 
     @Override
     public void onEnable() {
-        //initialize the Adventure library
-        adventure = BukkitAudiences.create(this);
+        //TODO fix (move these two into initializeMainClasses also, and remove all the Main.get... methods)
+        new Metrics(this, 15923);
 
-        //first get an instance of all the classes that need to be passed along to different classes
-        ConfigHandler config = new ConfigHandler(this);
-        OfflinePlayerHandler offlinePlayerHandler = new OfflinePlayerHandler();
-
-        OutputManager outputManager = OutputManager.getInstance(config);
-        ThreadManager threadManager = ThreadManager.getInstance(config, outputManager, offlinePlayerHandler);
-        ShareManager shareManager = ShareManager.getInstance(config);
+        //initialize all the Managers, singletons, ConfigHandler and the API
+        initializeMainClasses();
 
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(outputManager, threadManager, offlinePlayerHandler));
-            statcmd.setTabCompleter(new TabCompleter(offlinePlayerHandler));
+            statcmd.setExecutor(new StatCommand(outputManager, threadManager));
+            statcmd.setTabCompleter(new TabCompleter(enumHandler, offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
         if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));
@@ -51,7 +55,7 @@ public class Main extends JavaPlugin {
 
         //register the listener
         Bukkit.getPluginManager().registerEvents(new JoinListener(threadManager), this);
-
+        
         //finish up
         this.getLogger().info("Enabled PlayerStats!");
     }
@@ -63,5 +67,55 @@ public class Main extends JavaPlugin {
             adventure = null;
         }
         this.getLogger().info("Disabled PlayerStats!");
+    }
+
+    public static @NotNull BukkitAudiences getAdventure() throws IllegalStateException {
+        if (adventure == null) {
+            throw new IllegalStateException("Tried to access Adventure without PlayerStats being enabled!");
+        }
+        return adventure;
+    }
+
+    public static @NotNull ConfigHandler getConfigHandler() throws IllegalStateException {
+        if (config == null) {
+            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
+        }
+        return config;
+    }
+
+    public static @NotNull EnumHandler getEnumHandler() {
+        if (enumHandler == null) {
+            enumHandler = new EnumHandler();
+        }
+        return enumHandler;
+    }
+
+    public static @NotNull OfflinePlayerHandler getOfflinePlayerHandler() throws IllegalStateException {
+        if (offlinePlayerHandler == null) {
+            throw new IllegalStateException("PlayerStats does not seem to be fully loaded!");
+        }
+        return offlinePlayerHandler;
+    }
+
+    public static @NotNull PlayerStats getPlayerStatsAPI() throws IllegalStateException {
+        if (playerStatsAPI == null) {
+            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
+        }
+        return playerStatsAPI;
+    }
+
+    private void initializeMainClasses() {
+        adventure = BukkitAudiences.create(this);
+
+        config = new ConfigHandler(this);
+        enumHandler = new EnumHandler();
+        offlinePlayerHandler = new OfflinePlayerHandler();
+
+        shareManager = new ShareManager(config);
+        outputManager = new OutputManager(getAdventure(), config, shareManager);
+        StatManager statManager = new StatManager(offlinePlayerHandler);
+        threadManager = new ThreadManager(config, statManager, outputManager);
+
+        playerStatsAPI = new PlayerStatsAPI(statManager, outputManager);
     }
 }

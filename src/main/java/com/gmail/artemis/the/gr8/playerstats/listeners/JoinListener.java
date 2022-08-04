@@ -5,6 +5,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+/** Listens for new Players that join, and reloads PlayerStats if someone joins that hasn't joined before.*/
 public class JoinListener implements Listener {
 
     private static ThreadManager threadManager;

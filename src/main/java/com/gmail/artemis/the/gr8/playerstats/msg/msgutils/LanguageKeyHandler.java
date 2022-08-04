@@ -11,12 +11,81 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.HashMap;
 
+/** A utility class that provides language keys to be put in a TranslatableComponent.*/
 public final class LanguageKeyHandler {
 
     private static HashMap<Statistic, String> statNameKeys;
 
     public LanguageKeyHandler() {
         statNameKeys = generateStatNameKeys();
+    }
+
+    /** Checks if a given Key is the language key "stat_type.minecraft.killed"
+     or "commands.kill.success.single" (which results in "Killed %s").*/
+    public static boolean isKeyForKillEntity(String statKey) {
+        return statKey.equalsIgnoreCase("stat_type.minecraft.killed") ||
+                statKey.equalsIgnoreCase("commands.kill.success.single");
+    }
+
+    /** Returns a language key to replace the default Statistic.Kill_Entity key.
+     @return the key "commands.kill.success.single", which results in "Killed %s" */
+    public static String getAlternativeKeyForKillEntity() {
+        return "commands.kill.success.single";
+    }
+
+    /** Checks if a given Key is the language key "stat_type.minecraft.killed_by"
+     or "stat.minecraft.deaths" (which results in "Number of Deaths").*/
+    public static boolean isKeyForEntityKilledBy(String statKey) {
+        return statKey.equalsIgnoreCase("stat_type.minecraft.killed_by") ||
+                statKey.equalsIgnoreCase("stat.minecraft.deaths");
+    }
+
+    /** Returns a language key to replace the default Statistic.Entity_Killed_By key.
+     @return the key "stat.minecraft.deaths", which results in "Number of Deaths"
+     (meant to be followed by {@link #getAlternativeKeyForEntityKilledByArg()})*/
+    public static String getAlternativeKeyForEntityKilledBy() {
+        return "stat.minecraft.deaths";
+    }
+
+    /** Checks if a given Key is the language key "book.byAuthor"
+     (which results in "by %s"). */
+    public static boolean isKeyForEntityKilledByArg(String statKey) {
+        return statKey.equalsIgnoreCase("book.byAuthor");
+    }
+
+    /** Returns a language key to complete the alternative key for Statistic.Entity_Killed_By.
+     @return the key "book.byAuthor", which results in "by %". If used after
+     {@link #getAlternativeKeyForEntityKilledBy()}, you will get "Number of Deaths" "by %s"*/
+    public static String getAlternativeKeyForEntityKilledByArg() {
+        return "book.byAuthor";
+    }
+
+    public static String convertToName(String key) {
+        if (key.equalsIgnoreCase("soundCategory.block")) {
+            return Unit.BLOCK.getLabel();
+        } else if (isKeyForKillEntity(key)) {
+            return "times_killed";
+        } else if (isKeyForEntityKilledBy(key)) {
+            return "number_of_times_killed_by";
+        } else if (isKeyForEntityKilledByArg(key)) {  //this one returns nothing, because the previous one returns the full text
+            return "";
+        }
+        String toReplace = "";
+        if (key.contains("stat")) {
+            if (key.contains("type")) {
+                toReplace = "stat_type";
+            } else {
+                toReplace = "stat";
+            }
+        } else if (key.contains("entity")) { //for the two entity-related ones, put brackets around it to make up for the multiple-keys/args-serializer issues
+            toReplace = "entity";
+        } else if (key.contains("block")) {
+            toReplace = "block";
+        } else if (key.contains("item")) {
+            toReplace = "item";
+        }
+        toReplace = toReplace + ".minecraft.";
+        return key.replace(toReplace, "");
     }
 
     public String getStatKey(@NotNull Statistic statistic) {
@@ -33,7 +102,7 @@ public final class LanguageKeyHandler {
     public @Nullable String getEntityKey(EntityType entity) {
         if (entity == null || entity == EntityType.UNKNOWN) return null;
         else {
-            return  "entity.minecraft." + entity.getKey().getKey();
+            return "entity.minecraft." + entity.getKey().getKey();
         }
     }
 

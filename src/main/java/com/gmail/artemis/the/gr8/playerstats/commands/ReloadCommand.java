@@ -7,7 +7,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public class ReloadCommand implements CommandExecutor {
+public final class ReloadCommand implements CommandExecutor {
 
     private static ThreadManager threadManager;
 
