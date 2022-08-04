@@ -12,7 +12,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-
 public final class StatCommand implements CommandExecutor {
 
     private static ThreadManager threadManager;

@@ -133,5 +133,4 @@ public final class EnumHandler {
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
     }
-
 }

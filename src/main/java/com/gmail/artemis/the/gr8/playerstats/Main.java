@@ -36,7 +36,6 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        //TODO fix (move these two into initializeMainClasses also, and remove all the Main.get... methods)
         new Metrics(this, 15923);
 
         //initialize all the Managers, singletons, ConfigHandler and the API
