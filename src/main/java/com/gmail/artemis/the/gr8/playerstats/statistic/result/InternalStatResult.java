@@ -1,10 +1,10 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic.result;
 
-import com.gmail.artemis.the.gr8.playerstats.api.StatFormatter;
+import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import net.kyori.adventure.text.TextComponent;
 
 /** This Record is used to store stat-results internally, so Players can share them by clicking a share-button.*/
-public record InternalStatResult(String executorName, TextComponent statResult, int ID) implements StatResult<Integer> {
+public record InternalStatResult(String executorName, TextComponent formattedValue, int ID) implements StatResult<Integer> {
 
     /** Gets the ID number for this StatResult. Unlike for the other {@link StatResult} implementations,
      this one does not return the actual statistic data, because this implementation is meant for internal
@@ -19,11 +19,12 @@ public record InternalStatResult(String executorName, TextComponent statResult, 
 
     @Override
     public TextComponent getFormattedTextComponent() {
-        return statResult;
+        return formattedValue;
     }
 
     @Override
-    public String getFormattedString() {
-        return StatFormatter.TextComponentToString(statResult);
+    public String toString() {
+        return ComponentUtils.getTranslatableComponentSerializer()
+                .serialize(formattedValue);
     }
 }

@@ -1,7 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
-import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.ComponentUtils;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.*;
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -21,21 +20,11 @@ import java.util.LinkedHashMap;
  <br>
  <br>Alternatively, you can also turn your TextComponent into a plain String with
  {@link #TextComponentToString(TextComponent)}. Don't use Adventure's method .content()
- on your statResult to do this - because of the way the TextComponent is built by PlayerStats,
+ on your formattedValue to do this - because of the way the TextComponent is built by PlayerStats,
  you won't be able to get the full content that way.*/
 @Internal
-public interface StatFormatter {
-
-    /** Turns a TextComponent into its String representation. This method is equipped
-    to turn all PlayerStats' formatted statResults into String.
-
-     @return a String representation of this TextComponent, without hover/click events,
-     but with color, style and formatting. TranslatableComponents will be turned into
-     plain English.*/
-    static String TextComponentToString(TextComponent component) {
-        return ComponentUtils.getTranslatableComponentSerializer()
-                .serialize(component);
-    }
+public
+interface StatFormatter extends Formatter {
 
     /** @return a TextComponent with the following parts:
     <br>[player-name]: [number] [stat-name] {sub-stat-name}*/

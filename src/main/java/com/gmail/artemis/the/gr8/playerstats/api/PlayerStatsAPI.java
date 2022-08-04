@@ -38,7 +38,7 @@ public final class PlayerStatsAPI implements PlayerStats {
 
     @Override
     public Formatter getFormatter() {
-        return null;
+        return statFormatter;
     }
 
     static StatCalculator statCalculator() {

@@ -1,6 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic.result;
 
-import com.gmail.artemis.the.gr8.playerstats.api.StatFormatter;
+import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import net.kyori.adventure.text.TextComponent;
 
 public record PlayerStatResult(int value, TextComponent formattedValue) implements StatResult<Integer> {
@@ -16,7 +16,8 @@ public record PlayerStatResult(int value, TextComponent formattedValue) implemen
     }
 
     @Override
-    public String getFormattedString() {
-        return StatFormatter.TextComponentToString(formattedValue);
+    public String toString() {
+        return ComponentUtils.getTranslatableComponentSerializer()
+                .serialize(formattedValue);
     }
 }

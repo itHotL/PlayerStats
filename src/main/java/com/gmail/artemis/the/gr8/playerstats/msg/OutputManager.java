@@ -1,7 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.ShareManager;
-import com.gmail.artemis.the.gr8.playerstats.api.Formatter;
+import com.gmail.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentFactory;
@@ -29,7 +29,7 @@ import static com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage.*;
 /** This class manages all PlayerStats output. It is the only place where messages are sent.
  It gets the messages from a {@link MessageBuilder}, which is different for a Console as for Players
  (mainly to deal with the lack of hover-text, and for Bukkit consoles to make up for the lack of hex-colors).*/
-public final class OutputManager implements Formatter {
+public final class OutputManager implements StatFormatter {
 
     private static BukkitAudiences adventure;
     private static ConfigHandler config;
@@ -77,11 +77,6 @@ public final class OutputManager implements Formatter {
     }
 
     @Override
-    public TextComponent formatSingleTopStatLine(int positionInTopList, String playerName, long statNumber, Statistic statistic) {
-        return messageBuilder.singleTopStatLine(positionInTopList, playerName, statNumber, statistic);
-    }
-
-    @Override
     public TextComponent formatPlayerStat(@NotNull StatRequest statRequest, int playerStat) {
         BiFunction<Integer, CommandSender, TextComponent> playerStatFunction =
                 getMessageBuilder(statRequest).formattedPlayerStatFunction(playerStat, statRequest);
@@ -95,6 +90,11 @@ public final class OutputManager implements Formatter {
                 getMessageBuilder(statRequest).formattedServerStatFunction(serverStat, statRequest);
 
         return processFunction(statRequest.getCommandSender(), serverStatFunction);
+    }
+
+    @Override
+    public TextComponent formatSingleTopStatLine(int positionInTopList, String playerName, long statNumber, Statistic statistic) {
+        return messageBuilder.singleTopStatLine(positionInTopList, playerName, statNumber, statistic);
     }
 
     @Override

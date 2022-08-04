@@ -38,10 +38,10 @@ public final class ShareCommand implements CommandExecutor {
             }
             else {
                 InternalStatResult result = shareManager.getStatResult(sender.getName(), shareCode);
-                if (result == null) {  //at this point the only possible cause of statResult being null is the request being older than 25 player-requests ago
+                if (result == null) {  //at this point the only possible cause of formattedValue being null is the request being older than 25 player-requests ago
                     outputManager.sendFeedbackMsg(sender, StandardMessage.STAT_RESULTS_TOO_OLD);
                 } else {
-                    outputManager.sendToAllPlayers(result.statResult());
+                    outputManager.sendToAllPlayers(result.formattedValue());
                 }
             }
         }

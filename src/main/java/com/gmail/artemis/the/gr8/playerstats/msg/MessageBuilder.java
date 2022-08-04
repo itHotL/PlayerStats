@@ -177,11 +177,11 @@ public final class MessageBuilder {
         }
     }
 
-    /** Returns a BiFunction for a player statistic. This BiFunction will return a statResult,
+    /** Returns a BiFunction for a player statistic. This BiFunction will return a formattedValue,
      the shape of which is determined by the 2 parameters the BiFunction gets.
      <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
-     <br>- If both parameters are null, the statResult will be returned as is.</br>*/
+     <br>- If both parameters are null, the formattedValue will be returned as is.</br>*/
     public BiFunction<Integer, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull StatRequest statRequest) {
         TextComponent playerStat = Component.text()
                 .append(componentFactory.playerName(statRequest.getPlayerName(), Target.PLAYER)
@@ -196,11 +196,11 @@ public final class MessageBuilder {
         return getFormattingFunction(playerStat, Target.PLAYER);
     }
 
-    /** Returns a BiFunction for a server statistic. This BiFunction will return a statResult,
+    /** Returns a BiFunction for a server statistic. This BiFunction will return a formattedValue,
      the shape of which is determined by the 2 parameters the BiFunction gets.
      <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
-     <br>- If both parameters are null, the statResult will be returned as is.</br>*/
+     <br>- If both parameters are null, the formattedValue will be returned as is.</br>*/
     public BiFunction<Integer, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequest statRequest) {
         TextComponent serverStat = text()
                 .append(componentFactory.title(config.getServerTitle(), Target.SERVER))
@@ -216,11 +216,11 @@ public final class MessageBuilder {
         return getFormattingFunction(serverStat, Target.SERVER);
     }
 
-    /** Returns a BiFunction for a top statistic. This BiFunction will return a statResult,
+    /** Returns a BiFunction for a top statistic. This BiFunction will return a formattedValue,
      the shape of which is determined by the 2 parameters the BiFunction gets.
      <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
-     <br>- If both parameters are null, the statResult will be returned as is.</br>*/
+     <br>- If both parameters are null, the formattedValue will be returned as is.</br>*/
     public BiFunction<Integer, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest statRequest) {
         final TextComponent title = getTopStatsTitleComponent(statRequest, topStats.size());
         final TextComponent shortTitle = getTopStatDescription(statRequest, topStats.size());

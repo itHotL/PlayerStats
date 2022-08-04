@@ -93,10 +93,10 @@ public final class ShareManager {
         return sharedResults.contains(shareCode);
     }
 
-    /** Takes a statResult from the internal ConcurrentHashmap,
+    /** Takes a formattedValue from the internal ConcurrentHashmap,
      puts the current time in the shareTimeStamp (ConcurrentHashMap),
      puts the shareCode (int hashCode) in the sharedResults (ArrayBlockingQueue),
-     and returns the statResult. If no statResult was found, returns null.*/
+     and returns the formattedValue. If no formattedValue was found, returns null.*/
     public @Nullable InternalStatResult getStatResult(String playerName, int shareCode) {
         if (statResultQueue.containsKey(shareCode)) {
             shareTimeStamp.put(playerName, Instant.now());

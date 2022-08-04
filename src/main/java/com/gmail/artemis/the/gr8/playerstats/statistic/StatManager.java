@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.statistic;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.api.StatCalculator;
+import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
@@ -74,7 +75,7 @@ public final class StatManager implements StatCalculator {
 
         MyLogger.actionFinished(2);
         ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
-        MyLogger.logTimeTaken("StatThread", "calculated all stats", time);
+        MyLogger.logTimeTaken("StatThread", "calculated all stats", time, DebugLevel.MEDIUM);
 
         return allStats;
     }

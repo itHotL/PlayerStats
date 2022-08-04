@@ -125,7 +125,7 @@ public final class ReloadThread extends Thread {
         MyLogger.actionFinished(1);
 
         MyLogger.logTimeTaken("ReloadThread",
-                ("loaded " + playerMap.size() + " offline players"), time);
+                ("loaded " + playerMap.size() + " offline players"), time, DebugLevel.LOW);
         return playerMap;
     }
 }

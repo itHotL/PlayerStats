@@ -1,5 +1,7 @@
-package com.gmail.artemis.the.gr8.playerstats.msg.msgutils;
+package com.gmail.artemis.the.gr8.playerstats.msg.components;
 
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.StringUtils;
 import net.kyori.adventure.text.*;
 import net.kyori.adventure.text.flattener.ComponentFlattener;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;

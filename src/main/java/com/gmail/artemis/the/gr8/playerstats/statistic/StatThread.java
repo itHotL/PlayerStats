@@ -1,8 +1,8 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
-import com.gmail.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
+import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
@@ -65,7 +65,8 @@ public final class StatThread extends Thread {
                 case SERVER -> outputManager.formatServerStat(statRequest, statManager.getServerStat(statRequest));
             };
             if (statRequest.isAPIRequest()) {
-                String msg = StatFormatter.TextComponentToString(statResult);
+                String msg = ComponentUtils.getTranslatableComponentSerializer()
+                        .serialize(statResult);
                 statRequest.getCommandSender().sendMessage(msg);
             }
             else {

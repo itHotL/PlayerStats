@@ -1,20 +1,18 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic.result;
 
+import com.gmail.artemis.the.gr8.playerstats.api.Formatter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 
 /** Holds the result of a completed stat-lookup. The <code>Type</code> parameter
- <code>T</code> of the StatResult represents the data type of the stored number:
- From the StatResult,
- you can get the numbers in a formatted message, or the raw numbers by themselves:
+ <code>T</code> of this StatResult represents the data type of the stored number:
  <ul>
  <li> <code>Integer</code> for playerStat
  <li> <code>Long</code> for serverStat
  <li> <code>LinkedHashMap(String, Integer)</code> for topStat
  </ul>
- You can get the raw numbers with {@link #getNumericalValue()}. Additionally,
- you can get the default formatted message that includes formatted numbers. This can
- either be a String or a {@link TextComponent}, and contains the following information:
+ You can get these raw numbers with {@link #getNumericalValue()}. Additionally,
+ you can get a formatted message that contains the following information:
  <ul>
  <li> for playerStat:
  <br> [player-name]: [formatted-number] [stat-name] [sub-stat-name]
@@ -26,15 +24,19 @@ import net.kyori.adventure.text.TextComponent;
  <br> [2.] [player-name] [.....] [formatted-number]
  <br> [3.] etc...
  </ul>
- If you want the results to be formatted differently, you can get an instance of
- the {@link com.gmail.artemis.the.gr8.playerstats.api.Formatter}.
 
- Resulting TextComponents can be sent directly to a Minecraft client or console with the
- Adventure library. To send a Component, you need to get a {@link BukkitAudiences} object,
- and use that to send the desired Component. Normally you would have to add Adventure
- as a dependency to your project, but since the library is included in PlayerStats, you can
- access it directly. Information on how to get and use the BukkitAudiences object can be
+ By default, the resulting message is a {@link TextComponent}, which can be sent directly
+ to a Minecraft client or console with the Adventure library. To send a Component,
+ you need to get a {@link BukkitAudiences} object, and use that to send the desired Component.
+ Normally you would have to add Adventure as a dependency to your project,
+ but since the library is included in PlayerStats, you can access it directly.
+ Information on how to get and use the BukkitAudiences object can be
  found on <a href="https://docs.adventure.kyori.net/platform/bukkit.html">Adventure's website</a>.
+
+ <p>You can also use the provided {@link #toString()} method to get the same information
+ in String-format. Don't use Adventure's toString methods on the Components
+ - those are for debugging purposes. And finally, if you want the results to be
+ formatted differently, you can get an instance of the {@link Formatter}.
  */
 public interface StatResult<T> {
 
@@ -51,11 +53,11 @@ public interface StatResult<T> {
      PlayerStats config. See class description for more information. */
     TextComponent getFormattedTextComponent();
 
-    /** Gets the formatted message for the completed stat-lookup this {@link StatResult} stores.
+    /** Turns the formatted message for the completed stat-lookup into String.
 
      @return a String message containing the formatted number. This message follows
      the same style and color settings that are specified in the PlayerStats config,
      but it is not translatable (it is always plain English). See class description
      for more information.*/
-    String getFormattedString();
+    String toString();
 }

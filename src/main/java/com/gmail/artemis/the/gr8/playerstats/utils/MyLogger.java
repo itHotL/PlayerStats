@@ -110,14 +110,14 @@ public final class MyLogger {
 
     /** Output to console that the given thread has been created (but not started yet).*/
     public static void threadCreated(String threadName) {
-        if (debugLevel != DebugLevel.LOW) {
+        if (debugLevel == DebugLevel.HIGH) {
             logger.info(threadName + " created!");
         }
     }
 
     /** Output to console that the given thread has been started. */
     public static void threadStart(String threadName) {
-        if (debugLevel == DebugLevel.MEDIUM || debugLevel == DebugLevel.HIGH) {
+        if (debugLevel == DebugLevel.HIGH) {
             logger.info(threadName + " started!");
         }
     }
@@ -193,14 +193,6 @@ public final class MyLogger {
         if (debugLevel == DebugLevel.HIGH) {
             logger.info(Collections.list(threadNames.keys()).toString());
         }
-    }
-
-    /** Output to console how long a certain task has taken (regardless of DebugLevel).
-     @param className Name of the class executing the task
-     @param methodName Name or description of the task
-     @param startTime Timestamp marking the beginning of the task */
-    public static void logTimeTaken(String className, String methodName, long startTime) {
-        logTimeTaken(className, methodName, startTime, DebugLevel.LOW);
     }
 
     /** Output to console how long a certain task has taken if DebugLevel is equal to or higher than the specified threshold.
