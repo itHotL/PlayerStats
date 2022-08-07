@@ -54,5 +54,7 @@ public interface PlayerStats {
      @return a TopStatRequest that can be used to look up a top statistic*/
     TopStatRequest topStat(int topListSize);
 
+    TopStatRequest totalTopStatList();
+
     Formatter getFormatter();
 }

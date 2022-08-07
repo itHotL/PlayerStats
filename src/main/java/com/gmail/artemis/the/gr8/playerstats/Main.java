@@ -115,6 +115,6 @@ public final class Main extends JavaPlugin {
         StatManager statManager = new StatManager(offlinePlayerHandler);
         threadManager = new ThreadManager(config, statManager, outputManager);
 
-        playerStatsAPI = new PlayerStatsAPI(statManager, outputManager);
+        playerStatsAPI = new PlayerStatsAPI(statManager, outputManager, offlinePlayerHandler);
     }
 }
