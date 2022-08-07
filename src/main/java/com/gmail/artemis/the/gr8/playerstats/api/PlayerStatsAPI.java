@@ -1,48 +1,32 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
 
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
+import com.gmail.artemis.the.gr8.playerstats.statistic.StatRetriever;
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.*;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 
 import static org.jetbrains.annotations.ApiStatus.Internal;
 
 /** The implementation of the API Interface */
-public final class PlayerStatsAPI implements PlayerStats {
+public final class PlayerStatsAPI implements PlayerStats, StatManager {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
-    private static StatCalculator statCalculator;
+    private static StatRetriever statRetriever;
     private static StatFormatter statFormatter;
 
     @Internal
-    public PlayerStatsAPI(StatManager stat, StatFormatter format, OfflinePlayerHandler offlinePlayers) {
-        statCalculator = stat;
+    public PlayerStatsAPI(StatRetriever stat, StatFormatter format, OfflinePlayerHandler offlinePlayers) {
+        statRetriever = stat;
         statFormatter = format;
         offlinePlayerHandler = offlinePlayers;
     }
 
-    @Override
-    public PlayerStatRequest playerStat(String playerName) {
-        StatRequestHandler statRequestHandler = StatRequestHandler.playerRequestHandler(playerName);
-        return new PlayerStatRequest(statRequestHandler);
+    static StatRetriever statCalculator() {
+        return statRetriever;
     }
 
-    @Override
-    public ServerStatRequest serverStat() {
-        StatRequestHandler statRequestHandler = StatRequestHandler.serverRequestHandler();
-        return new ServerStatRequest(statRequestHandler);
-    }
-
-    @Override
-    public TopStatRequest topStat(int topListSize) {
-        StatRequestHandler statRequestHandler = StatRequestHandler.topRequestHandler(topListSize);
-        return new TopStatRequest(statRequestHandler);
-    }
-
-    @Override
-    public TopStatRequest totalTopStatList() {
-        int playerCount = offlinePlayerHandler.getOfflinePlayerCount();
-        return topStat(playerCount);
+    static StatFormatter statFormatter() {
+        return statFormatter;
     }
 
     @Override
@@ -50,11 +34,32 @@ public final class PlayerStatsAPI implements PlayerStats {
         return statFormatter;
     }
 
-    static StatCalculator statCalculator() {
-        return statCalculator;
+    @Override
+    public StatManager getStatManager() {
+        return this;
     }
 
-    static StatFormatter statFormatter() {
-        return statFormatter;
+    @Override
+    public RequestGenerator<Integer> getPlayerStat(String playerName) {
+        StatRequest request = StatRequestHandler.getBasicPlayerStatRequest(playerName);
+        return new PlayerStatRequest(request);
+    }
+
+    @Override
+    public ServerStatRequest calculateServerStat() {
+        StatRequest request = StatRequestHandler.getBasicServerStatRequest();
+        return new ServerStatRequest(request);
+    }
+
+    @Override
+    public TopStatRequest calculateTopStat(int topListSize) {
+        StatRequest request = StatRequestHandler.getBasicTopStatRequest(topListSize);
+        return new TopStatRequest(request);
+    }
+
+    @Override
+    public TopStatRequest calculateTotalTopStatList() {
+        int playerCount = offlinePlayerHandler.getOfflinePlayerCount();
+        return calculateTopStat(playerCount);
     }
 }

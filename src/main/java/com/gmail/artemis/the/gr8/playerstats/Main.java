@@ -9,7 +9,7 @@ import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
+import com.gmail.artemis.the.gr8.playerstats.statistic.StatRetriever;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -112,9 +112,9 @@ public final class Main extends JavaPlugin {
 
         shareManager = new ShareManager(config);
         outputManager = new OutputManager(getAdventure(), config, shareManager);
-        StatManager statManager = new StatManager(offlinePlayerHandler);
-        threadManager = new ThreadManager(config, statManager, outputManager);
+        StatRetriever statRetriever = new StatRetriever(offlinePlayerHandler);
+        threadManager = new ThreadManager(config, statRetriever, outputManager);
 
-        playerStatsAPI = new PlayerStatsAPI(statManager, outputManager, offlinePlayerHandler);
+        playerStatsAPI = new PlayerStatsAPI(statRetriever, outputManager, offlinePlayerHandler);
     }
 }

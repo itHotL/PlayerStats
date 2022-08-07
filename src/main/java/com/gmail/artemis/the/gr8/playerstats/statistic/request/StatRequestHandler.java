@@ -13,38 +13,43 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public record StatRequestHandler(StatRequest statRequest) implements RequestGenerator {
+public final class StatRequestHandler {
 
-    public static StatRequestHandler playerRequestHandler(String playerName) {
+    private final StatRequest statRequest;
+
+    public StatRequestHandler(StatRequest request) {
+        statRequest = request;
+    }
+
+    public static StatRequest getBasicPlayerStatRequest(String playerName) {
         StatRequest request = StatRequest.getBasicAPIRequest();
         request.setTarget(Target.PLAYER);
         request.setPlayerName(playerName);
-        return new StatRequestHandler(request);
+        return request;
     }
 
-    public static StatRequestHandler serverRequestHandler() {
+    public static StatRequest getBasicServerStatRequest() {
         StatRequest request = StatRequest.getBasicAPIRequest();
         request.setTarget(Target.SERVER);
-        return new StatRequestHandler(request);
+        return request;
     }
 
-    public static StatRequestHandler topRequestHandler(int topListSize) {
+    public static StatRequest getBasicTopStatRequest(int topListSize) {
         StatRequest request = StatRequest.getBasicAPIRequest();
         request.setTarget(Target.TOP);
         request.setTopListSize(topListSize != 0 ? topListSize : Main.getConfigHandler().getTopListMaxSize());
-        return new StatRequestHandler(request);
+        return request;
     }
 
     /**
      @param sender the CommandSender that requested this specific statistic
      */
-    public static StatRequestHandler internalRequestHandler(CommandSender sender) {
+    public static StatRequest getBasicInternalStatRequest(CommandSender sender) {
         StatRequest request = StatRequest.getBasicRequest(sender);
         request.setTopListSize(Main.getConfigHandler().getTopListMaxSize());
-        return new StatRequestHandler(request);
+        return request;
     }
 
-    @Override
     public StatRequest untyped(@NotNull Statistic statistic) throws IllegalArgumentException {
         if (statistic.getType() == Statistic.Type.UNTYPED) {
             statRequest.setStatistic(statistic);
@@ -53,7 +58,6 @@ public record StatRequestHandler(StatRequest statRequest) implements RequestGene
         throw new IllegalArgumentException("This statistic is not of Type.Untyped");
     }
 
-    @Override
     public StatRequest blockOrItemType(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
         Statistic.Type type = statistic.getType();
         if (type == Statistic.Type.BLOCK && material.isBlock()) {
@@ -69,7 +73,6 @@ public record StatRequestHandler(StatRequest statRequest) implements RequestGene
         return statRequest;
     }
 
-    @Override
     public StatRequest entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
         if (statistic.getType() == Statistic.Type.ENTITY) {
             statRequest.setSubStatEntryName(entityType.toString());

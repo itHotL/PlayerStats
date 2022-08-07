@@ -32,13 +32,14 @@ public final class StatCommand implements CommandExecutor {
             outputManager.sendExamples(sender);
         }
         else {
-            StatRequestHandler statRequestHandler = StatRequestHandler.internalRequestHandler(sender);
-            StatRequest statRequest = statRequestHandler.getRequestFromArgs(args);
+            StatRequest baseRequest = StatRequestHandler.getBasicInternalStatRequest(sender);
+            StatRequestHandler statRequestHandler = new StatRequestHandler(baseRequest);
 
-            if (statRequest.isValid()) {
-                threadManager.startStatThread(statRequest);
+            StatRequest completedRequest = statRequestHandler.getRequestFromArgs(args);
+            if (completedRequest.isValid()) {
+                threadManager.startStatThread(completedRequest);
             } else {
-                sendFeedback(statRequest);
+                sendFeedback(completedRequest);
                 return false;
             }
         }

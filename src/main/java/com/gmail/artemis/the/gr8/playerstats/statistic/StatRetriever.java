@@ -1,7 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
-import com.gmail.artemis.the.gr8.playerstats.api.StatCalculator;
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
@@ -15,17 +14,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
-public final class StatManager implements StatCalculator {
+public final class StatRetriever {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
 
-    public StatManager(OfflinePlayerHandler offlinePlayerHandler) {
+    public StatRetriever(OfflinePlayerHandler offlinePlayerHandler) {
         this.offlinePlayerHandler = offlinePlayerHandler;
     }
 
-    /** Gets the statistic data for an individual player. If somehow the player
-     cannot be found, this returns 0.*/
-    @Override
+
     public int getPlayerStat(StatRequest statRequest) {
         OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(statRequest.getPlayerName());
         if (player != null) {
@@ -39,7 +36,6 @@ public final class StatManager implements StatCalculator {
         return 0;
     }
 
-    @Override
     public LinkedHashMap<String, Integer> getTopStats(StatRequest statRequest) {
         return getAllStatsAsync(statRequest).entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
@@ -47,7 +43,6 @@ public final class StatManager implements StatCalculator {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
-    @Override
     public long getServerStat(StatRequest statRequest) {
         List<Integer> numbers = getAllStatsAsync(statRequest)
                 .values()

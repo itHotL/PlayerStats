@@ -5,7 +5,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatManager;
+import com.gmail.artemis.the.gr8.playerstats.statistic.StatRetriever;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.command.CommandSender;
@@ -25,17 +25,17 @@ public final class ThreadManager {
 
     private static ConfigHandler config;
     private static OutputManager outputManager;
-    private static StatManager statManager;
+    private static StatRetriever statRetriever;
 
     private ReloadThread lastActiveReloadThread;
     private StatThread lastActiveStatThread;
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    public ThreadManager(ConfigHandler config, StatManager statManager, OutputManager outputManager) {
+    public ThreadManager(ConfigHandler config, StatRetriever statRetriever, OutputManager outputManager) {
         ThreadManager.config = config;
         ThreadManager.outputManager = outputManager;
-        ThreadManager.statManager = statManager;
+        ThreadManager.statRetriever = statRetriever;
 
         statThreads = new HashMap<>();
         statThreadID = 0;
@@ -90,7 +90,7 @@ public final class ThreadManager {
     }
 
     private void startNewStatThread(StatRequest statRequest) {
-        lastActiveStatThread = new StatThread(outputManager, statManager, statThreadID, statRequest, lastActiveReloadThread);
+        lastActiveStatThread = new StatThread(outputManager, statRetriever, statThreadID, statRequest, lastActiveReloadThread);
         statThreads.put(statRequest.getCommandSender().getName(), lastActiveStatThread);
         lastActiveStatThread.start();
     }

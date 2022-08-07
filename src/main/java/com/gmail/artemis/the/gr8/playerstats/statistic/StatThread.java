@@ -17,14 +17,14 @@ import java.util.*;
 public final class StatThread extends Thread {
 
     private static OutputManager outputManager;
-    private static StatManager statManager;
+    private static StatRetriever statRetriever;
 
     private final ReloadThread reloadThread;
     private final StatRequest statRequest;
 
-    public StatThread(OutputManager m, StatManager t, int ID, StatRequest s, @Nullable ReloadThread r) {
+    public StatThread(OutputManager m, StatRetriever t, int ID, StatRequest s, @Nullable ReloadThread r) {
         outputManager = m;
-        statManager = t;
+        statRetriever = t;
 
         reloadThread = r;
         statRequest = s;
@@ -60,9 +60,9 @@ public final class StatThread extends Thread {
         Target selection = statRequest.getTarget();
         try {
             TextComponent statResult = switch (selection) {
-                case PLAYER -> outputManager.formatPlayerStat(statRequest, statManager.getPlayerStat(statRequest));
-                case TOP -> outputManager.formatTopStat(statRequest, statManager.getTopStats(statRequest));
-                case SERVER -> outputManager.formatServerStat(statRequest, statManager.getServerStat(statRequest));
+                case PLAYER -> outputManager.formatPlayerStat(statRequest, statRetriever.getPlayerStat(statRequest));
+                case TOP -> outputManager.formatTopStat(statRequest, statRetriever.getTopStats(statRequest));
+                case SERVER -> outputManager.formatServerStat(statRequest, statRetriever.getServerStat(statRequest));
             };
             if (statRequest.isAPIRequest()) {
                 String msg = ComponentUtils.getTranslatableComponentSerializer()
