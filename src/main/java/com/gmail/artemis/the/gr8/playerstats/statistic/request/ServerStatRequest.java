@@ -1,6 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic.request;
 
-import com.gmail.artemis.the.gr8.playerstats.api.RequestExecutor;
+import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.gmail.artemis.the.gr8.playerstats.statistic.result.ServerStatResult;
 import com.gmail.artemis.the.gr8.playerstats.statistic.result.StatResult;
@@ -10,43 +10,42 @@ import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
-public final class ServerStatRequest implements RequestGenerator<Long>, RequestExecutor<Long> {
+public final class ServerStatRequest extends StatRequest<Long> implements RequestGenerator<Long> {
 
-    private final StatRequest statRequest;
-    private final StatRequestHandler statRequestHandler;
+    private final RequestHandler requestHandler;
 
-    public ServerStatRequest(StatRequest request) {
-        statRequest = request;
-        statRequestHandler = new StatRequestHandler(statRequest);
+    public ServerStatRequest(RequestSettings request) {
+        super(request);
+        requestHandler = new RequestHandler(requestSettings);
     }
 
     @Override
-    public RequestExecutor<Long> untyped(@NotNull Statistic statistic) {
-        StatRequest completedRequest = statRequestHandler.untyped(statistic);
+    public StatRequest<Long> untyped(@NotNull Statistic statistic) {
+        RequestSettings completedRequest = requestHandler.untyped(statistic);
         return new ServerStatRequest(completedRequest);
     }
 
     @Override
-    public RequestExecutor<Long> blockOrItemType(@NotNull Statistic statistic, @NotNull Material material) {
-        StatRequest completedRequest = statRequestHandler.blockOrItemType(statistic, material);
+    public StatRequest<Long> blockOrItemType(@NotNull Statistic statistic, @NotNull Material material) {
+        RequestSettings completedRequest = requestHandler.blockOrItemType(statistic, material);
         return new ServerStatRequest(completedRequest);
     }
 
     @Override
-    public RequestExecutor<Long> entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
-        StatRequest completedRequest = statRequestHandler.entityType(statistic, entityType);
+    public StatRequest<Long> entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
+        RequestSettings completedRequest = requestHandler.entityType(statistic, entityType);
         return new ServerStatRequest(completedRequest);
     }
 
     @Override
     public StatResult<Long> execute() {
-        return getStatResult(statRequest);
+        return getStatResult(requestSettings);
     }
 
-    private ServerStatResult getStatResult(StatRequest completedRequest) {
-        long stat = RequestExecutor.getStatCalculator()
+    private ServerStatResult getStatResult(RequestSettings completedRequest) {
+        long stat = Main.getStatCalculator()
                 .getServerStat(completedRequest);
-        TextComponent prettyStat = RequestExecutor.getStatFormatter()
+        TextComponent prettyStat = Main.getStatFormatter()
                 .formatServerStat(completedRequest, stat);
 
         return new ServerStatResult(stat, prettyStat);

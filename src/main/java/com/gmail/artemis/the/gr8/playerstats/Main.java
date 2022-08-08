@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.api.PlayerStats;
 import com.gmail.artemis.the.gr8.playerstats.api.PlayerStatsAPI;
+import com.gmail.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.gmail.artemis.the.gr8.playerstats.commands.ReloadCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.ShareCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
@@ -9,7 +10,7 @@ import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatRetriever;
+import com.gmail.artemis.the.gr8.playerstats.statistic.StatCalculator;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -29,6 +30,7 @@ public final class Main extends JavaPlugin {
 
     private static OutputManager outputManager;
     private static ShareManager shareManager;
+    private static StatCalculator statCalculator;
     private static ThreadManager threadManager;
 
     private static PlayerStats playerStatsAPI;
@@ -82,6 +84,13 @@ public final class Main extends JavaPlugin {
         return config;
     }
 
+    public static @NotNull OfflinePlayerHandler getOfflinePlayerHandler() throws IllegalStateException {
+        if (offlinePlayerHandler == null) {
+            throw new IllegalStateException("PlayerStats does not seem to be fully loaded!");
+        }
+        return offlinePlayerHandler;
+    }
+
     public static @NotNull EnumHandler getEnumHandler() {
         if (enumHandler == null) {
             enumHandler = new EnumHandler();
@@ -89,11 +98,18 @@ public final class Main extends JavaPlugin {
         return enumHandler;
     }
 
-    public static @NotNull OfflinePlayerHandler getOfflinePlayerHandler() throws IllegalStateException {
-        if (offlinePlayerHandler == null) {
-            throw new IllegalStateException("PlayerStats does not seem to be fully loaded!");
+    public static @NotNull StatCalculator getStatCalculator() throws IllegalStateException {
+        if (statCalculator == null) {
+            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
         }
-        return offlinePlayerHandler;
+        return statCalculator;
+    }
+
+    public static @NotNull StatFormatter getStatFormatter() throws IllegalStateException {
+        if (outputManager == null) {
+            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
+        }
+        return outputManager;
     }
 
     public static @NotNull PlayerStats getPlayerStatsAPI() throws IllegalStateException {
@@ -112,9 +128,9 @@ public final class Main extends JavaPlugin {
 
         shareManager = new ShareManager(config);
         outputManager = new OutputManager(getAdventure(), config, shareManager);
-        StatRetriever statRetriever = new StatRetriever(offlinePlayerHandler);
-        threadManager = new ThreadManager(config, statRetriever, outputManager);
+        statCalculator = new StatCalculator(offlinePlayerHandler);
+        threadManager = new ThreadManager(config, statCalculator, outputManager);
 
-        playerStatsAPI = new PlayerStatsAPI(statRetriever, outputManager, offlinePlayerHandler);
+        playerStatsAPI = new PlayerStatsAPI(outputManager, offlinePlayerHandler);
     }
 }

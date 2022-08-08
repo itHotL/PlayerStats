@@ -23,7 +23,7 @@ public record InternalStatResult(String executorName, TextComponent formattedVal
     }
 
     @Override
-    public String toString() {
+    public String getFormattedString() {
         return ComponentUtils.getTranslatableComponentSerializer()
                 .serialize(formattedValue);
     }

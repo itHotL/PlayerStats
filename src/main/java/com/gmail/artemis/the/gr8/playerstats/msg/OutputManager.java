@@ -5,7 +5,7 @@ import com.gmail.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentFactory;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
@@ -77,19 +77,19 @@ public final class OutputManager implements StatFormatter {
     }
 
     @Override
-    public TextComponent formatPlayerStat(@NotNull StatRequest statRequest, int playerStat) {
+    public TextComponent formatPlayerStat(@NotNull RequestSettings requestSettings, int playerStat) {
         BiFunction<Integer, CommandSender, TextComponent> playerStatFunction =
-                getMessageBuilder(statRequest).formattedPlayerStatFunction(playerStat, statRequest);
+                getMessageBuilder(requestSettings).formattedPlayerStatFunction(playerStat, requestSettings);
 
-        return processFunction(statRequest.getCommandSender(), playerStatFunction);
+        return processFunction(requestSettings.getCommandSender(), playerStatFunction);
     }
 
     @Override
-    public TextComponent formatServerStat(@NotNull StatRequest statRequest, long serverStat) {
+    public TextComponent formatServerStat(@NotNull RequestSettings requestSettings, long serverStat) {
         BiFunction<Integer, CommandSender, TextComponent> serverStatFunction =
-                getMessageBuilder(statRequest).formattedServerStatFunction(serverStat, statRequest);
+                getMessageBuilder(requestSettings).formattedServerStatFunction(serverStat, requestSettings);
 
-        return processFunction(statRequest.getCommandSender(), serverStatFunction);
+        return processFunction(requestSettings.getCommandSender(), serverStatFunction);
     }
 
     @Override
@@ -98,11 +98,11 @@ public final class OutputManager implements StatFormatter {
     }
 
     @Override
-    public TextComponent formatTopStat(@NotNull StatRequest statRequest, @NotNull LinkedHashMap<String, Integer> topStats) {
+    public TextComponent formatTopStat(@NotNull RequestSettings requestSettings, @NotNull LinkedHashMap<String, Integer> topStats) {
         BiFunction<Integer, CommandSender, TextComponent> topStatFunction =
-                getMessageBuilder(statRequest).formattedTopStatFunction(topStats, statRequest);
+                getMessageBuilder(requestSettings).formattedTopStatFunction(topStats, requestSettings);
 
-        return processFunction(statRequest.getCommandSender(), topStatFunction);
+        return processFunction(requestSettings.getCommandSender(), topStatFunction);
     }
 
     public void sendFeedbackMsg(@NotNull CommandSender sender, StandardMessage message) {
@@ -168,8 +168,8 @@ public final class OutputManager implements StatFormatter {
         return sender instanceof ConsoleCommandSender ? consoleMessageBuilder : messageBuilder;
     }
 
-    private MessageBuilder getMessageBuilder(StatRequest statRequest) {
-        if (statRequest.isAPIRequest() || !statRequest.isConsoleSender()) {
+    private MessageBuilder getMessageBuilder(RequestSettings requestSettings) {
+        if (requestSettings.isAPIRequest() || !requestSettings.isConsoleSender()) {
             return messageBuilder;
         } else {
             return consoleMessageBuilder;

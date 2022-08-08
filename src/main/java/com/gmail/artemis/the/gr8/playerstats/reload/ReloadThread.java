@@ -7,7 +7,7 @@ import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatRetriever;
+import com.gmail.artemis.the.gr8.playerstats.statistic.StatCalculator;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import org.bukkit.Bukkit;
@@ -47,7 +47,7 @@ public final class ReloadThread extends Thread {
     /** This method will perform a series of tasks. If a {@link StatThread} is still running,
      it will join the statThread and wait for it to finish. Then, it will reload the config,
      update the offlinePlayerList in the {@link OfflinePlayerHandler}, update the {@link DebugLevel},
-     update the share-settings in {@link ShareManager} and topListSize-settings in {@link StatRetriever},
+     update the share-settings in {@link ShareManager} and topListSize-settings in {@link StatCalculator},
      and update the MessageBuilders in the {@link OutputManager}.*/
     @Override
     public void run() {

@@ -3,7 +3,7 @@ package com.gmail.artemis.the.gr8.playerstats.statistic;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
@@ -17,19 +17,19 @@ import java.util.*;
 public final class StatThread extends Thread {
 
     private static OutputManager outputManager;
-    private static StatRetriever statRetriever;
+    private static StatCalculator statCalculator;
 
     private final ReloadThread reloadThread;
-    private final StatRequest statRequest;
+    private final RequestSettings requestSettings;
 
-    public StatThread(OutputManager m, StatRetriever t, int ID, StatRequest s, @Nullable ReloadThread r) {
+    public StatThread(OutputManager m, StatCalculator t, int ID, RequestSettings s, @Nullable ReloadThread r) {
         outputManager = m;
-        statRetriever = t;
+        statCalculator = t;
 
         reloadThread = r;
-        statRequest = s;
+        requestSettings = s;
 
-        this.setName("StatThread-" + statRequest.getCommandSender().getName() + "-" + ID);
+        this.setName("StatThread-" + requestSettings.getCommandSender().getName() + "-" + ID);
         MyLogger.threadCreated(this.getName());
     }
 
@@ -37,13 +37,13 @@ public final class StatThread extends Thread {
     public void run() throws IllegalStateException, NullPointerException {
         MyLogger.threadStart(this.getName());
 
-        if (statRequest == null) {
-            throw new NullPointerException("No statistic statRequest was found!");
+        if (requestSettings == null) {
+            throw new NullPointerException("No statistic requestSettings was found!");
         }
         if (reloadThread != null && reloadThread.isAlive()) {
             try {
                 MyLogger.waitingForOtherThread(this.getName(), reloadThread.getName());
-                outputManager.sendFeedbackMsg(statRequest.getCommandSender(), StandardMessage.STILL_RELOADING);
+                outputManager.sendFeedbackMsg(requestSettings.getCommandSender(), StandardMessage.STILL_RELOADING);
                 reloadThread.join();
 
             } catch (InterruptedException e) {
@@ -54,28 +54,28 @@ public final class StatThread extends Thread {
 
         long lastCalc = ThreadManager.getLastRecordedCalcTime();
         if (lastCalc > 2000) {
-            outputManager.sendFeedbackMsgWaitAMoment(statRequest.getCommandSender(), lastCalc > 20000);
+            outputManager.sendFeedbackMsgWaitAMoment(requestSettings.getCommandSender(), lastCalc > 20000);
         }
 
-        Target selection = statRequest.getTarget();
+        Target selection = requestSettings.getTarget();
         try {
             TextComponent statResult = switch (selection) {
-                case PLAYER -> outputManager.formatPlayerStat(statRequest, statRetriever.getPlayerStat(statRequest));
-                case TOP -> outputManager.formatTopStat(statRequest, statRetriever.getTopStats(statRequest));
-                case SERVER -> outputManager.formatServerStat(statRequest, statRetriever.getServerStat(statRequest));
+                case PLAYER -> outputManager.formatPlayerStat(requestSettings, statCalculator.getPlayerStat(requestSettings));
+                case TOP -> outputManager.formatTopStat(requestSettings, statCalculator.getTopStats(requestSettings));
+                case SERVER -> outputManager.formatServerStat(requestSettings, statCalculator.getServerStat(requestSettings));
             };
-            if (statRequest.isAPIRequest()) {
+            if (requestSettings.isAPIRequest()) {
                 String msg = ComponentUtils.getTranslatableComponentSerializer()
                         .serialize(statResult);
-                statRequest.getCommandSender().sendMessage(msg);
+                requestSettings.getCommandSender().sendMessage(msg);
             }
             else {
-                outputManager.sendToCommandSender(statRequest.getCommandSender(), statResult);
+                outputManager.sendToCommandSender(requestSettings.getCommandSender(), statResult);
             }
         }
         catch (ConcurrentModificationException e) {
-            if (!statRequest.isConsoleSender()) {
-                outputManager.sendFeedbackMsg(statRequest.getCommandSender(), StandardMessage.UNKNOWN_ERROR);
+            if (!requestSettings.isConsoleSender()) {
+                outputManager.sendFeedbackMsg(requestSettings.getCommandSender(), StandardMessage.UNKNOWN_ERROR);
             }
         }
     }

@@ -16,7 +16,7 @@ public record PlayerStatResult(int value, TextComponent formattedValue) implemen
     }
 
     @Override
-    public String toString() {
+    public String getFormattedString() {
         return ComponentUtils.getTranslatableComponentSerializer()
                 .serialize(formattedValue);
     }

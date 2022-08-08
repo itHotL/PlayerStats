@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -9,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
  {@link PlayerStatsAPI}. You can then use this object to access any of the further methods.
  <br>
  <br>Since calculating a top or server statistics can take some time, I strongly
- encourage you to call all the serverStat() and topStat() methods asynchronously.
+ encourage you to call {@link StatRequest#execute()} asynchronously.
  Otherwise, the main Thread will have to wait until all calculations are done,
  and this can severely impact server performance.
 */

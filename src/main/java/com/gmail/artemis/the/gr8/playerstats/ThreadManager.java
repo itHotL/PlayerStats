@@ -2,10 +2,10 @@ package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatRetriever;
+import com.gmail.artemis.the.gr8.playerstats.statistic.StatCalculator;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.command.CommandSender;
@@ -25,17 +25,17 @@ public final class ThreadManager {
 
     private static ConfigHandler config;
     private static OutputManager outputManager;
-    private static StatRetriever statRetriever;
+    private static StatCalculator statCalculator;
 
     private ReloadThread lastActiveReloadThread;
     private StatThread lastActiveStatThread;
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    public ThreadManager(ConfigHandler config, StatRetriever statRetriever, OutputManager outputManager) {
+    public ThreadManager(ConfigHandler config, StatCalculator statCalculator, OutputManager outputManager) {
         ThreadManager.config = config;
         ThreadManager.outputManager = outputManager;
-        ThreadManager.statRetriever = statRetriever;
+        ThreadManager.statCalculator = statCalculator;
 
         statThreads = new HashMap<>();
         statThreadID = 0;
@@ -61,19 +61,19 @@ public final class ThreadManager {
         }
     }
 
-    public void startStatThread(StatRequest statRequest) {
+    public void startStatThread(RequestSettings requestSettings) {
         statThreadID += 1;
-        String cmdSender = statRequest.getCommandSender().getName();
+        String cmdSender = requestSettings.getCommandSender().getName();
 
         if (config.limitStatRequests() && statThreads.containsKey(cmdSender)) {
             Thread runningThread = statThreads.get(cmdSender);
             if (runningThread.isAlive()) {
-                outputManager.sendFeedbackMsg(statRequest.getCommandSender(), StandardMessage.REQUEST_ALREADY_RUNNING);
+                outputManager.sendFeedbackMsg(requestSettings.getCommandSender(), StandardMessage.REQUEST_ALREADY_RUNNING);
             } else {
-                startNewStatThread(statRequest);
+                startNewStatThread(requestSettings);
             }
         } else {
-            startNewStatThread(statRequest);
+            startNewStatThread(requestSettings);
         }
     }
 
@@ -89,9 +89,9 @@ public final class ThreadManager {
         return lastRecordedCalcTime;
     }
 
-    private void startNewStatThread(StatRequest statRequest) {
-        lastActiveStatThread = new StatThread(outputManager, statRetriever, statThreadID, statRequest, lastActiveReloadThread);
-        statThreads.put(statRequest.getCommandSender().getName(), lastActiveStatThread);
+    private void startNewStatThread(RequestSettings requestSettings) {
+        lastActiveStatThread = new StatThread(outputManager, statCalculator, statThreadID, requestSettings, lastActiveReloadThread);
+        statThreads.put(requestSettings.getCommandSender().getName(), lastActiveStatThread);
         lastActiveStatThread.start();
     }
 }

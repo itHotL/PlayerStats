@@ -3,8 +3,8 @@ package com.gmail.artemis.the.gr8.playerstats.commands;
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequestHandler;
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.RequestHandler;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
@@ -32,10 +32,10 @@ public final class StatCommand implements CommandExecutor {
             outputManager.sendExamples(sender);
         }
         else {
-            StatRequest baseRequest = StatRequestHandler.getBasicInternalStatRequest(sender);
-            StatRequestHandler statRequestHandler = new StatRequestHandler(baseRequest);
+            RequestSettings baseRequest = RequestHandler.getBasicInternalStatRequest(sender);
+            RequestHandler requestHandler = new RequestHandler(baseRequest);
 
-            StatRequest completedRequest = statRequestHandler.getRequestFromArgs(args);
+            RequestSettings completedRequest = requestHandler.getRequestFromArgs(args);
             if (completedRequest.isValid()) {
                 threadManager.startStatThread(completedRequest);
             } else {
@@ -46,7 +46,7 @@ public final class StatCommand implements CommandExecutor {
         return true;
     }
 
-    /** If a given {@link StatRequest} does not result in a valid statistic look-up,
+    /** If a given {@link RequestSettings} does not result in a valid statistic look-up,
      this will send a feedback message to the CommandSender that made the request.
      <br> The following is checked:
      <ul>
@@ -54,23 +54,23 @@ public final class StatCommand implements CommandExecutor {
      <li>Is a <code>subStatEntry</code> needed, and if so, is a corresponding Material/EntityType present?
      <li>If the <code>target</code> is Player, is a valid <code>playerName</code> provided?
      </ul>
-     @param statRequest the StatRequest to give feedback on
+     @param requestSettings the RequestSettings to give feedback on
      */
-    private void sendFeedback(StatRequest statRequest) {
-        CommandSender sender = statRequest.getCommandSender();
+    private void sendFeedback(RequestSettings requestSettings) {
+        CommandSender sender = requestSettings.getCommandSender();
 
-        if (statRequest.getStatistic() == null) {
+        if (requestSettings.getStatistic() == null) {
             outputManager.sendFeedbackMsg(sender, StandardMessage.MISSING_STAT_NAME);
         }
-        else if (statRequest.getTarget() == Target.PLAYER && statRequest.getPlayerName() == null) {
+        else if (requestSettings.getTarget() == Target.PLAYER && requestSettings.getPlayerName() == null) {
             outputManager.sendFeedbackMsg(sender, StandardMessage.MISSING_PLAYER_NAME);
         }
         else {
-            Statistic.Type type = statRequest.getStatistic().getType();
-            if (type != Statistic.Type.UNTYPED && statRequest.getSubStatEntryName() == null) {
+            Statistic.Type type = requestSettings.getStatistic().getType();
+            if (type != Statistic.Type.UNTYPED && requestSettings.getSubStatEntryName() == null) {
                 outputManager.sendFeedbackMsgMissingSubStat(sender, type);
             } else {
-                outputManager.sendFeedbackMsgWrongSubStat(sender, type, statRequest.getSubStatEntryName());
+                outputManager.sendFeedbackMsgWrongSubStat(sender, type, requestSettings.getSubStatEntryName());
             }
         }
     }

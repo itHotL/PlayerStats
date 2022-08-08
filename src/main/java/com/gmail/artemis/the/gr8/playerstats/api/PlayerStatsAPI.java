@@ -1,7 +1,5 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
-
-import com.gmail.artemis.the.gr8.playerstats.statistic.StatRetriever;
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.*;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 
@@ -11,22 +9,12 @@ import static org.jetbrains.annotations.ApiStatus.Internal;
 public final class PlayerStatsAPI implements PlayerStats, StatManager {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
-    private static StatRetriever statRetriever;
     private static StatFormatter statFormatter;
 
     @Internal
-    public PlayerStatsAPI(StatRetriever stat, StatFormatter format, OfflinePlayerHandler offlinePlayers) {
-        statRetriever = stat;
+    public PlayerStatsAPI(StatFormatter format, OfflinePlayerHandler offlinePlayers) {
         statFormatter = format;
         offlinePlayerHandler = offlinePlayers;
-    }
-
-    static StatRetriever statCalculator() {
-        return statRetriever;
-    }
-
-    static StatFormatter statFormatter() {
-        return statFormatter;
     }
 
     @Override
@@ -40,26 +28,26 @@ public final class PlayerStatsAPI implements PlayerStats, StatManager {
     }
 
     @Override
-    public RequestGenerator<Integer> getPlayerStat(String playerName) {
-        StatRequest request = StatRequestHandler.getBasicPlayerStatRequest(playerName);
+    public RequestGenerator<Integer> playerStatRequest(String playerName) {
+        RequestSettings request = RequestHandler.getBasicPlayerStatRequest(playerName);
         return new PlayerStatRequest(request);
     }
 
     @Override
-    public ServerStatRequest calculateServerStat() {
-        StatRequest request = StatRequestHandler.getBasicServerStatRequest();
+    public ServerStatRequest serverStatRequest() {
+        RequestSettings request = RequestHandler.getBasicServerStatRequest();
         return new ServerStatRequest(request);
     }
 
     @Override
-    public TopStatRequest calculateTopStat(int topListSize) {
-        StatRequest request = StatRequestHandler.getBasicTopStatRequest(topListSize);
+    public TopStatRequest topStatRequest(int topListSize) {
+        RequestSettings request = RequestHandler.getBasicTopStatRequest(topListSize);
         return new TopStatRequest(request);
     }
 
     @Override
-    public TopStatRequest calculateTotalTopStatList() {
+    public TopStatRequest totalTopStatListRequest() {
         int playerCount = offlinePlayerHandler.getOfflinePlayerCount();
-        return calculateTopStat(playerCount);
+        return topStatRequest(playerCount);
     }
 }

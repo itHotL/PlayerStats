@@ -16,7 +16,7 @@ public record ServerStatResult(long value, TextComponent formattedValue) impleme
     }
 
     @Override
-    public String toString() {
+    public String getFormattedString() {
         return ComponentUtils.getTranslatableComponentSerializer()
                 .serialize(formattedValue);
     }

@@ -33,7 +33,7 @@ import net.kyori.adventure.text.TextComponent;
  Information on how to get and use the BukkitAudiences object can be
  found on <a href="https://docs.adventure.kyori.net/platform/bukkit.html">Adventure's website</a>.
 
- <p>You can also use the provided {@link #toString()} method to get the same information
+ <p>You can also use the provided {@link #getFormattedString()} method to get the same information
  in String-format. Don't use Adventure's toString methods on the Components
  - those are for debugging purposes. And finally, if you want the results to be
  formatted differently, you can get an instance of the {@link Formatter}.
@@ -59,5 +59,5 @@ public interface StatResult<T> {
      the same style and color settings that are specified in the PlayerStats config,
      but it is not translatable (it is always plain English). See class description
      for more information.*/
-    String toString();
+    String getFormattedString();
 }

@@ -1,6 +1,7 @@
 package com.gmail.artemis.the.gr8.playerstats.api;
 
-import com.gmail.artemis.the.gr8.playerstats.statistic.request.StatRequest;
+import com.gmail.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
+import com.gmail.artemis.the.gr8.playerstats.statistic.StatCalculator;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.*;
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -8,7 +9,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import java.util.LinkedHashMap;
 
 /** The {@link StatFormatter} formats raw numbers into pretty messages.
- This Formatter takes a {@link StatRequest} and combines it with the raw number(s)
+ This Formatter takes a {@link RequestSettings} object and combines it with the raw number(s)
  returned by the {@link StatCalculator}, and transforms those into a pretty message
  (by default a TextComponent) with all the relevant information in it.
  <br>
@@ -28,16 +29,16 @@ interface StatFormatter extends Formatter {
 
     /** @return a TextComponent with the following parts:
     <br>[player-name]: [number] [stat-name] {sub-stat-name}*/
-    TextComponent formatPlayerStat(StatRequest statRequest, int playerStat);
+    TextComponent formatPlayerStat(RequestSettings requestSettings, int playerStat);
 
     /** @return a TextComponent with the following parts:
     <br>[Total on] [server-name]: [number] [stat-name] [sub-stat-name]*/
-    TextComponent formatServerStat(StatRequest statRequest, long serverStat);
+    TextComponent formatServerStat(RequestSettings requestSettings, long serverStat);
 
     /** @return a TextComponent with the following parts:
     <br>[PlayerStats] [Top 10] [stat-name] [sub-stat-name]
     <br> [1.] [player-name] [number]
     <br> [2.] [player-name] [number]
     <br> [3.] etc...*/
-    TextComponent formatTopStat(StatRequest statRequest, LinkedHashMap<String, Integer> topStats);
+    TextComponent formatTopStat(RequestSettings requestSettings, LinkedHashMap<String, Integer> topStats);
 }

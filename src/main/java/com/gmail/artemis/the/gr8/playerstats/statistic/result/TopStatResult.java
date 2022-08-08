@@ -18,7 +18,7 @@ public record TopStatResult(LinkedHashMap<String, Integer> value, TextComponent 
     }
 
     @Override
-    public String toString() {
+    public String getFormattedString() {
         return ComponentUtils.getTranslatableComponentSerializer()
                 .serialize(formattedValue);
     }
