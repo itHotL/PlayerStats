@@ -28,7 +28,7 @@ public final class PlayerStatsAPI implements PlayerStats, StatManager {
     }
 
     @Override
-    public RequestGenerator<Integer> playerStatRequest(String playerName) {
+    public PlayerStatRequest playerStatRequest(String playerName) {
         RequestSettings request = RequestHandler.getBasicPlayerStatRequest(playerName);
         return new PlayerStatRequest(request);
     }

@@ -18,23 +18,23 @@ public abstract class StatRequest<T> {
   /** Don't call this from the Main Thread!*/
   public abstract StatResult<T> execute();
 
-  public Statistic getStatistic() {
+  public Statistic getStatisticSetting() {
     return requestSettings.getStatistic();
   }
 
-  public @Nullable Material getBlock() {
+  public @Nullable Material getBlockSetting() {
     return requestSettings.getBlock();
   }
 
-  public @Nullable Material getItem() {
+  public @Nullable Material getItemSetting() {
     return requestSettings.getItem();
   }
 
-  public @Nullable EntityType getEntity() {
+  public @Nullable EntityType getEntitySetting() {
     return requestSettings.getEntity();
   }
 
-  public Target getTarget() {
+  public Target getTargetSetting() {
     return requestSettings.getTarget();
   }
 }

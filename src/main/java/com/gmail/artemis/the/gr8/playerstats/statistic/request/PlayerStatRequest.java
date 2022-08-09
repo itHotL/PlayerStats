@@ -3,7 +3,6 @@ package com.gmail.artemis.the.gr8.playerstats.statistic.request;
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.gmail.artemis.the.gr8.playerstats.statistic.result.PlayerStatResult;
-import com.gmail.artemis.the.gr8.playerstats.statistic.result.StatResult;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -20,25 +19,25 @@ public final class PlayerStatRequest extends StatRequest<Integer> implements Req
     }
 
     @Override
-    public StatRequest<Integer> untyped(@NotNull Statistic statistic) {
+    public PlayerStatRequest untyped(@NotNull Statistic statistic) {
         RequestSettings completedRequest = requestHandler.untyped(statistic);
         return new PlayerStatRequest(completedRequest);
     }
 
     @Override
-    public StatRequest<Integer> blockOrItemType(@NotNull Statistic statistic, @NotNull Material material) {
+    public PlayerStatRequest blockOrItemType(@NotNull Statistic statistic, @NotNull Material material) {
         RequestSettings completedRequest = requestHandler.blockOrItemType(statistic, material);
         return new PlayerStatRequest(completedRequest);
     }
 
     @Override
-    public StatRequest<Integer> entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
+    public PlayerStatRequest entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
         RequestSettings completedRequest = requestHandler.entityType(statistic, entityType);
         return new PlayerStatRequest(completedRequest);
     }
 
     @Override
-    public StatResult<Integer> execute() {
+    public PlayerStatResult execute() {
         return getStatResult(super.requestSettings);
     }
 
