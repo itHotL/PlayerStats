@@ -1,10 +1,8 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
 import com.gmail.artemis.the.gr8.playerstats.ShareManager;
-import com.gmail.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
-import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
@@ -27,9 +25,9 @@ import java.util.function.Function;
 import static com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage.*;
 
 /** This class manages all PlayerStats output. It is the only place where messages are sent.
- It gets the messages from a {@link MessageBuilder}, which is different for a Console as for Players
+ It gets its messages from a {@link MessageBuilder} configured for either a Console or for Players
  (mainly to deal with the lack of hover-text, and for Bukkit consoles to make up for the lack of hex-colors).*/
-public final class OutputManager implements StatFormatter {
+public final class OutputManager implements InternalFormatter {
 
     private static BukkitAudiences adventure;
     private static ConfigHandler config;
@@ -53,30 +51,6 @@ public final class OutputManager implements StatFormatter {
     }
 
     @Override
-    public TextComponent getPluginPrefix() {
-        ComponentFactory factory = new ComponentFactory(config);
-        return factory.pluginPrefix();
-    }
-
-    @Override
-    public TextComponent getRainbowPluginPrefix() {
-        ComponentFactory prideFactory = new PrideComponentFactory(config);
-        return prideFactory.pluginPrefix();
-    }
-
-    @Override
-    public TextComponent getPluginPrefixAsTitle() {
-        ComponentFactory factory = new ComponentFactory(config);
-        return factory.pluginPrefixAsTitle();
-    }
-
-    @Override
-    public TextComponent getRainbowPluginPrefixAsTitle() {
-        ComponentFactory prideFactory = new PrideComponentFactory(config);
-        return prideFactory.pluginPrefixAsTitle();
-    }
-
-    @Override
     public TextComponent formatPlayerStat(@NotNull RequestSettings requestSettings, int playerStat) {
         BiFunction<Integer, CommandSender, TextComponent> playerStatFunction =
                 getMessageBuilder(requestSettings).formattedPlayerStatFunction(playerStat, requestSettings);
@@ -90,11 +64,6 @@ public final class OutputManager implements StatFormatter {
                 getMessageBuilder(requestSettings).formattedServerStatFunction(serverStat, requestSettings);
 
         return processFunction(requestSettings.getCommandSender(), serverStatFunction);
-    }
-
-    @Override
-    public TextComponent formatSingleTopStatLine(int positionInTopList, String playerName, long statNumber, Statistic statistic) {
-        return messageBuilder.singleTopStatLine(positionInTopList, playerName, statNumber, statistic);
     }
 
     @Override

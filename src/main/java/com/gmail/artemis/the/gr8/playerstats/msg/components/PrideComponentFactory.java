@@ -79,7 +79,7 @@ public class PrideComponentFactory extends ComponentFactory {
                 .build();
     }
 
-    public TextComponent backwardsPluginPrefixComponent() {
+    private TextComponent backwardsPluginPrefixComponent() {
         return text()
                 .append(MiniMessage.miniMessage()
                         .deserialize("<#631ae6>[</#631ae6>" +

@@ -9,17 +9,17 @@ import static org.jetbrains.annotations.ApiStatus.Internal;
 public final class PlayerStatsAPI implements PlayerStats, StatManager {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
-    private static StatFormatter statFormatter;
+    private static ApiFormatter apiFormatter;
 
     @Internal
-    public PlayerStatsAPI(StatFormatter format, OfflinePlayerHandler offlinePlayers) {
-        statFormatter = format;
+    public PlayerStatsAPI(ApiFormatter formatter, OfflinePlayerHandler offlinePlayers) {
+        apiFormatter = formatter;
         offlinePlayerHandler = offlinePlayers;
     }
 
     @Override
-    public Formatter getFormatter() {
-        return statFormatter;
+    public ApiFormatter getFormatter() {
+        return apiFormatter;
     }
 
     @Override
@@ -46,7 +46,7 @@ public final class PlayerStatsAPI implements PlayerStats, StatManager {
     }
 
     @Override
-    public TopStatRequest totalTopStatListRequest() {
+    public TopStatRequest totalTopStatRequest() {
         int playerCount = offlinePlayerHandler.getOfflinePlayerCount();
         return topStatRequest(playerCount);
     }

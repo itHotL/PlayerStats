@@ -32,5 +32,5 @@ public interface StatManager {
      all default settings for a top-statistic-lookup are configured.
 
      @return the RequestGenerator*/
-    RequestGenerator<LinkedHashMap<String, Integer>> totalTopStatListRequest();
+    RequestGenerator<LinkedHashMap<String, Integer>> totalTopStatRequest();
 }

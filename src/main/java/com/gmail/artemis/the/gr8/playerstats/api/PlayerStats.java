@@ -27,5 +27,5 @@ public interface PlayerStats {
 
     StatManager getStatManager();
 
-    Formatter getFormatter();
+    ApiFormatter getFormatter();
 }

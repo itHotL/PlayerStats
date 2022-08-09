@@ -1,6 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic.result;
 
-import com.gmail.artemis.the.gr8.playerstats.api.Formatter;
+import com.gmail.artemis.the.gr8.playerstats.api.ApiFormatter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 
@@ -34,9 +34,9 @@ import net.kyori.adventure.text.TextComponent;
  found on <a href="https://docs.adventure.kyori.net/platform/bukkit.html">Adventure's website</a>.
 
  <p>You can also use the provided {@link #getFormattedString()} method to get the same information
- in String-format. Don't use Adventure's toString methods on the Components
- - those are for debugging purposes. And finally, if you want the results to be
- formatted differently, you can get an instance of the {@link Formatter}.
+ in String-format. Don't use Adventure's .content() or .toString() methods on the Components
+ - those won't get the actual message. And finally, if you want the results to be
+ formatted differently, you can get an instance of the {@link ApiFormatter}.
  */
 public interface StatResult<T> {
 
@@ -53,7 +53,7 @@ public interface StatResult<T> {
      PlayerStats config. See class description for more information. */
     TextComponent getFormattedTextComponent();
 
-    /** Turns the formatted message for the completed stat-lookup into String.
+    /** Gets the formatted message for the completed stat-lookup this {@link StatResult} stores.
 
      @return a String message containing the formatted number. This message follows
      the same style and color settings that are specified in the PlayerStats config,

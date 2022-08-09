@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.statistic.request;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.api.RequestGenerator;
+import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import com.gmail.artemis.the.gr8.playerstats.statistic.result.TopStatResult;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
@@ -44,11 +45,18 @@ public final class TopStatRequest extends StatRequest<LinkedHashMap<String, Inte
     }
 
     private TopStatResult getStatResult(RequestSettings completedRequest) {
-        LinkedHashMap<String, Integer> stat = Main.getStatCalculator()
+        LinkedHashMap<String, Integer> stat = Main
+                .getStatCalculator()
                 .getTopStats(completedRequest);
-        TextComponent prettyStat = Main.getStatFormatter()
+
+        TextComponent prettyComponent = Main
+                .getStatFormatter()
                 .formatTopStat(completedRequest, stat);
 
-        return new TopStatResult(stat, prettyStat);
+        String prettyString = ComponentUtils
+                .getTranslatableComponentSerializer()
+                .serialize(prettyComponent);
+
+        return new TopStatResult(stat, prettyComponent, prettyString);
     }
 }

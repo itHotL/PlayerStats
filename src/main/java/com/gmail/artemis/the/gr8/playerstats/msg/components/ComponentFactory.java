@@ -76,7 +76,6 @@ public class ComponentFactory {
         return getColorFromString(config.getSharerNameDecoration(false));
     }
 
-
     /** Returns [PlayerStats]. */
     public TextComponent pluginPrefix() {
         return text("[")
@@ -127,8 +126,8 @@ public class ComponentFactory {
                 getStyleFromString(config.getRankNumberDecoration(true)));
     }
 
-    public TextComponent dots() {
-        return getComponent(null,
+    public TextComponent dots(String dots) {
+        return getComponent(dots,
                 getColorFromString(config.getDotsDecoration(false)),
                 getStyleFromString(config.getDotsDecoration(true)));
     }
@@ -228,13 +227,18 @@ public class ComponentFactory {
                 getStyleFromString(config.getStatNumberDecoration(target, true)));
     }
 
-    public TextComponent statNumberWithHoverText(String mainNumber, String hoverNumber, @Nullable String hoverUnitName, @Nullable String hoverUnitKey, Target target) {
-        return statNumberWithHoverText(mainNumber, hoverNumber, hoverUnitName, hoverUnitKey, null, target);
+    public TextComponent timeNumber(String prettyNumber, Target target) {
+        return statNumber(prettyNumber, target);
+    }
+
+    public TextComponent timeNumberWithHoverText(String mainNumber, String hoverNumber, Target target) {
+        return statNumberWithHoverText(mainNumber, hoverNumber, null, null, null, target);
     }
 
     public TextComponent damageNumber(String prettyNumber, Target target) {
         return statNumber(prettyNumber, target);
     }
+
     public TextComponent damageNumberWithHoverText(String mainNumber, String hoverNumber, String hoverUnitName, Target target) {
         return statNumberWithHoverText(mainNumber, hoverNumber, hoverUnitName, null, null, target);
     }
@@ -248,11 +252,11 @@ public class ComponentFactory {
     }
 
     public TextComponent distanceNumberWithHoverText(String mainNumber, String hoverNumber, String hoverUnitName, Target target) {
-        return statNumberWithHoverText(mainNumber, hoverNumber, hoverUnitName, null, target);
+        return statNumberWithHoverText(mainNumber, hoverNumber, hoverUnitName, null, null, target);
     }
 
     public TextComponent distanceNumberWithTranslatableHoverText(String mainNumber, String hoverNumber, String hoverUnitKey, Target target) {
-        return statNumberWithHoverText(mainNumber, hoverNumber, null, hoverUnitKey, target);
+        return statNumberWithHoverText(mainNumber, hoverNumber, null, hoverUnitKey, null, target);
     }
 
     public TextComponent statUnit(String unitName, Target target) {
@@ -354,7 +358,11 @@ public class ComponentFactory {
                         .args(subStat));
     }
 
-    private TextComponent statNumberWithHoverText(String mainNumber, String hoverNumber, @Nullable String hoverUnitName, @Nullable String hoverUnitKey, @Nullable TextComponent heartComponent, Target target) {
+    private TextComponent statNumberWithHoverText(String mainNumber, String hoverNumber,
+                                                  @Nullable String hoverUnitName,
+                                                  @Nullable String hoverUnitKey,
+                                                  @Nullable TextComponent heartComponent, Target target) {
+
         TextColor baseColor = getColorFromString(config.getStatNumberDecoration(target, false));
         TextDecoration style = getStyleFromString(config.getStatNumberDecoration(target, true));
 

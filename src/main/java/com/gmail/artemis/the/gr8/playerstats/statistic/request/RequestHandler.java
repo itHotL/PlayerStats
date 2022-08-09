@@ -82,7 +82,7 @@ public final class RequestHandler {
     }
 
     /**
-     This will create a {@link RequestSettings} from the provided args, with the requesting Player (or Console)
+     This will create a {@link RequestSettings} object from the provided args, with the requesting Player (or Console)
      as CommandSender. This CommandSender will receive feedback messages if the RequestSettings could not be created.
 
      @param args an Array of args such as a CommandSender would put in Minecraft chat:

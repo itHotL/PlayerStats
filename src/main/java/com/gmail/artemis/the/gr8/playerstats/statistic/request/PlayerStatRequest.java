@@ -2,6 +2,7 @@ package com.gmail.artemis.the.gr8.playerstats.statistic.request;
 
 import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.api.RequestGenerator;
+import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import com.gmail.artemis.the.gr8.playerstats.statistic.result.PlayerStatResult;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
@@ -42,11 +43,18 @@ public final class PlayerStatRequest extends StatRequest<Integer> implements Req
     }
 
     private PlayerStatResult getStatResult(RequestSettings completedRequest) {
-        int stat = Main.getStatCalculator()
+        int stat = Main
+                .getStatCalculator()
                 .getPlayerStat(completedRequest);
-        TextComponent prettyStat = Main.getStatFormatter()
+
+        TextComponent prettyComponent = Main
+                .getStatFormatter()
                 .formatPlayerStat(completedRequest, stat);
 
-        return new PlayerStatResult(stat, prettyStat);
+        String prettyString = ComponentUtils
+                .getTranslatableComponentSerializer()
+                .serialize(prettyComponent);
+
+        return new PlayerStatResult(stat, prettyComponent, prettyString);
     }
 }

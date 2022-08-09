@@ -1,8 +1,9 @@
 package com.gmail.artemis.the.gr8.playerstats;
 
+import com.gmail.artemis.the.gr8.playerstats.api.ApiOutputManager;
 import com.gmail.artemis.the.gr8.playerstats.api.PlayerStats;
 import com.gmail.artemis.the.gr8.playerstats.api.PlayerStatsAPI;
-import com.gmail.artemis.the.gr8.playerstats.api.StatFormatter;
+import com.gmail.artemis.the.gr8.playerstats.msg.InternalFormatter;
 import com.gmail.artemis.the.gr8.playerstats.commands.ReloadCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.ShareCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
@@ -105,7 +106,7 @@ public final class Main extends JavaPlugin {
         return statCalculator;
     }
 
-    public static @NotNull StatFormatter getStatFormatter() throws IllegalStateException {
+    public static @NotNull InternalFormatter getStatFormatter() throws IllegalStateException {
         if (outputManager == null) {
             throw new IllegalStateException("PlayerStats does not seem to be loaded!");
         }
@@ -127,10 +128,11 @@ public final class Main extends JavaPlugin {
         offlinePlayerHandler = new OfflinePlayerHandler();
 
         shareManager = new ShareManager(config);
-        outputManager = new OutputManager(getAdventure(), config, shareManager);
         statCalculator = new StatCalculator(offlinePlayerHandler);
+        outputManager = new OutputManager(adventure, config, shareManager);
         threadManager = new ThreadManager(config, statCalculator, outputManager);
 
-        playerStatsAPI = new PlayerStatsAPI(outputManager, offlinePlayerHandler);
+        ApiOutputManager apiOutputManager = new ApiOutputManager(config);
+        playerStatsAPI = new PlayerStatsAPI(apiOutputManager, offlinePlayerHandler);
     }
 }

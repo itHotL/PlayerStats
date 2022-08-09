@@ -128,7 +128,6 @@ public final class MessageBuilder {
                         "Please wait for your previous lookup to finish!"));
     }
 
-    //TODO Make this say amount of time left
     public TextComponent stillOnShareCoolDown() {
         int waitTime = config.getStatShareWaitingTime();
         String minutes = waitTime == 1 ? " minute" : " minutes";
@@ -177,11 +176,11 @@ public final class MessageBuilder {
         }
     }
 
-    /** Returns a BiFunction for a player statistic. This BiFunction will return a formattedValue,
+    /** Returns a BiFunction for a player statistic. This BiFunction will return a formattedComponent,
      the shape of which is determined by the 2 parameters the BiFunction gets.
      <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
-     <br>- If both parameters are null, the formattedValue will be returned as is.</br>*/
+     <br>- If both parameters are null, the formattedComponent will be returned as is.</br>*/
     public BiFunction<Integer, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull RequestSettings requestSettings) {
         TextComponent playerStat = Component.text()
                 .append(componentFactory.playerName(requestSettings.getPlayerName(), Target.PLAYER)
@@ -196,11 +195,11 @@ public final class MessageBuilder {
         return getFormattingFunction(playerStat, Target.PLAYER);
     }
 
-    /** Returns a BiFunction for a server statistic. This BiFunction will return a formattedValue,
+    /** Returns a BiFunction for a server statistic. This BiFunction will return a formattedComponent,
      the shape of which is determined by the 2 parameters the BiFunction gets.
      <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
-     <br>- If both parameters are null, the formattedValue will be returned as is.</br>*/
+     <br>- If both parameters are null, the formattedComponent will be returned as is.</br>*/
     public BiFunction<Integer, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull RequestSettings requestSettings) {
         TextComponent serverStat = text()
                 .append(componentFactory.title(config.getServerTitle(), Target.SERVER))
@@ -216,11 +215,11 @@ public final class MessageBuilder {
         return getFormattingFunction(serverStat, Target.SERVER);
     }
 
-    /** Returns a BiFunction for a top statistic. This BiFunction will return a formattedValue,
+    /** Returns a BiFunction for a top statistic. This BiFunction will return a formattedComponent,
      the shape of which is determined by the 2 parameters the BiFunction gets.
      <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
-     <br>- If both parameters are null, the formattedValue will be returned as is.</br>*/
+     <br>- If both parameters are null, the formattedComponent will be returned as is.</br>*/
     public BiFunction<Integer, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull RequestSettings requestSettings) {
         final TextComponent title = getTopStatsTitleComponent(requestSettings, topStats.size());
         final TextComponent shortTitle = getTopStatDescription(requestSettings, topStats.size());
@@ -266,24 +265,6 @@ public final class MessageBuilder {
             }
             return topBuilder.build();
         };
-    }
-
-    public TextComponent singleTopStatLine(int positionInTopList, String playerName, long statNumber, Statistic statistic) {
-        TextComponent.Builder topStatLineBuilder = Component.text()
-                .append(space())
-                .append(componentFactory.rankNumber(positionInTopList))
-                .append(space());
-
-        if (config.useDots()) {
-            topStatLineBuilder.append(getPlayerNameWithDotsComponent(positionInTopList, playerName));
-        } else {
-            topStatLineBuilder.append(componentFactory.playerName(playerName + ":", Target.TOP));
-        }
-
-        return topStatLineBuilder
-                .append(space())
-                .append(getStatNumberComponent(statistic, Target.TOP, statNumber))
-                .build();
     }
 
     private Component getSharerNameComponent(CommandSender sender) {
@@ -337,15 +318,25 @@ public final class MessageBuilder {
     }
 
     private TextComponent getPlayerNameWithDotsComponent(int positionInTopList, String playerName) {
-        int dots = FontUtils.getNumberOfDotsToAlign(positionInTopList + ". " + playerName, isConsoleBuilder, config.playerNameIsBold());
-
-        TextComponent.Builder nameWithDots = Component.text()
+        TextComponent.Builder nameBuilder = Component.text()
                 .append(componentFactory.playerName(playerName, Target.TOP))
                 .append(space());
+
+        int dots = getNumberOfDotsToAlign(positionInTopList + ". " + playerName);
         if (dots >= 1) {
-            nameWithDots.append(componentFactory.dots().append(text(".".repeat(dots))));
+            nameBuilder.append(componentFactory.dots(".".repeat(dots)));
         }
-        return nameWithDots.build();
+        return nameBuilder.build();
+    }
+
+    private int getNumberOfDotsToAlign(String displayText) {
+        if (isConsoleBuilder) {
+            return FontUtils.getNumberOfDotsToAlignForConsole(displayText);
+        } else if (config.playerNameIsBold()) {
+            return FontUtils.getNumberOfDotsToAlignForBoldText(displayText);
+        } else {
+            return FontUtils.getNumberOfDotsToAlign(displayText);
+        }
     }
 
     /** Depending on the config settings, return either a TranslatableComponent representing
@@ -374,12 +365,11 @@ public final class MessageBuilder {
     }
 
     private TextComponent getStatNumberComponent(RequestSettings request, long statNumber) {
-        return getStatNumberComponent(request.getStatistic(), request.getTarget(), statNumber);
-    }
+        Statistic statistic = request.getStatistic();
+        Target target = request.getTarget();
+        Unit.Type unitType = Unit.getTypeFromStatistic(statistic);
 
-    private TextComponent getStatNumberComponent(Statistic statistic, Target target, long statNumber) {
-        Unit.Type statUnitType = Unit.getTypeFromStatistic(statistic);
-        return switch (statUnitType) {
+        return switch (unitType) {
             case DISTANCE -> getDistanceNumberComponent(statNumber, target);
             case DAMAGE -> getDamageNumberComponent(statNumber, target);
             case TIME -> getTimeNumberComponent(statNumber, target);
@@ -426,17 +416,16 @@ public final class MessageBuilder {
             MyLogger.logMsg(
                     "There is something wrong with the time-units you specified, please check your config!",
                     true);
-            return componentFactory.statNumber("-", target);
+            return componentFactory.timeNumber(formatter.formatNumber(statNumber), target);
         }
         else {
             String mainNumber = formatter.formatTimeNumber(statNumber, unitRange.get(0), unitRange.get(1));
             if (!useHoverText) {
-                return componentFactory.statNumber(mainNumber, target);
+                return componentFactory.timeNumber(mainNumber, target);
             } else {
                 String hoverNumber = formatter.formatTimeNumber(statNumber, unitRange.get(2), unitRange.get(3));
                 MyLogger.logMsg("mainNumber: " + mainNumber + ", hoverNumber: " + hoverNumber, DebugLevel.HIGH);
-                return componentFactory.statNumberWithHoverText(mainNumber, hoverNumber,
-                        null, null, target);
+                return componentFactory.timeNumberWithHoverText(mainNumber, hoverNumber, target);
             }
         }
     }
@@ -445,6 +434,7 @@ public final class MessageBuilder {
         return componentFactory.statNumber(formatter.formatNumber(statNumber), target);
     }
 
+    /** Provides its own space in front of it! */
     private TextComponent getStatUnitComponent(Statistic statistic, Target target) {
         return switch (Unit.getTypeFromStatistic(statistic)) {
             case DAMAGE -> getDamageUnit(target);
@@ -453,6 +443,7 @@ public final class MessageBuilder {
         };
     }
 
+    /** Provides its own space in front of it! */
     private TextComponent getDistanceUnit(Target target) {
         Unit statUnit = Unit.fromString(config.getDistanceUnit(false));
         if (config.useTranslatableComponents()) {
@@ -466,6 +457,7 @@ public final class MessageBuilder {
                 .append(componentFactory.statUnit(statUnit.getLabel(), target));
     }
 
+    /** Provides its own space in front of it! */
     private TextComponent getDamageUnit(Target target) {
         Unit statUnit = Unit.fromString(config.getDamageUnit(false));
         if (statUnit == Unit.HEART) {

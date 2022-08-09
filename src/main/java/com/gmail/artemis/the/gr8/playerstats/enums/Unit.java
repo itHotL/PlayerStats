@@ -146,7 +146,7 @@ public enum Unit {
         }
     }
 
-    /** Returns the most suitable timeUnit for this number.
+    /** Returns the most suitable Unit for this number.
      @param type the Unit.Type of the statistic this number belongs to
      @param number the statistic number as returned by Player.getStatistic()*/
     public static Unit getMostSuitableUnit(Unit.Type type, long number) {
