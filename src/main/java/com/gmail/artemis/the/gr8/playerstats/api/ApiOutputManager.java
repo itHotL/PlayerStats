@@ -17,13 +17,15 @@ import static net.kyori.adventure.text.Component.space;
 
 public class ApiOutputManager implements ApiFormatter {
 
+    private static ConfigHandler config;
     private final ComponentFactory componentFactory;
     private final PrideComponentFactory prideComponentFactory;
     private final NumberFormatter numberFormatter;
 
-    public ApiOutputManager(ConfigHandler config) {
-        componentFactory = new ComponentFactory(config);
-        prideComponentFactory = new PrideComponentFactory(config);
+    public ApiOutputManager(ConfigHandler configHandler) {
+        config = configHandler;
+        componentFactory = new ComponentFactory(configHandler);
+        prideComponentFactory = new PrideComponentFactory(configHandler);
         numberFormatter = new NumberFormatter();
     }
 
@@ -53,7 +55,7 @@ public class ApiOutputManager implements ApiFormatter {
     }
 
     @Override
-    public TextComponent getTopStatTitle(int topListSize, Statistic statistic, @Nullable String subStatName) {
+    public TextComponent getTopStatTitle(int topListSize, Statistic statistic, String subStatName) {
         return getTopStatTitle(topListSize, statistic, subStatName, null);
     }
 
@@ -62,7 +64,67 @@ public class ApiOutputManager implements ApiFormatter {
         return getTopStatTitle(topListSize, statistic, null, unit);
     }
 
-    private TextComponent getTopStatTitle(int topListSize, Statistic statistic, String subStatName, Unit unit) {
+    @Override
+    public TextComponent getFormattedTopStatLine(int positionInTopList, String playerName, long statNumber, Statistic statistic) {
+        TextComponent.Builder topStatLineBuilder = Component.text()
+                .append(space())
+                .append(componentFactory.rankNumber(positionInTopList))
+                .append(space())
+                .append(componentFactory.playerName(playerName, Target.TOP))
+                .append(space());
+
+        int dots = FontUtils.getNumberOfDotsToAlign(positionInTopList + ". " + playerName);
+        if (dots >= 1) {
+            topStatLineBuilder.append(componentFactory.dots(".".repeat(dots)));
+        }
+
+        Unit.Type statUnitType = Unit.getTypeFromStatistic(statistic);
+        TextComponent numberComponent = getStatNumberComponent(statNumber, statUnitType, Target.TOP);
+
+        return topStatLineBuilder
+                .append(space())
+                .append(numberComponent)
+                .build();
+    }
+
+    @Override
+    public TextComponent getFormattedServerStat(long statNumber, Statistic statistic) {
+        return getFormattedServerStat(statNumber, statistic, null, null);
+    }
+
+    @Override
+    public TextComponent getFormattedServerStat(long statNumber, Statistic statistic, String subStatName) {
+        return getFormattedServerStat(statNumber, statistic, subStatName, null);
+    }
+
+    @Override
+    public TextComponent getFormattedServerStat(long statNumber, Statistic statistic, Unit unit) {
+        return getFormattedServerStat(statNumber, statistic, null, unit);
+    }
+
+    private TextComponent getFormattedServerStat(long statNumber, Statistic statistic, @Nullable String subStatName, @Nullable Unit unit) {
+        String serverTitle = config.getServerTitle();
+        String serverName = config.getServerName();
+        String prettyStatName = StringUtils.prettify(statistic.toString());
+        Unit.Type unitType = Unit.getTypeFromStatistic(statistic);
+
+        TextComponent.Builder serverStatBuilder = Component.text()
+                .append(componentFactory.title(serverTitle, Target.SERVER))
+                .append(space())
+                .append(componentFactory.serverName(serverName))
+                .append(space())
+                .append(getStatNumberComponent(statNumber, unitType, Target.SERVER))
+                .append(space())
+                .append(componentFactory.statAndSubStatName(prettyStatName, subStatName, Target.SERVER));
+
+        if (unit != null) {
+            serverStatBuilder.append(space())
+                    .append(componentFactory.statUnit(unit.getLabel(), Target.SERVER));
+        }
+        return serverStatBuilder.build();
+    }
+
+    private TextComponent getTopStatTitle(int topListSize, Statistic statistic, @Nullable String subStatName, @Nullable Unit unit) {
         String prettyStatName = StringUtils.prettify(statistic.toString());
         TextComponent.Builder titleBuilder = Component.text()
                 .append(componentFactory.title("Top", Target.TOP))
@@ -78,36 +140,22 @@ public class ApiOutputManager implements ApiFormatter {
         return titleBuilder.build();
     }
 
-    @Override
-    public TextComponent getFormattedTopStatLine(int positionInTopList, String playerName, long statNumber, Unit unit) {
-        TextComponent.Builder topStatLineBuilder = Component.text()
-                .append(space())
-                .append(componentFactory.rankNumber(positionInTopList))
-                .append(space());
-
-        int dots = FontUtils.getNumberOfDotsToAlign(positionInTopList + ". " + playerName);
-        if (dots >= 1) {
-            topStatLineBuilder.append(componentFactory.dots(".".repeat(dots)));
-        }
-
-        TextComponent numberComponent = getTopStatNumberComponent(unit, statNumber);
-        return topStatLineBuilder
-                .append(space())
-                .append(numberComponent)
-                .build();
-    }
-
-    @Override
-    public TextComponent getFormattedServerStat(long statNumber, Unit unit) {
-
-    }
-
-    private TextComponent getTopStatNumberComponent(Unit unit, long statNumber) {
-        return switch (unit.getType()) {
-            case DISTANCE -> componentFactory.distanceNumber(numberFormatter.formatDistanceNumber(statNumber, unit), Target.TOP);
-            case DAMAGE -> componentFactory.damageNumber(numberFormatter.formatDamageNumber(statNumber, unit), Target.TOP);
-            case TIME -> componentFactory.timeNumber(numberFormatter.formatTimeNumber(statNumber, unit, unit), Target.TOP);
-            default -> componentFactory.statNumber(numberFormatter.formatNumber(statNumber), Target.TOP);
+    private TextComponent getStatNumberComponent(long statNumber, Unit.Type unitType, Target target) {
+        return switch (unitType) {
+            case DISTANCE -> {
+                Unit unit = Unit.getMostSuitableUnit(Unit.Type.DISTANCE, statNumber);
+                yield componentFactory.distanceNumber(numberFormatter.formatDistanceNumber(statNumber, unit), target);
+            }
+            case DAMAGE -> {
+                Unit unit = Unit.getMostSuitableUnit(Unit.Type.DAMAGE, statNumber);
+                yield componentFactory.damageNumber(numberFormatter.formatDamageNumber(statNumber, unit), target);
+            }
+            case TIME -> {
+                Unit bigUnit = Unit.getMostSuitableUnit(Unit.Type.TIME, statNumber);
+                Unit smallUnit = bigUnit.getSmallerUnit(1);
+                yield componentFactory.timeNumber(numberFormatter.formatTimeNumber(statNumber, bigUnit, smallUnit), target);
+            }
+            default -> componentFactory.statNumber(numberFormatter.formatNumber(statNumber), target);
         };
     }
 }

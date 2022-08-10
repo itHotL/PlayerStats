@@ -32,25 +32,50 @@ public interface ApiFormatter {
         return new NumberFormatter();
     }
 
-    /** @return [PlayerStats]*/
+    /** Gets the default prefix PlayerStats uses.
+     @return [PlayerStats]*/
     TextComponent getPluginPrefix();
 
+    /** Gets the special rainbow version of PlayerStats' prefix.
+     @return [PlayerStats] in rainbow colors*/
     TextComponent getRainbowPluginPrefix();
 
-    /** @return ________ [PlayerStats] ________*/
+    /** Gets the version of the prefix that is surrounded by underscores. This is
+     meant to be used as a title above a message or statistic display.
+    @return ________ [PlayerStats] ________ */
     TextComponent getPluginPrefixAsTitle();
 
+    /** Gets the special rainbow version of the title-prefix.
+     @return ________ [PlayerStats] ________ in rainbow colors*/
     TextComponent getRainbowPluginPrefixAsTitle();
 
+    /** Gets the default top-stat-title for a Statistic of Type.Untyped.
+     @return Top [topStatSize] [stat-name]*/
     TextComponent getTopStatTitle(int topStatSize, Statistic statistic);
 
-    TextComponent getTopStatTitle(int topStatSize, Statistic statistic, String subStatisticName);
+    /** Gets the top-stat-title for a statistic that has a sub-statistic (block, item or entity).
+     @return Top [topStatSize] [stat-name] [sub-stat-name] */
+    TextComponent getTopStatTitle(int topStatSize, Statistic statistic, String subStatName);
 
+    /** Gets the top-stat-title with the specified {@link Unit} in the title.
+     @return Top [topStatSize] [stat-name] [unit-name] */
     TextComponent getTopStatTitle(int topStatSize, Statistic statistic, Unit unit);
 
-    /** @return a single line from a top-x statistic:
-     * <br> x. Player-name ......... number */
-    TextComponent getFormattedTopStatLine(int positionInTopList, String playerName, long statNumber, Unit unit);
+    /** Formats the input into a single top-statistic line.
+     @return a single line from a top-x statistic:
+     * <br> [positionInTopList]. [player-name] ......... [stat-number] */
+    TextComponent getFormattedTopStatLine(int positionInTopList, String playerName, long statNumber, Statistic statistic);
 
-    TextComponent getFormattedServerStat(long statNumber, Unit unit);
+    /** Formats the input into a server statistic message.
+     @return [Total on this server]: [stat-number] [stat-name] */
+    TextComponent getFormattedServerStat(long statNumber, Statistic statistic);
+
+    /** Formats the input into a server statistic message for a statistic that has a
+     sub-statistic (block, item or entity).
+     @return [Total on this server]: [stat-number] [stat-name] [sub-stat-name]*/
+    TextComponent getFormattedServerStat(long statNumber, Statistic statistic, String subStatName);
+
+    /** Formats the input into a server statistic message with the specified {@link Unit}.
+     @return [Total on this server]: [stat-number] [stat-name] [unit-name]*/
+    TextComponent getFormattedServerStat(long statNumber, Statistic statistic, Unit unit);
 }

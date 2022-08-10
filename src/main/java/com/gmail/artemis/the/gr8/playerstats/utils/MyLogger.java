@@ -101,9 +101,9 @@ public final class MyLogger {
         }
     }
 
-    /** If DebugLevel is MEDIUM or HIGH, logs when the while loop in MessageBuilder, getLanguageKey is being run. */
+    /** If DebugLevel is HIGH, logs when the while loop in MessageBuilder, getLanguageKey is being run. */
     public static void replacingUnderscores() {
-        if (debugLevel != DebugLevel.LOW) {
+        if (debugLevel == DebugLevel.HIGH) {
             logger.info("Replacing underscores and capitalizing names...");
         }
     }
