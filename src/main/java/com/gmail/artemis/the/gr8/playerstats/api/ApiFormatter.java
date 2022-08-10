@@ -3,6 +3,7 @@ package com.gmail.artemis.the.gr8.playerstats.api;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.NumberFormatter;
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.StringUtils;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Statistic;
@@ -30,6 +31,13 @@ public interface ApiFormatter {
     /** Gets a {@link NumberFormatter} to format raw numbers into something more readable.*/
     default NumberFormatter getNumberFormatter() {
         return new NumberFormatter();
+    }
+
+    /** Replace "_" with " " and capitalize each first letter of the input.
+     @param rawEnumString String to prettify, case-insensitive
+     @return the transformed String. For example: animals_bred becomes Animals Bred*/
+    default String BukkitEnumToString(String rawEnumString) {
+        return StringUtils.prettify(rawEnumString);
     }
 
     /** Gets the default prefix PlayerStats uses.

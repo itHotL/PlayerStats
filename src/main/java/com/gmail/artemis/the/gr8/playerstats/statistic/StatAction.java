@@ -63,17 +63,15 @@ final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>>
                 String playerName = iterator.next();
                 MyLogger.actionRunning(Thread.currentThread().getName(), playerName, 2);
                 OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(playerName);
-                if (player != null) {
-                    int statistic = 0;
-                    switch (requestSettings.getStatistic().getType()) {
-                        case UNTYPED -> statistic = player.getStatistic(requestSettings.getStatistic());
-                        case ENTITY -> statistic = player.getStatistic(requestSettings.getStatistic(), requestSettings.getEntity());
-                        case BLOCK -> statistic = player.getStatistic(requestSettings.getStatistic(), requestSettings.getBlock());
-                        case ITEM -> statistic = player.getStatistic(requestSettings.getStatistic(), requestSettings.getItem());
-                    }
-                    if (statistic > 0) {
-                        allStats.put(playerName, statistic);
-                    }
+                int statistic = 0;
+                switch (requestSettings.getStatistic().getType()) {
+                    case UNTYPED -> statistic = player.getStatistic(requestSettings.getStatistic());
+                    case ENTITY -> statistic = player.getStatistic(requestSettings.getStatistic(), requestSettings.getEntity());
+                    case BLOCK -> statistic = player.getStatistic(requestSettings.getStatistic(), requestSettings.getBlock());
+                    case ITEM -> statistic = player.getStatistic(requestSettings.getStatistic(), requestSettings.getItem());
+                }
+                if (statistic > 0) {
+                    allStats.put(playerName, statistic);
                 }
             } while (iterator.hasNext());
         }

@@ -2,7 +2,6 @@ package com.gmail.artemis.the.gr8.playerstats.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,16 +47,19 @@ public final class OfflinePlayerHandler {
 
     /**
      * Uses the playerName to get the player's UUID from a private HashMap, and uses the UUID to get the corresponding OfflinePlayer Object.
-     * @param playerName name of the target player
-     * @return OfflinePlayer (if this player is on the list, otherwise null)
+     * @param playerName name of the target player (case-sensitive)
+     * @return OfflinePlayer
+     * @throws IllegalArgumentException if this player is not on the list of players that should be included in statistic calculations
      */
-    public @Nullable OfflinePlayer getOfflinePlayer(String playerName) {
+    public OfflinePlayer getOfflinePlayer(String playerName) throws IllegalArgumentException {
         if (offlinePlayerUUIDs.get(playerName) != null) {
             return Bukkit.getOfflinePlayer(offlinePlayerUUIDs.get(playerName));
         }
         else {
-            MyLogger.logMsg("Cannot calculate statistics for player-name: " + playerName, true);
-            return null;
+            MyLogger.logMsg("Cannot calculate statistics for player-name: " + playerName +
+                    "! Double-check if the name is spelled correctly (including capital letters), " +
+                    "or if any of your config settings exclude them", true);
+            throw new IllegalArgumentException("Cannot convert this player-name into a valid Player to calculate statistics for");
         }
     }
 }

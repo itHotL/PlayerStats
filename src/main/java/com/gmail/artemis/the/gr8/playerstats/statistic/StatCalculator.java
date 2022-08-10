@@ -22,18 +22,14 @@ public final class StatCalculator {
         this.offlinePlayerHandler = offlinePlayerHandler;
     }
 
-
     public int getPlayerStat(RequestSettings requestSettings) {
         OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(requestSettings.getPlayerName());
-        if (player != null) {
-            return switch (requestSettings.getStatistic().getType()) {
-                case UNTYPED -> player.getStatistic(requestSettings.getStatistic());
-                case ENTITY -> player.getStatistic(requestSettings.getStatistic(), requestSettings.getEntity());
-                case BLOCK -> player.getStatistic(requestSettings.getStatistic(), requestSettings.getBlock());
-                case ITEM -> player.getStatistic(requestSettings.getStatistic(), requestSettings.getItem());
-            };
-        }
-        return 0;
+        return switch (requestSettings.getStatistic().getType()) {
+            case UNTYPED -> player.getStatistic(requestSettings.getStatistic());
+            case ENTITY -> player.getStatistic(requestSettings.getStatistic(), requestSettings.getEntity());
+            case BLOCK -> player.getStatistic(requestSettings.getStatistic(), requestSettings.getBlock());
+            case ITEM -> player.getStatistic(requestSettings.getStatistic(), requestSettings.getItem());
+        };
     }
 
     public LinkedHashMap<String, Integer> getTopStats(RequestSettings requestSettings) {

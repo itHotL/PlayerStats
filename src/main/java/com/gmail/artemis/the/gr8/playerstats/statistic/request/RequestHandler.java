@@ -68,12 +68,14 @@ public final class RequestHandler {
         else {
             throw new IllegalArgumentException("Either this statistic is not of Type.Block or Type.Item, or no valid block or item has been provided");
         }
+        requestSettings.setStatistic(statistic);
         requestSettings.setSubStatEntryName(material.toString());
         return requestSettings;
     }
 
     public RequestSettings entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
         if (statistic.getType() == Statistic.Type.ENTITY) {
+            requestSettings.setStatistic(statistic);
             requestSettings.setSubStatEntryName(entityType.toString());
             requestSettings.setEntity(entityType);
             return requestSettings;
