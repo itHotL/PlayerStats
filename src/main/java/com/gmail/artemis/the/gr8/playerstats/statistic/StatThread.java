@@ -30,19 +30,19 @@ public final class StatThread extends Thread {
         requestSettings = s;
 
         this.setName("StatThread-" + requestSettings.getCommandSender().getName() + "-" + ID);
-        MyLogger.threadCreated(this.getName());
+        MyLogger.logHighLevelMsg(this.getName() + " created!");
     }
 
     @Override
     public void run() throws IllegalStateException, NullPointerException {
-        MyLogger.threadStart(this.getName());
+        MyLogger.logHighLevelMsg(this.getName() + " started!");
 
         if (requestSettings == null) {
             throw new NullPointerException("No statistic requestSettings was found!");
         }
         if (reloadThread != null && reloadThread.isAlive()) {
             try {
-                MyLogger.waitingForOtherThread(this.getName(), reloadThread.getName());
+                MyLogger.logLowLevelMsg(this.getName() + ": Waiting for " + reloadThread.getName() + " to finish up...");
                 outputManager.sendFeedbackMsg(requestSettings.getCommandSender(), StandardMessage.STILL_RELOADING);
                 reloadThread.join();
 

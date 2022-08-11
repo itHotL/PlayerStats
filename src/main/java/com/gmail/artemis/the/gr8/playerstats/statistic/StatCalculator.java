@@ -1,7 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.statistic;
 
 import com.gmail.artemis.the.gr8.playerstats.ThreadManager;
-import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
@@ -58,15 +57,15 @@ public final class StatCalculator {
         try {
             allStats = commonPool.invoke(getStatTask(requestSettings));
         } catch (ConcurrentModificationException e) {
-            MyLogger.logMsg("The requestSettings could not be executed due to a ConcurrentModificationException. " +
+            MyLogger.logWarning("The requestSettings could not be executed due to a ConcurrentModificationException. " +
                     "This likely happened because Bukkit hasn't fully initialized all player-data yet. " +
-                    "Try again and it should be fine!", true);
+                    "Try again and it should be fine!");
             throw new ConcurrentModificationException(e.toString());
         }
 
-        MyLogger.actionFinished(2);
+        MyLogger.actionFinished();
         ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
-        MyLogger.logTimeTaken("StatThread", "calculated all stats", time, DebugLevel.MEDIUM);
+        MyLogger.logMediumLevelTask("StatThread", "calculated all stats", time);
 
         return allStats;
     }

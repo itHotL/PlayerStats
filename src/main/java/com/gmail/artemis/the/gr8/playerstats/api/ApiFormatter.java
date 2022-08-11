@@ -69,21 +69,37 @@ public interface ApiFormatter {
      @return Top [topStatSize] [stat-name] [unit-name] */
     TextComponent getTopStatTitle(int topStatSize, Statistic statistic, Unit unit);
 
-    /** Formats the input into a single top-statistic line.
+    /** Formats the input into a single top-statistic line. The stat-number
+     is formatted into the most suitable {@link Unit} based on the provided Unit.Type.
+     For Type.Time, the result will have one additional Unit, unless
+     <code>getTopStatLineForTypeTime()</code> is used.
      @return a single line from a top-x statistic:
-     * <br> [positionInTopList]. [player-name] ......... [stat-number] */
-    TextComponent getFormattedTopStatLine(int positionInTopList, String playerName, long statNumber, Statistic statistic);
+      * <br> [positionInTopList]. [player-name] ......... [stat-number] */
+    TextComponent getTopStatLine(int positionInTopList, String playerName, long statNumber, Unit.Type unitType);
+
+    /** Formats the input into a single top-statistic line. The stat-number is formatted
+     into the provided {@link Unit}. For Type.Time, the result will have one additional Unit, unless
+     <code>getTopStatLineForTypeTime()</code> is used.
+     @return a single line from a top-x statistic:
+      * <br> [positionInTopList]. [player-name] ......... [stat-number] */
+    TextComponent getTopStatLine(int positionInTopList, String playerName, long statNumber, Unit unit);
+
+    /** Formats the input into a single top-statistic line for a time-based statistic.
+     The stat-number is formatted with the provided units.
+     @return a single line from a stop-x statistic:
+     <br>[positionInTopList]. [player-name] ......... [1D 2H 3M 4S]*/
+    TextComponent getTopStatLineForTypeTime(int positionInList, String playerName, long statNumber, Unit bigUnit, Unit smallUnit);
 
     /** Formats the input into a server statistic message.
      @return [Total on this server]: [stat-number] [stat-name] */
-    TextComponent getFormattedServerStat(long statNumber, Statistic statistic);
+    TextComponent getServerStat(long statNumber, Statistic statistic);
 
     /** Formats the input into a server statistic message for a statistic that has a
      sub-statistic (block, item or entity).
      @return [Total on this server]: [stat-number] [stat-name] [sub-stat-name]*/
-    TextComponent getFormattedServerStat(long statNumber, Statistic statistic, String subStatName);
+    TextComponent getServerStat(long statNumber, Statistic statistic, String subStatName);
 
     /** Formats the input into a server statistic message with the specified {@link Unit}.
      @return [Total on this server]: [stat-number] [stat-name] [unit-name]*/
-    TextComponent getFormattedServerStat(long statNumber, Statistic statistic, Unit unit);
+    TextComponent getServerStat(long statNumber, Statistic statistic, Unit unit);
 }

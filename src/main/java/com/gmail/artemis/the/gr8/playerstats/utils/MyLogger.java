@@ -6,11 +6,8 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 /** The PlayerStats Logger*/
@@ -19,17 +16,12 @@ public final class MyLogger {
     private static final Logger logger;
     private static DebugLevel debugLevel;
 
-    private static final String[] processedPlayers;
-    private static final AtomicInteger playersIndex;
     private static ConcurrentHashMap<String, Integer> threadNames;
 
     static {
         Plugin plugin = Bukkit.getPluginManager().getPlugin("PlayerStats");
         logger = (plugin != null) ? plugin.getLogger() : Bukkit.getLogger();
         debugLevel = DebugLevel.LOW;
-
-        processedPlayers = new String[10];
-        playersIndex = new AtomicInteger(0);
         threadNames = new ConcurrentHashMap<>();
     }
 
@@ -53,36 +45,24 @@ public final class MyLogger {
         }
     }
 
-    public static void logMsg(String content) {
-        logMsg(content, DebugLevel.LOW, false);
+    public static void logLowLevelMsg(String content) {
+        logger.info(content);
     }
 
-    public static void logMsg(String content, boolean logAsWarning) {
-           logMsg(content, DebugLevel.LOW, logAsWarning);
-    }
-
-    public static void logMsg(String content, DebugLevel logThreshold) {
-        logMsg(content, logThreshold, false);
-    }
-
-    public static void logMsg(String content, DebugLevel logThreshold, boolean logAsWarning) {
-        switch (logThreshold) {
-            case LOW -> log(content, logAsWarning);
-            case MEDIUM -> {
-                if (debugLevel != DebugLevel.LOW) {
-                    log(content, logAsWarning);
-                }
-            }
-            case HIGH -> {
-                if (debugLevel == DebugLevel.HIGH) {
-                    log(content, logAsWarning);
-                }
-            }
+    public static void logMediumLevelMsg(String content) {
+        if (debugLevel != DebugLevel.LOW) {
+            logger.info(content);
         }
     }
 
-    public static void logException(@NotNull Exception exception, String caughtBy) {
-        logException(exception, caughtBy, null);
+    public static void logHighLevelMsg(String content) {
+        if (debugLevel == DebugLevel.HIGH) {
+            logger.info(content);
+        }
+    }
+
+    public static void logWarning(String content) {
+        logger.warning(content);
     }
 
     /** Log the encountered exception as a warning to console,
@@ -101,43 +81,11 @@ public final class MyLogger {
         }
     }
 
-    /** If DebugLevel is HIGH, logs when the while loop in MessageBuilder, getLanguageKey is being run. */
-    public static void replacingUnderscores() {
-        if (debugLevel == DebugLevel.HIGH) {
-            logger.info("Replacing underscores and capitalizing names...");
-        }
-    }
-
-    /** Output to console that the given thread has been created (but not started yet).*/
-    public static void threadCreated(String threadName) {
-        if (debugLevel == DebugLevel.HIGH) {
-            logger.info(threadName + " created!");
-        }
-    }
-
-    /** Output to console that the given thread has been started. */
-    public static void threadStart(String threadName) {
-        if (debugLevel == DebugLevel.HIGH) {
-            logger.info(threadName + " started!");
-        }
-    }
-
-    /** Output to console that another reloadThread is already running. */
-    public static void threadAlreadyRunning(String threadName) {
-        logger.info("Another reloadThread is already running! (" + threadName + ")");
-    }
-
-    /** Output to console that the executingThread is waiting for otherThread to finish up. */
-    public static void waitingForOtherThread(String executingThread, String otherThread) {
-        logger.info(executingThread + ": Waiting for " + otherThread + " to finish up...");
-    }
-
     /** If DebugLevel is MEDIUM or HIGH, output to console that an action has started.
      @param taskLength Length of the action (in terms of units-to-process)*/
     public static void actionCreated(int taskLength) {
         if (debugLevel != DebugLevel.LOW) {
             threadNames = new ConcurrentHashMap<>();
-            playersIndex.set(0);
             logger.info("Initial Action created for " + taskLength + " Players. Processing...");
         }
     }
@@ -153,88 +101,43 @@ public final class MyLogger {
         }
     }
 
-    /** Internally save the name of the executing thread and processed player for logging,
-     and for the ReloadThread, if DebugLevel is HIGH, output the last 10 processed players once
-     there have been 10 names saved in MyLogger. This method is synchronized.
-     @param threadName Name of the executing thread
-     @param playerName Name of the player that was processed in this action
-     @param thread 1 for ReloadThread, 2 for StatThread */
-    public static synchronized void actionRunning(String threadName, String playerName, int thread) {
+    /** Internally save the name of the executing thread for logging.
+     @param threadName Name of the executing thread */
+    public static void actionRunning(String threadName) {
         if (debugLevel != DebugLevel.LOW) {
             if (!threadNames.containsKey(threadName)) {
                 threadNames.put(threadName, threadNames.size());
             }
-            if (thread == 1 && debugLevel == DebugLevel.HIGH) {
-                if (incrementOfTen()) {
-                    logger.info(Arrays.asList(processedPlayers).toString());
-                }
-                processedPlayers[nextPlayersIndex() % 10] = playerName;
-            }
-            else if (debugLevel == DebugLevel.MEDIUM || debugLevel == DebugLevel.HIGH && thread == 2) {
-                nextPlayersIndex();
-            }
         }
     }
 
-    /** Output to console that an action has finished.
-     <p>For the ReloadThread, if DebugLevel is HIGH, output the left-over processed players.
-     For both threads, if DebugLevel is MEDIUM or HIGH, output the names of the threads that were used.</p>
-     @param thread 1 for ReloadThread, 2 for StatThread */
-    public static void actionFinished(int thread) {
-        if (thread == 1 && debugLevel == DebugLevel.HIGH) {
-            ArrayList<String> leftOvers = new ArrayList<>(Arrays.asList(processedPlayers).subList(playersIndex.intValue() % 10, 10));
-            logger.info(leftOvers.toString());
-        }
+    /** Output to console that an action has finished if DebugLevel is MEDIUM or higher.
+     If DebugLevel is HIGH, also output the names of the threads that were used. */
+    public static void actionFinished() {
         if (debugLevel != DebugLevel.LOW) {
             logger.info("Finished Recursive Action! In total " +
-                    threadNames.size() + " Threads were used to process " +
-                    playersIndex.get() + " Players.");
+                    threadNames.size() + " Threads were used");
         }
         if (debugLevel == DebugLevel.HIGH) {
             logger.info(Collections.list(threadNames.keys()).toString());
         }
     }
 
-    /** Output to console how long a certain task has taken if DebugLevel is equal to or higher than the specified threshold.
+    public static void logMediumLevelTask(String className, String methodName, long startTime) {
+        if (debugLevel != DebugLevel.LOW) {
+            printTime(className, methodName, startTime);
+        }
+    }
+
+    public static void logLowLevelTask(String className, String methodName, long startTime) {
+        printTime(className, methodName, startTime);
+    }
+
+    /** Output to console how long a certain task has taken.
      @param className Name of the class executing the task
      @param methodName Name or description of the task
-     @param startTime Timestamp marking the beginning of the task
-     @param logThreshold the DebugLevel threshold  */
-    public static void logTimeTaken(String className, String methodName, long startTime, DebugLevel logThreshold) {
-        switch (logThreshold) {
-            case LOW -> printTime(className, methodName, startTime);
-            case MEDIUM -> {
-                if (debugLevel != DebugLevel.LOW) {
-                    printTime(className, methodName, startTime);
-                }
-            }
-            case HIGH -> {
-                if (debugLevel == DebugLevel.HIGH) {
-                    printTime(className, methodName, startTime);
-                }
-            }
-        }
-    }
-
-    private static void log(String content, boolean logAsWarning) {
-        if (logAsWarning) {
-            logger.warning(content);
-        } else {
-            logger.info(content);
-        }
-    }
-
+     @param startTime Timestamp marking the beginning of the task */
     private static void printTime(String className, String methodName, long startTime) {
         logger.info(className + " " + methodName + ": " + (System.currentTimeMillis() - startTime) + "ms");
-    }
-
-    /** Accesses the playersIndex to up it by 1 and return its previous value. */
-    private static int nextPlayersIndex() {
-        return playersIndex.getAndIncrement();
-    }
-
-    /** Returns true if the playersIndex is 10, or any subsequent increment of 10. */
-    private static boolean incrementOfTen() {
-        return (playersIndex.get() == 10 || (playersIndex.get() > 10 && playersIndex.get() % 10 == 0));
     }
 }

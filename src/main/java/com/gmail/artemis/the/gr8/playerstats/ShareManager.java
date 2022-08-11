@@ -1,7 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
-import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.statistic.result.InternalStatResult;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.TextComponent;
@@ -58,8 +57,8 @@ public final class ShareManager {
                 sharedResults = null;
             }
             if (config.allowStatSharing() && !config.useHoverText()) {
-                MyLogger.logMsg("Stat-sharing does not work without hover-text enabled! " +
-                        "Enable hover-text, or disable stat-sharing to stop seeing this message.", true);
+                MyLogger.logWarning("Stat-sharing does not work without hover-text enabled! " +
+                        "Enable hover-text, or disable stat-sharing to stop seeing this message.");
             }
         }
     }
@@ -76,7 +75,7 @@ public final class ShareManager {
         InternalStatResult result = new InternalStatResult(playerName, statResult, ID);
         int shareCode = result.hashCode();
         statResultQueue.put(shareCode, result);
-        MyLogger.logMsg("Saving statResults with no. " + ID, DebugLevel.MEDIUM);
+        MyLogger.logMediumLevelMsg("Saving statResults with no. " + ID);
         return shareCode;
     }
 
@@ -102,8 +101,8 @@ public final class ShareManager {
             shareTimeStamp.put(playerName, Instant.now());
 
             if (!sharedResults.offer(shareCode)) {  //create a new ArrayBlockingQueue if our queue is full
-                MyLogger.logMsg("500 stat-results have been shared, " +
-                        "creating a new internal queue with the most recent 50 share-code-values and discarding the rest...", DebugLevel.MEDIUM);
+                MyLogger.logMediumLevelMsg("500 stat-results have been shared, " +
+                        "creating a new internal queue with the most recent 50 share-code-values and discarding the rest...");
                 ArrayBlockingQueue<Integer> newQueue = new ArrayBlockingQueue<>(500);
 
                 synchronized (this) {  //put the last 50 values in the new Queue
@@ -136,7 +135,7 @@ public final class ShareManager {
                     .parallelStream()
                     .min(Comparator.comparing(InternalStatResult::ID))
                     .orElseThrow().hashCode();
-            MyLogger.logMsg("Removing old stat no. " + statResultQueue.get(hashCode).ID() + " for player " + playerName, DebugLevel.MEDIUM);
+            MyLogger.logMediumLevelMsg("Removing old stat no. " + statResultQueue.get(hashCode).ID() + " for player " + playerName);
             statResultQueue.remove(hashCode);
         }
     }

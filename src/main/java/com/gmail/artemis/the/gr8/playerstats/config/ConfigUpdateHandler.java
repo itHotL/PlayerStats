@@ -20,7 +20,7 @@ public final class ConfigUpdateHandler {
         try {
             configuration.save(configFile);
             ConfigUpdater.update(plugin, configFile.getName(), configFile);
-            MyLogger.logMsg("Your config has been updated to version " + configVersion +
+            MyLogger.logLowLevelMsg("Your config has been updated to version " + configVersion +
                     ", but all of your custom settings should still be there!");
         } catch (IOException e) {
             e.printStackTrace();

@@ -153,9 +153,9 @@ public final class ConfigHandler {
             };
             return section.getBoolean(path, def);
         }
-        MyLogger.logMsg("Config settings for use-enters could not be retrieved! " +
+        MyLogger.logWarning("Config settings for use-enters could not be retrieved! " +
                 "Please check your file if you want to use custom settings. " +
-                "Using default values...", true);
+                "Using default values...");
         return def;
     }
 

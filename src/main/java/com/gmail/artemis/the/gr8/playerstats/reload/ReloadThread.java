@@ -41,7 +41,7 @@ public final class ReloadThread extends Thread {
         sender = se;
 
         this.setName("ReloadThread-" + reloadThreadID);
-        MyLogger.threadCreated(this.getName());
+        MyLogger.logHighLevelMsg(this.getName() + " created!");
     }
 
     /** This method will perform a series of tasks. If a {@link StatThread} is still running,
@@ -52,11 +52,11 @@ public final class ReloadThread extends Thread {
     @Override
     public void run() {
         long time = System.currentTimeMillis();
-        MyLogger.threadStart(this.getName());
+        MyLogger.logHighLevelMsg(this.getName() + " started!");
 
         if (statThread != null && statThread.isAlive()) {
             try {
-                MyLogger.waitingForOtherThread(this.getName(), statThread.getName());
+                MyLogger.logLowLevelMsg(this.getName() + ": Waiting for " + statThread.getName() + " to finish up...");
                 statThread.join();
             } catch (InterruptedException e) {
                 MyLogger.logException(e, "ReloadThread", "run(), trying to join " + statThread.getName());
@@ -65,7 +65,7 @@ public final class ReloadThread extends Thread {
         }
 
         if (reloadThreadID != 1 && config.reloadConfig()) {  //during a reload
-            MyLogger.logMsg("Reloading!", false);
+            MyLogger.logLowLevelMsg("Reloading!");
             reloadEverything();
 
             if (sender != null) {
@@ -92,8 +92,8 @@ public final class ReloadThread extends Thread {
         OfflinePlayer[] offlinePlayers;
         if (config.whitelistOnly()) {
             offlinePlayers = Bukkit.getWhitelistedPlayers().toArray(OfflinePlayer[]::new);
-            MyLogger.logTimeTaken("ReloadThread",
-                    "retrieved whitelist", time, DebugLevel.MEDIUM);
+            MyLogger.logMediumLevelTask("ReloadThread",
+                    "retrieved whitelist", time);
         }
         else if (config.excludeBanned()) {
             if (Bukkit.getPluginManager().getPlugin("LiteBans") != null) {
@@ -107,13 +107,13 @@ public final class ReloadThread extends Thread {
                         .parallel()
                         .filter(offlinePlayer -> !bannedPlayers.contains(offlinePlayer)).toArray(OfflinePlayer[]::new);
             }
-            MyLogger.logTimeTaken("ReloadThread",
-                    "retrieved banlist", time, DebugLevel.MEDIUM);
+            MyLogger.logMediumLevelTask("ReloadThread",
+                    "retrieved banlist", time);
         }
         else {
             offlinePlayers = Bukkit.getOfflinePlayers();
-            MyLogger.logTimeTaken("ReloadThread",
-                    "retrieved list of Offline Players", time, DebugLevel.MEDIUM);
+            MyLogger.logMediumLevelTask("ReloadThread",
+                    "retrieved list of Offline Players", time);
         }
 
         int size = offlinePlayers != null ? offlinePlayers.length : 16;
@@ -122,10 +122,10 @@ public final class ReloadThread extends Thread {
         ReloadAction task = new ReloadAction(offlinePlayers, config.getLastPlayedLimit(), playerMap);
         MyLogger.actionCreated((offlinePlayers != null) ? offlinePlayers.length : 0);
         ForkJoinPool.commonPool().invoke(task);
-        MyLogger.actionFinished(1);
+        MyLogger.actionFinished();
 
-        MyLogger.logTimeTaken("ReloadThread",
-                ("loaded " + playerMap.size() + " offline players"), time, DebugLevel.LOW);
+        MyLogger.logLowLevelTask("ReloadThread",
+                ("loaded " + playerMap.size() + " offline players"), time);
         return playerMap;
     }
 }

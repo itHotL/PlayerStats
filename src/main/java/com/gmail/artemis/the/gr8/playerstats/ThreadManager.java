@@ -57,7 +57,7 @@ public final class ThreadManager {
             lastActiveReloadThread.start();
         }
         else {
-            MyLogger.threadAlreadyRunning(lastActiveReloadThread.getName());
+            MyLogger.logLowLevelMsg("Another reloadThread is already running! (" + lastActiveReloadThread.getName() + ")");
         }
     }
 

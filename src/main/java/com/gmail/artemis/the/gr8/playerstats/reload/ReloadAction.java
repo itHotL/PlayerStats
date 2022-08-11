@@ -68,7 +68,7 @@ final class ReloadAction extends RecursiveAction {
         for (int i = start; i < end; i++) {
             OfflinePlayer player = players[i];
             String playerName = player.getName();
-            MyLogger.actionRunning(Thread.currentThread().getName(), playerName, 1);
+            MyLogger.actionRunning(Thread.currentThread().getName());
             if (playerName != null &&
                     (lastPlayedLimit == 0 || UnixTimeHandler.hasPlayedSince(lastPlayedLimit, player.getLastPlayed()))) {
                 offlinePlayerUUIDs.put(playerName, player.getUniqueId());

@@ -1,6 +1,5 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
-import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
@@ -49,7 +48,7 @@ public final class MessageBuilder {
 
         formatter = new NumberFormatter();
         languageKeyHandler = new LanguageKeyHandler();
-        MyLogger.logMsg("MessageBuilder created with factory: " + componentFactory.getClass().getSimpleName(), DebugLevel.MEDIUM);
+        MyLogger.logMediumLevelMsg("MessageBuilder created with factory: " + componentFactory.getClass().getSimpleName());
     }
 
     public static MessageBuilder defaultBuilder(ConfigHandler config) {
@@ -413,9 +412,7 @@ public final class MessageBuilder {
     private TextComponent getTimeNumberComponent(long statNumber, Target target) {
         ArrayList<Unit> unitRange = getTimeUnitRange(statNumber);
         if (unitRange.size() <= 1 || (useHoverText && unitRange.size() <= 3)) {
-            MyLogger.logMsg(
-                    "There is something wrong with the time-units you specified, please check your config!",
-                    true);
+            MyLogger.logWarning("There is something wrong with the time-units you specified, please check your config!");
             return componentFactory.timeNumber(formatter.formatNumber(statNumber), target);
         }
         else {
@@ -424,7 +421,7 @@ public final class MessageBuilder {
                 return componentFactory.timeNumber(mainNumber, target);
             } else {
                 String hoverNumber = formatter.formatTimeNumber(statNumber, unitRange.get(2), unitRange.get(3));
-                MyLogger.logMsg("mainNumber: " + mainNumber + ", hoverNumber: " + hoverNumber, DebugLevel.HIGH);
+                MyLogger.logHighLevelMsg("mainNumber: " + mainNumber + ", hoverNumber: " + hoverNumber);
                 return componentFactory.timeNumberWithHoverText(mainNumber, hoverNumber, target);
             }
         }
@@ -541,7 +538,7 @@ public final class MessageBuilder {
                 unitRange.add(bigHoverUnit.getSmallerUnit(config.getNumberOfExtraTimeUnits(true)));
             }
         }
-        MyLogger.logMsg("total selected unitRange for this statistic: " + unitRange, DebugLevel.MEDIUM);
+        MyLogger.logMediumLevelMsg("total selected unitRange for this statistic: " + unitRange);
         return unitRange;
     }
 

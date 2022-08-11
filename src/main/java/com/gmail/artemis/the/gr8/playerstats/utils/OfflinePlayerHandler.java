@@ -56,9 +56,9 @@ public final class OfflinePlayerHandler {
             return Bukkit.getOfflinePlayer(offlinePlayerUUIDs.get(playerName));
         }
         else {
-            MyLogger.logMsg("Cannot calculate statistics for player-name: " + playerName +
+            MyLogger.logWarning("Cannot calculate statistics for player-name: " + playerName +
                     "! Double-check if the name is spelled correctly (including capital letters), " +
-                    "or if any of your config settings exclude them", true);
+                    "or if any of your config settings exclude them");
             throw new IllegalArgumentException("Cannot convert this player-name into a valid Player to calculate statistics for");
         }
     }

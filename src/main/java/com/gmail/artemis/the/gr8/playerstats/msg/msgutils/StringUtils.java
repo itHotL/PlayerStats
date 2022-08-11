@@ -15,7 +15,7 @@ public final class StringUtils {
         StringBuilder capitals = new StringBuilder(input.toLowerCase());
         capitals.setCharAt(0, Character.toUpperCase(capitals.charAt(0)));
         while (capitals.indexOf("_") != -1) {
-            MyLogger.replacingUnderscores();
+            MyLogger.logHighLevelMsg("Replacing underscores and capitalizing names...");
 
             int index = capitals.indexOf("_");
             capitals.setCharAt(index + 1, Character.toUpperCase(capitals.charAt(index + 1)));
