@@ -61,6 +61,10 @@ public class PrideComponentFactory extends ComponentFactory {
         if (randomizer.nextBoolean()) {
             return backwardsPluginPrefixComponent();
         }
+        return rainbowPrefix();
+    }
+
+    public TextComponent rainbowPrefix() {
         return text()
                 .append(MiniMessage.miniMessage()
                         .deserialize("<#f74040>[</#f74040>" +

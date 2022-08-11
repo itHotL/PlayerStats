@@ -36,7 +36,7 @@ public class ApiOutputManager implements ApiFormatter {
 
     @Override
     public TextComponent getRainbowPluginPrefix() {
-        return prideComponentFactory.pluginPrefix();
+        return prideComponentFactory.rainbowPrefix();
     }
 
     @Override
