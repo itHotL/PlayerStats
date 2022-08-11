@@ -73,9 +73,14 @@ public class ApiOutputManager implements ApiFormatter {
                 .append(space())
                 .append(componentFactory.statAndSubStatName(prettyStatName, subStatName, Target.TOP));
 
-        if (unit != null) {
-            titleBuilder.append(space())
-                    .append(componentFactory.statUnit(unit.getLabel(), Target.TOP));
+        if (unit != null && unit != Unit.NUMBER) {
+            if (unit == Unit.HEART) {
+                titleBuilder.append(space())
+                        .append(componentFactory.clientHeart(false));
+            } else {
+                titleBuilder.append(space())
+                        .append(componentFactory.statUnit(unit.getLabel(), Target.TOP));
+            }
         }
         return titleBuilder.build();
     }
@@ -151,9 +156,15 @@ public class ApiOutputManager implements ApiFormatter {
                 .append(componentFactory.statAndSubStatName(prettyStatName, subStatName, Target.SERVER));
 
         if (unitType== Unit.Type.DAMAGE || unitType == Unit.Type.DISTANCE) {
-            serverStatBuilder
-                    .append(space())
-                    .append(componentFactory.statUnit(unit.getLabel(), Target.SERVER));
+            if (unit == Unit.HEART) {
+                serverStatBuilder
+                        .append(space())
+                        .append(componentFactory.clientHeart(false));
+            } else {
+                serverStatBuilder
+                        .append(space())
+                        .append(componentFactory.statUnit(unit.getLabel(), Target.SERVER));
+            }
         }
         return serverStatBuilder.build();
     }
