@@ -104,6 +104,18 @@ public final class EnumHandler {
         return subStatNames.contains(statName.toLowerCase());
     }
 
+    /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */
+    public static String getSubStatTypeName(Statistic.Type statType) {
+        String subStat = "sub-statistic";
+        if (statType == null) return subStat;
+        switch (statType) {
+            case BLOCK -> subStat = "block";
+            case ENTITY -> subStat = "entity";
+            case ITEM -> subStat = "item";
+        }
+        return subStat;
+    }
+
     private void prepareLists() {
         List<String> entityNames = Arrays.stream(EntityType.values())
                 .map(EntityType::toString)

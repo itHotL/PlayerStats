@@ -1,14 +1,17 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
+import com.gmail.artemis.the.gr8.playerstats.api.ApiFormatter;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 
+import com.gmail.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.ExampleMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.HelpMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.*;
+import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -16,6 +19,7 @@ import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.BiFunction;
@@ -27,7 +31,7 @@ import static net.kyori.adventure.text.Component.*;
  The component parts (with appropriate formatting) are supplied by a {@link ComponentFactory}.
  By default, this class works with the default ComponentFactory, but you can
  give it a different ComponentFactory upon creation.*/
-public final class MessageBuilder {
+public final class MessageBuilder implements ApiFormatter {
 
     private static ConfigHandler config;
     private boolean useHoverText;
@@ -48,7 +52,6 @@ public final class MessageBuilder {
 
         formatter = new NumberFormatter();
         languageKeyHandler = new LanguageKeyHandler();
-        MyLogger.logMediumLevelMsg("MessageBuilder created with factory: " + componentFactory.getClass().getSimpleName());
     }
 
     public static MessageBuilder defaultBuilder(ConfigHandler config) {
@@ -67,6 +70,28 @@ public final class MessageBuilder {
 
     public void setConsoleBuilder(boolean isConsoleBuilder) {
         this.isConsoleBuilder = isConsoleBuilder;
+    }
+
+    @Override
+    public TextComponent getPluginPrefix() {
+        return componentFactory.pluginPrefix();
+    }
+
+    @Override
+    public TextComponent getRainbowPluginPrefix() {
+        PrideComponentFactory pride = new PrideComponentFactory(config);
+        return pride.rainbowPrefix();
+    }
+
+    @Override
+    public TextComponent getPluginPrefixAsTitle() {
+        return componentFactory.pluginPrefixAsTitle();
+    }
+
+    @Override
+    public TextComponent getRainbowPluginPrefixAsTitle() {
+        PrideComponentFactory pride = new PrideComponentFactory(config);
+        return pride.pluginPrefixAsTitle();
     }
 
     public TextComponent reloadedConfig() {
@@ -101,7 +126,7 @@ public final class MessageBuilder {
         return componentFactory.pluginPrefix()
                 .append(space())
                 .append(componentFactory.message().content(
-                "Please add a valid " + getSubStatTypeName(statType) + " to look up this statistic!"));
+                "Please add a valid " + EnumHandler.getSubStatTypeName(statType) + " to look up this statistic!"));
     }
 
     public TextComponent missingPlayerName() {
@@ -117,7 +142,7 @@ public final class MessageBuilder {
                 .append(componentFactory.messageAccent().content("\"" + subStatName + "\""))
                 .append(space())
                 .append(componentFactory.message().content(
-                "is not a valid " + getSubStatTypeName(statType) + "!"));
+                "is not a valid " + EnumHandler.getSubStatTypeName(statType) + "!"));
     }
 
     public TextComponent requestAlreadyRunning() {
@@ -175,21 +200,95 @@ public final class MessageBuilder {
         }
     }
 
+    @Override
+    public TextComponent getTopStatTitle(int topListSize, Statistic statistic) {
+        return getTopStatTitleComponent(topListSize, statistic, null, null);
+    }
+
+    @Override
+    public TextComponent getTopStatTitle(int topListSize, Statistic statistic, @Nullable String subStatName) {
+        return getTopStatTitleComponent(topListSize, statistic, subStatName, null);
+    }
+
+    @Override
+    public TextComponent getTopStatTitle(int topListSize, Statistic statistic, Unit unit) {
+        return getTopStatTitleComponent(topListSize, statistic, null, unit);
+    }
+
+    @Override
+    public TextComponent formatTopStatLine(int positionInTopList, String playerName, long statNumber, Statistic statistic) {
+        TextComponent statNumberComponent = getStatNumberComponent(statNumber, Target.TOP, statistic);
+        return getTopStatLineComponent(positionInTopList, playerName, statNumberComponent);
+    }
+
+    @Override
+    public TextComponent formatTopStatLine(int positionInTopList, String playerName, long statNumber, Unit unit) {
+        TextComponent statNumberComponent = getStatNumberComponent(statNumber, Target.TOP, unit);
+        return getTopStatLineComponent(positionInTopList, playerName, statNumberComponent);
+    }
+
+    /** Time-number does not hover */
+    @Override
+    public TextComponent formatTopStatLineForTypeTime(int positionInList, String playerName, long statNumber, Unit bigUnit, Unit smallUnit) {
+        TextComponent statNumberComponent = getBasicTimeNumberComponent(statNumber, Target.TOP, bigUnit, smallUnit);
+        return getTopStatLineComponent(positionInList, playerName, statNumberComponent);
+    }
+
+    @Override
+    public TextComponent formatServerStat(long statNumber, Statistic statistic) {
+        TextComponent statNumberComponent = getStatNumberComponent(statNumber, Target.SERVER, statistic);
+        return getServerStatComponent(statNumberComponent, statistic, null, null);
+    }
+
+    @Override
+    public TextComponent formatServerStat(long statNumber, Statistic statistic, String subStatName) {
+        TextComponent statNumberComponent = getStatNumberComponent(statNumber, Target.SERVER, statistic);
+        return getServerStatComponent(statNumberComponent, statistic, subStatName, null);
+    }
+
+    @Override
+    public TextComponent formatServerStat(long statNumber, Statistic statistic, Unit unit) {
+        TextComponent statNumberComponent = getStatNumberComponent(statNumber, Target.SERVER, unit);
+        return getServerStatComponent(statNumberComponent, statistic, null, unit);
+    }
+
+    @Override
+    public TextComponent formatServerStatForTypeTime(long statNumber, Statistic statistic, Unit bigUnit, Unit smallUnit) {
+        TextComponent statNumberComponent = getBasicTimeNumberComponent(statNumber, Target.SERVER, bigUnit, smallUnit);
+        return getServerStatComponent(statNumberComponent, statistic, null, null);
+    }
+
+    @Override
+    public TextComponent formatPlayerStat(String playerName, int statNumber, Statistic statistic) {
+        TextComponent statNumberComponent = getStatNumberComponent(statNumber, Target.PLAYER, statistic);
+        return getPlayerStatComponent(playerName, statNumberComponent, statistic, null, null);
+    }
+
+    @Override
+    public TextComponent formatPlayerStat(String playerName, int statNumber, Statistic statistic, Unit unit) {
+        TextComponent statNumberComponent = getStatNumberComponent(statNumber, Target.PLAYER, unit);
+        return getPlayerStatComponent(playerName, statNumberComponent, statistic, null, unit);
+    }
+
+    @Override
+    public TextComponent formatPlayerStat(String playerName, int statNumber, Statistic statistic, String subStatName) {
+        TextComponent statNumberComponent = getStatNumberComponent(statNumber, Target.PLAYER, statistic);
+        return getPlayerStatComponent(playerName, statNumberComponent, statistic, subStatName, null);
+    }
+
+    @Override
+    public TextComponent formatPlayerStatForTypeTime(String playerName, int statNumber, Statistic statistic, Unit bigUnit, Unit smallUnit) {
+        TextComponent statNumberComponent = getBasicTimeNumberComponent(statNumber, Target.PLAYER, bigUnit, smallUnit);
+        return getPlayerStatComponent(playerName, statNumberComponent, statistic, null, null);
+    }
+
     /** Returns a BiFunction for a player statistic. This BiFunction will return a formattedComponent,
      the shape of which is determined by the 2 parameters the BiFunction gets.
      <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
      <br>- If both parameters are null, the formattedComponent will be returned as is.</br>*/
-    public BiFunction<Integer, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull RequestSettings requestSettings) {
-        TextComponent playerStat = Component.text()
-                .append(componentFactory.playerName(requestSettings.getPlayerName(), Target.PLAYER)
-                        .append(text(":"))
-                        .append(space()))
-                .append(getStatNumberComponent(requestSettings, stat))
-                .append(space())
-                .append(getStatNameComponent(requestSettings))
-                .append(getStatUnitComponent(requestSettings.getStatistic(), requestSettings.getTarget()))  //space is provided by statUnitComponent
-                .build();
+    public BiFunction<Integer, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull RequestSettings request) {
+        TextComponent playerStat = formatPlayerStat(request.getPlayerName(), stat, request.getStatistic(), request.getSubStatEntryName());
 
         return getFormattingFunction(playerStat, Target.PLAYER);
     }
@@ -199,18 +298,8 @@ public final class MessageBuilder {
      <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
      <br>- If both parameters are null, the formattedComponent will be returned as is.</br>*/
-    public BiFunction<Integer, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull RequestSettings requestSettings) {
-        TextComponent serverStat = text()
-                .append(componentFactory.title(config.getServerTitle(), Target.SERVER))
-                .append(space())
-                .append(componentFactory.serverName(config.getServerName()))
-                .append(space())
-                .append(getStatNumberComponent(requestSettings, stat))
-                .append(space())
-                .append(getStatNameComponent(requestSettings))
-                .append(getStatUnitComponent(requestSettings.getStatistic(), requestSettings.getTarget()))  //space is provided by statUnit
-                .build();
-
+    public BiFunction<Integer, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull RequestSettings request) {
+        TextComponent serverStat = formatServerStat(stat, request.getStatistic(), request.getSubStatEntryName());
         return getFormattingFunction(serverStat, Target.SERVER);
     }
 
@@ -219,10 +308,9 @@ public final class MessageBuilder {
      <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
      <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
      <br>- If both parameters are null, the formattedComponent will be returned as is.</br>*/
-    public BiFunction<Integer, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull RequestSettings requestSettings) {
-        final TextComponent title = getTopStatsTitleComponent(requestSettings, topStats.size());
-        final TextComponent shortTitle = getTopStatDescription(requestSettings, topStats.size());
-        final TextComponent list = getTopStatListComponent(topStats, requestSettings);
+    public BiFunction<Integer, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull RequestSettings request) {
+        final TextComponent title = getTopStatTitle(topStats.size(), request.getStatistic(), request.getSubStatEntryName());
+        final TextComponent list = getTopStatListComponent(topStats, request.getStatistic());
         final boolean useEnters = config.useEnters(Target.TOP, false);
         final boolean useEntersForShared = config.useEnters(Target.TOP, true);
 
@@ -234,7 +322,9 @@ public final class MessageBuilder {
                 if (useEnters) {
                     topBuilder.append(newline());
                 }
-                topBuilder.append(title)
+                topBuilder.append(componentFactory.pluginPrefix())
+                        .append(space())
+                        .append(title)
                             .append(space())
                             .append(componentFactory.shareButton(shareCode))
                         .append(list);
@@ -244,9 +334,11 @@ public final class MessageBuilder {
                 if (useEntersForShared) {
                     topBuilder.append(newline());
                 }
-                topBuilder.append(shortTitle)
+                topBuilder.append(title)
                             .append(space())
                             .append(componentFactory.statResultInHoverText(text()
+                                    .append(componentFactory.pluginPrefix())
+                                    .append(space())
                                     .append(title)
                                     .append(list)
                                     .build()))
@@ -259,115 +351,134 @@ public final class MessageBuilder {
                 if (useEnters) {
                     topBuilder.append(newline());
                 }
-                topBuilder.append(title)
+                topBuilder.append(componentFactory.pluginPrefix())
+                        .append(space())
+                        .append(title)
                         .append(list);
             }
             return topBuilder.build();
         };
     }
 
-    private Component getSharerNameComponent(CommandSender sender) {
-        if (sender instanceof Player player) {
-            Component senderName = EasterEggProvider.getPlayerName(player);
-            if (senderName != null) {
-                return senderName;
-            }
-        }
-        return componentFactory.sharerName(sender.getName());
-    }
+    private TextComponent getPlayerStatComponent(String playerName, TextComponent statNumberComponent, Statistic statistic, @Nullable String subStatName, @Nullable Unit unit) {
+        TextComponent statUnit = (unit == null) ?
+                getStatUnitComponent(statistic, Target.PLAYER) :
+                getStatUnitComponent(unit, Target.PLAYER);
 
-    private TextComponent getTopStatsTitleComponent(RequestSettings requestSettings, int statListSize) {
         return Component.text()
-                .append(componentFactory.pluginPrefix()).append(space())
-                .append(componentFactory.title(config.getTopStatsTitle(), Target.TOP)).append(space())
-                .append(componentFactory.titleNumber(statListSize)).append(space())
-                .append(getStatNameComponent(requestSettings))  //space is provided by statUnitComponent
-                .append(getStatUnitComponent(requestSettings.getStatistic(), requestSettings.getTarget()))
+                .append(componentFactory.playerName(playerName, Target.PLAYER)
+                        .append(text(":"))
+                        .append(space()))
+                .append(statNumberComponent)
+                .append(space())
+                .append(getStatAndSubStatNameComponent(statistic, subStatName, Target.PLAYER))
+                .append(statUnit)  //space is provided by statUnitComponent
                 .build();
     }
 
-    private TextComponent getTopStatDescription(RequestSettings requestSettings, int statListSize) {
+    private TextComponent getServerStatComponent(TextComponent statNumber, Statistic statistic, @Nullable String subStatName, @Nullable Unit unit) {
+        String serverTitle = config.getServerTitle();
+        String serverName = config.getServerName();
+        TextComponent statUnit = (unit == null) ?
+                getStatUnitComponent(statistic, Target.SERVER) :
+                getStatUnitComponent(unit, Target.SERVER);
+
         return Component.text()
-                .append(componentFactory.title(config.getTopStatsTitle(), Target.TOP)).append(space())
-                .append(componentFactory.titleNumber(statListSize)).append(space())
-                .append(getStatNameComponent(requestSettings))  //space is provided by statUnitComponent
+                .append(componentFactory.title(serverTitle, Target.SERVER))
+                .append(space())
+                .append(componentFactory.serverName(serverName))
+                .append(space())
+                .append(statNumber)
+                .append(space())
+                .append(getStatAndSubStatNameComponent(statistic, subStatName, Target.SERVER))
+                .append(statUnit) //space is provided by statUnit
                 .build();
     }
 
-    private TextComponent getTopStatListComponent(LinkedHashMap<String, Integer> topStats, RequestSettings requestSettings) {
+    private TextComponent getTopStatTitleComponent(int topListSize, Statistic statistic, @Nullable String subStatName, @Nullable Unit unit) {
+        TextComponent statUnit = (unit == null) ?
+                getStatUnitComponent(statistic, Target.TOP) :
+                getStatUnitComponent(unit, Target.TOP);
+
+        return Component.text()
+                .append(componentFactory.title(config.getTopStatsTitle(), Target.TOP))
+                .append(space())
+                .append(componentFactory.titleNumber(topListSize))
+                .append(space())
+                .append(getStatAndSubStatNameComponent(statistic, subStatName, Target.TOP))  //space is provided by statUnitComponent
+                .append(statUnit)
+                .build();
+    }
+
+    private TextComponent getTopStatListComponent(LinkedHashMap<String, Integer> topStats, Statistic statistic) {
         TextComponent.Builder topList = Component.text();
         Set<String> playerNames = topStats.keySet();
         boolean useDots = config.useDots();
 
         int count = 0;
         for (String playerName : playerNames) {
-            topList.append(newline())
-                    .append(space())
-                    .append(componentFactory.rankNumber(++count))
-                    .append(space());
+            topList.append(newline());
             if (useDots) {
-                topList.append(getPlayerNameWithDotsComponent(count, playerName));
+                topList.append(getTopStatLineComponent(
+                        ++count, playerName, getStatNumberComponent(topStats.get(playerName), Target.TOP, statistic)));
+            } else {
+                topList.append(space())
+                        .append(componentFactory.rankNumber(++count))
+                        .append(space())
+                        .append(componentFactory.playerName(playerName + ":", Target.TOP))
+                        .append(space()).append(getStatNumberComponent(topStats.get(playerName), Target.TOP, statistic));
             }
-            else {
-                topList.append(componentFactory.playerName(playerName + ":", Target.TOP));
-            }
-            topList.append(space()).append(getStatNumberComponent(requestSettings, topStats.get(playerName)));
         }
         return topList.build();
     }
 
-    private TextComponent getPlayerNameWithDotsComponent(int positionInTopList, String playerName) {
-        TextComponent.Builder nameBuilder = Component.text()
+    private TextComponent getTopStatLineComponent(int positionInTopList, String playerName, TextComponent statNumberComponent) {
+        TextComponent.Builder topStatLineBuilder = Component.text()
+                .append(space())
+                .append(componentFactory.rankNumber(positionInTopList))
+                .append(space())
                 .append(componentFactory.playerName(playerName, Target.TOP))
                 .append(space());
 
         int dots = getNumberOfDotsToAlign(positionInTopList + ". " + playerName);
         if (dots >= 1) {
-            nameBuilder.append(componentFactory.dots(".".repeat(dots)));
+            topStatLineBuilder.append(componentFactory.dots(".".repeat(dots)));
         }
-        return nameBuilder.build();
+
+        return topStatLineBuilder
+                .append(space())
+                .append(statNumberComponent)
+                .build();
     }
 
-    private int getNumberOfDotsToAlign(String displayText) {
-        if (isConsoleBuilder) {
-            return FontUtils.getNumberOfDotsToAlignForConsole(displayText);
-        } else if (config.playerNameIsBold()) {
-            return FontUtils.getNumberOfDotsToAlignForBoldText(displayText);
-        } else {
-            return FontUtils.getNumberOfDotsToAlign(displayText);
-        }
-    }
-
-    /** Depending on the config settings, return either a TranslatableComponent representing
-     the statName (and potential subStatName), or a TextComponent with capitalized English names.*/
-    private TextComponent getStatNameComponent(RequestSettings requestSettings) {
+    private TextComponent getStatAndSubStatNameComponent(Statistic statistic, @Nullable String subStatName, Target target) {
         if (config.useTranslatableComponents()) {
-            String statKey = languageKeyHandler.getStatKey(requestSettings.getStatistic());
-            String subStatKey = requestSettings.getSubStatEntryName();
-            if (subStatKey != null) {
-                switch (requestSettings.getStatistic().getType()) {
-                    case BLOCK -> subStatKey = languageKeyHandler.getBlockKey(requestSettings.getBlock());
-                    case ENTITY -> subStatKey = languageKeyHandler.getEntityKey(requestSettings.getEntity());
-                    case ITEM -> subStatKey = languageKeyHandler.getItemKey(requestSettings.getItem());
-                    default -> {
-                    }
-                }
-            }
-            return componentFactory.statAndSubStatNameTranslatable(statKey, subStatKey, requestSettings.getTarget());
+            String statKey = languageKeyHandler.getStatKey(statistic);
+            String subStatKey = switch (statistic.getType()) {
+                case UNTYPED -> null;
+                case ENTITY -> languageKeyHandler.getEntityKey(EnumHandler.getEntityEnum(subStatName));
+                case BLOCK -> languageKeyHandler.getBlockKey(EnumHandler.getBlockEnum(subStatName));
+                case ITEM -> languageKeyHandler.getItemKey(EnumHandler.getItemEnum(subStatName));
+            };
+            return componentFactory.statAndSubStatNameTranslatable(statKey, subStatKey, target);
         }
-        else {
-            return componentFactory.statAndSubStatName(
-                    StringUtils.prettify(requestSettings.getStatistic().toString()),
-                    StringUtils.prettify(requestSettings.getSubStatEntryName()),
-                    requestSettings.getTarget());
-        }
+
+        String prettyStatName = StringUtils.prettify(statistic.toString());
+        String prettySubStatName = StringUtils.prettify(subStatName);
+        return componentFactory.statAndSubStatName(prettyStatName, prettySubStatName, target);
     }
 
-    private TextComponent getStatNumberComponent(RequestSettings request, long statNumber) {
-        Statistic statistic = request.getStatistic();
-        Target target = request.getTarget();
-        Unit.Type unitType = Unit.getTypeFromStatistic(statistic);
+    private TextComponent getStatNumberComponent(long statNumber, Target target, Unit unit) {
+        return switch (unit.getType()) {
+            case TIME -> getBasicTimeNumberComponent(statNumber, target, unit, null);
+            case DAMAGE -> getDamageNumberComponent(statNumber, target, unit);
+            case DISTANCE -> getDistanceNumberComponent(statNumber, target, unit);
+            default -> getDefaultNumberComponent(statNumber, target);
+        };
+    }
 
+    private TextComponent getStatNumberComponent(long statNumber, Target target, Statistic statistic) {
+        Unit.Type unitType = Unit.getTypeFromStatistic(statistic);
         return switch (unitType) {
             case DISTANCE -> getDistanceNumberComponent(statNumber, target);
             case DAMAGE -> getDamageNumberComponent(statNumber, target);
@@ -378,7 +489,11 @@ public final class MessageBuilder {
 
     private TextComponent getDistanceNumberComponent(long statNumber, Target target) {
         Unit statUnit = Unit.fromString(config.getDistanceUnit(false));
-        String prettyNumber = formatter.formatDistanceNumber(statNumber, statUnit);
+        return getDistanceNumberComponent(statNumber, target, statUnit);
+    }
+
+    private TextComponent getDistanceNumberComponent(long statNumber, Target target, Unit unit) {
+        String prettyNumber = formatter.formatDistanceNumber(statNumber, unit);
         if (!useHoverText) {
             return componentFactory.distanceNumber(prettyNumber, target);
         }
@@ -396,7 +511,11 @@ public final class MessageBuilder {
 
     private TextComponent getDamageNumberComponent(long statNumber, Target target) {
         Unit statUnit = Unit.fromString(config.getDamageUnit(false));
-        String prettyNumber = formatter.formatDamageNumber(statNumber, statUnit);
+        return getDamageNumberComponent(statNumber, target, statUnit);
+    }
+
+    private TextComponent getDamageNumberComponent(long statNumber, Target target, Unit unit) {
+        String prettyNumber = formatter.formatDamageNumber(statNumber, unit);
         if (!useHoverText) {
             return componentFactory.damageNumber(prettyNumber, target);
         }
@@ -427,37 +546,51 @@ public final class MessageBuilder {
         }
     }
 
+    private TextComponent getBasicTimeNumberComponent(long statNumber, Target target, Unit bigUnit, @Nullable Unit smallUnit) {
+        if (smallUnit == null) {
+            smallUnit = bigUnit.getSmallerUnit(1);
+        }
+        return componentFactory.timeNumber(formatter.formatTimeNumber(statNumber, bigUnit, smallUnit), target);
+    }
+
     private TextComponent getDefaultNumberComponent(long statNumber, Target target) {
         return componentFactory.statNumber(formatter.formatNumber(statNumber), target);
     }
 
     /** Provides its own space in front of it! */
     private TextComponent getStatUnitComponent(Statistic statistic, Target target) {
-        return switch (Unit.getTypeFromStatistic(statistic)) {
-            case DAMAGE -> getDamageUnit(target);
-            case DISTANCE -> getDistanceUnit(target);
+        Unit unit = switch (Unit.getTypeFromStatistic(statistic)) {
+            case DAMAGE -> Unit.fromString(config.getDamageUnit(false));
+            case DISTANCE -> Unit.fromString(config.getDistanceUnit(false));
+            default -> Unit.NUMBER;
+        };
+        return getStatUnitComponent(unit, target);
+    }
+
+    private TextComponent getStatUnitComponent(Unit unit, Target target) {
+        return switch (unit.getType()) {
+            case DAMAGE -> getDamageUnitComponent(unit, target);
+            case DISTANCE -> getDistanceUnitComponent(unit, target);
             default -> Component.empty();
         };
     }
 
     /** Provides its own space in front of it! */
-    private TextComponent getDistanceUnit(Target target) {
-        Unit statUnit = Unit.fromString(config.getDistanceUnit(false));
+    private TextComponent getDistanceUnitComponent(Unit unit, Target target) {
         if (config.useTranslatableComponents()) {
-            String unitKey = languageKeyHandler.getUnitKey(statUnit);
+            String unitKey = languageKeyHandler.getUnitKey(unit);
             if (unitKey != null) {
                 return Component.space()
                         .append(componentFactory.statUnitTranslatable(unitKey, target));
             }
         }
         return Component.space()
-                .append(componentFactory.statUnit(statUnit.getLabel(), target));
+                .append(componentFactory.statUnit(unit.getLabel(), target));
     }
 
     /** Provides its own space in front of it! */
-    private TextComponent getDamageUnit(Target target) {
-        Unit statUnit = Unit.fromString(config.getDamageUnit(false));
-        if (statUnit == Unit.HEART) {
+    private TextComponent getDamageUnitComponent(Unit unit, Target target) {
+        if (unit == Unit.HEART) {
             TextComponent heartUnit;
             if (isConsoleBuilder) {
                 heartUnit = componentFactory.consoleHeart();
@@ -470,9 +603,18 @@ public final class MessageBuilder {
                     .append(heartUnit);
         }
         return Component.space()
-                .append(componentFactory.statUnit(statUnit.getLabel(), target));
+                .append(componentFactory.statUnit(unit.getLabel(), target));
     }
 
+    private Component getSharerNameComponent(CommandSender sender) {
+        if (sender instanceof Player player) {
+            Component senderName = EasterEggProvider.getPlayerName(player);
+            if (senderName != null) {
+                return senderName;
+            }
+        }
+        return componentFactory.sharerName(sender.getName());
+    }
 
     private BiFunction<Integer, CommandSender, TextComponent> getFormattingFunction(@NotNull TextComponent statResult, Target target) {
         boolean useEnters = config.useEnters(target, false);
@@ -511,6 +653,16 @@ public final class MessageBuilder {
         };
     }
 
+    private int getNumberOfDotsToAlign(String displayText) {
+        if (isConsoleBuilder) {
+            return FontUtils.getNumberOfDotsToAlignForConsole(displayText);
+        } else if (config.playerNameIsBold()) {
+            return FontUtils.getNumberOfDotsToAlignForBoldText(displayText);
+        } else {
+            return FontUtils.getNumberOfDotsToAlign(displayText);
+        }
+    }
+
     /** Get an ArrayList consisting of 2 or 4 timeUnits. The order of items is:
      <p>0. maxUnit</p>
      <p>1. minUnit</p>
@@ -538,19 +690,6 @@ public final class MessageBuilder {
                 unitRange.add(bigHoverUnit.getSmallerUnit(config.getNumberOfExtraTimeUnits(true)));
             }
         }
-        MyLogger.logMediumLevelMsg("total selected unitRange for this statistic: " + unitRange);
         return unitRange;
-    }
-
-    /** Returns "block", "entity", "item", or "sub-statistic" if the provided Type is null. */
-    public static String getSubStatTypeName(Statistic.Type statType) {
-        String subStat = "sub-statistic";
-        if (statType == null) return subStat;
-        switch (statType) {
-            case BLOCK -> subStat = "block";
-            case ENTITY -> subStat = "entity";
-            case ITEM -> subStat = "item";
-        }
-        return subStat;
     }
 }

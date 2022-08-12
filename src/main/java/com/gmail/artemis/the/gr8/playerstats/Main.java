@@ -1,6 +1,5 @@
 package com.gmail.artemis.the.gr8.playerstats;
 
-import com.gmail.artemis.the.gr8.playerstats.api.ApiOutputManager;
 import com.gmail.artemis.the.gr8.playerstats.api.PlayerStats;
 import com.gmail.artemis.the.gr8.playerstats.api.PlayerStatsAPI;
 import com.gmail.artemis.the.gr8.playerstats.msg.InternalFormatter;
@@ -10,6 +9,7 @@ import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
+import com.gmail.artemis.the.gr8.playerstats.msg.MessageBuilder;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatCalculator;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
@@ -132,7 +132,7 @@ public final class Main extends JavaPlugin {
         outputManager = new OutputManager(adventure, config, shareManager);
         threadManager = new ThreadManager(config, statCalculator, outputManager);
 
-        ApiOutputManager apiOutputManager = new ApiOutputManager(config);
-        playerStatsAPI = new PlayerStatsAPI(apiOutputManager, offlinePlayerHandler);
+        MessageBuilder apiMessageBuilder = MessageBuilder.defaultBuilder(config);
+        playerStatsAPI = new PlayerStatsAPI(apiMessageBuilder, offlinePlayerHandler);
     }
 }

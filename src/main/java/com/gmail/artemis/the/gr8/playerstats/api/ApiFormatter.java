@@ -3,7 +3,6 @@ package com.gmail.artemis.the.gr8.playerstats.api;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.NumberFormatter;
-import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.StringUtils;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Statistic;
@@ -67,29 +66,35 @@ public interface ApiFormatter {
     TextComponent getTopStatTitle(int topStatSize, Statistic statistic, Unit unit);
 
     /** Formats the input into a single top-statistic line. The stat-number
-     is formatted into the most suitable {@link Unit} based on the provided Unit.Type.
-     For Type.Time, the result will have one additional Unit, unless
-     <code>getTopStatLineForTypeTime()</code> is used.
+     is formatted into the most suitable {@link Unit} based on the provided Statistic.
+     For Type.Time, the resulting formatted number will have one additional smaller
+     Unit, unless <code>formatTopStatLineForTypeTime()</code> is used.
      @return a single line from a top-x statistic:
       * <br> [positionInTopList]. [player-name] ......... [stat-number] */
-    TextComponent getTopStatLine(int positionInTopList, String playerName, long statNumber, Unit.Type unitType);
+    TextComponent formatTopStatLine(int positionInTopList, String playerName, long statNumber, Statistic statistic);
 
     /** Formats the input into a single top-statistic line. The stat-number is formatted
-     into the provided {@link Unit}. For Type.Time, the result will have one additional Unit, unless
-     <code>getTopStatLineForTypeTime()</code> is used.
+     into the provided {@link Unit}. For Type.Time, the resulting formatted number
+     will have one additional smaller Unit, unless <code>formatTopStatLineForTypeTime()</code>
+     is used.
      @return a single line from a top-x statistic:
       * <br> [positionInTopList]. [player-name] ......... [stat-number] */
-    TextComponent getTopStatLine(int positionInTopList, String playerName, long statNumber, Unit unit);
+    TextComponent formatTopStatLine(int positionInTopList, String playerName, long statNumber, Unit unit);
 
-    /** Formats the input into a single top-statistic line for a time-based statistic.
-     The stat-number is formatted with the provided units.
+    /** Formats the input into a single top-statistic line for a time-based statistic with the Unit-range
+     that is between <code>bigUnit</code> and <code>smallUnit</code> (both inclusive).
+     @param bigUnit the biggest Unit to use of {@link Unit.Type#TIME}
+     @param smallUnit the smallest Unit to use of {@link Unit.Type#TIME}
      @return a single line from a stop-x statistic:
      <br>[positionInTopList]. [player-name] ......... [1D 2H 3M 4S]*/
-    TextComponent getTopStatLineForTypeTime(int positionInList, String playerName, long statNumber, Unit bigUnit, Unit smallUnit);
+    TextComponent formatTopStatLineForTypeTime(int positionInList, String playerName, long statNumber, Unit bigUnit, Unit smallUnit);
 
-    /** Formats the input into a server statistic message.
+    /** Formats the input into a server statistic message. The stat-number
+     is formatted into the most suitable {@link Unit} based on the provided Statistic.
+     For Type.Time, the resulting formatted number will have one additional smaller
+     Unit, unless <code>formatServerStatForTypeTime()</code> is used.
      @return [Total on this server]: [stat-number] [stat-name] */
-    TextComponent getServerStat(long statNumber, Statistic statistic);
+    TextComponent formatServerStat(long statNumber, Statistic statistic);
 
     /** Formats the input into a server statistic message for a statistic that has a
      sub-statistic (block, item or entity).
@@ -98,9 +103,48 @@ public interface ApiFormatter {
      @param subStatName the name of the Material or EntityType of this statistic-lookup,
      acquired by doing #toString() on the Material/EntityType in question
      @return [Total on this server]: [stat-number] [stat-name] [sub-stat-name]*/
-    TextComponent getServerStat(long statNumber, Statistic statistic, String subStatName);
+    TextComponent formatServerStat(long statNumber, Statistic statistic, String subStatName);
 
     /** Formats the input into a server statistic message with the specified {@link Unit}.
+     The stat-number is formatted into the most suitable {@link Unit} based on the provided Statistic.
+     For Type.Time, the resulting formatted number will have one additional smaller Unit,
+     unless <code>formatServerStatForTypeTime()</code> is used.
      @return [Total on this server]: [stat-number] [stat-name] [unit-name]*/
-    TextComponent getServerStat(long statNumber, Statistic statistic, Unit unit);
+    TextComponent formatServerStat(long statNumber, Statistic statistic, Unit unit);
+
+    /** Formats the input into a server statistic message for a time-based statistic with the Unit-range
+     that is between <code>bigUnit</code> and <code>smallUnit</code> (both inclusive).
+     @param bigUnit the biggest Unit to use of {@link Unit.Type#TIME}
+     @param smallUnit the smallest Unit to use of {@link Unit.Type#TIME}
+     @return [Total on this server]: [1D 2H 3M 4S] [stat-name] */
+    TextComponent formatServerStatForTypeTime(long statNumber, Statistic statistic, Unit bigUnit, Unit smallUnit);
+
+    /** Formats the input into a player statistic message. For Unit.Type.Time,
+     the resulting formatted number will have one additional smaller Unit,
+     unless <code>formatPlayerStatForTypeTime</code> is used.
+     @return [player-name]: [stat-number] [stat-name]*/
+    TextComponent formatPlayerStat(String playerName, int statNumber, Statistic statistic);
+
+    /** Formats the input into a player statistic message for a statistic that has a sub-statistic (block, item
+     or entity).
+     @param playerName the name of the Player
+     @param statistic the Statistic enum constant
+     @param statNumber the result of Player#getStatistic()
+     @param subStatName the name of the Material or EntityType of this statistic-lookup,
+     acquired by doing #toString() on the Material/EntityType in question
+     @return [player-name]: [stat-number] [stat-name] [sub-stat-name]*/
+    TextComponent formatPlayerStat(String playerName, int statNumber, Statistic statistic, String subStatName);
+
+    /** Formats the input into a player statistic message with the specified {@link Unit}.
+     For Unit.Type.Time, the resulting formatted number will have one additional smaller Unit,
+     unless <code>formatPlayerStatForTypeTime</code> is used.
+     @return [player-name]: [stat-number] [stat-name] [stat-unit] */
+    TextComponent formatPlayerStat(String playerName, int statNumber, Statistic statistic, Unit unit);
+
+    /** Formats the input into a player statistic message for a time-based statistic with the Unit-range
+     that is between <code>bigUnit</code> and <code>smallUnit</code> (both inclusive).
+     @param bigUnit the biggest Unit to use of {@link Unit.Type#TIME}
+     @param smallUnit the smallest Unit to use of {@link Unit.Type#TIME}
+     @return [player-name]: [1D 2H 3M 4S] [stat-name]*/
+    TextComponent formatPlayerStatForTypeTime(String playerName, int statNumber, Statistic statistic, Unit bigUnit, Unit smallUnit);
 }
