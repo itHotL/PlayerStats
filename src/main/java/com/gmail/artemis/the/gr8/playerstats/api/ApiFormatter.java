@@ -33,13 +33,6 @@ public interface ApiFormatter {
         return new NumberFormatter();
     }
 
-    /** Replace "_" with " " and capitalize each first letter of the input.
-     @param rawEnumString String to prettify, case-insensitive
-     @return the transformed String. For example: animals_bred becomes Animals Bred*/
-    default String BukkitEnumToString(String rawEnumString) {
-        return StringUtils.prettify(rawEnumString);
-    }
-
     /** Gets the default prefix PlayerStats uses.
      @return [PlayerStats]*/
     TextComponent getPluginPrefix();
@@ -62,6 +55,10 @@ public interface ApiFormatter {
     TextComponent getTopStatTitle(int topStatSize, Statistic statistic);
 
     /** Gets the top-stat-title for a statistic that has a sub-statistic (block, item or entity).
+     @param statistic the Statistic enum constant for this message
+     @param subStatName the name of the Material or EntityType of this statistic-lookup,
+     acquired by doing #toString() on the Material/EntityType in question
+     @param topStatSize the size of the top-list this title is for
      @return Top [topStatSize] [stat-name] [sub-stat-name] */
     TextComponent getTopStatTitle(int topStatSize, Statistic statistic, String subStatName);
 
@@ -96,6 +93,10 @@ public interface ApiFormatter {
 
     /** Formats the input into a server statistic message for a statistic that has a
      sub-statistic (block, item or entity).
+     @param statistic the Statistic enum constant for this message
+     @param statNumber the result of the statistic-lookup
+     @param subStatName the name of the Material or EntityType of this statistic-lookup,
+     acquired by doing #toString() on the Material/EntityType in question
      @return [Total on this server]: [stat-number] [stat-name] [sub-stat-name]*/
     TextComponent getServerStat(long statNumber, Statistic statistic, String subStatName);
 

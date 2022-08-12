@@ -6,8 +6,10 @@ import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.FontUtils;
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.NumberFormatter;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.StringUtils;
+import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Statistic;
@@ -21,12 +23,14 @@ public class ApiOutputManager implements ApiFormatter {
     private final ComponentFactory componentFactory;
     private final PrideComponentFactory prideComponentFactory;
     private final NumberFormatter numberFormatter;
+    private final LanguageKeyHandler languageKeyHandler;
 
     public ApiOutputManager(ConfigHandler configHandler) {
         config = configHandler;
         componentFactory = new ComponentFactory(configHandler);
         prideComponentFactory = new PrideComponentFactory(configHandler);
         numberFormatter = new NumberFormatter();
+        languageKeyHandler = new LanguageKeyHandler();
     }
 
     @Override
@@ -65,13 +69,12 @@ public class ApiOutputManager implements ApiFormatter {
     }
 
     private TextComponent getTopStatTitle(int topListSize, Statistic statistic, @Nullable String subStatName, @Nullable Unit unit) {
-        String prettyStatName = StringUtils.prettify(statistic.toString());
         TextComponent.Builder titleBuilder = Component.text()
                 .append(componentFactory.title("Top", Target.TOP))
                 .append(space())
                 .append(componentFactory.titleNumber(topListSize))
                 .append(space())
-                .append(componentFactory.statAndSubStatName(prettyStatName, subStatName, Target.TOP));
+                .append(getStatAndSubStatNameComponent(statistic, subStatName, Target.TOP));
 
         if (unit != null && unit != Unit.NUMBER) {
             if (unit == Unit.HEART) {
@@ -143,7 +146,6 @@ public class ApiOutputManager implements ApiFormatter {
     private TextComponent getServerStat(long statNumber, Statistic statistic, @Nullable String subStatName, Unit unit) {
         String serverTitle = config.getServerTitle();
         String serverName = config.getServerName();
-        String prettyStatName = StringUtils.prettify(statistic.toString());
         Unit.Type unitType = unit.getType();
 
         TextComponent.Builder serverStatBuilder = Component.text()
@@ -153,7 +155,7 @@ public class ApiOutputManager implements ApiFormatter {
                 .append(space())
                 .append(getStatNumberComponent(statNumber, Target.SERVER, unit))
                 .append(space())
-                .append(componentFactory.statAndSubStatName(prettyStatName, subStatName, Target.SERVER));
+                .append(getStatAndSubStatNameComponent(statistic, subStatName, Target.SERVER));
 
         if (unitType== Unit.Type.DAMAGE || unitType == Unit.Type.DISTANCE) {
             if (unit == Unit.HEART) {
@@ -167,6 +169,23 @@ public class ApiOutputManager implements ApiFormatter {
             }
         }
         return serverStatBuilder.build();
+    }
+
+    private TextComponent getStatAndSubStatNameComponent(Statistic statistic, @Nullable String subStatName, Target target) {
+        if (config.useTranslatableComponents()) {
+            String statKey = languageKeyHandler.getStatKey(statistic);
+            String subStatKey = switch (statistic.getType()) {
+                case UNTYPED -> null;
+                case ENTITY -> languageKeyHandler.getEntityKey(EnumHandler.getEntityEnum(subStatName));
+                case BLOCK -> languageKeyHandler.getBlockKey(EnumHandler.getBlockEnum(subStatName));
+                case ITEM -> languageKeyHandler.getItemKey(EnumHandler.getItemEnum(subStatName));
+            };
+            return componentFactory.statAndSubStatNameTranslatable(statKey, subStatKey, target);
+        }
+
+        String prettyStatName = StringUtils.prettify(statistic.toString());
+        String prettySubStatName = StringUtils.prettify(subStatName);
+        return componentFactory.statAndSubStatName(prettyStatName, prettySubStatName, target);
     }
 
     private TextComponent getStatNumberComponent(long statNumber, Target target, Unit unit) {

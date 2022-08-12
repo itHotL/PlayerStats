@@ -198,7 +198,7 @@ public class ComponentFactory {
     }
 
     /** Returns a TextComponent with TranslatableComponent as a child.*/
-    public TextComponent statAndSubStatNameTranslatable(String statKey, String subStatKey, Target target) {
+    public TextComponent statAndSubStatNameTranslatable(String statKey, @Nullable String subStatKey, Target target) {
         TextComponent.Builder totalStatNameBuilder = getComponentBuilder(null,
                 getColorFromString(config.getStatNameDecoration(target, false)),
                 getStyleFromString(config.getStatNameDecoration(target, true)));
@@ -323,7 +323,7 @@ public class ComponentFactory {
     }
 
     /** Returns a TranslatableComponent for the subStatName, or an empty component.*/
-    private TextComponent subStatNameTranslatable(String subStatKey, Target target) {
+    private TextComponent subStatNameTranslatable(@Nullable String subStatKey, Target target) {
         if (subStatKey != null) {
             return getComponentBuilder(null,
                     getColorFromString(config.getSubStatNameDecoration(target, false)),
