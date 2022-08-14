@@ -6,8 +6,7 @@ import net.kyori.adventure.text.*;
 import net.kyori.adventure.text.flattener.ComponentFlattener;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-/** A utility class for handling Adventure's Components.
- Its main function is currently to help serialize Components into String.*/
+/** A small utility class for turning PlayerStats' custom Components into String. */
 public final class ComponentUtils {
 
     /** Returns a LegacyComponentSerializer that is capable of serializing TranslatableComponents,
@@ -29,6 +28,7 @@ public final class ComponentUtils {
                         TextComponent.Builder temp = Component.text();
                         trans.iterator(ComponentIteratorType.DEPTH_FIRST, ComponentIteratorFlag.INCLUDE_TRANSLATABLE_COMPONENT_ARGUMENTS)
                                 .forEachRemaining(component -> {
+                                    //copy the style to the temp builder, because the translatable component that follows it has no style itself
                                     if (component instanceof TextComponent text) {
                                         if (!text.children().isEmpty()) {
                                             text.iterator(ComponentIteratorType.DEPTH_FIRST).forEachRemaining(component1 -> {
@@ -37,27 +37,31 @@ public final class ComponentUtils {
                                                 }
                                             });
                                         }
-                                    } else if (component instanceof TranslatableComponent translatable) {
-                                        if (translatable.key().contains("entity")) {
+                                    }
+                                    //isolate the translatable component with the entity inside
+                                    else if (component instanceof TranslatableComponent translatable) {
+                                        if (translatable.key().contains("entity.")) {
                                             temp.append(Component.space())
                                                     .append(Component.text("(")
-                                                            .append(Component.text(StringUtils.prettify(LanguageKeyHandler.convertToName(translatable.key()))))
+                                                            .append(Component.text(
+                                                                    StringUtils.prettify(LanguageKeyHandler.convertToName(translatable.key()))))
                                                             .append(Component.text(")")));
                                             totalPrettyName.append(
                                                     serializer.serialize(temp.build()));
-                                        } else if (!LanguageKeyHandler.isKeyForEntityKilledByArg(translatable.key())) {
+                                        }
+                                        else if (!LanguageKeyHandler.isKeyForEntityKilledByArg(translatable.key())) {
                                             totalPrettyName.append(
-                                                    StringUtils.prettify(
-                                                            LanguageKeyHandler.convertToName(
-                                                                    translatable.key())));
+                                                    LanguageKeyHandler.getStatKeyTranslation(
+                                                            translatable.key()));
                                         }
                                     }
                                 });
                     }
+                    else if (trans.key().startsWith("stat")) {
+                        return LanguageKeyHandler.getStatKeyTranslation(trans.key());
+                    }
                     else {
-                        return StringUtils.prettify(
-                                LanguageKeyHandler.convertToName(
-                                        trans.key()));
+                        return StringUtils.prettify(LanguageKeyHandler.convertToName(trans.key()));
                     }
                     return totalPrettyName.toString();
                 })

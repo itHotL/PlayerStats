@@ -1,5 +1,6 @@
 package com.gmail.artemis.the.gr8.playerstats.msg;
 
+import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.api.ApiFormatter;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
@@ -51,7 +52,7 @@ public final class MessageBuilder implements ApiFormatter {
         componentFactory = factory;
 
         formatter = new NumberFormatter();
-        languageKeyHandler = new LanguageKeyHandler();
+        languageKeyHandler = Main.getLanguageKeyHandler();
     }
 
     public static MessageBuilder defaultBuilder(ConfigHandler config) {
@@ -201,18 +202,13 @@ public final class MessageBuilder implements ApiFormatter {
     }
 
     @Override
-    public TextComponent getTopStatTitle(int topListSize, Statistic statistic) {
-        return getTopStatTitleComponent(topListSize, statistic, null, null);
+    public TextComponent getStatTitle(Statistic statistic, @Nullable String subStatName) {
+        return getTopStatTitleComponent(0, statistic, subStatName, null);
     }
 
     @Override
     public TextComponent getTopStatTitle(int topListSize, Statistic statistic, @Nullable String subStatName) {
         return getTopStatTitleComponent(topListSize, statistic, subStatName, null);
-    }
-
-    @Override
-    public TextComponent getTopStatTitle(int topListSize, Statistic statistic, Unit unit) {
-        return getTopStatTitleComponent(topListSize, statistic, null, unit);
     }
 
     @Override
@@ -289,7 +285,6 @@ public final class MessageBuilder implements ApiFormatter {
      <br>- If both parameters are null, the formattedComponent will be returned as is.</br>*/
     public BiFunction<Integer, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull RequestSettings request) {
         TextComponent playerStat = formatPlayerStat(request.getPlayerName(), stat, request.getStatistic(), request.getSubStatEntryName());
-
         return getFormattingFunction(playerStat, Target.PLAYER);
     }
 
@@ -400,14 +395,21 @@ public final class MessageBuilder implements ApiFormatter {
                 getStatUnitComponent(statistic, Target.TOP) :
                 getStatUnitComponent(unit, Target.TOP);
 
-        return Component.text()
-                .append(componentFactory.title(config.getTopStatsTitle(), Target.TOP))
-                .append(space())
-                .append(componentFactory.titleNumber(topListSize))
-                .append(space())
-                .append(getStatAndSubStatNameComponent(statistic, subStatName, Target.TOP))  //space is provided by statUnitComponent
-                .append(statUnit)
-                .build();
+        if (topListSize == 0) {
+            return Component.text()
+                    .append(getStatAndSubStatNameComponent(statistic, subStatName, Target.TOP))
+                    .append(statUnit) //space is provided by statUnitComponent
+                    .build();
+        } else {
+            return Component.text()
+                    .append(componentFactory.title(config.getTopStatsTitle(), Target.TOP))
+                    .append(space())
+                    .append(componentFactory.titleNumber(topListSize))
+                    .append(space())
+                    .append(getStatAndSubStatNameComponent(statistic, subStatName, Target.TOP))
+                    .append(statUnit)  //space is provided by statUnitComponent
+                    .build();
+        }
     }
 
     private TextComponent getTopStatListComponent(LinkedHashMap<String, Integer> topStats, Statistic statistic) {
@@ -460,6 +462,9 @@ public final class MessageBuilder implements ApiFormatter {
                 case BLOCK -> languageKeyHandler.getBlockKey(EnumHandler.getBlockEnum(subStatName));
                 case ITEM -> languageKeyHandler.getItemKey(EnumHandler.getItemEnum(subStatName));
             };
+            if (subStatKey == null) {
+                subStatKey = StringUtils.prettify(subStatName);
+            }
             return componentFactory.statAndSubStatNameTranslatable(statKey, subStatKey, target);
         }
 

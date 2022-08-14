@@ -11,6 +11,7 @@ import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageBuilder;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatCalculator;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
@@ -23,9 +24,11 @@ import org.jetbrains.annotations.NotNull;
 
 public final class Main extends JavaPlugin {
 
+    private static Main instance;
     private static BukkitAudiences adventure;
 
     private static ConfigHandler config;
+    private static LanguageKeyHandler languageKeyHandler;
     private static OfflinePlayerHandler offlinePlayerHandler;
     private static EnumHandler enumHandler;
 
@@ -71,6 +74,10 @@ public final class Main extends JavaPlugin {
         this.getLogger().info("Disabled PlayerStats!");
     }
 
+    public static @NotNull Main getInstance() {
+        return instance;
+    }
+
     public static @NotNull BukkitAudiences getAdventure() throws IllegalStateException {
         if (adventure == null) {
             throw new IllegalStateException("Tried to access Adventure without PlayerStats being enabled!");
@@ -87,9 +94,16 @@ public final class Main extends JavaPlugin {
 
     public static @NotNull OfflinePlayerHandler getOfflinePlayerHandler() throws IllegalStateException {
         if (offlinePlayerHandler == null) {
-            throw new IllegalStateException("PlayerStats does not seem to be fully loaded!");
+            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
         }
         return offlinePlayerHandler;
+    }
+
+    public static @NotNull LanguageKeyHandler getLanguageKeyHandler() {
+        if (languageKeyHandler == null) {
+            languageKeyHandler = new LanguageKeyHandler();
+        }
+        return languageKeyHandler;
     }
 
     public static @NotNull EnumHandler getEnumHandler() {
@@ -121,10 +135,12 @@ public final class Main extends JavaPlugin {
     }
 
     private void initializeMainClasses() {
+        instance = this;
         adventure = BukkitAudiences.create(this);
 
         config = new ConfigHandler(this);
         enumHandler = new EnumHandler();
+        languageKeyHandler = new LanguageKeyHandler();
         offlinePlayerHandler = new OfflinePlayerHandler();
 
         shareManager = new ShareManager(config);

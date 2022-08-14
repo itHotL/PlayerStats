@@ -6,6 +6,7 @@ import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.NumberFormatter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Statistic;
+import org.jetbrains.annotations.Nullable;
 
 /** Formats messages meant for usage outside PlayerStats.
 
@@ -49,21 +50,24 @@ public interface ApiFormatter {
      @return ________ [PlayerStats] ________ in rainbow colors*/
     TextComponent getRainbowPluginPrefixAsTitle();
 
-    /** Gets the default top-stat-title for a Statistic of Type.Untyped.
-     @return Top [topStatSize] [stat-name]*/
-    TextComponent getTopStatTitle(int topStatSize, Statistic statistic);
+    /** Gets a formatted message that displays the name of this Statistic as it is
+     displayed by PlayerStats. If this Statistic is not of Type.Untyped,
+     include the name of the relevant sub-statistic (block, item or entity).
+     @param statistic the Statistic enum constant to display the name of
+     @param subStatName where necessary, the name of the Material or EntityType to include,
+     acquired by doing #toString() on the Material/EntityType in question
+     @return [stat-name] [sub-stat-name]*/
+    TextComponent getStatTitle(Statistic statistic, @Nullable String subStatName);
 
-    /** Gets the top-stat-title for a statistic that has a sub-statistic (block, item or entity).
+    /** Gets a formatted message that displays the name of this Statistic as it is
+     displayed by PlayerStats in a top-stat-message. If this Statistic is not of Type.Untyped,
+     include the name of the relevant sub-statistic (block, item or entity).
      @param statistic the Statistic enum constant for this message
-     @param subStatName the name of the Material or EntityType of this statistic-lookup,
+     @param subStatName the name of the Material or EntityType to include,
      acquired by doing #toString() on the Material/EntityType in question
      @param topStatSize the size of the top-list this title is for
      @return Top [topStatSize] [stat-name] [sub-stat-name] */
-    TextComponent getTopStatTitle(int topStatSize, Statistic statistic, String subStatName);
-
-    /** Gets the top-stat-title with the specified {@link Unit} in the title.
-     @return Top [topStatSize] [stat-name] [unit-name] */
-    TextComponent getTopStatTitle(int topStatSize, Statistic statistic, Unit unit);
+    TextComponent getTopStatTitle(int topStatSize, Statistic statistic, @Nullable String subStatName);
 
     /** Formats the input into a single top-statistic line. The stat-number
      is formatted into the most suitable {@link Unit} based on the provided Statistic.

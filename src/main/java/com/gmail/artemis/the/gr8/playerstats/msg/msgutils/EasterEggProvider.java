@@ -58,7 +58,7 @@ public final class EasterEggProvider {
                 }
             }
             case "0dc5336b-acd2-4dc3-a5e9-0aa9b8f113f7" -> {
-                if (sillyNumberIsBetween(sillyNumber, 0, 20)) {
+                if (sillyNumberIsBetween(sillyNumber, 0, 100)) {
                     playerName = "<gradient:#f73bdb:#fc8bec:#f73bdb>an UwU sister</gradient>";
                 }
             }

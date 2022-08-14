@@ -6,6 +6,7 @@ import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.enums.DebugLevel;
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
+import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatCalculator;
 import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
@@ -81,6 +82,7 @@ public final class ReloadThread extends Thread {
 
     private void reloadEverything() {
         MyLogger.setDebugLevel(config.getDebugLevel());
+        LanguageKeyHandler.reloadFile();
         OutputManager.updateMessageBuilders();
         OfflinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
         ShareManager.updateSettings(config);

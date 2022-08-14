@@ -6,17 +6,17 @@ import org.jetbrains.annotations.NotNull;
 /** All the units PlayerStats can display statistics in, separated by Type.*/
 public enum Unit {
     NUMBER (Type.UNTYPED, "Times"),
-    KM (Type.DISTANCE, "KM"),
+    KM (Type.DISTANCE, "km"),
     MILE (Type.DISTANCE, "Miles"),
     BLOCK (Type.DISTANCE, "Blocks"),
-    CM (Type.DISTANCE, "CM"),
+    CM (Type.DISTANCE, "cm"),
     HP (Type.DAMAGE, "HP"),
     HEART (Type.DAMAGE, "Hearts"),
-    DAY (Type.TIME, "Days"),
-    HOUR (Type.TIME, "Hours"),
-    MINUTE (Type.TIME, "Minutes"),
-    SECOND (Type.TIME, "Seconds"),
-    TICK (Type.TIME, "Ticks");
+    DAY (Type.TIME, "days"),
+    HOUR (Type.TIME, "hours"),
+    MINUTE (Type.TIME, "minutes"),
+    SECOND (Type.TIME, "seconds"),
+    TICK (Type.TIME, "ticks");
 
     private final Type type;
     private final String label;

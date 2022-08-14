@@ -1,13 +1,18 @@
 package com.gmail.artemis.the.gr8.playerstats.msg.msgutils;
 
+import com.gmail.artemis.the.gr8.playerstats.Main;
 import com.gmail.artemis.the.gr8.playerstats.enums.Unit;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -15,9 +20,31 @@ import java.util.HashMap;
 public final class LanguageKeyHandler {
 
     private static HashMap<Statistic, String> statNameKeys;
+    private static File languageKeyFile;
+    private static FileConfiguration languageKeys;
 
     public LanguageKeyHandler() {
         statNameKeys = generateStatNameKeys();
+
+        loadFile();
+    }
+
+    private static void loadFile() {
+        Main plugin = Main.getInstance();
+        languageKeyFile = new File(plugin.getDataFolder(), "language.yml");
+        if (!languageKeyFile.exists()) {
+            plugin.saveResource("language.yml", false);
+        }
+        languageKeys = YamlConfiguration.loadConfiguration(languageKeyFile);
+    }
+
+    public static void reloadFile() {
+        if (!languageKeyFile.exists()) {
+            loadFile();
+        } else {
+            languageKeys = YamlConfiguration.loadConfiguration(languageKeyFile);
+            MyLogger.logLowLevelMsg("Language file reloaded!");
+        }
     }
 
     /** Checks if a given Key is the language key "stat_type.minecraft.killed"
@@ -86,6 +113,26 @@ public final class LanguageKeyHandler {
         }
         toReplace = toReplace + ".minecraft.";
         return key.replace(toReplace, "");
+    }
+
+    private static @Nullable String convertToNormalStatKey(String statKey) {
+        if (isKeyForKillEntity(statKey)) {
+            return "stat_type.minecraft.killed";
+        } else if (isKeyForEntityKilledBy(statKey)) {
+            return "stat_type.minecraft.killed_by";
+        } else if (isKeyForEntityKilledByArg(statKey)) {
+            return null;
+        } else {
+            return statKey;
+        }
+    }
+
+    public static String getStatKeyTranslation(String statKey) {
+        String realKey = convertToNormalStatKey(statKey);
+        if (realKey == null) {
+            return "";
+        }
+        return languageKeys.getString(realKey);
     }
 
     public String getStatKey(@NotNull Statistic statistic) {
