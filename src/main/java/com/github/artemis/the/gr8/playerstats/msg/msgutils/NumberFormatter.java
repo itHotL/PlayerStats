@@ -54,7 +54,8 @@ public final class NumberFormatter {
         }
     }
 
-    /** The unit of time-based statistics is ticks by default.*/
+    /** The unit of time-based statistics is ticks by default.
+     @return a String with the form "1D 2H 3M 4S" (depending on the Unit range selected)*/
     public String formatTimeNumber(long number, Unit bigUnit, Unit smallUnit) {  //5 statistics
         if (number == 0) {
             return "-";

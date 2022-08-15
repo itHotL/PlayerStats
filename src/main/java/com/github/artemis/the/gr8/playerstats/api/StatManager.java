@@ -28,8 +28,10 @@ public interface StatManager {
     RequestGenerator<LinkedHashMap<String, Integer>> topStatRequest(int topListSize);
 
     /** Gets a RequestGenerator that can be used to create a TopStatRequest
-     for all offline players on the server. This RequestGenerator will make sure
+     for all offline players on the server (those that are included by
+     PlayerStats' settings). This RequestGenerator will make sure
      all default settings for a top-statistic-lookup are configured.
+
 
      @return the RequestGenerator*/
     RequestGenerator<LinkedHashMap<String, Integer>> totalTopStatRequest();

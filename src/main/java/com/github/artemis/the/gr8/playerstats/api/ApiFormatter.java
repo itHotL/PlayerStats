@@ -3,18 +3,13 @@ package com.github.artemis.the.gr8.playerstats.api;
 import com.github.artemis.the.gr8.playerstats.enums.Unit;
 import com.github.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import com.github.artemis.the.gr8.playerstats.msg.msgutils.NumberFormatter;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import com.github.artemis.the.gr8.playerstats.statistic.result.StatResult;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.Nullable;
 
-/** Formats messages meant for usage outside PlayerStats.
-
- The output is ready to be sent to a Minecraft client or console with the Adventure library.
- To send a Component, you need to get a {@link BukkitAudiences} object. Normally you would
- have to add the library as a dependency, but since the library is included in PlayerStats, you can
- access it directly. Information on how to get and use the BukkitAudiences object can be found on
- <a href="https://docs.adventure.kyori.net/platform/bukkit.html">Adventure's website</a>.*/
+/** Formats messages meant for usage outside PlayerStats. For more information about
+ the default formatting PlayerStats uses, see the class description of {@link StatResult}.*/
 public interface ApiFormatter {
 
     /** Turns a TextComponent into its String representation. This method is equipped
