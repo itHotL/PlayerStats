@@ -2,7 +2,6 @@ package com.gmail.artemis.the.gr8.playerstats.statistic;
 
 import com.gmail.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.gmail.artemis.the.gr8.playerstats.enums.Target;
-import com.gmail.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import com.gmail.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.reload.ReloadThread;
@@ -60,18 +59,11 @@ public final class StatThread extends Thread {
         Target selection = requestSettings.getTarget();
         try {
             TextComponent statResult = switch (selection) {
-                case PLAYER -> outputManager.formatPlayerStat(requestSettings, statCalculator.getPlayerStat(requestSettings));
-                case TOP -> outputManager.formatTopStat(requestSettings, statCalculator.getTopStats(requestSettings));
-                case SERVER -> outputManager.formatServerStat(requestSettings, statCalculator.getServerStat(requestSettings));
+                case PLAYER -> outputManager.formatAndSavePlayerStat(requestSettings, statCalculator.getPlayerStat(requestSettings));
+                case TOP -> outputManager.formatAndSaveTopStat(requestSettings, statCalculator.getTopStats(requestSettings));
+                case SERVER -> outputManager.formatAndSaveServerStat(requestSettings, statCalculator.getServerStat(requestSettings));
             };
-            if (requestSettings.isAPIRequest()) {
-                String msg = ComponentUtils.getTranslatableComponentSerializer()
-                        .serialize(statResult);
-                requestSettings.getCommandSender().sendMessage(msg);
-            }
-            else {
-                outputManager.sendToCommandSender(requestSettings.getCommandSender(), statResult);
-            }
+            outputManager.sendToCommandSender(requestSettings.getCommandSender(), statResult);
         }
         catch (ConcurrentModificationException e) {
             if (!requestSettings.isConsoleSender()) {

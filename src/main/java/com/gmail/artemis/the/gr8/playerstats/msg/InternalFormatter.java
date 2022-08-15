@@ -16,16 +16,16 @@ public interface InternalFormatter {
 
     /** @return a TextComponent with the following parts:
     <br>[player-name]: [number] [stat-name] {sub-stat-name}*/
-    TextComponent formatPlayerStat(RequestSettings requestSettings, int playerStat);
+    TextComponent formatAndSavePlayerStat(RequestSettings requestSettings, int playerStat);
 
     /** @return a TextComponent with the following parts:
     <br>[Total on] [server-name]: [number] [stat-name] [sub-stat-name]*/
-    TextComponent formatServerStat(RequestSettings requestSettings, long serverStat);
+    TextComponent formatAndSaveServerStat(RequestSettings requestSettings, long serverStat);
 
     /** @return a TextComponent with the following parts:
     <br>[PlayerStats] [Top 10] [stat-name] [sub-stat-name]
     <br> [1.] [player-name] [number]
     <br> [2.] [player-name] [number]
     <br> [3.] etc...*/
-    TextComponent formatTopStat(RequestSettings requestSettings, LinkedHashMap<String, Integer> topStats);
+    TextComponent formatAndSaveTopStat(RequestSettings requestSettings, LinkedHashMap<String, Integer> topStats);
 }

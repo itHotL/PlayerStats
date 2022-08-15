@@ -49,7 +49,7 @@ public final class PlayerStatRequest extends StatRequest<Integer> implements Req
 
         TextComponent prettyComponent = Main
                 .getStatFormatter()
-                .formatPlayerStat(completedRequest, stat);
+                .formatAndSavePlayerStat(completedRequest, stat);
 
         String prettyString = ComponentUtils
                 .getTranslatableComponentSerializer()

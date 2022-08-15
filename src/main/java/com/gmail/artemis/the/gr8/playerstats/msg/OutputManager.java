@@ -51,7 +51,7 @@ public final class OutputManager implements InternalFormatter {
     }
 
     @Override
-    public TextComponent formatPlayerStat(@NotNull RequestSettings requestSettings, int playerStat) {
+    public TextComponent formatAndSavePlayerStat(@NotNull RequestSettings requestSettings, int playerStat) {
         BiFunction<Integer, CommandSender, TextComponent> playerStatFunction =
                 getMessageBuilder(requestSettings).formattedPlayerStatFunction(playerStat, requestSettings);
 
@@ -59,7 +59,7 @@ public final class OutputManager implements InternalFormatter {
     }
 
     @Override
-    public TextComponent formatServerStat(@NotNull RequestSettings requestSettings, long serverStat) {
+    public TextComponent formatAndSaveServerStat(@NotNull RequestSettings requestSettings, long serverStat) {
         BiFunction<Integer, CommandSender, TextComponent> serverStatFunction =
                 getMessageBuilder(requestSettings).formattedServerStatFunction(serverStat, requestSettings);
 
@@ -67,7 +67,7 @@ public final class OutputManager implements InternalFormatter {
     }
 
     @Override
-    public TextComponent formatTopStat(@NotNull RequestSettings requestSettings, @NotNull LinkedHashMap<String, Integer> topStats) {
+    public TextComponent formatAndSaveTopStat(@NotNull RequestSettings requestSettings, @NotNull LinkedHashMap<String, Integer> topStats) {
         BiFunction<Integer, CommandSender, TextComponent> topStatFunction =
                 getMessageBuilder(requestSettings).formattedTopStatFunction(topStats, requestSettings);
 
@@ -138,7 +138,7 @@ public final class OutputManager implements InternalFormatter {
     }
 
     private MessageBuilder getMessageBuilder(RequestSettings requestSettings) {
-        if (requestSettings.isAPIRequest() || !requestSettings.isConsoleSender()) {
+        if (!requestSettings.isConsoleSender()) {
             return messageBuilder;
         } else {
             return consoleMessageBuilder;

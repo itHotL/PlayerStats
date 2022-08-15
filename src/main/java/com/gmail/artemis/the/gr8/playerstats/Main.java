@@ -14,7 +14,6 @@ import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatCalculator;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
-import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -157,11 +156,9 @@ public final class Main extends JavaPlugin {
     }
 
     private void setupMetrics() {
-        MyLogger.logLowLevelMsg("setupMetrics called: " + System.currentTimeMillis());
         new BukkitRunnable() {
             @Override
             public void run() {
-                MyLogger.logLowLevelMsg("setupMetrics running: " + System.currentTimeMillis());
                 final Metrics metrics = new Metrics(getInstance(), 15923);
                 final boolean placeholderExpansionActive;
                 if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
@@ -173,7 +170,6 @@ public final class Main extends JavaPlugin {
                 } else {
                     placeholderExpansionActive = false;
                 }
-                MyLogger.logLowLevelMsg("expansion present: " + placeholderExpansionActive);
                 metrics.addCustomChart(new SimplePie("using_placeholder_expansion", () -> placeholderExpansionActive ? "yes" : "no"));
             }
         }.runTaskLaterAsynchronously(this, 200);

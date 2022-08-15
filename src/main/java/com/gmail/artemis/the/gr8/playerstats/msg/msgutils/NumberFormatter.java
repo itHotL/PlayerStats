@@ -68,7 +68,7 @@ public final class NumberFormatter {
         double min = smallUnit.getSeconds();
         double leftover = number / 20.0;
 
-        if (isInRange(max, min, 86400) && leftover >= 86400) {
+        if (isInRange(max, 86400, min) && leftover >= 86400) {
             double days = Math.floor(leftover / 86400);
             leftover = leftover % (86400);
             if (smallUnit == Unit.DAY) {
@@ -78,10 +78,14 @@ public final class NumberFormatter {
                 return output.append(format.format(days))
                         .append("d").toString();
             }
-            output.append(format.format(days))
-                    .append("d");
+            if (days == 0) {
+                output.append("0d");
+            } else {
+                output.append(format.format(days))
+                        .append("d");
+            }
         }
-        if (isInRange(max, min, 3600) && leftover >= 3600) {
+        if (isInRange(max, 3600, min)) {
             if (output.toString().contains("d")) {
                 output.append(" ");
             }
@@ -94,10 +98,14 @@ public final class NumberFormatter {
                 return output.append(format.format(hours))
                         .append("h").toString();
             }
-            output.append(format.format(hours))
-                    .append("h");
+            if (hours == 0) {
+                output.append("0h");
+            } else {
+                output.append(format.format(hours))
+                        .append("h");
+            }
         }
-        if (isInRange(max, min, 60) && leftover >= 60) {
+        if (isInRange(max, 60, min)) {
             if (output.toString().contains("h")) {
                 output.append(" ");
             }
@@ -110,10 +118,14 @@ public final class NumberFormatter {
                 return output.append(format.format(minutes))
                         .append("m").toString();
             }
-            output.append(format.format(minutes))
-                    .append("m");
+            if (minutes == 0) {
+                output.append("0m");
+            } else {
+                output.append(format.format(minutes))
+                        .append("m");
+            }
         }
-        if (isInRange(max, min, 1) && leftover > 0) {
+        if (isInRange(max,1, min) && leftover > 0) {
             if (output.toString().contains("m")) {
                 output.append(" ");
             }
@@ -124,7 +136,7 @@ public final class NumberFormatter {
         return output.toString();
     }
 
-    private boolean isInRange(double bigUnit, double smallUnit, double unitToEvaluate) {
+    private boolean isInRange(double bigUnit, double unitToEvaluate, double smallUnit) {
         return bigUnit >= unitToEvaluate && unitToEvaluate >= smallUnit;
     }
 }

@@ -51,7 +51,7 @@ public final class TopStatRequest extends StatRequest<LinkedHashMap<String, Inte
 
         TextComponent prettyComponent = Main
                 .getStatFormatter()
-                .formatTopStat(completedRequest, stat);
+                .formatAndSaveTopStat(completedRequest, stat);
 
         String prettyString = ComponentUtils
                 .getTranslatableComponentSerializer()

@@ -29,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
 public final class RequestSettings {
 
     private final CommandSender sender;
-    private boolean isAPIRequest;
     private Statistic statistic;
     private String playerName;
     private Target target;
@@ -49,29 +48,19 @@ public final class RequestSettings {
      <br>- boolean isAPIRequest
 
      @param sender the CommandSender who prompted this RequestGenerator
-     @param isAPIRequest whether this RequestGenerator is coming through the API or the onCommand
      */
-    private RequestSettings(@NotNull CommandSender sender, boolean isAPIRequest) {
+    private RequestSettings(@NotNull CommandSender sender) {
         this.sender = sender;
-        this.isAPIRequest = isAPIRequest;
         target = Target.TOP;
         playerFlag = false;
     }
 
     public static RequestSettings getBasicRequest(CommandSender sender) {
-        return new RequestSettings(sender, false);
+        return new RequestSettings(sender);
     }
 
     public static RequestSettings getBasicAPIRequest() {
-        return new RequestSettings(Bukkit.getConsoleSender(), true);
-    }
-
-    public void setAPIRequest() {
-        this.isAPIRequest = true;
-    }
-
-    public boolean isAPIRequest() {
-        return isAPIRequest;
+        return new RequestSettings(Bukkit.getConsoleSender());
     }
 
     public @NotNull CommandSender getCommandSender() {

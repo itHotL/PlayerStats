@@ -127,8 +127,6 @@ public final class RequestHandler {
             } else if (offlinePlayerHandler.isRelevantPlayer(arg) && requestSettings.getPlayerName() == null) {
                 requestSettings.setPlayerName(arg);
                 requestSettings.setTarget(Target.PLAYER);
-            } else if (arg.equalsIgnoreCase("api")) {
-                requestSettings.setAPIRequest();
             }
         }
         patchRequest(requestSettings);
