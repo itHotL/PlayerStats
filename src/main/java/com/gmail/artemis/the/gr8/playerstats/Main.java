@@ -2,24 +2,29 @@ package com.gmail.artemis.the.gr8.playerstats;
 
 import com.gmail.artemis.the.gr8.playerstats.api.PlayerStats;
 import com.gmail.artemis.the.gr8.playerstats.api.PlayerStatsAPI;
-import com.gmail.artemis.the.gr8.playerstats.msg.InternalFormatter;
 import com.gmail.artemis.the.gr8.playerstats.commands.ReloadCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.ShareCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.gmail.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.gmail.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.gmail.artemis.the.gr8.playerstats.listeners.JoinListener;
+import com.gmail.artemis.the.gr8.playerstats.msg.InternalFormatter;
 import com.gmail.artemis.the.gr8.playerstats.msg.MessageBuilder;
 import com.gmail.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.gmail.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import com.gmail.artemis.the.gr8.playerstats.statistic.StatCalculator;
 import com.gmail.artemis.the.gr8.playerstats.utils.EnumHandler;
+import com.gmail.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.gmail.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
+import me.clip.placeholderapi.PlaceholderAPIPlugin;
+import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 public final class Main extends JavaPlugin {
@@ -42,10 +47,9 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        new Metrics(this, 15923);
-
         //initialize all the Managers, singletons, ConfigHandler and the API
         initializeMainClasses();
+        setupMetrics();
 
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
@@ -150,5 +154,28 @@ public final class Main extends JavaPlugin {
 
         MessageBuilder apiMessageBuilder = MessageBuilder.defaultBuilder(config);
         playerStatsAPI = new PlayerStatsAPI(apiMessageBuilder, offlinePlayerHandler);
+    }
+
+    private void setupMetrics() {
+        MyLogger.logLowLevelMsg("setupMetrics called: " + System.currentTimeMillis());
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                MyLogger.logLowLevelMsg("setupMetrics running: " + System.currentTimeMillis());
+                final Metrics metrics = new Metrics(getInstance(), 15923);
+                final boolean placeholderExpansionActive;
+                if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+                    PlaceholderExpansion expansion = PlaceholderAPIPlugin
+                            .getInstance()
+                            .getLocalExpansionManager()
+                            .getExpansion("playerstats");
+                    placeholderExpansionActive = expansion != null;
+                } else {
+                    placeholderExpansionActive = false;
+                }
+                MyLogger.logLowLevelMsg("expansion present: " + placeholderExpansionActive);
+                metrics.addCustomChart(new SimplePie("using_placeholder_expansion", () -> placeholderExpansionActive ? "yes" : "no"));
+            }
+        }.runTaskLaterAsynchronously(this, 200);
     }
 }
