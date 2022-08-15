@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.gmail.artemis.the.gr8</groupId>
+  <groupId>io.github.artemis-the-gr8</groupId>
   <artifactId>PlayerStats</artifactId>
   <version>1.6.1</version>
   <build>
@@ -28,7 +28,7 @@
         <configuration>
           <transformers>
             <transformer>
-              <mainClass>com.gmail.artemis.the.gr8.playerstats.Main</mainClass>
+              <mainClass>com.github.artemis.the.gr8.playerstats.Main</mainClass>
             </transformer>
           </transformers>
           <artifactSet>
@@ -39,15 +39,15 @@
           <relocations>
             <relocation>
               <pattern>net.kyori</pattern>
-              <shadedPattern>com.gmail.artemis.the.gr8.lib.kyori</shadedPattern>
+              <shadedPattern>com.github.artemis.the.gr8.lib.kyori</shadedPattern>
             </relocation>
             <relocation>
               <pattern>com.tchristofferson</pattern>
-              <shadedPattern>com.gmail.artemis.the.gr8.util.tchristofferson</shadedPattern>
+              <shadedPattern>com.github.artemis.the.gr8.util.tchristofferson</shadedPattern>
             </relocation>
             <relocation>
               <pattern>org.bstats</pattern>
-              <shadedPattern>com.gmail.artemis.the.gr8.util.bstats</shadedPattern>
+              <shadedPattern>com.github.artemis.the.gr8.util.bstats</shadedPattern>
             </relocation>
           </relocations>
           <filters>

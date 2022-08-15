@@ -1,4 +1,4 @@
-main: com.gmail.artemis.the.gr8.playerstats.Main
+main: com.github.artemis.the.gr8.playerstats.Main
 name: PlayerStats
 version: 1.6.1
 api-version: 1.13
