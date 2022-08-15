@@ -111,6 +111,18 @@ public enum Unit {
         };
     }
 
+    /** Converts the current Unit into a short label (and returns a '?' if the current Unit is not of Type TIME)*/
+    public char getShortLabel(){
+        return switch (this) {
+            case DAY -> 'd';
+            case HOUR -> 'h';
+            case MINUTE -> 'm';
+            case SECOND -> 's';
+            case TICK -> 't';
+            default -> '?';
+        };
+    }
+
     /** Returns the Unit corresponding to the given String. This String does NOT need to
      match exactly (it can be "day" or "days", for example), and is case-insensitive.
      @param unitName an approximation of the name belonging to the desired Unit, case-insensitive */

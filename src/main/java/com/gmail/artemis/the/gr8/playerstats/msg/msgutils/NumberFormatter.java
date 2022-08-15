@@ -54,76 +54,59 @@ public final class NumberFormatter {
     }
 
     /** The unit of time-based statistics is ticks by default.*/
-    public String formatTimeNumber(long number, Unit bigUnit, Unit smallUnit) {  //5 statistics
-        if (number == 0) {
+    public String formatTimeNumber(long number, Unit biggestUnit, Unit smallestUnit) {  //5 statistics
+        if (number <= 0) {
             return "-";
         }
-        if (bigUnit == Unit.TICK && smallUnit == Unit.TICK || bigUnit == Unit.NUMBER || smallUnit == Unit.NUMBER) {
+        if (biggestUnit == Unit.TICK && smallestUnit == Unit.TICK || biggestUnit == Unit.NUMBER || smallestUnit == Unit.NUMBER) {
             return format.format(number);
         }
 
+        Unit currUnit = biggestUnit;
+        int leftoverSeconds = (int) Math.round(number / 20.0);
         StringBuilder output = new StringBuilder();
-        double max = bigUnit.getSeconds();
-        double min = smallUnit.getSeconds();
-        double leftover = number / 20.0;
 
-        if (isInRange(max, min, 86400) && leftover >= 86400) {
-            double days = Math.floor(leftover / 86400);
-            leftover = leftover % (86400);
-            if (smallUnit == Unit.DAY) {
-                if (leftover >= 43200) {
-                    days++;
-                }
-                return output.append(format.format(days))
-                        .append("d").toString();
+        while(currUnit != null){
+            //Define amount of units
+            int amount = 0;
+
+            //Current unit is equal to smallest unit, in this case round the remainder
+            if(currUnit == smallestUnit){
+                amount = (int) Math.round(leftoverSeconds / currUnit.getSeconds());
             }
-            output.append(format.format(days))
-                    .append("d");
-        }
-        if (isInRange(max, min, 3600) && leftover >= 3600) {
-            if (output.toString().contains("d")) {
+
+            //Leftover amount of seconds is greater than current unit, we can extract x units
+            else if(leftoverSeconds >= currUnit.getSeconds()){
+                amount = (int) Math.floor(leftoverSeconds / currUnit.getSeconds());
+            }
+
+            //We did not have enough leftover to fill a unit
+            else{
+                if(output.toString().length() != 0){
+                    output.append(" 0").append(currUnit.getShortLabel());
+                }
+                currUnit = currUnit.getSmallerUnit(1);
+                continue;
+            }
+
+            //Calculate new leftover
+            leftoverSeconds = leftoverSeconds - (int)(amount * currUnit.getSeconds());
+
+            //Append new values
+            if(output.toString().length() != 0){
                 output.append(" ");
             }
-            double hours = Math.floor(leftover / 60 / 60);
-            leftover = leftover % (60 * 60);
-            if (smallUnit == Unit.HOUR) {
-                if (leftover >= 1800) {
-                    hours++;
-                }
-                return output.append(format.format(hours))
-                        .append("h").toString();
+            output.append(amount).append(currUnit.getShortLabel());
+
+            //Check if we need to break
+            if(currUnit == smallestUnit || leftoverSeconds == 0){
+                break;
             }
-            output.append(format.format(hours))
-                    .append("h");
+
+            //Lower current unit by 1
+            currUnit = currUnit.getSmallerUnit(1);
         }
-        if (isInRange(max, min, 60) && leftover >= 60) {
-            if (output.toString().contains("h")) {
-                output.append(" ");
-            }
-            double minutes = Math.floor(leftover / 60);
-            leftover = leftover % 60;
-            if (smallUnit == Unit.MINUTE) {
-                if (leftover >= 30) {
-                    minutes++;
-                }
-                return output.append(format.format(minutes))
-                        .append("m").toString();
-            }
-            output.append(format.format(minutes))
-                    .append("m");
-        }
-        if (isInRange(max, min, 1) && leftover > 0) {
-            if (output.toString().contains("m")) {
-                output.append(" ");
-            }
-            double seconds = Math.ceil(leftover);
-            output.append(format.format(seconds))
-                    .append("s");
-        }
+
         return output.toString();
-    }
-
-    private boolean isInRange(double bigUnit, double smallUnit, double unitToEvaluate) {
-        return bigUnit >= unitToEvaluate && unitToEvaluate >= smallUnit;
     }
 }
