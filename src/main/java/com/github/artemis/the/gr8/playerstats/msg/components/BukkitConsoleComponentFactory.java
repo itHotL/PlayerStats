@@ -11,8 +11,11 @@ import org.jetbrains.annotations.Nullable;
 
 import static net.kyori.adventure.text.Component.text;
 
-/** The {@link ComponentFactory} that is used to build messages for a Bukkit Console.
- Bukkit consoles don't support hex colors, unlike Paper consoles.*/
+/**
+ * The {@link ComponentFactory} that is used to build messages for
+ * a Bukkit Console. Bukkit consoles don't support hex colors,
+ * unlike Paper consoles.
+ */
 public class BukkitConsoleComponentFactory extends ComponentFactory {
 
     public BukkitConsoleComponentFactory(ConfigHandler config) {

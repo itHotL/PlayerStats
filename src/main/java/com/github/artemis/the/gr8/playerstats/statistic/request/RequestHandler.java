@@ -1,9 +1,9 @@
 package com.github.artemis.the.gr8.playerstats.statistic.request;
 
 import com.github.artemis.the.gr8.playerstats.Main;
+import com.github.artemis.the.gr8.playerstats.enums.Target;
 import com.github.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.github.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.github.artemis.the.gr8.playerstats.enums.Target;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
@@ -41,7 +41,7 @@ public final class RequestHandler {
     }
 
     /**
-     @param sender the CommandSender that requested this specific statistic
+     * @param sender the CommandSender that requested this specific statistic
      */
     public static RequestSettings getBasicInternalStatRequest(CommandSender sender) {
         RequestSettings request = RequestSettings.getBasicRequest(sender);
@@ -84,15 +84,19 @@ public final class RequestHandler {
     }
 
     /**
-     This will create a {@link RequestSettings} object from the provided args, with the requesting Player (or Console)
-     as CommandSender. This CommandSender will receive feedback messages if the RequestSettings could not be created.
-
-     @param args an Array of args such as a CommandSender would put in Minecraft chat:
-     <p>- a <code>statName</code> (example: "mine_block")</p>
-     <p>- if applicable, a <code>subStatEntryName</code> (example: diorite)(</p>
-     <p>- a <code>target</code> for this lookup: can be "top", "server", "player" (or "me" to indicate the current CommandSender)</p>
-     <p>- if "player" was chosen, include a <code>playerName</code></p>
-     @return the generated RequestSettings
+     * This will create a {@link RequestSettings} object from the provided args,
+     * with the requesting Player (or Console) as CommandSender. This CommandSender
+     * will receive feedback messages if the RequestSettings could not be created.
+     *
+     * @param args an Array of args such as a CommandSender would put in Minecraft chat:
+     * <ul>
+     * <li> a <code>statName</code> (example: "mine_block")
+     * <li> if applicable, a <code>subStatEntryName</code> (example: diorite)
+     * <li> a <code>target</code> for this lookup: can be "top", "server", "player"
+     *      (or "me" to indicate the current CommandSender)
+     * <li> if "player" was chosen, include a <code>playerName</code>
+     * </ul>
+     * @return the generated RequestSettings
      */
     public RequestSettings getRequestFromArgs(String[] args) {
         EnumHandler enumHandler = Main.getEnumHandler();
@@ -134,9 +138,10 @@ public final class RequestHandler {
     }
 
     /**
-     Adjust the RequestSettings object if needed: unpack the playerFlag into a subStatEntry,
-     try to retrieve the corresponding Enum Constant for any relevant block/entity/item,
-     and remove any unnecessary subStatEntries.
+     * Adjust the RequestSettings object if needed: unpack the playerFlag
+     * into a subStatEntry, try to retrieve the corresponding Enum Constant
+     * for any relevant block/entity/item, and remove any unnecessary
+     * subStatEntries.
      */
     private void patchRequest(RequestSettings requestSettings) {
         if (requestSettings.getStatistic() != null) {

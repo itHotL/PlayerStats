@@ -2,14 +2,20 @@ package com.github.artemis.the.gr8.playerstats.msg.msgutils;
 
 import com.github.artemis.the.gr8.playerstats.utils.MyLogger;
 
-/** A small utility class that helps make enum constant names prettier for output in stat-messages.*/
+/**
+ * A small utility class that helps make enum constant
+ * names prettier for output in stat-messages.
+ */
 public final class StringUtils {
 
     private StringUtils() {
     }
 
-    /** Replace "_" with " " and capitalize each first letter of the input.
-     @param input String to prettify, case-insensitive*/
+    /**
+     * Replace "_" with " " and capitalize each first letter of the input.
+     *
+     * @param input String to prettify, case-insensitive
+     */
     public static String prettify(String input) {
         if (input == null) return null;
         StringBuilder capitals = new StringBuilder(input.toLowerCase());

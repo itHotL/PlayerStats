@@ -9,7 +9,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RecursiveAction;
 
-/** The action that is executed when a reload-command is triggered. */
+/**
+ * The action that is executed when a reload-command is triggered.
+ */
 final class ReloadAction extends RecursiveAction {
 
     private static int threshold;
@@ -21,10 +23,13 @@ final class ReloadAction extends RecursiveAction {
     private final int lastPlayedLimit;
     private final ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
 
-    /** Fills a ConcurrentHashMap with PlayerNames and UUIDs for all OfflinePlayers that should be included in statistic calculations.
+    /**
+     * Fills a ConcurrentHashMap with PlayerNames and UUIDs for all OfflinePlayers
+     * that should be included in statistic calculations.
+     *
      * @param players array of all OfflinePlayers (straight from Bukkit)
      * @param lastPlayedLimit whether to set a limit based on last-played-date
-     * @param offlinePlayerUUIDs the ConcurrentHashMap to put resulting playerNames and UUIDs on
+     * @param offlinePlayerUUIDs the ConcurrentHashMap to put playerNames and UUIDs in
      */
     public ReloadAction(OfflinePlayer[] players,
                         int lastPlayedLimit, ConcurrentHashMap<String, UUID> offlinePlayerUUIDs) {

@@ -3,7 +3,28 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.artemis-the-gr8</groupId>
   <artifactId>PlayerStats</artifactId>
-  <version>1.6.1</version>
+  <name>PlayerStats</name>
+  <version>1.7</version>
+  <description>Statistics Plugin</description>
+  <url>https://www.spigotmc.org/resources/playerstats.102347/</url>
+  <developers>
+    <developer>
+      <name>Artemis</name>
+      <email>artemis.the.gr8@gmail.com</email>
+      <url>https://github.com/Artemis-the-gr8</url>
+    </developer>
+  </developers>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:git:git://github.com/itHotL/PlayerStats.git</connection>
+    <developerConnection>scm:git:git://github.com/itHotL/PlayerStats.git</developerConnection>
+    <url>https://github.com/itHotL/PlayerStats/tree/main</url>
+  </scm>
   <build>
     <plugins>
       <plugin>
@@ -88,6 +109,18 @@
             <id>attach-sources</id>
             <goals>
               <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
             </goals>
           </execution>
         </executions>

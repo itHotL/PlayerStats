@@ -11,7 +11,9 @@ import java.util.List;
 
 import static net.kyori.adventure.text.Component.text;
 
-/** A fully constructed message with examples on how to use PlayerStats.*/
+/**
+ * A fully constructed message with examples on how to use PlayerStats.
+ */
 public final class ExampleMessage implements TextComponent {
 
     private final TextComponent exampleMessage;

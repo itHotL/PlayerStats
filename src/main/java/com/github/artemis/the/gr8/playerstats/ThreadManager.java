@@ -12,11 +12,15 @@ import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;
 
-/** The ThreadManager is in charge of the Threads that PlayerStats can utilize.
- It keeps track of past and currently active Threads, to ensure a Player cannot
- start multiple Threads at the same time (thereby limiting them to one stat-lookup at a time).
- It also passes appropriate references along to the {@link StatThread} or {@link ReloadThread},
- to ensure those will never run at the same time. */
+/**
+ * The ThreadManager is in charge of the Threads that PlayerStats
+ * can utilize. It keeps track of past and currently active Threads,
+ * to ensure a Player cannot start multiple Threads at the same time
+ * (thereby limiting them to one stat-lookup at a time). It also
+ * passes appropriate references along to the {@link StatThread}
+ * or {@link ReloadThread}, to ensure those will never run at the
+ * same time.
+ */
 public final class ThreadManager {
 
     private final static int threshold = 10;
@@ -77,14 +81,18 @@ public final class ThreadManager {
         }
     }
 
-    /** Store the duration in milliseconds of the last top-stat-lookup
-     (or of loading the offline-player-list if no look-ups have been done yet). */
+    /**
+     * Store the duration in milliseconds of the last top-stat-lookup
+     * (or of loading the offline-player-list if no look-ups have been done yet).
+     */
     public static void recordCalcTime(long time) {
         lastRecordedCalcTime = time;
     }
 
-    /** Returns the duration in milliseconds of the last top-stat-lookup
-     (or of loading the offline-player-list if no look-ups have been done yet). */
+    /**
+     * Returns the duration in milliseconds of the last top-stat-lookup
+     * (or of loading the offline-player-list if no look-ups have been done yet).
+     */
     public static long getLastRecordedCalcTime() {
         return lastRecordedCalcTime;
     }

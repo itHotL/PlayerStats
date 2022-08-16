@@ -2,7 +2,10 @@ package com.github.artemis.the.gr8.playerstats.msg.msgutils;
 
 import org.bukkit.map.MinecraftFont;
 
-/** A small utility class that helps calculate how many dots to use to get the numbers of a top-statistic aligned. */
+/**
+ * A small utility class that helps calculate how many dots
+ * to use to get the numbers of a top-statistic aligned.
+ */
 public final class FontUtils {
 
     private FontUtils() {

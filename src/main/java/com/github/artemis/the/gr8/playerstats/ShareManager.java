@@ -18,8 +18,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
-/** The manager of all Player-prompted statistic-sharing. If sharing is enabled, this class will save the
- results of past stat-lookups, so the results can be retrieved and shared when a Player clicks the share-button.*/
+/**
+ * The manager of all Player-prompted statistic-sharing.
+ * If sharing is enabled, this class will save the results
+ * of past stat-lookups, so the results can be retrieved
+ * and shared when a Player clicks the share-button.
+ */
 public final class ShareManager {
 
     private static boolean isEnabled;
@@ -92,10 +96,13 @@ public final class ShareManager {
         return sharedResults.contains(shareCode);
     }
 
-    /** Takes a formattedComponent from the internal ConcurrentHashmap,
-     puts the current time in the shareTimeStamp (ConcurrentHashMap),
-     puts the shareCode (int hashCode) in the sharedResults (ArrayBlockingQueue),
-     and returns the formattedComponent. If no formattedComponent was found, returns null.*/
+    /**
+     * Takes a formattedComponent from the internal ConcurrentHashmap,
+     * puts the current time in the shareTimeStamp (ConcurrentHashMap),
+     * puts the shareCode (int hashCode) in the sharedResults (ArrayBlockingQueue),
+     * and returns the formattedComponent. If no formattedComponent was found,
+     * returns null.
+     */
     public @Nullable InternalStatResult getStatResult(String playerName, int shareCode) {
         if (statResultQueue.containsKey(shareCode)) {
             shareTimeStamp.put(playerName, Instant.now());
@@ -122,8 +129,10 @@ public final class ShareManager {
         }
     }
 
-    /** If the given player already has more than x (in this case 25) StatResults saved,
-      remove the oldest one.*/
+    /**
+     * If the given player already has more than x (in this case 25)
+     * StatResults saved, remove the oldest one.
+     */
     private void removeExcessResults(String playerName) {
         List<InternalStatResult> alreadySavedResults = statResultQueue.values()
                 .parallelStream()

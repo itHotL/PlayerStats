@@ -11,7 +11,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RecursiveTask;
 
-/** The action that is executed when a stat-command is triggered. */
+/**
+ * The action that is executed when a stat-command is triggered.
+ */
 final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>> {
 
     private static int threshold;
@@ -23,7 +25,8 @@ final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>>
 
     /**
      * Gets the statistic numbers for all players whose name is on the list, puts them in a ConcurrentHashMap
-     * using the default ForkJoinPool, and returns the ConcurrentHashMap when everything is done
+     * using the default ForkJoinPool, and returns the ConcurrentHashMap when everything is done.
+     *
      * @param offlinePlayerHandler the OfflinePlayerHandler to convert playerNames into Players
      * @param playerNames ImmutableList of playerNames for players that should be included in stat calculations
      * @param requestSettings a validated requestSettings

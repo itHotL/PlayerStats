@@ -3,7 +3,9 @@ package com.github.artemis.the.gr8.playerstats.enums;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.NotNull;
 
-/** All the units PlayerStats can display statistics in, separated by Type.*/
+/**
+ * All the units PlayerStats can display statistics in, separated by Type.
+ */
 public enum Unit {
     NUMBER (Type.UNTYPED, "Times"),
     KM (Type.DISTANCE, "km"),
@@ -26,21 +28,28 @@ public enum Unit {
         this.label = label;
     }
 
-    /** Returns a pretty name belonging to this enum constant. If the Unit is
-     NUMBER, it will return null. */
+    /**
+     * Returns a pretty name belonging to this enum constant. If the Unit is
+     * NUMBER, it will return null.
+     */
     public String getLabel() {
         return this.label;
     }
 
-    /** Returns the Type this enum constant belongs to.*/
+    /**
+     * Returns the Type this enum constant belongs to.
+     */
     public Type getType() {
         return this.type;
     }
 
-    /** For Type Time, Damage and Distance, this will return a smaller Unit than the current one
-     (if there is a smaller Unit, that is, otherwise it will return itself).
-     So for DAY, for example, it can return HOUR, MINUTE or SECOND.
-     @param stepsSmaller how many steps smaller the returned Unit should be*/
+    /**
+     * For Type Time, Damage and Distance, this will return a smaller Unit than the current one
+     * (if there is a smaller Unit, that is, otherwise it will return itself).
+     * So for DAY, for example, it can return HOUR, MINUTE or SECOND.
+     *
+     * @param stepsSmaller how many steps smaller the returned Unit should be
+     */
     public Unit getSmallerUnit(int stepsSmaller) {
         switch (this) {
             case DAY -> {
@@ -99,7 +108,10 @@ public enum Unit {
         }
     }
 
-    /** Converts the current Unit into seconds (and returns -1 if the current Unit is not of Type TIME)*/
+    /**
+     * Converts the current Unit into seconds (and returns
+     * -1 if the current Unit is not of Type TIME)
+     */
     public double getSeconds() {
         return switch (this) {
             case DAY -> 86400;
@@ -111,9 +123,13 @@ public enum Unit {
         };
     }
 
-    /** Returns the Unit corresponding to the given String. This String does NOT need to
-     match exactly (it can be "day" or "days", for example), and is case-insensitive.
-     @param unitName an approximation of the name belonging to the desired Unit, case-insensitive */
+    /**
+     * Returns the Unit corresponding to the given String. This String does NOT need to
+     * match exactly (it can be "day" or "days", for example), and is case-insensitive.
+     *
+     * @param unitName an approximation of the name belonging to the desired Unit,
+     *                 case-insensitive
+     */
     public static @NotNull Unit fromString(@NotNull String unitName) {
         return switch (unitName.toLowerCase()) {
             case "cm" -> Unit.CM;
@@ -131,8 +147,12 @@ public enum Unit {
         };
     }
 
-    /** Returns the Unit.Type of this Statistic, which can be Untyped, Distance, Damage, or Time.
-     @param statistic the Statistic enum constant*/
+    /**
+     * Returns the Unit.Type of this Statistic, which can be Untyped,
+     * Distance, Damage, or Time.
+     *
+     * @param statistic the Statistic enum constant
+     */
     public static @NotNull Type getTypeFromStatistic(Statistic statistic) {
         String name = statistic.toString().toLowerCase();
         if (name.contains("one_cm")) {
@@ -146,9 +166,12 @@ public enum Unit {
         }
     }
 
-    /** Returns the most suitable Unit for this number.
-     @param type the Unit.Type of the statistic this number belongs to
-     @param number the statistic number as returned by Player.getStatistic()*/
+    /**
+     * Returns the most suitable Unit for this number.
+     *
+     * @param type the Unit.Type of the statistic this number belongs to
+     * @param number the statistic number as returned by Player.getStatistic()
+     */
     public static Unit getMostSuitableUnit(Unit.Type type, long number) {
         switch (type) {
             case TIME -> {

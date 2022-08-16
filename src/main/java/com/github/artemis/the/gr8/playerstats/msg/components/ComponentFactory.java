@@ -22,9 +22,12 @@ import org.jetbrains.annotations.Nullable;
 
 import static net.kyori.adventure.text.Component.*;
 
-/** Creates Components with the desired formatting for the {@link MessageBuilder} to build messages with.
- This class can put Strings into formatted Components with TextColor
- and TextDecoration, or return empty Components with the desired formatting.*/
+/** Creates Components with the desired formatting for the
+ * {@link MessageBuilder} to build messages with. This class
+ * can put Strings into formatted Components with TextColor
+ * and TextDecoration, or return empty Components with the
+ * desired formatting.
+ * */
 public class ComponentFactory {
 
     private static ConfigHandler config;
@@ -76,7 +79,9 @@ public class ComponentFactory {
         return getColorFromString(config.getSharerNameDecoration(false));
     }
 
-    /** Returns [PlayerStats]. */
+    /**
+     * Returns [PlayerStats].
+     */
     public TextComponent pluginPrefix() {
         return text("[")
                 .color(BRACKETS)
@@ -84,7 +89,9 @@ public class ComponentFactory {
                 .append(text("]"));
     }
 
-    /** Returns [PlayerStats] surrounded by underscores on both sides. */
+    /**
+     * Returns [PlayerStats] surrounded by underscores on both sides.
+     */
     public TextComponent pluginPrefixAsTitle() {
         //12 underscores for both console and in-game
         return text("____________").color(UNDERSCORE)
@@ -94,12 +101,18 @@ public class ComponentFactory {
                 .append(text("____________"));
     }
 
-    /** Returns a TextComponent with the input String as content, with color Gray and decoration Italic.*/
+    /**
+     * Returns a TextComponent with the input String as content,
+     * with color Gray and decoration Italic.
+     */
     public TextComponent subTitle(String content) {
         return text(content).color(BRACKETS).decorate(TextDecoration.ITALIC);
     }
 
-    /** Returns a TextComponents in the style of a default plugin message, with color Medium_Blue. */
+    /**
+     * Returns a TextComponents in the style of a default plugin message,
+     * with color Medium_Blue.
+     */
     public TextComponent message() {
         return text().color(MSG_MAIN).build();
     }
@@ -181,8 +194,12 @@ public class ComponentFactory {
                         .build());
     }
 
-    /** @param prettyStatName a statName with underscores removed and each word capitalized
-     @param prettySubStatName if present, a subStatName with underscores removed and each word capitalized*/
+    /**
+     * @param prettyStatName a statName with underscores removed and each
+     *                       word capitalized
+     * @param prettySubStatName if present, a subStatName with underscores
+     *                          removed and each word capitalized
+     */
     public TextComponent statAndSubStatName(String prettyStatName, @Nullable String prettySubStatName, Target target) {
         TextComponent.Builder totalStatNameBuilder =  getComponentBuilder(prettyStatName,
                 getColorFromString(config.getStatNameDecoration(target, false)),
@@ -197,7 +214,9 @@ public class ComponentFactory {
         return totalStatNameBuilder.build();
     }
 
-    /** Returns a TextComponent with TranslatableComponent as a child.*/
+    /**
+     * Returns a TextComponent with TranslatableComponent as a child.
+     * */
     public TextComponent statAndSubStatNameTranslatable(String statKey, @Nullable String subStatKey, Target target) {
         TextComponent.Builder totalStatNameBuilder = getComponentBuilder(null,
                 getColorFromString(config.getStatNameDecoration(target, false)),
@@ -307,7 +326,9 @@ public class ComponentFactory {
                 .build();
     }
 
-    /** Returns a TextComponent for the subStatName, or an empty component.*/
+    /**
+     * Returns a TextComponent for the subStatName, or an empty component.
+     */
     private TextComponent subStatName(@Nullable String prettySubStatName, Target target) {
         if (prettySubStatName == null) {
             return Component.empty();
@@ -322,7 +343,9 @@ public class ComponentFactory {
         }
     }
 
-    /** Returns a TranslatableComponent for the subStatName, or an empty component.*/
+    /**
+     * Returns a TranslatableComponent for the subStatName, or an empty component.
+     */
     private TextComponent subStatNameTranslatable(@Nullable String subStatKey, Target target) {
         if (subStatKey != null) {
             return getComponentBuilder(null,
@@ -337,18 +360,26 @@ public class ComponentFactory {
         return Component.empty();
     }
 
-    /** Construct a custom translation for kill_entity with the language key for commands.kill.success.single ("Killed %s").
-     @return a TranslatableComponent Builder with the subStat Component as args.*/
+    /**
+     * Construct a custom translation for kill_entity with the language key
+     * for commands.kill.success.single ("Killed %s").
+     *
+     * @return a TranslatableComponent Builder with the subStat Component as args.
+     */
     private TranslatableComponent.Builder killEntityBuilder(@NotNull TextComponent subStat) {
         return translatable()
                 .key(LanguageKeyHandler.getAlternativeKeyForKillEntity())  //"Killed %s"
                 .args(subStat);
     }
 
-    /** Construct a custom translation for entity_killed_by with the language keys for stat.minecraft.deaths
-     ("Number of Deaths") and book.byAuthor ("by %s").
-     @return a TranslatableComponent Builder with stat.minecraft.deaths as key, with a ChildComponent
-     with book.byAuthor as key and the subStat Component as args.*/
+    /**
+     * Construct a custom translation for entity_killed_by with the language
+     * keys for stat.minecraft.deaths ("Number of Deaths") and book.byAuthor
+     * ("by %s").
+     *
+     * @return a TranslatableComponent Builder with stat.minecraft.deaths as key,
+     * with a ChildComponent with book.byAuthor as key and the subStat Component as args.
+     */
     private TranslatableComponent.Builder entityKilledByBuilder(@NotNull TextComponent subStat) {
         return translatable()
                 .key(LanguageKeyHandler.getAlternativeKeyForEntityKilledBy())  //"Number of Deaths"

@@ -10,22 +10,30 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
-/** The object PlayerStats uses to calculate and format the requested statistic.
- The settings in this RequestSettings object can be configured from two different sources:
- <br>- Internally: by PlayerStats itself when /stat is called, using the args provided by the CommandSender.
- <br>- Externally: through the API methods provided by the {@link RequestGenerator} interface.
- <br>
- <br>For this RequestSettings object to be valid, the following values need to be set:
- <ul>
- <li> a {@link Statistic} <code>statistic</code> </li>
- <li> if this Statistic is not of {@link Statistic.Type} Untyped, a <code>subStatEntryName</code> needs to be set,
- together with one of the following values:
- <br>- for Type.Block: a {@link Material} <code>blockMaterial</code>
- <br>- for Type.Item: a {@link Material} <code>itemMaterial</code>
- <br>- for Type.Entity: an {@link EntityType} <code>entityType</code>
- <li> a {@link Target} <code>target</code> (automatically set for all API-requests)
- <li> if the <code>target</code> is Target.Player, a <code>playerName</code> needs to be added
- </ul>*/
+/**
+ * The object PlayerStats uses to calculate and format the requested
+ * statistic. The settings in this RequestSettings object can be
+ * configured from two different sources:
+ * <br>- Internally: by PlayerStats itself when /stat is called,
+ * using the args provided by the CommandSender.
+ * <br>- Externally: through the API methods provided by the
+ * {@link RequestGenerator} interface.
+ * <br>
+ * <br>For this RequestSettings object to be valid, the following
+ * values need to be set:
+ * <ul>
+ * <li> a {@link Statistic} <code>statistic</code> </li>
+ * <li> if this Statistic is not of {@link Statistic.Type} Untyped,
+ * a <code>subStatEntryName</code> needs to be set, together with one
+ * of the following values:
+ * <br>- for Type.Block: a {@link Material} <code>blockMaterial</code>
+ * <br>- for Type.Item: a {@link Material} <code>itemMaterial</code>
+ * <br>- for Type.Entity: an {@link EntityType} <code>entityType</code>
+ * <li> a {@link Target} <code>target</code> (defaults to Top)
+ * <li> if the <code>target</code> is Target.Player, a
+ * <code>playerName</code> needs to be added
+ * </ul>
+ */
 public final class RequestSettings {
 
     private final CommandSender sender;
@@ -40,14 +48,15 @@ public final class RequestSettings {
     private Material item;
     private boolean playerFlag;
 
-    /** Create a new {@link RequestSettings} with default values:
-     <br>- CommandSender sender (provided)
-     <br>- Target target = {@link Target#TOP}
-     <br>- int topListSize = 10
-     <br>- boolean playerFlag = false
-     <br>- boolean isAPIRequest
-
-     @param sender the CommandSender who prompted this RequestGenerator
+    /**
+     * Create a new {@link RequestSettings} with default values:
+     * <br>- CommandSender sender (provided)
+     * <br>- Target target = {@link Target#TOP}
+     * <br>- int topListSize = 10
+     * <br>- boolean playerFlag = false
+     * <br>- boolean isAPIRequest
+     *
+     * @param sender the CommandSender who prompted this RequestGenerator
      */
     private RequestSettings(@NotNull CommandSender sender) {
         this.sender = sender;

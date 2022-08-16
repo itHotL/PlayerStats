@@ -11,7 +11,10 @@ import com.tchristofferson.configupdater.ConfigUpdater;
 
 public final class ConfigUpdateHandler {
 
-    /** Add new key-value pairs to the config without losing comments, using <a href="https://github.com/tchristofferson/Config-Updater">tchristofferson's Config-Updater</a> */
+    /**
+     * Add new key-value pairs to the config without losing comments,
+     * using <a href="https://github.com/tchristofferson/Config-Updater">tchristofferson's Config-Updater</a>
+     */
     public ConfigUpdateHandler(Main plugin, File configFile, int configVersion) {
         YamlConfiguration configuration = YamlConfiguration.loadConfiguration(configFile);
         updateTopListDefault(configuration);
@@ -27,7 +30,10 @@ public final class ConfigUpdateHandler {
         }
     }
 
-    /** Adjusts the value for "top-list" to migrate the config file from versions 1 or 2 to version 3 and above.*/
+    /**
+     * Adjusts the value for "top-list" to migrate the config file from
+     * versions 1 or 2 to version 3 and above.
+     */
     private void updateTopListDefault(YamlConfiguration configuration) {
         String oldTitle = configuration.getString("top-list-title");
         if (oldTitle != null && oldTitle.equalsIgnoreCase("Top [x]")) {
@@ -35,7 +41,10 @@ public final class ConfigUpdateHandler {
         }
     }
 
-    /** Adjusts some of the default colors to migrate from versions 2 or 3 to version 4 and above.*/
+    /**
+     * Adjusts some of the default colors to migrate from versions 2
+     * or 3 to version 4 and above.
+     */
     private void updateDefaultColors(YamlConfiguration configuration) {
         updateColor(configuration, "top-list.title", "yellow", "#FFD52B");
         updateColor(configuration, "top-list.title", "#FFEA40", "#FFD52B");

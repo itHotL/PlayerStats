@@ -12,7 +12,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-/** The Thread that is in charge of getting and calculating statistics.*/
+/**
+ * The Thread that is in charge of getting and calculating statistics.
+ */
 public final class StatThread extends Thread {
 
     private static OutputManager outputManager;

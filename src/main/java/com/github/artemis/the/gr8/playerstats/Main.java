@@ -77,10 +77,6 @@ public final class Main extends JavaPlugin {
         this.getLogger().info("Disabled PlayerStats!");
     }
 
-    public static @NotNull Main getInstance() {
-        return instance;
-    }
-
     public static @NotNull BukkitAudiences getAdventure() throws IllegalStateException {
         if (adventure == null) {
             throw new IllegalStateException("Tried to access Adventure without PlayerStats being enabled!");
@@ -104,7 +100,7 @@ public final class Main extends JavaPlugin {
 
     public static @NotNull LanguageKeyHandler getLanguageKeyHandler() {
         if (languageKeyHandler == null) {
-            languageKeyHandler = new LanguageKeyHandler();
+            languageKeyHandler = new LanguageKeyHandler(instance);
         }
         return languageKeyHandler;
     }
@@ -143,7 +139,7 @@ public final class Main extends JavaPlugin {
 
         config = new ConfigHandler(this);
         enumHandler = new EnumHandler();
-        languageKeyHandler = new LanguageKeyHandler();
+        languageKeyHandler = new LanguageKeyHandler(instance);
         offlinePlayerHandler = new OfflinePlayerHandler();
 
         shareManager = new ShareManager(config);
@@ -159,7 +155,7 @@ public final class Main extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                final Metrics metrics = new Metrics(getInstance(), 15923);
+                final Metrics metrics = new Metrics(instance, 15923);
                 final boolean placeholderExpansionActive;
                 if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
                     PlaceholderExpansion expansion = PlaceholderAPIPlugin

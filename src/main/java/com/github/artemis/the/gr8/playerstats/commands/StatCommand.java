@@ -46,15 +46,17 @@ public final class StatCommand implements CommandExecutor {
         return true;
     }
 
-    /** If a given {@link RequestSettings} does not result in a valid statistic look-up,
-     this will send a feedback message to the CommandSender that made the request.
-     <br> The following is checked:
-     <ul>
-     <li>Is a <code>statistic</code> set?
-     <li>Is a <code>subStatEntry</code> needed, and if so, is a corresponding Material/EntityType present?
-     <li>If the <code>target</code> is Player, is a valid <code>playerName</code> provided?
-     </ul>
-     @param requestSettings the RequestSettings to give feedback on
+    /**
+     * If a given {@link RequestSettings} does not result in a valid statistic look-up,
+     * this will send a feedback message to the CommandSender that made the request.
+     * <br> The following is checked:
+     * <ul>
+     * <li>Is a <code>statistic</code> set?
+     * <li>Is a <code>subStatEntry</code> needed, and if so, is a corresponding Material/EntityType present?
+     * <li>If the <code>target</code> is Player, is a valid <code>playerName</code> provided?
+     * </ul>
+     *
+     * @param requestSettings the RequestSettings to give feedback on
      */
     private void sendFeedback(RequestSettings requestSettings) {
         CommandSender sender = requestSettings.getCommandSender();

@@ -24,9 +24,13 @@ import java.util.function.Function;
 
 import static com.github.artemis.the.gr8.playerstats.enums.StandardMessage.*;
 
-/** This class manages all PlayerStats output. It is the only place where messages are sent.
- It gets its messages from a {@link MessageBuilder} configured for either a Console or for Players
- (mainly to deal with the lack of hover-text, and for Bukkit consoles to make up for the lack of hex-colors).*/
+/**
+ * This class manages all PlayerStats output. It is the only
+ * place where messages are sent. It gets its messages from a
+ * {@link MessageBuilder} configured for either a Console or
+ * for Players (mainly to deal with the lack of hover-text,
+ * and for Bukkit consoles to make up for the lack of hex-colors).
+ * */
 public final class OutputManager implements InternalFormatter {
 
     private static BukkitAudiences adventure;

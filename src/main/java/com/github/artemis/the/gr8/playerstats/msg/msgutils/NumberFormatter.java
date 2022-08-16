@@ -5,9 +5,10 @@ import com.github.artemis.the.gr8.playerstats.enums.Unit;
 import java.text.DecimalFormat;
 
 /** A utility class that formats statistic numbers into something more readable.
- It transforms numbers of {@link Unit.Type} Time, Damage, and Distance into numbers
- that are easier to understand (for example: from ticks to hours) and adds commas
- to break up large numbers.*/
+ * It transforms numbers of {@link Unit.Type} Time, Damage, and Distance into numbers
+ * that are easier to understand (for example: from ticks to hours) and adds commas
+ * to break up large numbers.
+ */
 public final class NumberFormatter {
 
     private final DecimalFormat format;
@@ -19,14 +20,16 @@ public final class NumberFormatter {
     }
 
     /** Turns the input number into a more readable format depending on its type
-     (number-of-times, time-, damage- or distance-based) according to the
-     corresponding config settings, and adds commas in groups of 3.*/
+     * (number-of-times, time-, damage- or distance-based) according to the
+     * corresponding config settings, and adds commas in groups of 3.
+     */
     public String formatNumber(long number) {
         return format.format(number);
     }
 
     /** The unit of damage-based statistics is half a heart by default.
-     This method turns the number into hearts. */
+     * This method turns the number into hearts.
+     */
     public String formatDamageNumber(long number, Unit statUnit) {  //7 statistics
         if (statUnit == Unit.HEART) {
             return format.format(Math.round(number / 2.0));
@@ -35,8 +38,11 @@ public final class NumberFormatter {
         }
     }
 
-    /** The unit of distance-based statistics is cm by default. This method turns it into blocks by default,
-     and turns it into km or leaves it as cm otherwise, depending on the config settings. */
+    /** The unit of distance-based statistics is cm by default.
+     * This method turns it into blocks by default,
+     * and turns it into km or leaves it as cm otherwise,
+     * depending on the config settings.
+     */
     public String formatDistanceNumber(long number, Unit statUnit) {  //15 statistics
         switch (statUnit) {
             case CM -> {
@@ -55,7 +61,10 @@ public final class NumberFormatter {
     }
 
     /** The unit of time-based statistics is ticks by default.
-     @return a String with the form "1D 2H 3M 4S" (depending on the Unit range selected)*/
+     *
+     * @return a String with the form "1D 2H 3M 4S"
+     * (depending on the Unit range selected)
+     */
     public String formatTimeNumber(long number, Unit bigUnit, Unit smallUnit) {  //5 statistics
         if (number == 0) {
             return "-";

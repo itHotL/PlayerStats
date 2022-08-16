@@ -6,7 +6,7 @@
 
     <groupId>io.github.artemis-the-gr8</groupId>
     <artifactId>PlayerStats</artifactId>
-    <version>1.6.1</version>
+    <version>1.7</version>
 
     <name>PlayerStats</name>
     <description>Statistics Plugin</description>

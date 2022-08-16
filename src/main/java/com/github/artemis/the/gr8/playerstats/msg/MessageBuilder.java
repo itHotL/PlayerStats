@@ -27,11 +27,13 @@ import java.util.function.BiFunction;
 
 import static net.kyori.adventure.text.Component.*;
 
-/** Composes messages to send to a Player or Console. This class is responsible
- for constructing a final Component with the text content of the desired message.
- The component parts (with appropriate formatting) are supplied by a {@link ComponentFactory}.
- By default, this class works with the default ComponentFactory, but you can
- give it a different ComponentFactory upon creation.*/
+/**
+ * Composes messages to send to a Player or Console. This class is responsible
+ * for constructing a final Component with the text content of the desired message.
+ * The component parts (with appropriate formatting) are supplied by a
+ * {@link ComponentFactory}. By default, this class works with the default
+ * ComponentFactory, but you can give it a different ComponentFactory upon creation.
+ */
 public final class MessageBuilder implements ApiFormatter {
 
     private static ConfigHandler config;
@@ -63,8 +65,10 @@ public final class MessageBuilder implements ApiFormatter {
         return new MessageBuilder(config, factory);
     }
 
-    /** Set whether this {@link MessageBuilder} should use hoverText.
-     By default, this follows the setting specified in the {@link ConfigHandler}. */
+    /**
+     * Set whether this {@link MessageBuilder} should use hoverText.
+     * By default, this follows the setting specified in the {@link ConfigHandler}.
+     */
     public void toggleHoverUse(boolean desiredSetting) {
         useHoverText = desiredSetting;
     }
@@ -223,11 +227,13 @@ public final class MessageBuilder implements ApiFormatter {
         return getTopStatLineComponent(positionInTopList, playerName, statNumberComponent);
     }
 
-    /** Time-number does not hover */
+    /**
+     * Time-number does not hover
+     */
     @Override
-    public TextComponent formatTopStatLineForTypeTime(int positionInList, String playerName, long statNumber, Unit bigUnit, Unit smallUnit) {
+    public TextComponent formatTopStatLineForTypeTime(int positionInTopList, String playerName, long statNumber, Unit bigUnit, Unit smallUnit) {
         TextComponent statNumberComponent = getBasicTimeNumberComponent(statNumber, Target.TOP, bigUnit, smallUnit);
-        return getTopStatLineComponent(positionInList, playerName, statNumberComponent);
+        return getTopStatLineComponent(positionInTopList, playerName, statNumberComponent);
     }
 
     @Override
@@ -278,31 +284,49 @@ public final class MessageBuilder implements ApiFormatter {
         return getPlayerStatComponent(playerName, statNumberComponent, statistic, null, null);
     }
 
-    /** Returns a BiFunction for a player statistic. This BiFunction will return a formattedComponent,
-     the shape of which is determined by the 2 parameters the BiFunction gets.
-     <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
-     <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
-     <br>- If both parameters are null, the formattedComponent will be returned as is.</br>*/
+    /**
+     * Returns a BiFunction for a player statistic. This BiFunction will return
+     * a formattedComponent, the shape of which is determined by the 2 parameters
+     * the BiFunction gets.
+     * <p>- Integer shareCode: if a shareCode is provided, a clickable "share"
+     * button will be added.
+     * <br>- CommandSender sender: if a sender is provided, a signature with
+     * "shared by sender-name" will be added.
+     * <br>- If both parameters are null, the formattedComponent will be returned
+     * as is.
+     */
     public BiFunction<Integer, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull RequestSettings request) {
         TextComponent playerStat = formatPlayerStat(request.getPlayerName(), stat, request.getStatistic(), request.getSubStatEntryName());
         return getFormattingFunction(playerStat, Target.PLAYER);
     }
 
-    /** Returns a BiFunction for a server statistic. This BiFunction will return a formattedComponent,
-     the shape of which is determined by the 2 parameters the BiFunction gets.
-     <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
-     <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
-     <br>- If both parameters are null, the formattedComponent will be returned as is.</br>*/
+    /**
+     * Returns a BiFunction for a server statistic. This BiFunction will return
+     * a formattedComponent, the shape of which is determined by the 2 parameters
+     * the BiFunction gets.
+     * <p>- Integer shareCode: if a shareCode is provided, a clickable "share"
+     * button will be added.
+     * <br>- CommandSender sender: if a sender is provided, a signature with
+     * "shared by sender-name" will be added.
+     * <br>- If both parameters are null, the formattedComponent will be returned
+     * as is.
+     */
     public BiFunction<Integer, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull RequestSettings request) {
         TextComponent serverStat = formatServerStat(stat, request.getStatistic(), request.getSubStatEntryName());
         return getFormattingFunction(serverStat, Target.SERVER);
     }
 
-    /** Returns a BiFunction for a top statistic. This BiFunction will return a formattedComponent,
-     the shape of which is determined by the 2 parameters the BiFunction gets.
-     <p>- Integer shareCode: if a shareCode is provided, a clickable "share" button will be added.
-     <br>- CommandSender sender: if a sender is provided, a signature with "shared by sender-name" will be added.</br>
-     <br>- If both parameters are null, the formattedComponent will be returned as is.</br>*/
+    /**
+     * Returns a BiFunction for a top statistic. This BiFunction will return
+     * a formattedComponent, the shape of which is determined by the 2 parameters
+     * the BiFunction gets.
+     * <p>- Integer shareCode: if a shareCode is provided, a clickable "share"
+     * button will be added.
+     * <br>- CommandSender sender: if a sender is provided, a signature with
+     * "shared by sender-name" will be added.
+     * <br>- If both parameters are null, the formattedComponent will be returned
+     * as is.
+     */
     public BiFunction<Integer, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull RequestSettings request) {
         final TextComponent title = getTopStatTitle(topStats.size(), request.getStatistic(), request.getSubStatEntryName());
         final TextComponent list = getTopStatListComponent(topStats, request.getStatistic());
@@ -562,7 +586,9 @@ public final class MessageBuilder implements ApiFormatter {
         return componentFactory.statNumber(formatter.formatNumber(statNumber), target);
     }
 
-    /** Provides its own space in front of it! */
+    /**
+     * Provides its own space in front of it!
+     */
     private TextComponent getStatUnitComponent(Statistic statistic, Target target) {
         Unit unit = switch (Unit.getTypeFromStatistic(statistic)) {
             case DAMAGE -> Unit.fromString(config.getDamageUnit(false));
@@ -580,7 +606,9 @@ public final class MessageBuilder implements ApiFormatter {
         };
     }
 
-    /** Provides its own space in front of it! */
+    /**
+     * Provides its own space in front of it!
+     */
     private TextComponent getDistanceUnitComponent(Unit unit, Target target) {
         if (config.useTranslatableComponents()) {
             String unitKey = languageKeyHandler.getUnitKey(unit);
@@ -593,7 +621,9 @@ public final class MessageBuilder implements ApiFormatter {
                 .append(componentFactory.statUnit(unit.getLabel(), target));
     }
 
-    /** Provides its own space in front of it! */
+    /**
+     * Provides its own space in front of it!
+     */
     private TextComponent getDamageUnitComponent(Unit unit, Target target) {
         if (unit == Unit.HEART) {
             TextComponent heartUnit;
@@ -668,11 +698,13 @@ public final class MessageBuilder implements ApiFormatter {
         }
     }
 
-    /** Get an ArrayList consisting of 2 or 4 timeUnits. The order of items is:
-     <p>0. maxUnit</p>
-     <p>1. minUnit</p>
-     <p>2. maxHoverUnit</p>
-     <p>3. minHoverUnit</p>*/
+    /**
+     * Get an ArrayList consisting of 2 or 4 timeUnits. The order of items is:
+     * <p>0. maxUnit</p>
+     * <p>1. minUnit</p>
+     * <p>2. maxHoverUnit</p>
+     * <p>3. minHoverUnit</p>
+     */
     private ArrayList<Unit> getTimeUnitRange(long statNumber) {
         ArrayList<Unit> unitRange = new ArrayList<>();
         if (!config.autoDetectTimeUnit(false)) {

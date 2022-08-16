@@ -12,8 +12,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
-/**This class is just for fun and adds some silly names for players on my server.
-It does not impact the rest of the plugin, and will only be used for the players mentioned in here.*/
+/**
+ * This class is just for fun and adds some silly names for
+ * players on my server. It does not impact the rest of the plugin,
+ * and will only be used for the players mentioned in here.
+ */
 public final class EasterEggProvider {
 
     private static boolean isEnabled;

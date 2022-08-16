@@ -10,7 +10,9 @@ import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
-/** The PlayerStats Logger*/
+/**
+ * The PlayerStats Logger
+ */
 public final class MyLogger {
 
     private static final Logger logger;
@@ -28,11 +30,13 @@ public final class MyLogger {
     private MyLogger() {
     }
 
-    /** Sets the desired debugging level.
-     <br>1 = low (only show unexpected errors)</br>
-     <br>2 = medium (detail all encountered exceptions, log main tasks and show time taken)</br>
-     <br>3 = high (log all tasks and time taken)</br>
-     <br>Default: 1</br>*/
+    /**
+     * Sets the desired debugging level.
+     * <br>1 = low (only show unexpected errors)
+     * <br>2 = medium (detail all encountered exceptions, log main tasks and show time taken)
+     * <br>3 = high (log all tasks and time taken)
+     * <br>Default: 1
+     */
     public static void setDebugLevel(int level) {
         if (level == 2) {
             debugLevel = DebugLevel.MEDIUM;
@@ -65,12 +69,16 @@ public final class MyLogger {
         logger.warning(content);
     }
 
-    /** Log the encountered exception as a warning to console,
-     with some information about which class/method caught it
-     and with a printStackTrace if DebugLevel is HIGH.
-     @param exception The encountered exception
-     @param caughtBy The name of the class that caught the exception
-     @param additionalInfo e.g. the method-name or line where the exception is caught */
+    /**
+     * Log the encountered exception as a warning to console,
+     * with some information about which class/method caught it
+     * and with a printStackTrace if DebugLevel is HIGH.
+     *
+     * @param exception The encountered exception
+     * @param caughtBy The name of the class that caught the exception
+     * @param additionalInfo e.g. the method-name or line where the
+     *                       exception is caught
+     */
     public static void logException(@NotNull Exception exception, String caughtBy, @Nullable String additionalInfo) {
         String extraInfo = (additionalInfo != null) ? " [" + additionalInfo + "]" : "";
         String info =  " (" + caughtBy + extraInfo + ")";
@@ -81,8 +89,13 @@ public final class MyLogger {
         }
     }
 
-    /** If DebugLevel is MEDIUM or HIGH, output to console that an action has started.
-     @param taskLength Length of the action (in terms of units-to-process)*/
+    /**
+     * If DebugLevel is MEDIUM or HIGH, output to console that an
+     * action has started.
+     *
+     * @param taskLength Length of the action (in terms of
+     *                   units-to-process)
+     */
     public static void actionCreated(int taskLength) {
         if (debugLevel != DebugLevel.LOW) {
             threadNames = new ConcurrentHashMap<>();
@@ -90,9 +103,13 @@ public final class MyLogger {
         }
     }
 
-    /** Internally save the name of the executing thread for later logging of this action.
-    The list of names is reset upon the start of every new action.
-     @param threadName Name of the executing thread*/
+    /**
+     * Internally save the name of the executing thread for later
+     * logging of this action. The list of names is reset upon the
+     * start of every new action.
+     *
+     * @param threadName Name of the executing thread
+     */
     public static void subActionCreated(String threadName) {
         if (debugLevel == DebugLevel.HIGH) {
             if (!threadNames.containsKey(threadName)) {
@@ -101,8 +118,11 @@ public final class MyLogger {
         }
     }
 
-    /** Internally save the name of the executing thread for logging.
-     @param threadName Name of the executing thread */
+    /**
+     * Internally save the name of the executing thread for logging.
+     *
+     * @param threadName Name of the executing thread
+     */
     public static void actionRunning(String threadName) {
         if (debugLevel != DebugLevel.LOW) {
             if (!threadNames.containsKey(threadName)) {
@@ -111,8 +131,11 @@ public final class MyLogger {
         }
     }
 
-    /** Output to console that an action has finished if DebugLevel is MEDIUM or higher.
-     If DebugLevel is HIGH, also output the names of the threads that were used. */
+    /**
+     * Output to console that an action has finished if DebugLevel is
+     * MEDIUM or higher. If DebugLevel is HIGH, also output the names
+     * of the threads that were used.
+     */
     public static void actionFinished() {
         if (debugLevel != DebugLevel.LOW) {
             logger.info("Finished Recursive Action! In total " +
@@ -133,10 +156,13 @@ public final class MyLogger {
         printTime(className, methodName, startTime);
     }
 
-    /** Output to console how long a certain task has taken.
-     @param className Name of the class executing the task
-     @param methodName Name or description of the task
-     @param startTime Timestamp marking the beginning of the task */
+    /**
+     * Output to console how long a certain task has taken.
+     *
+     * @param className Name of the class executing the task
+     * @param methodName Name or description of the task
+     * @param startTime Timestamp marking the beginning of the task
+     */
     private static void printTime(String className, String methodName, long startTime) {
         logger.info(className + " " + methodName + ": " + (System.currentTimeMillis() - startTime) + "ms");
     }

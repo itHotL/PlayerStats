@@ -6,13 +6,18 @@ import net.kyori.adventure.text.*;
 import net.kyori.adventure.text.flattener.ComponentFlattener;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
-/** A small utility class for turning PlayerStats' custom Components into String. */
+/**
+ * A small utility class for turning PlayerStats' custom Components into String.
+ */
 public final class ComponentUtils {
 
-    /** Returns a LegacyComponentSerializer that is capable of serializing TranslatableComponents,
-     and capable of dealing with the custom language-keys I am using to improve the entity-related
-     statistic names. This serializer will create a String with hex colors and styles, and it will
-     turn language keys into prettified, readable English. */
+    /**
+     * Returns a LegacyComponentSerializer that is capable of serializing
+     * TranslatableComponents, and capable of dealing with the custom
+     * language-keys I am using to improve the entity-related statistic
+     * names. This serializer will create a String with hex colors and styles,
+     * and it will turn language keys into prettified, readable English.
+     */
     public static LegacyComponentSerializer getTranslatableComponentSerializer() {
         LegacyComponentSerializer serializer = getTextComponentSerializer();
 

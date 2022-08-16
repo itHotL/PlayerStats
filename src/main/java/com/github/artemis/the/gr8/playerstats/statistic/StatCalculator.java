@@ -46,8 +46,11 @@ public final class StatCalculator {
         return numbers.parallelStream().mapToLong(Integer::longValue).sum();
     }
 
-    /** Invokes a bunch of worker pool threads to divide and conquer (get the statistics for all players
-     that are stored in the {@link OfflinePlayerHandler}) */
+    /**
+     * Invokes a bunch of worker pool threads to divide and conquer
+     * (get the statistics for all players that are stored in the
+     * {@link OfflinePlayerHandler})
+     */
     private @NotNull ConcurrentHashMap<String, Integer> getAllStatsAsync(RequestSettings requestSettings) {
         long time = System.currentTimeMillis();
 
