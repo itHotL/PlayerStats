@@ -26,6 +26,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
+
+/**
+ * PlayerStats' Main class
+ */
 public final class Main extends JavaPlugin {
 
     private static Main instance;
@@ -77,6 +81,10 @@ public final class Main extends JavaPlugin {
         this.getLogger().info("Disabled PlayerStats!");
     }
 
+    /**
+     * @return Adventure's BukkitAudiences object
+     * @throws IllegalStateException if PlayerStats is not enabled
+     */
     public static @NotNull BukkitAudiences getAdventure() throws IllegalStateException {
         if (adventure == null) {
             throw new IllegalStateException("Tried to access Adventure without PlayerStats being enabled!");
@@ -84,6 +92,10 @@ public final class Main extends JavaPlugin {
         return adventure;
     }
 
+    /**
+     * @return PlayerStats' ConfigHandler
+     * @throws IllegalStateException if PlayerStats is not enabled
+     */
     public static @NotNull ConfigHandler getConfigHandler() throws IllegalStateException {
         if (config == null) {
             throw new IllegalStateException("PlayerStats does not seem to be loaded!");
@@ -105,6 +117,10 @@ public final class Main extends JavaPlugin {
         return languageKeyHandler;
     }
 
+    /**
+     * Gets the EnumHandler. If there is no EnumHandler, one will be created.
+     * @return PlayerStat's EnumHandler
+     */
     public static @NotNull EnumHandler getEnumHandler() {
         if (enumHandler == null) {
             enumHandler = new EnumHandler();

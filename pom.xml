@@ -209,7 +209,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.4.1</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -218,6 +218,44 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <additionalOptions>-Xdoclint:none</additionalOptions>
+                    <failOnError>false</failOnError>
+                    <quiet>true</quiet>
+                    <show>protected</show>
+                    <groups>
+                        <group>
+                            <title>API</title>
+                            <packages>com.github.artemis.the.gr8.playerstats.api</packages>
+                        </group>
+                    </groups>
+                    <detectLinks>true</detectLinks>
+                    <dependencyLinks>
+                        <dependencyLink>
+                            <groupId>org.spigotmc</groupId>
+                            <artifactId>spigot-api</artifactId>
+                            <url>https://hub.spigotmc.org/javadocs/bukkit/</url>
+                        </dependencyLink>
+
+                        <dependencyLink>
+                            <groupId>net.kyori</groupId>
+                            <artifactId>adventure-api</artifactId>
+                            <url>https://jd.adventure.kyori.net/api/4.11.0/</url>
+                        </dependencyLink>
+
+                        <dependencyLink>
+                            <groupId>net.kyori</groupId>
+                            <artifactId>adventure-text-minimessage</artifactId>
+                            <url>https://jd.adventure.kyori.net/text-minimessage/4.11.0/</url>
+                        </dependencyLink>
+
+                        <dependencyLink>
+                            <groupId>net.kyori</groupId>
+                            <artifactId>adventure-platform-bukkit</artifactId>
+                            <url>https://jd.adventure.kyori.net/</url>
+                        </dependencyLink>
+                    </dependencyLinks>
+                </configuration>
             </plugin>
         </plugins>
     </build>

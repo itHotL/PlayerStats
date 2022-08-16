@@ -9,8 +9,9 @@ import org.bukkit.Statistic;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Formats messages meant for usage outside PlayerStats. For more information
- * about the default formatting PlayerStats uses, see the class description of
+ * Formats messages meant for usage outside PlayerStats.
+ * <p> For more information about the default formatting
+ * PlayerStats uses, see the class description of
  * StatResult.
 
  * @see StatResult

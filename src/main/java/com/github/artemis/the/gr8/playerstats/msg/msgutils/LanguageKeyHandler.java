@@ -11,6 +11,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.io.File;
 import java.util.Arrays;
@@ -28,6 +29,9 @@ public final class LanguageKeyHandler {
     private static File languageKeyFile;
     private static FileConfiguration languageKeys;
 
+    /**
+     * @param plugin an instance of PlayerStats' Main class
+     */
     public LanguageKeyHandler(Main plugin) {
         LanguageKeyHandler.plugin = plugin;
         statNameKeys = generateStatNameKeys();
@@ -42,6 +46,7 @@ public final class LanguageKeyHandler {
         languageKeys = YamlConfiguration.loadConfiguration(languageKeyFile);
     }
 
+    @Internal
     public static void reloadFile() {
         if (!languageKeyFile.exists()) {
             loadFile();
@@ -54,6 +59,9 @@ public final class LanguageKeyHandler {
     /**
      * Checks if a given Key is the language key "stat_type.minecraft.killed"
      * or "commands.kill.success.single" (which results in "Killed %s").
+     *
+     * @param statKey the Key to check
+     * @return true if this Key is key for kill-entity
      */
     public static boolean isKeyForKillEntity(String statKey) {
         return statKey.equalsIgnoreCase("stat_type.minecraft.killed") ||
@@ -72,6 +80,9 @@ public final class LanguageKeyHandler {
     /**
      * Checks if a given Key is the language key "stat_type.minecraft.killed_by"
      * or "stat.minecraft.deaths" (which results in "Number of Deaths").
+     *
+     * @param statKey the Key to check
+     * @return true if this Key is a key for entity-killed-by
      */
     public static boolean isKeyForEntityKilledBy(String statKey) {
         return statKey.equalsIgnoreCase("stat_type.minecraft.killed_by") ||
@@ -91,6 +102,9 @@ public final class LanguageKeyHandler {
     /**
      * Checks if a given Key is the language key "book.byAuthor"
      * (which results in "by %s").
+     *
+     * @param statKey the Key to Check
+     * @return true if this Key is the key for book.byAuthor
      */
     public static boolean isKeyForEntityKilledByArg(String statKey) {
         return statKey.equalsIgnoreCase("book.byAuthor");
@@ -106,6 +120,10 @@ public final class LanguageKeyHandler {
         return "book.byAuthor";
     }
 
+    /**
+     * @param key the String to turn into a normal name
+     * @return a pretty name
+     */
     public static String convertToName(String key) {
         if (key.equalsIgnoreCase("soundCategory.block")) {
             return Unit.BLOCK.getLabel();
@@ -154,6 +172,11 @@ public final class LanguageKeyHandler {
         return languageKeys.getString(realKey);
     }
 
+    /**
+     * @param statistic the Statistic to get the Key for
+     * @return the official Key from the NameSpacedKey for this Statistic,
+     * or return null if no enum constant can be retrieved.
+     */
     public String getStatKey(@NotNull Statistic statistic) {
         if (statistic.getType() == Statistic.Type.UNTYPED) {
             return "stat.minecraft." + statNameKeys.get(statistic);
@@ -164,8 +187,9 @@ public final class LanguageKeyHandler {
     }
 
     /**
-     * Get the official Key from the NameSpacedKey for this entityType,
-     * or return null if no enum constant can be retrieved or entityType is UNKNOWN.
+     * @param entity the EntityType to get the Key for
+     * @return the official Key from the NameSpacedKey for this EntityType,
+     * or return null if no enum constant can be retrieved or EntityType is UNKNOWN.
      */
     public @Nullable String getEntityKey(EntityType entity) {
         if (entity == null || entity == EntityType.UNKNOWN) return null;
@@ -175,7 +199,8 @@ public final class LanguageKeyHandler {
     }
 
     /**
-     * Get the official Key from the NameSpacedKey for this item Material,
+     * @param item the Material to get the Key for
+     * @return the official Key from the NameSpacedKey for this item Material,
      * or return null if no enum constant can be retrieved.
      */
     public @Nullable String getItemKey(Material item) {
@@ -189,7 +214,8 @@ public final class LanguageKeyHandler {
     }
 
     /**
-     * Returns the official Key from the NameSpacedKey for the block Material provided,
+     * @param block the Material to get the Key for
+     * @return the official Key from the NameSpacedKey for the block Material provided,
      * or return null if no enum constant can be retrieved.
      */
     public @Nullable String getBlockKey(Material block) {
@@ -204,6 +230,10 @@ public final class LanguageKeyHandler {
         }
     }
 
+    /**
+     * @param unit the Unit to get the Key for
+     * @return "soundCategory.block" for Unit.Block, null otherwise
+     */
     public @Nullable String getUnitKey(Unit unit) {
         if (unit == Unit.BLOCK) {
             return "soundCategory.block";

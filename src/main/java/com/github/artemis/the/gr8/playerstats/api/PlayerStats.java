@@ -5,8 +5,10 @@ import com.github.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-/** The outgoing API that you can use to access the core functionality of PlayerStats!
- * To work with the API, you need to call PlayerStats.{@link #getAPI()} to get an instance of
+/**
+ * The outgoing API that represents the core functionality of PlayerStats!
+ *
+ * <p> To work with it, you'll need to call PlayerStats.{@link #getAPI()} to get an instance of
  * {@link PlayerStatsAPI}. You can then use this object to access any of the further methods.
  * <br>
  * <br>Since calculating a top or server statistics can take some time, I strongly

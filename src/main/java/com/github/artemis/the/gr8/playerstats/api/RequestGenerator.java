@@ -7,7 +7,7 @@ import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
-/** Is responsible for creating an executable {@link StatRequest}. This Request holds all
+/** Creates an executable {@link StatRequest}. This Request holds all
  * the information PlayerStats needs to work with, and is used by the {@link StatCalculator}
  * to get the desired statistic data.*/
 public interface RequestGenerator<T> {
