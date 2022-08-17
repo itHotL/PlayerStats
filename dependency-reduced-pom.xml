@@ -1,9 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.gmail.artemis.the.gr8</groupId>
+  <groupId>io.github.ithotl</groupId>
   <artifactId>PlayerStats</artifactId>
-  <version>1.6.1</version>
+  <name>PlayerStats</name>
+  <version>1.7</version>
+  <description>Statistics Plugin</description>
+  <url>https://www.spigotmc.org/resources/playerstats.102347/</url>
+  <developers>
+    <developer>
+      <name>Artemis</name>
+      <email>artemis.the.gr8@gmail.com</email>
+      <url>https://github.com/Artemis-the-gr8</url>
+    </developer>
+  </developers>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+    </license>
+  </licenses>
+  <scm>
+    <connection>scm:git:git://github.com/itHotL/PlayerStats.git</connection>
+    <developerConnection>scm:git:git://github.com/itHotL/PlayerStats.git</developerConnection>
+    <url>https://github.com/itHotL/PlayerStats/tree/main</url>
+  </scm>
   <build>
     <plugins>
       <plugin>
@@ -28,7 +49,7 @@
         <configuration>
           <transformers>
             <transformer>
-              <mainClass>com.gmail.artemis.the.gr8.playerstats.Main</mainClass>
+              <mainClass>com.artemis.the.gr8.playerstats.Main</mainClass>
             </transformer>
           </transformers>
           <artifactSet>
@@ -39,15 +60,15 @@
           <relocations>
             <relocation>
               <pattern>net.kyori</pattern>
-              <shadedPattern>com.gmail.artemis.the.gr8.lib.kyori</shadedPattern>
+              <shadedPattern>com.artemis.the.gr8.lib.kyori</shadedPattern>
             </relocation>
             <relocation>
               <pattern>com.tchristofferson</pattern>
-              <shadedPattern>com.gmail.artemis.the.gr8.util.tchristofferson</shadedPattern>
+              <shadedPattern>com.artemis.the.gr8.util.tchristofferson</shadedPattern>
             </relocation>
             <relocation>
               <pattern>org.bstats</pattern>
-              <shadedPattern>com.gmail.artemis.the.gr8.util.bstats</shadedPattern>
+              <shadedPattern>com.artemis.the.gr8.util.bstats</shadedPattern>
             </relocation>
           </relocations>
           <filters>
@@ -91,6 +112,66 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>3.0.1</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.4.1</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <additionalOptions>-Xdoclint:none</additionalOptions>
+          <failOnError>false</failOnError>
+          <quiet>true</quiet>
+          <show>protected</show>
+          <groups>
+            <group>
+              <title>API</title>
+              <packages>com.artemis.the.gr8.playerstats.api</packages>
+            </group>
+          </groups>
+          <detectLinks>true</detectLinks>
+          <dependencyLinks>
+            <dependencyLink>
+              <groupId>org.spigotmc</groupId>
+              <artifactId>spigot-api</artifactId>
+              <url>https://hub.spigotmc.org/javadocs/bukkit/</url>
+            </dependencyLink>
+            <dependencyLink>
+              <groupId>net.kyori</groupId>
+              <artifactId>adventure-api</artifactId>
+              <url>https://jd.adventure.kyori.net/api/4.11.0/</url>
+            </dependencyLink>
+            <dependencyLink>
+              <groupId>net.kyori</groupId>
+              <artifactId>adventure-text-minimessage</artifactId>
+              <url>https://jd.adventure.kyori.net/text-minimessage/4.11.0/</url>
+            </dependencyLink>
+            <dependencyLink>
+              <groupId>net.kyori</groupId>
+              <artifactId>adventure-platform-bukkit</artifactId>
+              <url>https://jd.adventure.kyori.net/</url>
+            </dependencyLink>
+          </dependencyLinks>
+        </configuration>
       </plugin>
     </plugins>
   </build>
