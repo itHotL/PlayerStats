@@ -107,6 +107,7 @@
         <executions>
           <execution>
             <id>attach-sources</id>
+            <phase>deploy</phase>
             <goals>
               <goal>jar-no-fork</goal>
             </goals>
@@ -132,6 +133,7 @@
         <executions>
           <execution>
             <id>attach-javadocs</id>
+            <phase>deploy</phase>
             <goals>
               <goal>jar</goal>
             </goals>
@@ -173,6 +175,10 @@
           </dependencyLinks>
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>3.0.0</version>
+      </plugin>
     </plugins>
   </build>
   <repositories>
@@ -213,6 +219,16 @@
       <scope>compile</scope>
     </dependency>
   </dependencies>
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
   <properties>
     <maven.compiler.target>16</maven.compiler.target>
     <maven.compiler.source>16</maven.compiler.source>
