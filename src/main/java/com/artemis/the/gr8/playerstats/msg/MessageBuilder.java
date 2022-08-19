@@ -463,16 +463,22 @@ public final class MessageBuilder implements ApiFormatter {
     }
 
     private TextComponent getTopStatLineComponent(int positionInTopList, String playerName, TextComponent statNumberComponent) {
+        boolean useDots = config.useDots();
+        String fullPlayerName = useDots ? playerName : playerName + ":";
+
         TextComponent.Builder topStatLineBuilder = Component.text()
                 .append(space())
                 .append(componentFactory.rankNumber(positionInTopList))
                 .append(space())
-                .append(componentFactory.playerName(playerName, Target.TOP))
-                .append(space());
+                .append(componentFactory.playerName(fullPlayerName, Target.TOP));
 
-        int dots = getNumberOfDotsToAlign(positionInTopList + ". " + playerName);
-        if (dots >= 1) {
-            topStatLineBuilder.append(componentFactory.dots(".".repeat(dots)));
+        if (config.useDots()) {
+            int dots = getNumberOfDotsToAlign(positionInTopList + ". " + playerName);
+            if (dots >= 1) {
+                topStatLineBuilder
+                        .append(space())
+                        .append(componentFactory.dots(".".repeat(dots)));
+            }
         }
 
         return topStatLineBuilder
