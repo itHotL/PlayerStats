@@ -6,7 +6,7 @@
 
     <groupId>io.github.ithotl</groupId>
     <artifactId>PlayerStats</artifactId>
-    <version>1.7.2-SNAPSHOT</version>
+    <version>1.7.2</version>
 
     <name>PlayerStats</name>
     <description>Statistics Plugin</description>
@@ -228,7 +228,6 @@
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
-                        <phase>deploy</phase>
                         <goals>
                             <goal>jar</goal>
                         </goals>
