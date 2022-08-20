@@ -82,6 +82,16 @@ public interface ApiFormatter {
 
     /**
      * Gets a formatted message that displays the name of this Statistic as it is
+     * displayed by PlayerStats. If this Statistic is not of Type.Untyped,
+     * include the name of the relevant sub-statistic (block, item or entity).
+     *
+     * @param statistic the Statistic enum constant to display the name of
+     * @param unit the Unit to display
+     * @return [stat-name] [unit]
+     */
+    TextComponent getStatTitle(Statistic statistic, Unit unit);
+    /**
+     * Gets a formatted message that displays the name of this Statistic as it is
      * displayed by PlayerStats in a top-stat-message. If this Statistic is not
      * of Type.Untyped, include the name of the relevant sub-statistic
      * (block, item or entity).
@@ -93,6 +103,18 @@ public interface ApiFormatter {
      * @return Top [topStatSize] [stat-name] [sub-stat-name]
      */
     TextComponent getTopStatTitle(int topStatSize, Statistic statistic, @Nullable String subStatName);
+
+    /**
+     * Gets a formatted message that displays the name of this Statistic as it is
+     * displayed by PlayerStats in a top-stat-message, with the specified
+     * Unit in the name.
+     *
+     * @param topStatSize the size of the top-list this title is for
+     * @param statistic the Statistic enum constant for this message
+     * @param unit the Unit to display
+     * @return Top [topStatSize] [stat-name] [unit-name]
+     */
+    TextComponent getTopStatTitle(int topStatSize, Statistic statistic, Unit unit);
 
     /**
      * Formats the input into a single top-statistic line. The stat-number

@@ -4,7 +4,7 @@
   <groupId>io.github.ithotl</groupId>
   <artifactId>PlayerStats</artifactId>
   <name>PlayerStats</name>
-  <version>1.7.1</version>
+  <version>1.7.2-SNAPSHOT</version>
   <description>Statistics Plugin</description>
   <url>https://www.spigotmc.org/resources/playerstats.102347/</url>
   <developers>

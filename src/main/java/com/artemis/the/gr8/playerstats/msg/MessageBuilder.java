@@ -215,8 +215,18 @@ public final class MessageBuilder implements ApiFormatter {
     }
 
     @Override
+    public TextComponent getStatTitle(Statistic statistic, Unit unit) {
+        return getTopStatTitleComponent(0, statistic, null, unit);
+    }
+
+    @Override
     public TextComponent getTopStatTitle(int topListSize, Statistic statistic, @Nullable String subStatName) {
         return getTopStatTitleComponent(topListSize, statistic, subStatName, null);
+    }
+
+    @Override
+    public TextComponent getTopStatTitle(int topStatSize, Statistic statistic, Unit unit) {
+        return getTopStatTitleComponent(topStatSize, statistic, null, unit);
     }
 
     @Override
