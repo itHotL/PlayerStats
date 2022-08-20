@@ -6,7 +6,7 @@
 
     <groupId>io.github.ithotl</groupId>
     <artifactId>PlayerStats</artifactId>
-    <version>1.7.1</version>
+    <version>1.7.2-SNAPSHOT</version>
 
     <name>PlayerStats</name>
     <description>Statistics Plugin</description>
