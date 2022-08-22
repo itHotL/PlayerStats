@@ -30,6 +30,10 @@ public interface PlayerStats {
         return Main.getPlayerStatsAPI();
     }
 
+    default String getVersion() {
+        return "1.8";
+    }
+
     StatManager getStatManager();
 
     ApiFormatter getFormatter();
