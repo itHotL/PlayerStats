@@ -74,6 +74,35 @@ top-10 format or individually. Currently tested on all versions between **1.16.5
 
 &nbsp;
 
+## API Usage
+To import the PlayerStats API with Maven, add the following dependency and repository to your POM.xnl:
+
+```xml
+<repositories>
+    <repository>
+        <id>sonatype-oss-snapshots1</id> <!-- the OSSRH repository for snapshots -->
+        <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+     </repository>
+</repositories>
+ 
+<dependencies>
+    <dependency>
+        <groupId>io.github.ithotl</groupId>
+        <artifactId>PlayerStats</artifactId>
+        <version>1.7.2-SNAPSHOT</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
+```
+You can download the sources and Javadocs through your code editor, or visit the Javadocs [here](https://s01.oss.sonatype.org/service/local/repositories/snapshots/archive/io/github/ithotl/PlayerStats/1.7.2-SNAPSHOT/PlayerStats-1.7.2-20220820.193831-3-javadoc.jar/!/com/artemis/the/gr8/playerstats/api/PlayerStats.html).  
+To get an instance of the API, you can do the following:
+
+```java
+PlayerStats playerStats = PlayerStats.getAPI();
+```
+
+&nbsp;
+
 ## Author Info
 I am a relatively new programmer, and this is one of my first projects. I greatly enjoyed making it, 
 and I tried to make it as efficient as I could. If you have any questions, remarks, or suggestions, 
