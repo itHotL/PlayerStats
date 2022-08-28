@@ -30,6 +30,15 @@ public interface PlayerStats {
         return Main.getPlayerStatsAPI();
     }
 
+    /**
+     * Gets the current version of PlayerStatsAPI.
+     * Use this method to ensure the correct version of
+     * PlayerStats is running on the server before
+     * accessing further API methods, to prevent
+     * <code>ClassDefNotFoundExceptions</code>.
+     *
+     * @return the version of PlayerStatsAPI present on the server
+     */
     default String getVersion() {
         return "1.8";
     }
