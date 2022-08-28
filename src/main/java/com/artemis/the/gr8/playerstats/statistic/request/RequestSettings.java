@@ -54,7 +54,6 @@ public final class RequestSettings {
      * <br>- Target target = {@link Target#TOP}
      * <br>- int topListSize = 10
      * <br>- boolean playerFlag = false
-     * <br>- boolean isAPIRequest
      *
      * @param sender the CommandSender who prompted this RequestGenerator
      */
@@ -112,7 +111,7 @@ public final class RequestSettings {
         return playerFlag;
     }
 
-    public void setTarget(Target target) {
+    public void setTarget(@NotNull Target target) {
         this.target = target;
     }
 
