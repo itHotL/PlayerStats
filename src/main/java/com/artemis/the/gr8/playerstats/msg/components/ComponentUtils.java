@@ -31,7 +31,9 @@ public final class ComponentUtils {
                         return "";
                     }
                     else if (LanguageKeyHandler.isKeyForEntityKilledBy(trans.key()) ||
-                            LanguageKeyHandler.isKeyForKillEntity(trans.key())) {
+                            LanguageKeyHandler.isAlternativeKeyForEntityKilledBy(trans.key()) ||
+                            LanguageKeyHandler.isKeyForKillEntity(trans.key()) ||
+                            LanguageKeyHandler.isAlternativeKeyForKillEntity(trans.key())) {
 
                         TextComponent.Builder temp = Component.text();
                         trans.iterator(ComponentIteratorType.DEPTH_FIRST, ComponentIteratorFlag.INCLUDE_TRANSLATABLE_COMPONENT_ARGUMENTS)

@@ -61,19 +61,27 @@ public final class LanguageKeyHandler {
     }
 
     /**
-     * Checks if a given Key is the language key "stat_type.minecraft.killed"
-     * or "commands.kill.success.single" (which results in "Killed %s").
+     * Checks if a given Key is the language key "stat_type.minecraft.killed".
      *
      * @param statKey the Key to check
      * @return true if this Key is key for kill-entity
      */
     public static boolean isKeyForKillEntity(String statKey) {
-        return statKey.equalsIgnoreCase("stat_type.minecraft.killed") ||
-                statKey.equalsIgnoreCase("commands.kill.success.single");
+        return statKey.equalsIgnoreCase("stat_type.minecraft.killed");
     }
 
     /**
-     * Returns a language key to replace the default Statistic.Kill_Entity key.
+     * Checks if a given Key is the language key for "commands.kill.success.single",
+     * which results in "Killed %s".
+     * @param statKey the Key to check
+     * @return true if this Key is key for commands.kill.success.single
+     */
+    public static boolean isAlternativeKeyForKillEntity(String statKey) {
+        return statKey.equalsIgnoreCase("commands.kill.success.single");
+    }
+
+    /**
+     * Returns a language key to replace the default "stat_type.minecraft.killed" key.
      *
      * @return the key "commands.kill.success.single", which results in "Killed %s"
      */
@@ -82,19 +90,26 @@ public final class LanguageKeyHandler {
     }
 
     /**
-     * Checks if a given Key is the language key "stat_type.minecraft.killed_by"
-     * or "stat.minecraft.deaths" (which results in "Number of Deaths").
+     * Checks if a given Key is the language key "stat_type.minecraft.killed_by".
      *
      * @param statKey the Key to check
      * @return true if this Key is a key for entity-killed-by
      */
     public static boolean isKeyForEntityKilledBy(String statKey) {
-        return statKey.equalsIgnoreCase("stat_type.minecraft.killed_by") ||
-                statKey.equalsIgnoreCase("stat.minecraft.deaths");
+        return statKey.equalsIgnoreCase("stat_type.minecraft.killed_by");
     }
 
     /**
-     * Returns a language key to replace the default Statistic.Entity_Killed_By key.
+     * Checks if a given Key is the language key "stat.minecraft.deaths".
+     * @param statKey the Key to check
+     * @return true if this Key is key for stat.minecraft.deaths
+     */
+    public static boolean isAlternativeKeyForEntityKilledBy(String statKey) {
+        return statKey.equalsIgnoreCase("stat.minecraft.deaths");
+    }
+
+    /**
+     * Returns a language key to replace the default stat_type.minecraft.killed_by key.
      *
      * @return the key "stat.minecraft.deaths", which results in "Number of Deaths"
      * (meant to be followed by {@link #getAlternativeKeyForEntityKilledByArg()})
@@ -135,8 +150,8 @@ public final class LanguageKeyHandler {
             return "times_killed";
         } else if (isKeyForEntityKilledBy(key)) {
             return "number_of_times_killed_by";
-        } else if (isKeyForEntityKilledByArg(key)) {  //this one returns nothing, because the previous one returns the full text
-            return "";
+        } else if (isKeyForEntityKilledByArg(key)) {  //this one returns nothing, because it's an extra key I added
+            return "";                                //to make the TranslatableComponent work
         }
         String toReplace = "";
         if (key.contains("stat")) {
@@ -145,8 +160,8 @@ public final class LanguageKeyHandler {
             } else {
                 toReplace = "stat";
             }
-        } else if (key.contains("entity")) { //for the two entity-related ones, put brackets around it to make up for the multiple-keys/args-serializer issues
-            toReplace = "entity";
+        } else if (key.contains("entity")) { //for the two entity-related ones, put brackets around it to
+            toReplace = "entity";            //make up for the multiple-keys/args-serializer issues
         } else if (key.contains("block")) {
             toReplace = "block";
         } else if (key.contains("item")) {

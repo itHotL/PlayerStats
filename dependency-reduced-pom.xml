@@ -4,7 +4,7 @@
   <groupId>io.github.ithotl</groupId>
   <artifactId>PlayerStats</artifactId>
   <name>PlayerStats</name>
-  <version>1.7.2</version>
+  <version>1.8</version>
   <description>Statistics Plugin</description>
   <url>https://www.spigotmc.org/resources/playerstats.102347/</url>
   <developers>
@@ -120,7 +120,7 @@
         <executions>
           <execution>
             <id>sign-artifacts</id>
-            <phase>verify</phase>
+            <phase>deploy</phase>
             <goals>
               <goal>sign</goal>
             </goals>
