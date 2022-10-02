@@ -1,10 +1,10 @@
 package com.artemis.the.gr8.playerstats.reload;
 
+import com.artemis.the.gr8.playerstats.Main;
 import com.artemis.the.gr8.playerstats.ShareManager;
 import com.artemis.the.gr8.playerstats.ThreadManager;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import com.artemis.the.gr8.playerstats.statistic.StatCalculator;
 import com.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
@@ -69,7 +69,7 @@ public final class ReloadThread extends Thread {
             }
         }
 
-        if (reloadThreadID != 1 && config.reloadConfig()) {  //during a reload
+        if (reloadThreadID != 1) {  //during a reload
             MyLogger.logLowLevelMsg("Reloading!");
             reloadEverything();
 
@@ -85,8 +85,10 @@ public final class ReloadThread extends Thread {
     }
 
     private void reloadEverything() {
+        config.reload();
         MyLogger.setDebugLevel(config.getDebugLevel());
-        LanguageKeyHandler.reloadFile();
+        Main.getLanguageKeyHandler().reload();
+        Main.getOfflinePlayerHandler().reload();
         OutputManager.updateMessageBuilders();
         OfflinePlayerHandler.updateOfflinePlayerList(loadOfflinePlayers());
         ShareManager.updateSettings(config);

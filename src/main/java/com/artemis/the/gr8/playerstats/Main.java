@@ -32,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class Main extends JavaPlugin {
 
-    private static Main instance;
+    private static JavaPlugin pluginInstance;
     private static BukkitAudiences adventure;
 
     private static ConfigHandler config;
@@ -82,6 +82,18 @@ public final class Main extends JavaPlugin {
     }
 
     /**
+     *
+     * @return the JavaPlugin instance associated with PlayerStats
+     * @throws IllegalStateException if PlayerStats is not enabled
+     */
+    public static @NotNull JavaPlugin getPluginInstance() throws IllegalStateException {
+        if (pluginInstance == null) {
+            throw new IllegalStateException("PlayerStats is not loaded!");
+        }
+        return pluginInstance;
+    }
+
+    /**
      * @return Adventure's BukkitAudiences object
      * @throws IllegalStateException if PlayerStats is not enabled
      */
@@ -112,7 +124,7 @@ public final class Main extends JavaPlugin {
 
     public static @NotNull LanguageKeyHandler getLanguageKeyHandler() {
         if (languageKeyHandler == null) {
-            languageKeyHandler = new LanguageKeyHandler(instance);
+            languageKeyHandler = new LanguageKeyHandler();
         }
         return languageKeyHandler;
     }
@@ -150,12 +162,12 @@ public final class Main extends JavaPlugin {
     }
 
     private void initializeMainClasses() {
-        instance = this;
+        pluginInstance = this;
         adventure = BukkitAudiences.create(this);
 
-        config = new ConfigHandler(this);
+        config = new ConfigHandler();
         enumHandler = new EnumHandler();
-        languageKeyHandler = new LanguageKeyHandler(instance);
+        languageKeyHandler = new LanguageKeyHandler();
         offlinePlayerHandler = new OfflinePlayerHandler();
 
         shareManager = new ShareManager(config);
@@ -171,7 +183,7 @@ public final class Main extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                final Metrics metrics = new Metrics(instance, 15923);
+                final Metrics metrics = new Metrics(pluginInstance, 15923);
                 final boolean placeholderExpansionActive;
                 if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
                     PlaceholderExpansion expansion = PlaceholderAPIPlugin

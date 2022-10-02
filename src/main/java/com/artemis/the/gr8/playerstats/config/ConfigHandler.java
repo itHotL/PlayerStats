@@ -1,39 +1,39 @@
 package com.artemis.the.gr8.playerstats.config;
 
-import com.artemis.the.gr8.playerstats.Main;
 import com.artemis.the.gr8.playerstats.enums.Target;
 import com.artemis.the.gr8.playerstats.enums.Unit;
+import com.artemis.the.gr8.playerstats.utils.FileHandler;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
+import java.util.Map;
 
 /** Handles all PlayerStats' config-settings. */
-public final class ConfigHandler {
+public final class ConfigHandler extends FileHandler {
 
-    private static Main plugin;
-    private static int configVersion;
-
-    private File configFile;
+    private final int configVersion;
     private FileConfiguration config;
 
-    public ConfigHandler(Main plugin) {
-        ConfigHandler.plugin = plugin;
+    public ConfigHandler() {
+        super("config.yml");
+        config = super.getFileConfiguration();
+
         configVersion = 6;
-
-        saveDefaultConfig();
-        config = YamlConfiguration.loadConfiguration(configFile);
-        checkConfigVersion();
-
+        checkAndUpdateConfigVersion();
         MyLogger.setDebugLevel(getDebugLevel());
+    }
+
+    @Override
+    public void reload() {
+        super.reload();
+        config = super.getFileConfiguration();
     }
 
     /**
      * Checks the number that "config-version" returns to see if the
-     * config needs updating, and if so, send it to the {@link ConfigUpdateHandler}.
+     * config needs updating, and if so, updates it.
      * <br>
      * <br>PlayerStats 1.1: "config-version" doesn't exist.
      * <br>PlayerStats 1.2: "config-version" is 2.
@@ -42,41 +42,18 @@ public final class ConfigHandler {
      * <br>PlayerStats 1.5: "config-version" is 5.
      * <br>PlayerStats 1.6 and up: "config-version" is 6.
      */
-    private void checkConfigVersion() {
+    private void checkAndUpdateConfigVersion() {
         if (!config.contains("config-version") || config.getInt("config-version") != configVersion) {
-            new ConfigUpdateHandler(plugin, configFile, configVersion);
-            reloadConfig();
-        }
-    }
+            DefaultValueGetter defaultValueGetter = new DefaultValueGetter(config);
+            Map<String, Object> defaultValues = defaultValueGetter.getValuesToAdjust();
+            defaultValues.put("config-version", configVersion);
 
-    /**
-     * Create a config file if none exists yet
-     * (from the config.yml in the plugin's resources).
-     */
-    private void saveDefaultConfig() {
-        config = plugin.getConfig();
-        plugin.saveDefaultConfig();
-        configFile = new File(plugin.getDataFolder(), "config.yml");
-    }
+            super.addValues(defaultValues);
+            super.updateFile();
+            reload();
 
-    /**
-     * Reloads the config from file, or creates a new file with default values
-     * if there is none. Also reads the value for debug-level and passes it
-     * on to {@link MyLogger}.
-     *
-     * @return true if the config has been reloaded from disk, false if it failed
-     */
-    public boolean reloadConfig() {
-        if (!configFile.exists()) {
-            saveDefaultConfig();
-        }
-        try {
-            config = YamlConfiguration.loadConfiguration(configFile);
-            return true;
-        }
-        catch (IllegalArgumentException e) {
-            MyLogger.logException(e, "ConfigHandler", "reloadConfig");
-            return false;
+            MyLogger.logLowLevelMsg("Your config has been updated to version " + configVersion +
+                    ", but all of your custom settings should still be there!");
         }
     }
 

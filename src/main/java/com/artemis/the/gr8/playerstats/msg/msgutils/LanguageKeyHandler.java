@@ -1,19 +1,14 @@
 package com.artemis.the.gr8.playerstats.msg.msgutils;
 
-import com.artemis.the.gr8.playerstats.Main;
 import com.artemis.the.gr8.playerstats.utils.EnumHandler;
-import com.artemis.the.gr8.playerstats.utils.MyLogger;
+import com.artemis.the.gr8.playerstats.utils.FileHandler;
 import com.artemis.the.gr8.playerstats.enums.Unit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.ApiStatus.Internal;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -22,42 +17,18 @@ import java.util.HashMap;
  * A utility class that provides language keys to be
  * put in a TranslatableComponent.
  */
-public final class LanguageKeyHandler {
+public final class LanguageKeyHandler extends FileHandler {
 
-    private static Main plugin;
     private static HashMap<Statistic, String> statNameKeys;
-    private static File languageKeyFile;
-    private static FileConfiguration languageKeys;
 
     /**
-     * Since this class uses a file to get the English translations
-     * of languageKeys, it needs an instance of the PlayerStats
+     * This class uses a file to get the English translations
+     * of languageKeys, and uses an instance of the PlayerStats
      * plugin to get access to this file.
-     *
-     * @param plugin an instance of PlayerStats' Main class
      */
-    public LanguageKeyHandler(Main plugin) {
-        LanguageKeyHandler.plugin = plugin;
+    public LanguageKeyHandler() {
+        super("language.yml");
         statNameKeys = generateStatNameKeys();
-        loadFile();
-    }
-
-    private static void loadFile() {
-        languageKeyFile = new File(plugin.getDataFolder(), "language.yml");
-        if (!languageKeyFile.exists()) {
-            plugin.saveResource("language.yml", false);
-        }
-        languageKeys = YamlConfiguration.loadConfiguration(languageKeyFile);
-    }
-
-    @Internal
-    public static void reloadFile() {
-        if (!languageKeyFile.exists()) {
-            loadFile();
-        } else {
-            languageKeys = YamlConfiguration.loadConfiguration(languageKeyFile);
-            MyLogger.logLowLevelMsg("Language file reloaded!");
-        }
     }
 
     /**
@@ -183,12 +154,12 @@ public final class LanguageKeyHandler {
         }
     }
 
-    public static String getStatKeyTranslation(String statKey) {
+    public String getStatKeyTranslation(String statKey) {
         String realKey = convertToNormalStatKey(statKey);
         if (realKey == null) {
             return "";
         }
-        return languageKeys.getString(realKey);
+        return super.getFileConfiguration().getString(statKey);
     }
 
     /**

@@ -12,14 +12,21 @@ import java.util.concurrent.ConcurrentHashMap;
  * calculations, and can retrieve the corresponding OfflinePlayer
  * object for a given player-name.
  */
-public final class OfflinePlayerHandler {
+public final class OfflinePlayerHandler extends FileHandler {
 
     private static ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
     private static ArrayList<String> playerNames;
 
     public OfflinePlayerHandler() {
+        super("excluded_players.yml");
         offlinePlayerUUIDs = new ConcurrentHashMap<>();
         playerNames = new ArrayList<>();
+    }
+
+    @Override
+    public void reload() {
+        super.reload();
+
     }
 
     /**

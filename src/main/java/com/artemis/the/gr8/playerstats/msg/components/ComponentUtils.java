@@ -1,5 +1,6 @@
 package com.artemis.the.gr8.playerstats.msg.components;
 
+import com.artemis.the.gr8.playerstats.Main;
 import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import com.artemis.the.gr8.playerstats.msg.msgutils.StringUtils;
 import net.kyori.adventure.text.*;
@@ -61,14 +62,14 @@ public final class ComponentUtils {
                                         }
                                         else if (!LanguageKeyHandler.isKeyForEntityKilledByArg(translatable.key())) {
                                             totalPrettyName.append(
-                                                    LanguageKeyHandler.getStatKeyTranslation(
+                                                    Main.getLanguageKeyHandler().getStatKeyTranslation(
                                                             translatable.key()));
                                         }
                                     }
                                 });
                     }
                     else if (trans.key().startsWith("stat")) {
-                        return LanguageKeyHandler.getStatKeyTranslation(trans.key());
+                        return Main.getLanguageKeyHandler().getStatKeyTranslation(trans.key());
                     }
                     else {
                         return StringUtils.prettify(LanguageKeyHandler.convertToName(trans.key()));
