@@ -168,7 +168,7 @@ public final class Main extends JavaPlugin {
         config = new ConfigHandler();
         enumHandler = new EnumHandler();
         languageKeyHandler = new LanguageKeyHandler();
-        offlinePlayerHandler = new OfflinePlayerHandler();
+        offlinePlayerHandler = new OfflinePlayerHandler(config);
 
         shareManager = new ShareManager(config);
         statCalculator = new StatCalculator(offlinePlayerHandler);

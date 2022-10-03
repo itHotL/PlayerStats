@@ -53,9 +53,19 @@ public final class MyLogger {
         logger.info(content);
     }
 
+    public static void logLowLevelTask(String taskName, long startTime) {
+        printTime(taskName, startTime);
+    }
+
     public static void logMediumLevelMsg(String content) {
         if (debugLevel != DebugLevel.LOW) {
             logger.info(content);
+        }
+    }
+
+    public static void logMediumLevelTask(String taskName, long startTime) {
+        if (debugLevel != DebugLevel.LOW) {
+            printTime(taskName, startTime);
         }
     }
 
@@ -146,24 +156,13 @@ public final class MyLogger {
         }
     }
 
-    public static void logMediumLevelTask(String className, String methodName, long startTime) {
-        if (debugLevel != DebugLevel.LOW) {
-            printTime(className, methodName, startTime);
-        }
-    }
-
-    public static void logLowLevelTask(String className, String methodName, long startTime) {
-        printTime(className, methodName, startTime);
-    }
-
     /**
      * Output to console how long a certain task has taken.
      *
-     * @param className Name of the class executing the task
-     * @param methodName Name or description of the task
+     * @param taskName name of the task that has been executed
      * @param startTime Timestamp marking the beginning of the task
      */
-    private static void printTime(String className, String methodName, long startTime) {
-        logger.info(className + " " + methodName + ": " + (System.currentTimeMillis() - startTime) + "ms");
+    private static void printTime(String taskName, long startTime) {
+        logger.info(taskName + " (" + (System.currentTimeMillis() - startTime) + "ms)");
     }
 }

@@ -67,7 +67,7 @@ public final class StatCalculator {
 
         MyLogger.actionFinished();
         ThreadManager.recordCalcTime(System.currentTimeMillis() - time);
-        MyLogger.logMediumLevelTask("StatThread", "calculated all stats", time);
+        MyLogger.logMediumLevelTask("Calculated all stats", time);
 
         return allStats;
     }

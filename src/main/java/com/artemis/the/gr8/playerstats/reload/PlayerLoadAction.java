@@ -13,7 +13,7 @@ import java.util.concurrent.RecursiveAction;
 /**
  * The action that is executed when a reload-command is triggered.
  */
-final class ReloadAction extends RecursiveAction {
+public final class PlayerLoadAction extends RecursiveAction {
 
     private static int threshold;
 
@@ -33,14 +33,14 @@ final class ReloadAction extends RecursiveAction {
      * @param offlinePlayerUUIDs the ConcurrentHashMap to put playerNames and UUIDs in
      * @see OfflinePlayerHandler
      */
-    public ReloadAction(OfflinePlayer[] players,
-                        int lastPlayedLimit, ConcurrentHashMap<String, UUID> offlinePlayerUUIDs) {
+    public PlayerLoadAction(OfflinePlayer[] players,
+                            int lastPlayedLimit, ConcurrentHashMap<String, UUID> offlinePlayerUUIDs) {
 
        this(players, 0, players.length, lastPlayedLimit, offlinePlayerUUIDs);
     }
 
-    private ReloadAction(OfflinePlayer[] players, int start, int end,
-                           int lastPlayedLimit, ConcurrentHashMap<String, UUID> offlinePlayerUUIDs) {
+    private PlayerLoadAction(OfflinePlayer[] players, int start, int end,
+                             int lastPlayedLimit, ConcurrentHashMap<String, UUID> offlinePlayerUUIDs) {
         threshold = ThreadManager.getTaskThreshold();
 
         this.players = players;
@@ -61,9 +61,9 @@ final class ReloadAction extends RecursiveAction {
         }
         else {
             final int split = length / 2;
-            final ReloadAction subTask1 = new ReloadAction(players, start, (start + split),
+            final PlayerLoadAction subTask1 = new PlayerLoadAction(players, start, (start + split),
                     lastPlayedLimit, offlinePlayerUUIDs);
-            final ReloadAction subTask2 = new ReloadAction(players, (start + split), end,
+            final PlayerLoadAction subTask2 = new PlayerLoadAction(players, (start + split), end,
                     lastPlayedLimit, offlinePlayerUUIDs);
 
             //queue and compute all subtasks in the right order

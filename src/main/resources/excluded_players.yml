@@ -4,7 +4,7 @@
 
 # Players whose UUIDs are stored in this file, will not be included in /statistic results.
 # This can be used for more fine-grained filtering, for example to exclude alt accounts.
-# For more general filtering settings, see the config.yml
+# For more general filtering settings, see the config.yml (section 'General')
 
 excluded:
   -

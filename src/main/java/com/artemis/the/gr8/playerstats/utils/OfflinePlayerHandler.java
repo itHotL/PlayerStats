@@ -1,10 +1,15 @@
 package com.artemis.the.gr8.playerstats.utils;
 
+import com.artemis.the.gr8.playerstats.config.ConfigHandler;
+import com.artemis.the.gr8.playerstats.reload.PlayerLoadAction;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.function.Predicate;
 
 /**
  * A utility class that deals with OfflinePlayers. It stores a list
@@ -14,30 +19,20 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class OfflinePlayerHandler extends FileHandler {
 
-    private static ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
-    private static ArrayList<String> playerNames;
+    private static ConfigHandler config;
+    private ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
+    private ArrayList<String> playerNames;
 
-    public OfflinePlayerHandler() {
+    public OfflinePlayerHandler(ConfigHandler configHandler) {
         super("excluded_players.yml");
-        offlinePlayerUUIDs = new ConcurrentHashMap<>();
-        playerNames = new ArrayList<>();
+        config = configHandler;
+        loadOfflinePlayers();
     }
 
     @Override
     public void reload() {
         super.reload();
-
-    }
-
-    /**
-     * Get a new HashMap that stores the players to include in stat calculations.
-     * This HashMap is stored as a private variable in OfflinePlayerHandler.
-     *
-     * @param playerList ConcurrentHashMap with keys: playerNames and values: UUIDs
-     */
-    public static void updateOfflinePlayerList(ConcurrentHashMap<String, UUID> playerList) {
-        offlinePlayerUUIDs = playerList;
-        playerNames = Collections.list(offlinePlayerUUIDs.keys());
+        loadOfflinePlayers();
     }
 
     /**
@@ -90,5 +85,52 @@ public final class OfflinePlayerHandler extends FileHandler {
                     "or if any of your config settings exclude them");
             throw new IllegalArgumentException("Cannot convert this player-name into a valid Player to calculate statistics for");
         }
+    }
+
+    private void loadOfflinePlayers() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            long time = System.currentTimeMillis();
+
+            OfflinePlayer[] offlinePlayers;
+            if (config.whitelistOnly()) {
+                offlinePlayers = getWhitelistedPlayers();
+            }
+            else if (config.excludeBanned()) {
+                offlinePlayers = getNonBannedPlayers();
+            }
+            else {
+                offlinePlayers = Bukkit.getOfflinePlayers();
+            }
+
+            int size = offlinePlayerUUIDs != null ? offlinePlayerUUIDs.size() : 16;
+            offlinePlayerUUIDs = new ConcurrentHashMap<>(size);
+
+            PlayerLoadAction task = new PlayerLoadAction(offlinePlayers, config.getLastPlayedLimit(), offlinePlayerUUIDs);
+            MyLogger.actionCreated(offlinePlayers != null ? offlinePlayers.length : 0);
+            ForkJoinPool.commonPool().invoke(task);
+            MyLogger.actionFinished();
+
+            playerNames = Collections.list(offlinePlayerUUIDs.keys());
+            MyLogger.logLowLevelTask(("Loaded " + offlinePlayerUUIDs.size() + " offline players"), time);
+        });
+    }
+
+    private OfflinePlayer[] getWhitelistedPlayers() {
+        return Bukkit.getWhitelistedPlayers().toArray(OfflinePlayer[]::new);
+    }
+
+    private OfflinePlayer[] getNonBannedPlayers() {
+        if (Bukkit.getPluginManager().isPluginEnabled("LiteBans")) {
+            return Arrays.stream(Bukkit.getOfflinePlayers())
+                    .parallel()
+                    .filter(Predicate.not(OfflinePlayer::isBanned))
+                    .toArray(OfflinePlayer[]::new);
+        }
+
+        Set<OfflinePlayer> banList = Bukkit.getBannedPlayers();
+        return Arrays.stream(Bukkit.getOfflinePlayers())
+                .parallel()
+                .filter(Predicate.not(banList::contains))
+                .toArray(OfflinePlayer[]::new);
     }
 }

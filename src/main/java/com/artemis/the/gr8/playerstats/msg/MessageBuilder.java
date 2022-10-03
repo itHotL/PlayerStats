@@ -512,6 +512,7 @@ public final class MessageBuilder implements ApiFormatter {
             return componentFactory.statAndSubStatNameTranslatable(statKey, subStatKey, target);
         }
 
+        //TODO turn key into custom input from file
         String prettyStatName = StringUtils.prettify(statistic.toString());
         String prettySubStatName = StringUtils.prettify(subStatName);
         return componentFactory.statAndSubStatName(prettyStatName, prettySubStatName, target);

@@ -45,8 +45,6 @@ public final class ThreadManager {
         statThreadID = 0;
         reloadThreadID = 0;
         lastRecordedCalcTime = 0;
-
-        startReloadThread(null);
     }
 
     public static int getTaskThreshold() {
