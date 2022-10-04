@@ -225,10 +225,10 @@ public class ComponentFactory {
                 getStyleFromString(config.getStatNameDecoration(target, true)));
 
         TextComponent subStat = subStatNameTranslatable(subStatKey, target);
-        if (LanguageKeyHandler.isKeyForKillEntity(statKey)) {
+        if (LanguageKeyHandler.isNormalKeyForKillEntity(statKey)) {
             return totalStatNameBuilder.append(killEntityBuilder(subStat)).build();
         }
-        else if (LanguageKeyHandler.isKeyForEntityKilledBy(statKey)) {
+        else if (LanguageKeyHandler.isNormalKeyForEntityKilledBy(statKey)) {
             return totalStatNameBuilder.append(entityKilledByBuilder(subStat)).build();
         }
         else {
@@ -370,7 +370,7 @@ public class ComponentFactory {
      */
     private TranslatableComponent.Builder killEntityBuilder(@NotNull TextComponent subStat) {
         return translatable()
-                .key(LanguageKeyHandler.getAlternativeKeyForKillEntity())  //"Killed %s"
+                .key(LanguageKeyHandler.getCustomKeyForKillEntity())  //"Killed %s"
                 .args(subStat);
     }
 
@@ -384,10 +384,10 @@ public class ComponentFactory {
      */
     private TranslatableComponent.Builder entityKilledByBuilder(@NotNull TextComponent subStat) {
         return translatable()
-                .key(LanguageKeyHandler.getAlternativeKeyForEntityKilledBy())  //"Number of Deaths"
+                .key(LanguageKeyHandler.getCustomKeyForEntityKilledBy())  //"Number of Deaths"
                 .append(space())
                 .append(translatable()
-                        .key(LanguageKeyHandler.getAlternativeKeyForEntityKilledByArg()) //"by %s"
+                        .key(LanguageKeyHandler.getCustomKeyForEntityKilledByArg()) //"by %s"
                         .args(subStat));
     }
 

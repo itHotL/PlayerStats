@@ -2,10 +2,11 @@ package com.artemis.the.gr8.playerstats.msg.components;
 
 import com.artemis.the.gr8.playerstats.Main;
 import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
-import com.artemis.the.gr8.playerstats.msg.msgutils.StringUtils;
 import net.kyori.adventure.text.*;
 import net.kyori.adventure.text.flattener.ComponentFlattener;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A small utility class for turning PlayerStats' custom Components into String.
@@ -22,19 +23,20 @@ public final class ComponentUtils {
      * @return the Serializer
      * @see LanguageKeyHandler
      */
-    public static LegacyComponentSerializer getTranslatableComponentSerializer() {
+    public static @NotNull LegacyComponentSerializer getTranslatableComponentSerializer() {
+        LanguageKeyHandler languageKeyHandler = Main.getLanguageKeyHandler();
         LegacyComponentSerializer serializer = getTextComponentSerializer();
 
         ComponentFlattener flattener = ComponentFlattener.basic().toBuilder()
                 .mapper(TranslatableComponent.class, trans -> {
                     StringBuilder totalPrettyName = new StringBuilder();
-                    if (LanguageKeyHandler.isKeyForEntityKilledByArg(trans.key())) {
+                    if (LanguageKeyHandler.isCustomKeyForEntityKilledByArg(trans.key())) {
                         return "";
                     }
-                    else if (LanguageKeyHandler.isKeyForEntityKilledBy(trans.key()) ||
-                            LanguageKeyHandler.isAlternativeKeyForEntityKilledBy(trans.key()) ||
-                            LanguageKeyHandler.isKeyForKillEntity(trans.key()) ||
-                            LanguageKeyHandler.isAlternativeKeyForKillEntity(trans.key())) {
+                    else if (LanguageKeyHandler.isNormalKeyForEntityKilledBy(trans.key()) ||
+                            LanguageKeyHandler.isCustomKeyForEntityKilledBy(trans.key()) ||
+                            LanguageKeyHandler.isNormalKeyForKillEntity(trans.key()) ||
+                            LanguageKeyHandler.isCustomKeyForKillEntity(trans.key())) {
 
                         TextComponent.Builder temp = Component.text();
                         trans.iterator(ComponentIteratorType.DEPTH_FIRST, ComponentIteratorFlag.INCLUDE_TRANSLATABLE_COMPONENT_ARGUMENTS)
@@ -51,28 +53,25 @@ public final class ComponentUtils {
                                     }
                                     //isolate the translatable component with the entity inside
                                     else if (component instanceof TranslatableComponent translatable) {
-                                        if (translatable.key().contains("entity.")) {
+                                        if (LanguageKeyHandler.isEntityKey(translatable.key())) {
                                             temp.append(Component.space())
                                                     .append(Component.text("(")
                                                             .append(Component.text(
-                                                                    StringUtils.prettify(LanguageKeyHandler.convertToName(translatable.key()))))
+                                                                    languageKeyHandler.convertLanguageKeyToDisplayName(translatable.key())))
                                                             .append(Component.text(")")));
                                             totalPrettyName.append(
                                                     serializer.serialize(temp.build()));
                                         }
-                                        else if (!LanguageKeyHandler.isKeyForEntityKilledByArg(translatable.key())) {
+                                        else if (!LanguageKeyHandler.isCustomKeyForEntityKilledByArg(translatable.key())) {
                                             totalPrettyName.append(
-                                                    Main.getLanguageKeyHandler().getStatKeyTranslation(
+                                                    languageKeyHandler.convertLanguageKeyToDisplayName(
                                                             translatable.key()));
                                         }
                                     }
                                 });
                     }
-                    else if (trans.key().startsWith("stat")) {
-                        return Main.getLanguageKeyHandler().getStatKeyTranslation(trans.key());
-                    }
                     else {
-                        return StringUtils.prettify(LanguageKeyHandler.convertToName(trans.key()));
+                        return languageKeyHandler.convertLanguageKeyToDisplayName(trans.key());
                     }
                     return totalPrettyName.toString();
                 })
@@ -81,7 +80,8 @@ public final class ComponentUtils {
         return serializer.toBuilder().flattener(flattener).build();
     }
 
-    private static LegacyComponentSerializer getTextComponentSerializer() {
+    @Contract(" -> new")
+    private static @NotNull LegacyComponentSerializer getTextComponentSerializer() {
         return LegacyComponentSerializer
                 .builder()
                 .hexColors()

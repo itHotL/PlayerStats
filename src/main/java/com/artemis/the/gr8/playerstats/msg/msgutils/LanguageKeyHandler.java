@@ -6,11 +6,14 @@ import com.artemis.the.gr8.playerstats.enums.Unit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -19,7 +22,8 @@ import java.util.HashMap;
  */
 public final class LanguageKeyHandler extends FileHandler {
 
-    private static HashMap<Statistic, String> statNameKeys;
+    private static HashMap<Statistic, String> statisticKeys;
+    private final Pattern subStatKey;
 
     /**
      * This class uses a file to get the English translations
@@ -28,7 +32,18 @@ public final class LanguageKeyHandler extends FileHandler {
      */
     public LanguageKeyHandler() {
         super("language.yml");
-        statNameKeys = generateStatNameKeys();
+        statisticKeys = generateStatisticKeys();
+        subStatKey = Pattern.compile("(item|entity|block)\\.minecraft\\.");
+    }
+
+    @Contract(pure = true)
+    public @NotNull String getKeyForBlockUnit() {
+        return "soundCategory.block";
+    }
+
+    @Contract(pure = true)
+    public static boolean isEntityKey(@NotNull String key) {
+        return key.contains("entity.minecraft");
     }
 
     /**
@@ -37,7 +52,8 @@ public final class LanguageKeyHandler extends FileHandler {
      * @param statKey the Key to check
      * @return true if this Key is key for kill-entity
      */
-    public static boolean isKeyForKillEntity(String statKey) {
+    @Contract(pure = true)
+    public static boolean isNormalKeyForKillEntity(@NotNull String statKey) {
         return statKey.equalsIgnoreCase("stat_type.minecraft.killed");
     }
 
@@ -47,7 +63,8 @@ public final class LanguageKeyHandler extends FileHandler {
      * @param statKey the Key to check
      * @return true if this Key is key for commands.kill.success.single
      */
-    public static boolean isAlternativeKeyForKillEntity(String statKey) {
+    @Contract(pure = true)
+    public static boolean isCustomKeyForKillEntity(@NotNull String statKey) {
         return statKey.equalsIgnoreCase("commands.kill.success.single");
     }
 
@@ -56,7 +73,8 @@ public final class LanguageKeyHandler extends FileHandler {
      *
      * @return the key "commands.kill.success.single", which results in "Killed %s"
      */
-    public static String getAlternativeKeyForKillEntity() {
+    @Contract(pure = true)
+    public static @NotNull String getCustomKeyForKillEntity() {
         return "commands.kill.success.single";
     }
 
@@ -66,27 +84,19 @@ public final class LanguageKeyHandler extends FileHandler {
      * @param statKey the Key to check
      * @return true if this Key is a key for entity-killed-by
      */
-    public static boolean isKeyForEntityKilledBy(String statKey) {
+    @Contract(pure = true)
+    public static boolean isNormalKeyForEntityKilledBy(@NotNull String statKey) {
         return statKey.equalsIgnoreCase("stat_type.minecraft.killed_by");
     }
 
     /**
-     * Checks if a given Key is the language key "stat.minecraft.deaths".
+     * Checks if a given Key is the language key "subtitles.entity.generic.death".
      * @param statKey the Key to check
-     * @return true if this Key is key for stat.minecraft.deaths
+     * @return true if this Key is key for subtitles.entity.generic.death
      */
-    public static boolean isAlternativeKeyForEntityKilledBy(String statKey) {
-        return statKey.equalsIgnoreCase("stat.minecraft.deaths");
-    }
-
-    /**
-     * Returns a language key to replace the default stat_type.minecraft.killed_by key.
-     *
-     * @return the key "stat.minecraft.deaths", which results in "Number of Deaths"
-     * (meant to be followed by {@link #getAlternativeKeyForEntityKilledByArg()})
-     */
-    public static String getAlternativeKeyForEntityKilledBy() {
-        return "stat.minecraft.deaths";
+    @Contract(pure = true)
+    public static boolean isCustomKeyForEntityKilledBy(@NotNull String statKey) {
+        return statKey.equalsIgnoreCase("subtitles.entity.generic.death");
     }
 
     /**
@@ -96,70 +106,75 @@ public final class LanguageKeyHandler extends FileHandler {
      * @param statKey the Key to Check
      * @return true if this Key is the key for book.byAuthor
      */
-    public static boolean isKeyForEntityKilledByArg(String statKey) {
+    @Contract(pure = true)
+    public static boolean isCustomKeyForEntityKilledByArg(@NotNull String statKey) {
         return statKey.equalsIgnoreCase("book.byAuthor");
     }
 
     /**
-     * Returns a language key to complete the alternative key for Statistic.Entity_Killed_By.
+     * Returns a language key to replace the default stat_type.minecraft.killed_by key.
      *
-     * @return the key "book.byAuthor", which results in "by %". If used after
-     * {@link #getAlternativeKeyForEntityKilledBy()}, you will get "Number of Deaths" "by %s"
+     * @return the key "subtitles.entity.generic.death", which results in "Dying"
+     * (meant to be followed by {@link #getCustomKeyForEntityKilledByArg()})
      */
-    public static String getAlternativeKeyForEntityKilledByArg() {
-        return "book.byAuthor";
+    @Contract(pure = true)
+    public static @NotNull String getCustomKeyForEntityKilledBy() {
+        return "subtitles.entity.generic.death";
     }
 
     /**
-     * @param key the String to turn into a normal name
-     * @return a pretty name
+     * Returns a language key to complete the alternative key for statistic.entity_killed_by.
+     *
+     * @return the key "book.byAuthor", which results in "by %". If used after
+     * {@link #getCustomKeyForEntityKilledBy()}, you will get "Dying" "by %s"
      */
-    public static String convertToName(String key) {
-        if (key.equalsIgnoreCase("soundCategory.block")) {
+    @Contract(pure = true)
+    public static @NotNull String getCustomKeyForEntityKilledByArg() {
+        return "book.byAuthor";
+    }
+
+    public String convertLanguageKeyToDisplayName(String key) {
+        if (key == null) return null;
+        if (isStatKey(key)) {
+            return getStatKeyTranslation(key);
+        }
+        else if (key.equalsIgnoreCase(getKeyForBlockUnit())) {
             return Unit.BLOCK.getLabel();
-        } else if (isKeyForKillEntity(key)) {
-            return "times_killed";
-        } else if (isKeyForEntityKilledBy(key)) {
-            return "number_of_times_killed_by";
-        } else if (isKeyForEntityKilledByArg(key)) {  //this one returns nothing, because it's an extra key I added
-            return "";                                //to make the TranslatableComponent work
         }
-        String toReplace = "";
-        if (key.contains("stat")) {
-            if (key.contains("type")) {
-                toReplace = "stat_type";
-            } else {
-                toReplace = "stat";
-            }
-        } else if (key.contains("entity")) { //for the two entity-related ones, put brackets around it to
-            toReplace = "entity";            //make up for the multiple-keys/args-serializer issues
-        } else if (key.contains("block")) {
-            toReplace = "block";
-        } else if (key.contains("item")) {
-            toReplace = "item";
+
+        Matcher matcher = subStatKey.matcher(key);
+        if (matcher.find()) {
+            String rawName = matcher.replaceFirst("");
+            return StringUtils.prettify(rawName);
         }
-        toReplace = toReplace + ".minecraft.";
-        return key.replace(toReplace, "");
+        return key;
     }
 
-    private static @Nullable String convertToNormalStatKey(String statKey) {
-        if (isKeyForKillEntity(statKey)) {
-            return "stat_type.minecraft.killed";
-        } else if (isKeyForEntityKilledBy(statKey)) {
-            return "stat_type.minecraft.killed_by";
-        } else if (isKeyForEntityKilledByArg(statKey)) {
-            return null;
-        } else {
-            return statKey;
-        }
+    private boolean isStatKey(@NotNull String key) {
+        return (key.contains("stat") ||
+                isCustomKeyForKillEntity(key) ||
+                isCustomKeyForEntityKilledBy(key) ||
+                isCustomKeyForEntityKilledByArg(key));
     }
 
-    public String getStatKeyTranslation(String statKey) {
+    private String getStatKeyTranslation(String statKey) {
         String realKey = convertToNormalStatKey(statKey);
         if (realKey == null) {
             return "";
         }
-        return super.getFileConfiguration().getString(statKey);
+        return super.getFileConfiguration().getString(realKey);
+    }
+
+    private static @Nullable String convertToNormalStatKey(String statKey) {
+        if (isCustomKeyForKillEntity(statKey)) {
+            return "stat_type.minecraft.killed";
+        } else if (isCustomKeyForEntityKilledBy(statKey)) {
+            return "stat_type.minecraft.killed_by";
+        } else if (isCustomKeyForEntityKilledByArg(statKey)) {
+            return null;
+        } else {
+            return statKey;
+        }
     }
 
     /**
@@ -167,12 +182,12 @@ public final class LanguageKeyHandler extends FileHandler {
      * @return the official Key from the NameSpacedKey for this Statistic,
      * or return null if no enum constant can be retrieved.
      */
-    public String getStatKey(@NotNull Statistic statistic) {
+    public @NotNull String getStatKey(@NotNull Statistic statistic) {
         if (statistic.getType() == Statistic.Type.UNTYPED) {
-            return "stat.minecraft." + statNameKeys.get(statistic);
+            return "stat.minecraft." + statisticKeys.get(statistic);
         }
         else {
-            return "stat_type.minecraft." + statNameKeys.get(statistic);
+            return "stat_type.minecraft." + statisticKeys.get(statistic);
         }
     }
 
@@ -232,7 +247,7 @@ public final class LanguageKeyHandler extends FileHandler {
         }
     }
 
-    private @NotNull HashMap<Statistic, String> generateStatNameKeys() {
+    private @NotNull HashMap<Statistic, String> generateStatisticKeys() {
         //get the enum names for all statistics first
         HashMap<Statistic, String> statNames = new HashMap<>(Statistic.values().length);
         Arrays.stream(Statistic.values()).forEach(statistic -> statNames.put(statistic, statistic.toString().toLowerCase()));

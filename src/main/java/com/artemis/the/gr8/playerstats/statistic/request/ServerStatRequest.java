@@ -48,7 +48,7 @@ public final class ServerStatRequest extends StatRequest<Long> implements Reques
                 .getServerStat(completedRequest);
 
         TextComponent prettyComponent = Main
-                .getStatFormatter()
+                .getOutputManager()
                 .formatAndSaveServerStat(completedRequest, stat);
 
         String prettyString = ComponentUtils

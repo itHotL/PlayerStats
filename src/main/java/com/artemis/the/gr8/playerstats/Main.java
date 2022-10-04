@@ -82,18 +82,6 @@ public final class Main extends JavaPlugin {
     }
 
     /**
-     *
-     * @return the JavaPlugin instance associated with PlayerStats
-     * @throws IllegalStateException if PlayerStats is not enabled
-     */
-    public static @NotNull JavaPlugin getPluginInstance() throws IllegalStateException {
-        if (pluginInstance == null) {
-            throw new IllegalStateException("PlayerStats is not loaded!");
-        }
-        return pluginInstance;
-    }
-
-    /**
      * @return Adventure's BukkitAudiences object
      * @throws IllegalStateException if PlayerStats is not enabled
      */
@@ -105,19 +93,44 @@ public final class Main extends JavaPlugin {
     }
 
     /**
-     * @return PlayerStats' ConfigHandler
+     *
+     * @return the JavaPlugin instance associated with PlayerStats
      * @throws IllegalStateException if PlayerStats is not enabled
      */
-    public static @NotNull ConfigHandler getConfigHandler() throws IllegalStateException {
-        if (config == null) {
+    public static @NotNull JavaPlugin getPluginInstance() throws IllegalStateException {
+        if (pluginInstance == null) {
+            throw new IllegalStateException("PlayerStats is not loaded!");
+        }
+        return pluginInstance;
+    }
+
+    public static @NotNull PlayerStats getPlayerStatsAPI() throws IllegalStateException {
+        if (playerStatsAPI == null) {
             throw new IllegalStateException("PlayerStats does not seem to be loaded!");
+        }
+        return playerStatsAPI;
+    }
+
+    public static @NotNull InternalFormatter getOutputManager() throws IllegalStateException {
+        if (outputManager == null) {
+            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
+        }
+        return outputManager;
+    }
+
+    /**
+     * @return PlayerStats' ConfigHandler
+     */
+    public static @NotNull ConfigHandler getConfigHandler() {
+        if (config == null) {
+            config = new ConfigHandler();
         }
         return config;
     }
 
-    public static @NotNull OfflinePlayerHandler getOfflinePlayerHandler() throws IllegalStateException {
+    public static @NotNull OfflinePlayerHandler getOfflinePlayerHandler() {
         if (offlinePlayerHandler == null) {
-            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
+            offlinePlayerHandler = new OfflinePlayerHandler(getConfigHandler());
         }
         return offlinePlayerHandler;
     }
@@ -140,25 +153,11 @@ public final class Main extends JavaPlugin {
         return enumHandler;
     }
 
-    public static @NotNull StatCalculator getStatCalculator() throws IllegalStateException {
+    public static @NotNull StatCalculator getStatCalculator() {
         if (statCalculator == null) {
-            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
+            statCalculator = new StatCalculator(getOfflinePlayerHandler());
         }
         return statCalculator;
-    }
-
-    public static @NotNull InternalFormatter getStatFormatter() throws IllegalStateException {
-        if (outputManager == null) {
-            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
-        }
-        return outputManager;
-    }
-
-    public static @NotNull PlayerStats getPlayerStatsAPI() throws IllegalStateException {
-        if (playerStatsAPI == null) {
-            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
-        }
-        return playerStatsAPI;
     }
 
     private void initializeMainClasses() {

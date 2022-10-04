@@ -18,14 +18,20 @@ public final class StringUtils {
      */
     public static String prettify(String input) {
         if (input == null) return null;
+
         StringBuilder capitals = new StringBuilder(input.toLowerCase());
         capitals.setCharAt(0, Character.toUpperCase(capitals.charAt(0)));
-        while (capitals.indexOf("_") != -1) {
-            MyLogger.logHighLevelMsg("Replacing underscores and capitalizing names...");
 
+        while (capitals.indexOf("_") != -1) {
+            MyLogger.logHighLevelMsg("Replacing underscores...");
             int index = capitals.indexOf("_");
-            capitals.setCharAt(index + 1, Character.toUpperCase(capitals.charAt(index + 1)));
             capitals.setCharAt(index, ' ');
+        }
+
+        while (capitals.indexOf(" ") != -1) {
+            MyLogger.logHighLevelMsg("Capitalizing names...");
+            int index = capitals.indexOf(" ") + 1;
+            capitals.setCharAt(index, Character.toUpperCase(capitals.charAt(index)));
         }
         return capitals.toString();
     }

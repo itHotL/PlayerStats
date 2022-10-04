@@ -50,7 +50,7 @@ public final class TopStatRequest extends StatRequest<LinkedHashMap<String, Inte
                 .getTopStats(completedRequest);
 
         TextComponent prettyComponent = Main
-                .getStatFormatter()
+                .getOutputManager()
                 .formatAndSaveTopStat(completedRequest, stat);
 
         String prettyString = ComponentUtils
