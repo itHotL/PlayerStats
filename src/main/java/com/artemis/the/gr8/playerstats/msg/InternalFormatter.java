@@ -2,6 +2,7 @@ package com.artemis.the.gr8.playerstats.msg;
 
 import com.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import com.artemis.the.gr8.playerstats.statistic.StatCalculator;
+import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import net.kyori.adventure.text.*;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
@@ -19,12 +20,12 @@ public interface InternalFormatter {
     /** @return a TextComponent with the following parts:
      * <br>[player-name]: [number] [stat-name] {sub-stat-name}
      */
-    TextComponent formatAndSavePlayerStat(RequestSettings requestSettings, int playerStat);
+    TextComponent formatAndSavePlayerStat(StatRequest.Settings requestSettings, int playerStat);
 
     /** @return a TextComponent with the following parts:
      * <br>[Total on] [server-name]: [number] [stat-name] [sub-stat-name]
      */
-    TextComponent formatAndSaveServerStat(RequestSettings requestSettings, long serverStat);
+    TextComponent formatAndSaveServerStat(StatRequest.Settings requestSettings, long serverStat);
 
     /** @return a TextComponent with the following parts:
      * <br>[PlayerStats] [Top 10] [stat-name] [sub-stat-name]
@@ -32,5 +33,5 @@ public interface InternalFormatter {
      * <br> [2.] [player-name] [number]
      * <br> [3.] etc...
      */
-    TextComponent formatAndSaveTopStat(RequestSettings requestSettings, LinkedHashMap<String, Integer> topStats);
+    TextComponent formatAndSaveTopStat(StatRequest.Settings requestSettings, LinkedHashMap<String, Integer> topStats);
 }

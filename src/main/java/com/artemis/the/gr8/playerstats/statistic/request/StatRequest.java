@@ -1,11 +1,15 @@
 package com.artemis.the.gr8.playerstats.statistic.request;
 
+import com.artemis.the.gr8.playerstats.Main;
 import com.artemis.the.gr8.playerstats.api.PlayerStats;
 import com.artemis.the.gr8.playerstats.statistic.result.StatResult;
 import com.artemis.the.gr8.playerstats.enums.Target;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -18,10 +22,44 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class StatRequest<T> {
 
-  protected final RequestSettings requestSettings;
+  protected final Settings settings;
 
-  protected StatRequest(RequestSettings request) {
-    requestSettings = request;
+  protected StatRequest(CommandSender requester) {
+    settings = new Settings(requester);
+  }
+
+  protected StatRequest<T> configureUntyped(@NotNull Statistic statistic) {
+    if (statistic.getType() == Statistic.Type.UNTYPED) {
+      settings.setStatistic(statistic);
+      return this;
+    }
+    throw new IllegalArgumentException("This statistic is not of Type.Untyped");
+  }
+
+  protected StatRequest<T> configureBlockOrItemType(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
+    Statistic.Type type = statistic.getType();
+    if (type == Statistic.Type.BLOCK && material.isBlock()) {
+      settings.setBlock(material);
+    }
+    else if (type == Statistic.Type.ITEM && material.isItem()){
+      settings.setItem(material);
+    }
+    else {
+      throw new IllegalArgumentException("Either this statistic is not of Type.Block or Type.Item, or no valid block or item has been provided");
+    }
+    settings.setStatistic(statistic);
+    settings.setSubStatEntryName(material.toString());
+    return this;
+  }
+
+  protected StatRequest<T> configureEntityType(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
+    if (statistic.getType() == Statistic.Type.ENTITY) {
+      settings.setStatistic(statistic);
+      settings.setSubStatEntryName(entityType.toString());
+      settings.setEntity(entityType);
+      return this;
+    }
+    throw new IllegalArgumentException("This statistic is not of Type.Entity");
   }
 
   /**
@@ -35,53 +73,167 @@ public abstract class StatRequest<T> {
    */
   public abstract StatResult<T> execute();
 
-  /**
-   * Gets the Statistic that calling {@link #execute()} will calculate
-   * the data for.
-   * @return the Statistic
-   */
-  public Statistic getStatisticSetting() {
-    return requestSettings.getStatistic();
+  public boolean isValid() {
+    if (settings.statistic == null) {
+      return false;
+    } else if (settings.target == Target.PLAYER && settings.playerName == null) {
+      return false;
+    } else if (settings.statistic.getType() != Statistic.Type.UNTYPED &&
+            settings.subStatEntryName == null) {
+      return false;
+    } else {
+      return hasMatchingSubStat();
+    }
+  }
+
+  private boolean hasMatchingSubStat() {
+    switch (settings.statistic.getType()) {
+      case BLOCK -> {
+        return settings.block != null;
+      }
+      case ENTITY -> {
+        return settings.entity != null;
+      }
+      case ITEM -> {
+        return settings.item != null;
+      }
+      default -> {
+        return true;
+      }
+    }
   }
 
   /**
-   * If the Statistic setting for this StatRequest is of Type.Block,
-   * this will get the Material that was set.
-   *
-   * @return a Material for which #isBlock is true, or null if no
-   * Material was set
+   * Use this method to view the settings that have
+   * been configured for this StatRequest.
    */
-  public @Nullable Material getBlockSetting() {
-    return requestSettings.getBlock();
+  public Settings getSettings() {
+    return settings;
   }
 
-  /**
-   * If the Statistic setting for this StatRequest is of Type.Item,
-   * this will get the Material that was set.
-   *
-   * @return a Material for which #isItem is true, or null if no
-   * Material was set
-   */
-  public @Nullable Material getItemSetting() {
-    return requestSettings.getItem();
-  }
+  public static final class Settings {
+    private final CommandSender sender;
+    private Statistic statistic;
+    private String playerName;
+    private Target target;
+    private int topListSize;
 
-  /**
-   * If the Statistic setting for this StatRequest is of Type.Entity,
-   * this will get the EntityType that was set.
-   *
-   * @return an EntityType, or null if no EntityType was set
-   */
-  public @Nullable EntityType getEntitySetting() {
-    return requestSettings.getEntity();
-  }
+    private String subStatEntryName;
+    private EntityType entity;
+    private Material block;
+    private Material item;
+    private boolean playerFlag;
 
-  /**
-   * Gets the Target that will be used when calling {@link #execute()}.
-   *
-   * @return the Target for this lookup (either Player, Server or Top)
-   */
-  public Target getTargetSetting() {
-    return requestSettings.getTarget();
+    /**
+     * Create a new {@link Settings} with default values:
+     * <br>- CommandSender sender (provided)
+     * <br>- Target target = {@link Target#TOP}
+     * <br>- int topListSize = 10
+     * <br>- boolean playerFlag = false
+     *
+     * @param sender the CommandSender who prompted this RequestGenerator
+     */
+    private Settings(@NotNull CommandSender sender) {
+      this.sender = sender;
+      target = Target.TOP;
+      playerFlag = false;
+    }
+
+    void configureForPlayer(String playerName) {
+        setTarget(Target.PLAYER);
+        setPlayerName(playerName);
+    }
+
+    void configureForServer() {
+      setTarget(Target.SERVER);
+    }
+
+    void configureForTop(int topListSize) {
+      setTarget(Target.TOP);
+
+      this.topListSize = topListSize != 0 ?
+              topListSize :
+              Main.getConfigHandler().getTopListMaxSize();
+    }
+
+    public @NotNull CommandSender getCommandSender() {
+      return sender;
+    }
+
+    public boolean isConsoleSender() {
+      return sender instanceof ConsoleCommandSender;
+    }
+
+    void setStatistic(Statistic statistic) {
+      this.statistic = statistic;
+    }
+
+    public Statistic getStatistic() {
+      return statistic;
+    }
+
+    private void setSubStatEntryName(String subStatEntry) {
+      this.subStatEntryName = subStatEntry;
+    }
+
+    public @Nullable String getSubStatEntryName() {
+      return subStatEntryName;
+    }
+
+    void setPlayerName(String playerName) {
+      this.playerName = playerName;
+    }
+
+    public String getPlayerName() {
+      return playerName;
+    }
+
+    void setPlayerFlag(boolean playerFlag) {
+      this.playerFlag = playerFlag;
+    }
+
+    public boolean getPlayerFlag() {
+      return playerFlag;
+    }
+
+    void setTarget(@NotNull Target target) {
+      this.target = target;
+    }
+
+    public @NotNull Target getTarget() {
+      return target;
+    }
+
+    void setTopListSize(int topListSize) {
+      this.topListSize = topListSize;
+    }
+
+    public int getTopListSize() {
+      return this.topListSize;
+    }
+
+    void setEntity(EntityType entity) {
+      this.entity = entity;
+    }
+
+    public EntityType getEntity() {
+      return entity;
+    }
+
+    void setBlock(Material block) {
+      this.block = block;
+    }
+
+    public Material getBlock() {
+      return block;
+    }
+
+    void setItem(Material item) {
+      this.item = item;
+    }
+
+    public Material getItem() {
+      return item;
+    }
   }
 }

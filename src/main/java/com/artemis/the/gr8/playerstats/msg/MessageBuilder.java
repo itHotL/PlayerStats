@@ -8,13 +8,13 @@ import com.artemis.the.gr8.playerstats.msg.components.HelpMessage;
 import com.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
 import com.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
 import com.artemis.the.gr8.playerstats.msg.msgutils.*;
+import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.enums.Target;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.enums.Unit;
 
-import com.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Statistic;
@@ -313,7 +313,7 @@ public final class MessageBuilder implements ApiFormatter {
      * <br>- If both parameters are null, the formattedComponent will be returned
      * as is.
      */
-    public @NotNull BiFunction<Integer, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull RequestSettings request) {
+    public @NotNull BiFunction<Integer, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull StatRequest.Settings request) {
         TextComponent playerStat = formatPlayerStat(request.getPlayerName(), stat, request.getStatistic(), request.getSubStatEntryName());
         return getFormattingFunction(playerStat, Target.PLAYER);
     }
@@ -329,7 +329,7 @@ public final class MessageBuilder implements ApiFormatter {
      * <br>- If both parameters are null, the formattedComponent will be returned
      * as is.
      */
-    public @NotNull BiFunction<Integer, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull RequestSettings request) {
+    public @NotNull BiFunction<Integer, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequest.Settings request) {
         TextComponent serverStat = formatServerStat(stat, request.getStatistic(), request.getSubStatEntryName());
         return getFormattingFunction(serverStat, Target.SERVER);
     }
@@ -345,7 +345,7 @@ public final class MessageBuilder implements ApiFormatter {
      * <br>- If both parameters are null, the formattedComponent will be returned
      * as is.
      */
-    public @NotNull BiFunction<Integer, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull RequestSettings request) {
+    public @NotNull BiFunction<Integer, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest.Settings request) {
         final TextComponent title = getTopStatTitle(topStats.size(), request.getStatistic(), request.getSubStatEntryName());
         final TextComponent list = getTopStatListComponent(topStats, request.getStatistic());
         final boolean useEnters = config.useEnters(Target.TOP, false);

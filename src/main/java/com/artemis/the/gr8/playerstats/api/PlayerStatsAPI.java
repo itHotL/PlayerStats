@@ -29,20 +29,17 @@ public final class PlayerStatsAPI implements PlayerStats, StatManager {
 
     @Override
     public PlayerStatRequest playerStatRequest(String playerName) {
-        RequestSettings request = RequestHandler.getBasicPlayerStatRequest(playerName);
-        return new PlayerStatRequest(request);
+        return new PlayerStatRequest(playerName);
     }
 
     @Override
     public ServerStatRequest serverStatRequest() {
-        RequestSettings request = RequestHandler.getBasicServerStatRequest();
-        return new ServerStatRequest(request);
+        return new ServerStatRequest();
     }
 
     @Override
     public TopStatRequest topStatRequest(int topListSize) {
-        RequestSettings request = RequestHandler.getBasicTopStatRequest(topListSize);
-        return new TopStatRequest(request);
+        return new TopStatRequest(topListSize);
     }
 
     @Override

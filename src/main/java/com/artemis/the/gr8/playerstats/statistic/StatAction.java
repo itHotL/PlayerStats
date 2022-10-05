@@ -1,8 +1,8 @@
 package com.artemis.the.gr8.playerstats.statistic;
 
 import com.artemis.the.gr8.playerstats.ThreadManager;
+import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.OfflinePlayer;
@@ -20,7 +20,7 @@ final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>>
 
     private final OfflinePlayerHandler offlinePlayerHandler;
     private final ImmutableList<String> playerNames;
-    private final RequestSettings requestSettings;
+    private final StatRequest.Settings requestSettings;
     private final ConcurrentHashMap<String, Integer> allStats;
 
     /**
@@ -34,7 +34,7 @@ final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>>
      * @param requestSettings a validated requestSettings object
      * @param allStats the ConcurrentHashMap to put the results on
      */
-    public StatAction(OfflinePlayerHandler offlinePlayerHandler, ImmutableList<String> playerNames, RequestSettings requestSettings, ConcurrentHashMap<String, Integer> allStats) {
+    public StatAction(OfflinePlayerHandler offlinePlayerHandler, ImmutableList<String> playerNames, StatRequest.Settings requestSettings, ConcurrentHashMap<String, Integer> allStats) {
         threshold = ThreadManager.getTaskThreshold();
 
         this.offlinePlayerHandler = offlinePlayerHandler;

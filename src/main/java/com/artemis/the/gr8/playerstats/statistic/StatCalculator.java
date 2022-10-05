@@ -1,8 +1,8 @@
 package com.artemis.the.gr8.playerstats.statistic;
 
 import com.artemis.the.gr8.playerstats.ThreadManager;
+import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.OfflinePlayer;
@@ -21,7 +21,7 @@ public final class StatCalculator {
         this.offlinePlayerHandler = offlinePlayerHandler;
     }
 
-    public int getPlayerStat(RequestSettings requestSettings) {
+    public int getPlayerStat(StatRequest.Settings requestSettings) {
         OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(requestSettings.getPlayerName());
         return switch (requestSettings.getStatistic().getType()) {
             case UNTYPED -> player.getStatistic(requestSettings.getStatistic());
@@ -31,14 +31,14 @@ public final class StatCalculator {
         };
     }
 
-    public LinkedHashMap<String, Integer> getTopStats(RequestSettings requestSettings) {
+    public LinkedHashMap<String, Integer> getTopStats(StatRequest.Settings requestSettings) {
         return getAllStatsAsync(requestSettings).entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(requestSettings.getTopListSize())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
-    public long getServerStat(RequestSettings requestSettings) {
+    public long getServerStat(StatRequest.Settings requestSettings) {
         List<Integer> numbers = getAllStatsAsync(requestSettings)
                 .values()
                 .parallelStream()
@@ -50,7 +50,7 @@ public final class StatCalculator {
      * Invokes a bunch of worker pool threads to get the statistics for
      * all players that are stored in the {@link OfflinePlayerHandler}).
      */
-    private @NotNull ConcurrentHashMap<String, Integer> getAllStatsAsync(RequestSettings requestSettings) {
+    private @NotNull ConcurrentHashMap<String, Integer> getAllStatsAsync(StatRequest.Settings requestSettings) {
         long time = System.currentTimeMillis();
 
         ForkJoinPool commonPool = ForkJoinPool.commonPool();
@@ -72,7 +72,7 @@ public final class StatCalculator {
         return allStats;
     }
 
-    private StatAction getStatTask(RequestSettings requestSettings) {
+    private StatAction getStatTask(StatRequest.Settings requestSettings) {
         int size = offlinePlayerHandler.getOfflinePlayerCount() != 0 ? offlinePlayerHandler.getOfflinePlayerCount() : 16;
         ConcurrentHashMap<String, Integer> allStats = new ConcurrentHashMap<>(size);
         ImmutableList<String> playerNames = ImmutableList.copyOf(offlinePlayerHandler.getOfflinePlayerNames());

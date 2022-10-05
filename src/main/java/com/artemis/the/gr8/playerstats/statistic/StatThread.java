@@ -2,6 +2,7 @@ package com.artemis.the.gr8.playerstats.statistic;
 
 import com.artemis.the.gr8.playerstats.ThreadManager;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
+import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.enums.Target;
@@ -21,9 +22,9 @@ public final class StatThread extends Thread {
     private static StatCalculator statCalculator;
 
     private final ReloadThread reloadThread;
-    private final RequestSettings requestSettings;
+    private final StatRequest.Settings requestSettings;
 
-    public StatThread(OutputManager m, StatCalculator t, int ID, RequestSettings s, @Nullable ReloadThread r) {
+    public StatThread(OutputManager m, StatCalculator t, int ID, StatRequest.Settings s, @Nullable ReloadThread r) {
         outputManager = m;
         statCalculator = t;
 

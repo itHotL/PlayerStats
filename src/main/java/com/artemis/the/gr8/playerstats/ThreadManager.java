@@ -7,6 +7,7 @@ import com.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import com.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.artemis.the.gr8.playerstats.statistic.StatCalculator;
 import com.artemis.the.gr8.playerstats.statistic.StatThread;
+import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.command.CommandSender;
 
@@ -63,7 +64,7 @@ public final class ThreadManager {
         }
     }
 
-    public void startStatThread(RequestSettings requestSettings) {
+    public void startStatThread(StatRequest.Settings requestSettings) {
         statThreadID += 1;
         String cmdSender = requestSettings.getCommandSender().getName();
 
@@ -95,7 +96,7 @@ public final class ThreadManager {
         return lastRecordedCalcTime;
     }
 
-    private void startNewStatThread(RequestSettings requestSettings) {
+    private void startNewStatThread(StatRequest.Settings requestSettings) {
         lastActiveStatThread = new StatThread(outputManager, statCalculator, statThreadID, requestSettings, lastActiveReloadThread);
         statThreads.put(requestSettings.getCommandSender().getName(), lastActiveStatThread);
         lastActiveStatThread.start();

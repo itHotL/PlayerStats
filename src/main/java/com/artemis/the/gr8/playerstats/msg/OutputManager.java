@@ -6,6 +6,7 @@ import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import com.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
 import com.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
+import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
@@ -55,25 +56,25 @@ public final class OutputManager implements InternalFormatter {
     }
 
     @Override
-    public TextComponent formatAndSavePlayerStat(@NotNull RequestSettings requestSettings, int playerStat) {
+    public TextComponent formatAndSavePlayerStat(@NotNull StatRequest.Settings requestSettings, int playerStat) {
         BiFunction<Integer, CommandSender, TextComponent> playerStatFunction =
-                getMessageBuilder(requestSettings).formattedPlayerStatFunction(playerStat, requestSettings);
+                getMessageBuilder(requestSettings.getCommandSender()).formattedPlayerStatFunction(playerStat, requestSettings);
 
         return processFunction(requestSettings.getCommandSender(), playerStatFunction);
     }
 
     @Override
-    public TextComponent formatAndSaveServerStat(@NotNull RequestSettings requestSettings, long serverStat) {
+    public TextComponent formatAndSaveServerStat(@NotNull StatRequest.Settings requestSettings, long serverStat) {
         BiFunction<Integer, CommandSender, TextComponent> serverStatFunction =
-                getMessageBuilder(requestSettings).formattedServerStatFunction(serverStat, requestSettings);
+                getMessageBuilder(requestSettings.getCommandSender()).formattedServerStatFunction(serverStat, requestSettings);
 
         return processFunction(requestSettings.getCommandSender(), serverStatFunction);
     }
 
     @Override
-    public TextComponent formatAndSaveTopStat(@NotNull RequestSettings requestSettings, @NotNull LinkedHashMap<String, Integer> topStats) {
+    public TextComponent formatAndSaveTopStat(@NotNull StatRequest.Settings requestSettings, @NotNull LinkedHashMap<String, Integer> topStats) {
         BiFunction<Integer, CommandSender, TextComponent> topStatFunction =
-                getMessageBuilder(requestSettings).formattedTopStatFunction(topStats, requestSettings);
+                getMessageBuilder(requestSettings.getCommandSender()).formattedTopStatFunction(topStats, requestSettings);
 
         return processFunction(requestSettings.getCommandSender(), topStatFunction);
     }
@@ -139,14 +140,6 @@ public final class OutputManager implements InternalFormatter {
 
     private MessageBuilder getMessageBuilder(CommandSender sender) {
         return sender instanceof ConsoleCommandSender ? consoleMessageBuilder : messageBuilder;
-    }
-
-    private MessageBuilder getMessageBuilder(RequestSettings requestSettings) {
-        if (!requestSettings.isConsoleSender()) {
-            return messageBuilder;
-        } else {
-            return consoleMessageBuilder;
-        }
     }
 
     private static void getMessageBuilders() {

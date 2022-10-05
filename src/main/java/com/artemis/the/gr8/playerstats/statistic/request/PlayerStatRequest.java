@@ -5,51 +5,52 @@ import com.artemis.the.gr8.playerstats.statistic.result.PlayerStatResult;
 import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import net.kyori.adventure.text.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 public final class PlayerStatRequest extends StatRequest<Integer> implements RequestGenerator<Integer> {
 
-    private final RequestHandler requestHandler;
+    public PlayerStatRequest(String playerName) {
+        this(Bukkit.getConsoleSender(), playerName);
+    }
 
-    public PlayerStatRequest(RequestSettings request) {
-        super(request);
-        requestHandler = new RequestHandler(request);
+    public PlayerStatRequest(CommandSender requester, String playerName) {
+        super(requester);
+        super.settings.configureForPlayer(playerName);
     }
 
     @Override
-    public PlayerStatRequest untyped(@NotNull Statistic statistic) {
-        RequestSettings completedRequest = requestHandler.untyped(statistic);
-        return new PlayerStatRequest(completedRequest);
+    public StatRequest<Integer> untyped(@NotNull Statistic statistic) {
+        return super.configureUntyped(statistic);
     }
 
     @Override
-    public PlayerStatRequest blockOrItemType(@NotNull Statistic statistic, @NotNull Material material) {
-        RequestSettings completedRequest = requestHandler.blockOrItemType(statistic, material);
-        return new PlayerStatRequest(completedRequest);
+    public StatRequest<Integer> blockOrItemType(@NotNull Statistic statistic, @NotNull Material material) {
+        return super.configureBlockOrItemType(statistic, material);
     }
 
     @Override
-    public PlayerStatRequest entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
-        RequestSettings completedRequest = requestHandler.entityType(statistic, entityType);
-        return new PlayerStatRequest(completedRequest);
+    public StatRequest<Integer> entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
+        return super.configureEntityType(statistic, entityType);
     }
 
     @Override
     public PlayerStatResult execute() {
-        return getStatResult(super.requestSettings);
+        return getStatResult();
     }
 
-    private PlayerStatResult getStatResult(RequestSettings completedRequest) {
+    private PlayerStatResult getStatResult() {
         int stat = Main
                 .getStatCalculator()
-                .getPlayerStat(completedRequest);
+                .getPlayerStat(settings);
 
         TextComponent prettyComponent = Main
                 .getOutputManager()
-                .formatAndSavePlayerStat(completedRequest, stat);
+                .formatAndSavePlayerStat(settings, stat);
 
         String prettyString = ComponentUtils
                 .getTranslatableComponentSerializer()

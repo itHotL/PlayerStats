@@ -5,8 +5,10 @@ import com.artemis.the.gr8.playerstats.statistic.result.TopStatResult;
 import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import net.kyori.adventure.text.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,44 +16,43 @@ import java.util.LinkedHashMap;
 
 public final class TopStatRequest extends StatRequest<LinkedHashMap<String, Integer>> implements RequestGenerator<LinkedHashMap<String, Integer>> {
 
-    private final RequestHandler requestHandler;
+    public TopStatRequest(int topListSize) {
+        this(Bukkit.getConsoleSender(), topListSize);
+    }
 
-    public TopStatRequest(RequestSettings request) {
-        super(request);
-        requestHandler = new RequestHandler(request);
+    public TopStatRequest(CommandSender requester, int topListSize) {
+        super(requester);
+        super.settings.configureForTop(topListSize);
     }
 
     @Override
-    public TopStatRequest untyped(@NotNull Statistic statistic) {
-        RequestSettings completedRequest = requestHandler.untyped(statistic);
-        return new TopStatRequest(completedRequest);
+    public StatRequest<LinkedHashMap<String, Integer>> untyped(@NotNull Statistic statistic) {
+        return super.configureUntyped(statistic);
     }
 
     @Override
-    public TopStatRequest blockOrItemType(@NotNull Statistic statistic, @NotNull Material material) {
-        RequestSettings completedRequest = requestHandler.blockOrItemType(statistic, material);
-        return new TopStatRequest(completedRequest);
+    public StatRequest<LinkedHashMap<String, Integer>> blockOrItemType(@NotNull Statistic statistic, @NotNull Material material) {
+        return super.configureBlockOrItemType(statistic, material);
     }
 
     @Override
-    public TopStatRequest entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
-        RequestSettings completedRequest = requestHandler.entityType(statistic, entityType);
-        return new TopStatRequest(completedRequest);
+    public StatRequest<LinkedHashMap<String, Integer>> entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
+        return super.configureEntityType(statistic, entityType);
     }
 
     @Override
     public TopStatResult execute() {
-        return getStatResult(super.requestSettings);
+        return getStatResult();
     }
 
-    private TopStatResult getStatResult(RequestSettings completedRequest) {
+    private TopStatResult getStatResult() {
         LinkedHashMap<String, Integer> stat = Main
                 .getStatCalculator()
-                .getTopStats(completedRequest);
+                .getTopStats(settings);
 
         TextComponent prettyComponent = Main
                 .getOutputManager()
-                .formatAndSaveTopStat(completedRequest, stat);
+                .formatAndSaveTopStat(settings, stat);
 
         String prettyString = ComponentUtils
                 .getTranslatableComponentSerializer()
