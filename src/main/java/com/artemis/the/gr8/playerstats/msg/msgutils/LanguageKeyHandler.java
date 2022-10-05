@@ -25,11 +25,6 @@ public final class LanguageKeyHandler extends FileHandler {
     private static HashMap<Statistic, String> statisticKeys;
     private final Pattern subStatKey;
 
-    /**
-     * This class uses a file to get the English translations
-     * of languageKeys, and uses an instance of the PlayerStats
-     * plugin to get access to this file.
-     */
     public LanguageKeyHandler() {
         super("language.yml");
         statisticKeys = generateStatisticKeys();

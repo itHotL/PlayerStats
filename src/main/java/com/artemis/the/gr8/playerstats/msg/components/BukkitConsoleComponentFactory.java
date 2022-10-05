@@ -42,11 +42,6 @@ public class BukkitConsoleComponentFactory extends ComponentFactory {
     }
 
     @Override
-    public TextColor getSharerNameColor() {
-        return PluginColor.NAME_5.getConsoleColor();
-    }
-
-    @Override
     protected TextComponent getComponent(String content, @NotNull TextColor color, @Nullable TextDecoration style) {
         return getComponentBuilder(content, NamedTextColor.nearestTo(color), style).build();
     }

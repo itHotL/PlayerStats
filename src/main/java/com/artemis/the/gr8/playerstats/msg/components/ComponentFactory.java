@@ -17,6 +17,7 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.util.HSVLike;
 import net.kyori.adventure.util.Index;
 import org.bukkit.Bukkit;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -77,6 +78,7 @@ public class ComponentFactory {
     public TextColor getExampleNameColor() {
         return MSG_ACCENT_2B;
     }
+
     public TextColor getSharerNameColor() {
         return getColorFromString(config.getSharerNameDecoration(false));
     }
@@ -321,7 +323,8 @@ public class ComponentFactory {
     }
 
     //console can do u2665, u2764 looks better in-game
-    private TextComponent basicHeartComponent(char heartChar) {
+    @Contract("_ -> new")
+    private @NotNull TextComponent basicHeartComponent(char heartChar) {
         return Component.text()
                 .content(String.valueOf(heartChar))
                 .color(HEARTS)
@@ -368,7 +371,7 @@ public class ComponentFactory {
      *
      * @return a TranslatableComponent Builder with the subStat Component as args.
      */
-    private TranslatableComponent.Builder killEntityBuilder(@NotNull TextComponent subStat) {
+    private @NotNull TranslatableComponent.Builder killEntityBuilder(@NotNull TextComponent subStat) {
         return translatable()
                 .key(LanguageKeyHandler.getCustomKeyForKillEntity())  //"Killed %s"
                 .args(subStat);
@@ -382,7 +385,7 @@ public class ComponentFactory {
      * @return a TranslatableComponent Builder with stat.minecraft.deaths as key,
      * with a ChildComponent with book.byAuthor as key and the subStat Component as args.
      */
-    private TranslatableComponent.Builder entityKilledByBuilder(@NotNull TextComponent subStat) {
+    private @NotNull TranslatableComponent.Builder entityKilledByBuilder(@NotNull TextComponent subStat) {
         return translatable()
                 .key(LanguageKeyHandler.getCustomKeyForEntityKilledBy())  //"Number of Deaths"
                 .append(space())
@@ -391,10 +394,10 @@ public class ComponentFactory {
                         .args(subStat));
     }
 
-    private TextComponent statNumberWithHoverText(String mainNumber, String hoverNumber,
-                                                  @Nullable String hoverUnitName,
-                                                  @Nullable String hoverUnitKey,
-                                                  @Nullable TextComponent heartComponent, Target target) {
+    private @NotNull TextComponent statNumberWithHoverText(String mainNumber, String hoverNumber,
+                                                           @Nullable String hoverUnitName,
+                                                           @Nullable String hoverUnitKey,
+                                                           @Nullable TextComponent heartComponent, Target target) {
 
         TextColor baseColor = getColorFromString(config.getStatNumberDecoration(target, false));
         TextDecoration style = getStyleFromString(config.getStatNumberDecoration(target, true));
@@ -415,7 +418,7 @@ public class ComponentFactory {
         return getComponent(mainNumber, baseColor, style).hoverEvent(HoverEvent.showText(hoverText));
     }
 
-    private TextComponent surroundWithBrackets(TextComponent component) {
+    private @NotNull TextComponent surroundWithBrackets(TextComponent component) {
         return getComponent(null, BRACKETS, null)
                 .append(text("["))
                 .append(component)
@@ -465,7 +468,7 @@ public class ComponentFactory {
         return names.value(textColor);
     }
 
-    private TextColor getLighterColor(TextColor color) {
+    private @NotNull TextColor getLighterColor(@NotNull TextColor color) {
         float multiplier = (float) ((100 - config.getHoverTextAmountLighter()) / 100.0);
         HSVLike oldColor = HSVLike.fromRGB(color.red(), color.green(), color.blue());
         HSVLike newColor = HSVLike.hsvLike(oldColor.h(), oldColor.s() * multiplier, oldColor.v());
