@@ -3,7 +3,6 @@ package com.artemis.the.gr8.playerstats.msg;
 import com.artemis.the.gr8.playerstats.ShareManager;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
-import com.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import com.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
 import com.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
 import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
@@ -32,7 +31,7 @@ import static com.artemis.the.gr8.playerstats.enums.StandardMessage.*;
  * for Players (mainly to deal with the lack of hover-text,
  * and for Bukkit consoles to make up for the lack of hex-colors).
  */
-public final class OutputManager implements InternalFormatter {
+public final class OutputManager {
 
     private static BukkitAudiences adventure;
     private static ConfigHandler config;
@@ -55,7 +54,9 @@ public final class OutputManager implements InternalFormatter {
         getMessageBuilders();
     }
 
-    @Override
+    /** @return a TextComponent with the following parts:
+     * <br>[player-name]: [number] [stat-name] {sub-stat-name}
+     */
     public TextComponent formatAndSavePlayerStat(@NotNull StatRequest.Settings requestSettings, int playerStat) {
         BiFunction<Integer, CommandSender, TextComponent> playerStatFunction =
                 getMessageBuilder(requestSettings.getCommandSender()).formattedPlayerStatFunction(playerStat, requestSettings);
@@ -63,7 +64,9 @@ public final class OutputManager implements InternalFormatter {
         return processFunction(requestSettings.getCommandSender(), playerStatFunction);
     }
 
-    @Override
+    /** @return a TextComponent with the following parts:
+     * <br>[Total on] [server-name]: [number] [stat-name] [sub-stat-name]
+     */
     public TextComponent formatAndSaveServerStat(@NotNull StatRequest.Settings requestSettings, long serverStat) {
         BiFunction<Integer, CommandSender, TextComponent> serverStatFunction =
                 getMessageBuilder(requestSettings.getCommandSender()).formattedServerStatFunction(serverStat, requestSettings);
@@ -71,7 +74,12 @@ public final class OutputManager implements InternalFormatter {
         return processFunction(requestSettings.getCommandSender(), serverStatFunction);
     }
 
-    @Override
+    /** @return a TextComponent with the following parts:
+     * <br>[PlayerStats] [Top 10] [stat-name] [sub-stat-name]
+     * <br> [1.] [player-name] [number]
+     * <br> [2.] [player-name] [number]
+     * <br> [3.] etc...
+     */
     public TextComponent formatAndSaveTopStat(@NotNull StatRequest.Settings requestSettings, @NotNull LinkedHashMap<String, Integer> topStats) {
         BiFunction<Integer, CommandSender, TextComponent> topStatFunction =
                 getMessageBuilder(requestSettings.getCommandSender()).formattedTopStatFunction(topStats, requestSettings);

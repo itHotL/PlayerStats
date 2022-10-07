@@ -4,15 +4,14 @@ import com.artemis.the.gr8.playerstats.ThreadManager;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.enums.Target;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.artemis.the.gr8.playerstats.statistic.request.RequestHandler;
-import com.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
+import com.artemis.the.gr8.playerstats.statistic.request.*;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public final class StatCommand implements CommandExecutor {
+public class StatCommand implements CommandExecutor {
 
     private static ThreadManager threadManager;
     private static OutputManager outputManager;
@@ -32,14 +31,11 @@ public final class StatCommand implements CommandExecutor {
             outputManager.sendExamples(sender);
         }
         else {
-            RequestSettings baseRequest = RequestHandler.getBasicInternalStatRequest(sender);
-            RequestHandler requestHandler = new RequestHandler(baseRequest);
-
-            RequestSettings completedRequest = requestHandler.getRequestFromArgs(args);
-            if (completedRequest.isValid()) {
-                threadManager.startStatThread(completedRequest);
+            InternalStatRequest request = new InternalStatRequest(sender, args);
+            if (request.isValid()) {
+                threadManager.startStatThread(request);
             } else {
-                sendFeedback(completedRequest);
+                sendFeedback(request);
                 return false;
             }
         }
@@ -47,7 +43,7 @@ public final class StatCommand implements CommandExecutor {
     }
 
     /**
-     * If a given {@link RequestSettings} object does not result in a valid
+     * If a given {@link StatRequest} object does not result in a valid
      * statistic look-up, this will send a feedback message to the CommandSender
      * that made the request. The following is checked:
      * <ul>
@@ -56,23 +52,24 @@ public final class StatCommand implements CommandExecutor {
      * <li>If the <code>target</code> is Player, is a valid <code>playerName</code> provided?
      * </ul>
      *
-     * @param requestSettings the RequestSettings to give feedback on
+     * @param request the StatRequest to give feedback on
      */
-    private void sendFeedback(RequestSettings requestSettings) {
-        CommandSender sender = requestSettings.getCommandSender();
+    private void sendFeedback(InternalStatRequest request) {
+        StatRequest.Settings settings = request.getSettings();
+        CommandSender sender = settings.getCommandSender();
 
-        if (requestSettings.getStatistic() == null) {
+        if (settings.getStatistic() == null) {
             outputManager.sendFeedbackMsg(sender, StandardMessage.MISSING_STAT_NAME);
         }
-        else if (requestSettings.getTarget() == Target.PLAYER && requestSettings.getPlayerName() == null) {
+        else if (settings.getTarget() == Target.PLAYER && settings.getPlayerName() == null) {
             outputManager.sendFeedbackMsg(sender, StandardMessage.MISSING_PLAYER_NAME);
         }
         else {
-            Statistic.Type type = requestSettings.getStatistic().getType();
-            if (type != Statistic.Type.UNTYPED && requestSettings.getSubStatEntryName() == null) {
+            Statistic.Type type = settings.getStatistic().getType();
+            if (type != Statistic.Type.UNTYPED && settings.getSubStatEntryName() == null) {
                 outputManager.sendFeedbackMsgMissingSubStat(sender, type);
             } else {
-                outputManager.sendFeedbackMsgWrongSubStat(sender, type, requestSettings.getSubStatEntryName());
+                outputManager.sendFeedbackMsgWrongSubStat(sender, type, settings.getSubStatEntryName());
             }
         }
     }

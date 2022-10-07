@@ -9,7 +9,6 @@ import com.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.listeners.JoinListener;
-import com.artemis.the.gr8.playerstats.msg.InternalFormatter;
 import com.artemis.the.gr8.playerstats.msg.MessageBuilder;
 import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import com.artemis.the.gr8.playerstats.statistic.StatCalculator;
@@ -111,7 +110,7 @@ public final class Main extends JavaPlugin {
         return playerStatsAPI;
     }
 
-    public static @NotNull InternalFormatter getOutputManager() throws IllegalStateException {
+    public static @NotNull OutputManager getOutputManager() throws IllegalStateException {
         if (outputManager == null) {
             throw new IllegalStateException("PlayerStats does not seem to be loaded!");
         }

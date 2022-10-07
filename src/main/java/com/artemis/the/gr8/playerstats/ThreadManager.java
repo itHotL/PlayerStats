@@ -3,7 +3,6 @@ package com.artemis.the.gr8.playerstats;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
-import com.artemis.the.gr8.playerstats.statistic.request.RequestSettings;
 import com.artemis.the.gr8.playerstats.reload.ReloadThread;
 import com.artemis.the.gr8.playerstats.statistic.StatCalculator;
 import com.artemis.the.gr8.playerstats.statistic.StatThread;
@@ -64,19 +63,19 @@ public final class ThreadManager {
         }
     }
 
-    public void startStatThread(StatRequest.Settings requestSettings) {
+    public void startStatThread(StatRequest<?> request) {
         statThreadID += 1;
-        String cmdSender = requestSettings.getCommandSender().getName();
+        String cmdSender = request.getSettings().getCommandSender().getName();
 
         if (config.limitStatRequests() && statThreads.containsKey(cmdSender)) {
             Thread runningThread = statThreads.get(cmdSender);
             if (runningThread.isAlive()) {
-                outputManager.sendFeedbackMsg(requestSettings.getCommandSender(), StandardMessage.REQUEST_ALREADY_RUNNING);
+                outputManager.sendFeedbackMsg(request.getSettings().getCommandSender(), StandardMessage.REQUEST_ALREADY_RUNNING);
             } else {
-                startNewStatThread(requestSettings);
+                startNewStatThread(request);
             }
         } else {
-            startNewStatThread(requestSettings);
+            startNewStatThread(request);
         }
     }
 
@@ -96,9 +95,9 @@ public final class ThreadManager {
         return lastRecordedCalcTime;
     }
 
-    private void startNewStatThread(StatRequest.Settings requestSettings) {
+    private void startNewStatThread(StatRequest<?> requestSettings) {
         lastActiveStatThread = new StatThread(outputManager, statCalculator, statThreadID, requestSettings, lastActiveReloadThread);
-        statThreads.put(requestSettings.getCommandSender().getName(), lastActiveStatThread);
+        statThreads.put(requestSettings.getSettings().getCommandSender().getName(), lastActiveStatThread);
         lastActiveStatThread.start();
     }
 }

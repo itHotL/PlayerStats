@@ -73,6 +73,14 @@ public abstract class StatRequest<T> {
    */
   public abstract StatResult<T> execute();
 
+  /**
+   * Use this method to view the settings that have
+   * been configured for this StatRequest.
+   */
+  public Settings getSettings() {
+    return settings;
+  }
+
   public boolean isValid() {
     if (settings.statistic == null) {
       return false;
@@ -103,14 +111,6 @@ public abstract class StatRequest<T> {
     }
   }
 
-  /**
-   * Use this method to view the settings that have
-   * been configured for this StatRequest.
-   */
-  public Settings getSettings() {
-    return settings;
-  }
-
   public static final class Settings {
     private final CommandSender sender;
     private Statistic statistic;
@@ -122,38 +122,32 @@ public abstract class StatRequest<T> {
     private EntityType entity;
     private Material block;
     private Material item;
-    private boolean playerFlag;
 
     /**
-     * Create a new {@link Settings} with default values:
-     * <br>- CommandSender sender (provided)
-     * <br>- Target target = {@link Target#TOP}
-     * <br>- int topListSize = 10
-     * <br>- boolean playerFlag = false
-     *
      * @param sender the CommandSender who prompted this RequestGenerator
      */
     private Settings(@NotNull CommandSender sender) {
-      this.sender = sender;
-      target = Target.TOP;
-      playerFlag = false;
+        this.sender = sender;
     }
 
     void configureForPlayer(String playerName) {
-        setTarget(Target.PLAYER);
-        setPlayerName(playerName);
+        this.target = Target.PLAYER;
+        this.playerName = playerName;
     }
 
     void configureForServer() {
-      setTarget(Target.SERVER);
+      this.target = Target.SERVER;
+    }
+
+    void configureForTop() {
+        configureForTop(Main.getConfigHandler().getTopListMaxSize());
     }
 
     void configureForTop(int topListSize) {
-      setTarget(Target.TOP);
-
-      this.topListSize = topListSize != 0 ?
-              topListSize :
-              Main.getConfigHandler().getTopListMaxSize();
+        this.target = Target.TOP;
+        this.topListSize = topListSize != 0 ?
+                topListSize :
+                Main.getConfigHandler().getTopListMaxSize();
     }
 
     public @NotNull CommandSender getCommandSender() {
@@ -180,32 +174,12 @@ public abstract class StatRequest<T> {
       return subStatEntryName;
     }
 
-    void setPlayerName(String playerName) {
-      this.playerName = playerName;
-    }
-
     public String getPlayerName() {
       return playerName;
     }
 
-    void setPlayerFlag(boolean playerFlag) {
-      this.playerFlag = playerFlag;
-    }
-
-    public boolean getPlayerFlag() {
-      return playerFlag;
-    }
-
-    void setTarget(@NotNull Target target) {
-      this.target = target;
-    }
-
     public @NotNull Target getTarget() {
       return target;
-    }
-
-    void setTopListSize(int topListSize) {
-      this.topListSize = topListSize;
     }
 
     public int getTopListSize() {
