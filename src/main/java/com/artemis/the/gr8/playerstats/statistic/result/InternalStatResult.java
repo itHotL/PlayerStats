@@ -7,7 +7,7 @@ import net.kyori.adventure.text.TextComponent;
  * This Record is used to store stat-results internally,
  * so Players can share them by clicking a share-button.
  */
-public record InternalStatResult(String executorName, TextComponent formattedValue, int ID) implements StatResult<Integer> {
+public record InternalStatResult(String executorName, TextComponent formattedValue, int ID) {
 
     /**
      * Gets the ID number for this StatResult. Unlike for the
@@ -19,17 +19,14 @@ public record InternalStatResult(String executorName, TextComponent formattedVal
      *
      @return Integer that represents this StatResult's ID number
      */
-    @Override
     public Integer getNumericalValue() {
         return ID;
     }
 
-    @Override
     public TextComponent getFormattedTextComponent() {
         return formattedValue;
     }
 
-    @Override
     public String getFormattedString() {
         return ComponentUtils.getTranslatableComponentSerializer()
                 .serialize(formattedValue);

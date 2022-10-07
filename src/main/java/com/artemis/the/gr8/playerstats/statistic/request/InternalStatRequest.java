@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class InternalStatRequest extends StatRequest<Object> {
+public final class InternalStatRequest extends StatRequest<Object> {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
     private final EnumHandler enumHandler;

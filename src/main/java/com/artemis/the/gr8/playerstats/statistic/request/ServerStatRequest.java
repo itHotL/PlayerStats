@@ -1,9 +1,9 @@
 package com.artemis.the.gr8.playerstats.statistic.request;
 
 import com.artemis.the.gr8.playerstats.Main;
-import com.artemis.the.gr8.playerstats.statistic.result.ServerStatResult;
 import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
+import com.artemis.the.gr8.playerstats.statistic.result.StatResult;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -39,11 +39,7 @@ public final class ServerStatRequest extends StatRequest<Long> implements Reques
     }
 
     @Override
-    public ServerStatResult execute() {
-        return getStatResult();
-    }
-
-    private ServerStatResult getStatResult() {
+    public @NotNull StatResult<Long> execute() {
         long stat = Main
                 .getStatCalculator()
                 .getServerStat(settings);
@@ -56,6 +52,6 @@ public final class ServerStatRequest extends StatRequest<Long> implements Reques
                 .getTranslatableComponentSerializer()
                 .serialize(prettyComponent);
 
-        return new ServerStatResult(stat, prettyComponent, prettyString);
+        return new StatResult<>(stat, prettyComponent, prettyString);
     }
 }

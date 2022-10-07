@@ -1,7 +1,7 @@
 package com.artemis.the.gr8.playerstats.statistic.request;
 
 import com.artemis.the.gr8.playerstats.Main;
-import com.artemis.the.gr8.playerstats.statistic.result.TopStatResult;
+import com.artemis.the.gr8.playerstats.statistic.result.StatResult;
 import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import net.kyori.adventure.text.TextComponent;
@@ -41,11 +41,7 @@ public final class TopStatRequest extends StatRequest<LinkedHashMap<String, Inte
     }
 
     @Override
-    public TopStatResult execute() {
-        return getStatResult();
-    }
-
-    private TopStatResult getStatResult() {
+    public @NotNull StatResult<LinkedHashMap<String, Integer>> execute() {
         LinkedHashMap<String, Integer> stat = Main
                 .getStatCalculator()
                 .getTopStats(settings);
@@ -58,6 +54,6 @@ public final class TopStatRequest extends StatRequest<LinkedHashMap<String, Inte
                 .getTranslatableComponentSerializer()
                 .serialize(prettyComponent);
 
-        return new TopStatResult(stat, prettyComponent, prettyString);
+        return new StatResult<>(stat, prettyComponent, prettyString);
     }
 }
