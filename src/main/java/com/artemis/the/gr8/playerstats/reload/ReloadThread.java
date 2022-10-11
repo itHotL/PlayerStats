@@ -5,7 +5,7 @@ import com.artemis.the.gr8.playerstats.ShareManager;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
-import com.artemis.the.gr8.playerstats.statistic.StatCalculator;
+import com.artemis.the.gr8.playerstats.statistic.RequestProcessor;
 import com.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
@@ -40,7 +40,7 @@ public final class ReloadThread extends Thread {
      * Then, it will reload the config, update the {@link LanguageKeyHandler},
      * the {@link OfflinePlayerHandler}, the {@link DebugLevel}, update
      * the share-settings in {@link ShareManager} and topListSize-settings
-     * in {@link StatCalculator}, and update the MessageBuilders in the
+     * in {@link RequestProcessor}, and update the MessageBuilders in the
      * {@link OutputManager}.
      */
     @Override

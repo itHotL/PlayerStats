@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
  * The outgoing API that represents the core functionality of PlayerStats!
  *
  * <p> To work with it, you'll need to call PlayerStats.{@link #getAPI()} and get an instance of
- * {@link PlayerStatsAPI}. You can then use this object to access any of the further methods.
+ * {@link PlayerStatsImpl}. You can then use this object to access any of the further methods.
  *
  * <p> Since calculating a top or server statistics can take some time, I strongly
  * encourage you to call {@link StatRequest#execute()} asynchronously.
@@ -17,11 +17,11 @@ import org.jetbrains.annotations.NotNull;
  * and this can severely impact server performance.
  *
  * @see StatManager
- * @see ApiFormatter
+ * @see StatFormatter
 */
 public interface PlayerStats {
 
-    /** Gets an instance of the {@link PlayerStatsAPI}.
+    /** Gets an instance of the {@link PlayerStatsImpl}.
 
      * @return the PlayerStats API
      * @throws IllegalStateException if PlayerStats is not loaded on the server when this method is called*/
@@ -31,13 +31,13 @@ public interface PlayerStats {
     }
 
     /**
-     * Gets the current version of PlayerStatsAPI.
+     * Gets the current version of PlayerStatsImpl.
      * Use this method to ensure the correct version of
      * PlayerStats is running on the server before
      * accessing further API methods, to prevent
      * <code>ClassDefNotFoundExceptions</code>.
      *
-     * @return the version of PlayerStatsAPI present on the server
+     * @return the version of PlayerStatsImpl present on the server
      */
     default String getVersion() {
         return "1.8";
@@ -45,5 +45,5 @@ public interface PlayerStats {
 
     StatManager getStatManager();
 
-    ApiFormatter getFormatter();
+    StatFormatter getFormatter();
 }

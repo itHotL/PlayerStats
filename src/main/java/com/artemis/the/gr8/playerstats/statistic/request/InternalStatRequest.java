@@ -4,6 +4,7 @@ import com.artemis.the.gr8.playerstats.Main;
 import com.artemis.the.gr8.playerstats.statistic.result.StatResult;
 import com.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
@@ -18,7 +19,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class InternalStatRequest extends StatRequest<Object> {
+public final class InternalStatRequest extends StatRequest<TextComponent> {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
     private final EnumHandler enumHandler;
@@ -30,14 +31,17 @@ public final class InternalStatRequest extends StatRequest<Object> {
         enumHandler = Main.getEnumHandler();
         targetPattern = Pattern.compile("top|server|me|player");
 
-        String[] argsMinusTarget = extractAndStoreTarget(sender, args);
-        String[] argsMinusStatistic = extractAndStoreStatistic(argsMinusTarget);
-        findAndStoreSubStat(argsMinusStatistic);
+        processArgs(sender, args);
     }
 
     @Override
-    public StatResult<Object> execute() {
-        return null;
+    public @NotNull StatResult<TextComponent> execute() {
+        return Main.getRequestProcessor().getInternalResult(settings);
+    }
+
+    private void processArgs(CommandSender sender, String[] args) {
+        String[] argsMinusTarget = extractAndStoreTarget(sender, args);
+        findStatAndSubStat(argsMinusTarget);
     }
 
     private String[] extractAndStoreTarget(CommandSender sender, @NotNull String[] leftoverArgs) {
@@ -80,18 +84,17 @@ public final class InternalStatRequest extends StatRequest<Object> {
         return leftoverArgs;
     }
 
-    private String[] extractAndStoreStatistic(@NotNull String[] leftoverArgs) {
+    private void findStatAndSubStat(@NotNull String[] leftoverArgs) {
         for (String arg : leftoverArgs) {
             if (enumHandler.isStatistic(arg)) {
-                super.settings.setStatistic(EnumHandler.getStatEnum(arg));
-                return removeArg(leftoverArgs, arg);
+                Statistic stat = EnumHandler.getStatEnum(arg);
+                String[] argsWithoutStat = removeArg(leftoverArgs, arg);
+                findAndStoreSubStat(argsWithoutStat, stat);
             }
         }
-        return leftoverArgs;
     }
 
-    private void findAndStoreSubStat(@NotNull String[] leftoverArgs) {
-        Statistic statistic = super.settings.getStatistic();
+    private void findAndStoreSubStat(String[] leftoverArgs, Statistic statistic) {
         if (statistic == null || leftoverArgs.length == 0) {
             return;
         }
@@ -139,4 +142,5 @@ public final class InternalStatRequest extends StatRequest<Object> {
         currentArgs.remove(argToRemove);
         return currentArgs.toArray(String[]::new);
     }
+
 }

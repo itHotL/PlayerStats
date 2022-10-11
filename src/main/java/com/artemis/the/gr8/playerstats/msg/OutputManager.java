@@ -54,6 +54,12 @@ public final class OutputManager {
         getMessageBuilders();
     }
 
+    public MessageBuilder getCurrentMainMessageBuilder() {
+        return messageBuilder;
+    }
+
+    //TODO separate formatting from internal saving for sharing
+
     /** @return a TextComponent with the following parts:
      * <br>[player-name]: [number] [stat-name] {sub-stat-name}
      */

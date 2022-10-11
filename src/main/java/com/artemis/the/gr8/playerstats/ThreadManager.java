@@ -4,11 +4,12 @@ import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.reload.ReloadThread;
-import com.artemis.the.gr8.playerstats.statistic.StatCalculator;
+import com.artemis.the.gr8.playerstats.statistic.RequestProcessor;
 import com.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 
@@ -29,17 +30,17 @@ public final class ThreadManager {
 
     private static ConfigHandler config;
     private static OutputManager outputManager;
-    private static StatCalculator statCalculator;
+    private static RequestProcessor requestProcessor;
 
-    private ReloadThread lastActiveReloadThread;
-    private StatThread lastActiveStatThread;
+    private ReloadThread activatedReloadThread;
+    private StatThread activatedStatThread;
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    public ThreadManager(ConfigHandler config, StatCalculator statCalculator, OutputManager outputManager) {
+    public ThreadManager(ConfigHandler config, RequestProcessor requestProcessor, OutputManager outputManager) {
         ThreadManager.config = config;
         ThreadManager.outputManager = outputManager;
-        ThreadManager.statCalculator = statCalculator;
+        ThreadManager.requestProcessor = requestProcessor;
 
         statThreads = new HashMap<>();
         statThreadID = 0;
@@ -52,25 +53,26 @@ public final class ThreadManager {
     }
 
     public void startReloadThread(CommandSender sender) {
-        if (lastActiveReloadThread == null || !lastActiveReloadThread.isAlive()) {
+        if (activatedReloadThread == null || !activatedReloadThread.isAlive()) {
             reloadThreadID += 1;
 
-            lastActiveReloadThread = new ReloadThread(config, outputManager, reloadThreadID, lastActiveStatThread, sender);
-            lastActiveReloadThread.start();
+            activatedReloadThread = new ReloadThread(config, outputManager, reloadThreadID, activatedStatThread, sender);
+            activatedReloadThread.start();
         }
         else {
-            MyLogger.logLowLevelMsg("Another reloadThread is already running! (" + lastActiveReloadThread.getName() + ")");
+            MyLogger.logLowLevelMsg("Another reloadThread is already running! (" + activatedReloadThread.getName() + ")");
         }
     }
 
-    public void startStatThread(StatRequest<?> request) {
+    public void startStatThread(@NotNull StatRequest<?> request) {
         statThreadID += 1;
-        String cmdSender = request.getSettings().getCommandSender().getName();
+        CommandSender sender = request.getSettings().getCommandSender();
 
-        if (config.limitStatRequests() && statThreads.containsKey(cmdSender)) {
-            Thread runningThread = statThreads.get(cmdSender);
+        if (config.limitStatRequests() && statThreads.containsKey(sender.getName())) {
+            Thread runningThread = statThreads.get(sender.getName());
+
             if (runningThread.isAlive()) {
-                outputManager.sendFeedbackMsg(request.getSettings().getCommandSender(), StandardMessage.REQUEST_ALREADY_RUNNING);
+                outputManager.sendFeedbackMsg(sender, StandardMessage.REQUEST_ALREADY_RUNNING);
             } else {
                 startNewStatThread(request);
             }
@@ -95,9 +97,9 @@ public final class ThreadManager {
         return lastRecordedCalcTime;
     }
 
-    private void startNewStatThread(StatRequest<?> requestSettings) {
-        lastActiveStatThread = new StatThread(outputManager, statCalculator, statThreadID, requestSettings, lastActiveReloadThread);
-        statThreads.put(requestSettings.getSettings().getCommandSender().getName(), lastActiveStatThread);
-        lastActiveStatThread.start();
+    private void startNewStatThread(StatRequest<?> request) {
+        activatedStatThread = new StatThread(outputManager, requestProcessor, statThreadID, request, activatedReloadThread);
+        statThreads.put(request.getSettings().getCommandSender().getName(), activatedStatThread);
+        activatedStatThread.start();
     }
 }

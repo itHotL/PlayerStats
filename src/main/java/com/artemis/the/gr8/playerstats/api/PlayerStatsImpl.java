@@ -1,25 +1,28 @@
 package com.artemis.the.gr8.playerstats.api;
 
+import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.statistic.request.*;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
+
+import java.util.LinkedHashMap;
 
 import static org.jetbrains.annotations.ApiStatus.Internal;
 
 /** The implementation of the API Interface */
-public final class PlayerStatsAPI implements PlayerStats, StatManager {
+public final class PlayerStatsImpl implements PlayerStats, StatManager {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
-    private static ApiFormatter apiFormatter;
+    private static OutputManager outputManager;
 
     @Internal
-    public PlayerStatsAPI(ApiFormatter formatter, OfflinePlayerHandler offlinePlayers) {
-        apiFormatter = formatter;
+    public PlayerStatsImpl(OutputManager outputManager, OfflinePlayerHandler offlinePlayers) {
+        PlayerStatsImpl.outputManager = outputManager;
         offlinePlayerHandler = offlinePlayers;
     }
 
     @Override
-    public ApiFormatter getFormatter() {
-        return apiFormatter;
+    public StatFormatter getFormatter() {
+        return outputManager.getCurrentMainMessageBuilder();
     }
 
     @Override
@@ -28,22 +31,22 @@ public final class PlayerStatsAPI implements PlayerStats, StatManager {
     }
 
     @Override
-    public PlayerStatRequest playerStatRequest(String playerName) {
+    public RequestGenerator<Integer> playerStatRequest(String playerName) {
         return new PlayerStatRequest(playerName);
     }
 
     @Override
-    public ServerStatRequest serverStatRequest() {
+    public RequestGenerator<Long> serverStatRequest() {
         return new ServerStatRequest();
     }
 
     @Override
-    public TopStatRequest topStatRequest(int topListSize) {
+    public RequestGenerator<LinkedHashMap<String, Integer>> topStatRequest(int topListSize) {
         return new TopStatRequest(topListSize);
     }
 
     @Override
-    public TopStatRequest totalTopStatRequest() {
+    public RequestGenerator<LinkedHashMap<String, Integer>> totalTopStatRequest() {
         int playerCount = offlinePlayerHandler.getOfflinePlayerCount();
         return topStatRequest(playerCount);
     }

@@ -28,43 +28,9 @@ public abstract class StatRequest<T> {
     settings = new Settings(requester);
   }
 
-  protected StatRequest<T> configureUntyped(@NotNull Statistic statistic) {
-    if (statistic.getType() == Statistic.Type.UNTYPED) {
-      settings.setStatistic(statistic);
-      return this;
-    }
-    throw new IllegalArgumentException("This statistic is not of Type.Untyped");
-  }
-
-  protected StatRequest<T> configureBlockOrItemType(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
-    Statistic.Type type = statistic.getType();
-    if (type == Statistic.Type.BLOCK && material.isBlock()) {
-      settings.setBlock(material);
-    }
-    else if (type == Statistic.Type.ITEM && material.isItem()){
-      settings.setItem(material);
-    }
-    else {
-      throw new IllegalArgumentException("Either this statistic is not of Type.Block or Type.Item, or no valid block or item has been provided");
-    }
-    settings.setStatistic(statistic);
-    settings.setSubStatEntryName(material.toString());
-    return this;
-  }
-
-  protected StatRequest<T> configureEntityType(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
-    if (statistic.getType() == Statistic.Type.ENTITY) {
-      settings.setStatistic(statistic);
-      settings.setSubStatEntryName(entityType.toString());
-      settings.setEntity(entityType);
-      return this;
-    }
-    throw new IllegalArgumentException("This statistic is not of Type.Entity");
-  }
-
   /**
-   * Executes this StatRequest. For a Top- or ServerRequest, this can
-   * take some time!
+   * Executes this StatRequest. This calculation can take some time,
+   * so don't call this from the main Thread if you can help it!
    *
    * @return a StatResult containing the value of this lookup, both as
    * numerical value and as formatted message
@@ -109,6 +75,40 @@ public abstract class StatRequest<T> {
         return true;
       }
     }
+  }
+
+  protected StatRequest<T> configureUntyped(@NotNull Statistic statistic) {
+    if (statistic.getType() == Statistic.Type.UNTYPED) {
+      settings.statistic = statistic;
+      return this;
+    }
+    throw new IllegalArgumentException("This statistic is not of Type.Untyped");
+  }
+
+  protected StatRequest<T> configureBlockOrItemType(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
+    Statistic.Type type = statistic.getType();
+    if (type == Statistic.Type.BLOCK && material.isBlock()) {
+      settings.block = material;
+    }
+    else if (type == Statistic.Type.ITEM && material.isItem()){
+      settings.item = material;
+    }
+    else {
+      throw new IllegalArgumentException("Either this statistic is not of Type.Block or Type.Item, or no valid block or item has been provided");
+    }
+    settings.statistic = statistic;
+    settings.subStatEntryName = material.toString();
+    return this;
+  }
+
+  protected StatRequest<T> configureEntityType(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
+    if (statistic.getType() == Statistic.Type.ENTITY) {
+      settings.statistic = statistic;
+      settings.entity = entityType;
+      settings.subStatEntryName = entityType.toString();
+      return this;
+    }
+    throw new IllegalArgumentException("This statistic is not of Type.Entity");
   }
 
   public static final class Settings {
@@ -158,16 +158,8 @@ public abstract class StatRequest<T> {
       return sender instanceof ConsoleCommandSender;
     }
 
-    void setStatistic(Statistic statistic) {
-      this.statistic = statistic;
-    }
-
     public Statistic getStatistic() {
       return statistic;
-    }
-
-    private void setSubStatEntryName(String subStatEntry) {
-      this.subStatEntryName = subStatEntry;
     }
 
     public @Nullable String getSubStatEntryName() {
@@ -186,24 +178,12 @@ public abstract class StatRequest<T> {
       return this.topListSize;
     }
 
-    void setEntity(EntityType entity) {
-      this.entity = entity;
-    }
-
     public EntityType getEntity() {
       return entity;
     }
 
-    void setBlock(Material block) {
-      this.block = block;
-    }
-
     public Material getBlock() {
       return block;
-    }
-
-    void setItem(Material item) {
-      this.item = item;
     }
 
     public Material getItem() {

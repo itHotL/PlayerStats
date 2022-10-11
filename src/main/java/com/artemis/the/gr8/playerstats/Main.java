@@ -1,17 +1,16 @@
 package com.artemis.the.gr8.playerstats;
 
 import com.artemis.the.gr8.playerstats.api.PlayerStats;
+import com.artemis.the.gr8.playerstats.api.PlayerStatsImpl;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.artemis.the.gr8.playerstats.api.PlayerStatsAPI;
 import com.artemis.the.gr8.playerstats.commands.ReloadCommand;
 import com.artemis.the.gr8.playerstats.commands.ShareCommand;
 import com.artemis.the.gr8.playerstats.commands.StatCommand;
 import com.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.listeners.JoinListener;
-import com.artemis.the.gr8.playerstats.msg.MessageBuilder;
 import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
-import com.artemis.the.gr8.playerstats.statistic.StatCalculator;
+import com.artemis.the.gr8.playerstats.statistic.RequestProcessor;
 import com.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
@@ -35,14 +34,14 @@ public final class Main extends JavaPlugin {
     private static BukkitAudiences adventure;
 
     private static ConfigHandler config;
+    private static ThreadManager threadManager;
     private static LanguageKeyHandler languageKeyHandler;
     private static OfflinePlayerHandler offlinePlayerHandler;
     private static EnumHandler enumHandler;
 
     private static OutputManager outputManager;
     private static ShareManager shareManager;
-    private static StatCalculator statCalculator;
-    private static ThreadManager threadManager;
+    private static RequestProcessor requestProcessor;
 
     private static PlayerStats playerStatsAPI;
 
@@ -110,11 +109,11 @@ public final class Main extends JavaPlugin {
         return playerStatsAPI;
     }
 
-    public static @NotNull OutputManager getOutputManager() throws IllegalStateException {
-        if (outputManager == null) {
+    public static @NotNull RequestProcessor getRequestProcessor() throws IllegalStateException {
+        if (requestProcessor == null) {
             throw new IllegalStateException("PlayerStats does not seem to be loaded!");
         }
-        return outputManager;
+        return requestProcessor;
     }
 
     /**
@@ -152,29 +151,21 @@ public final class Main extends JavaPlugin {
         return enumHandler;
     }
 
-    public static @NotNull StatCalculator getStatCalculator() {
-        if (statCalculator == null) {
-            statCalculator = new StatCalculator(getOfflinePlayerHandler());
-        }
-        return statCalculator;
-    }
-
     private void initializeMainClasses() {
         pluginInstance = this;
         adventure = BukkitAudiences.create(this);
-
-        config = new ConfigHandler();
         enumHandler = new EnumHandler();
         languageKeyHandler = new LanguageKeyHandler();
+
+        config = new ConfigHandler();
         offlinePlayerHandler = new OfflinePlayerHandler(config);
-
         shareManager = new ShareManager(config);
-        statCalculator = new StatCalculator(offlinePlayerHandler);
-        outputManager = new OutputManager(adventure, config, shareManager);
-        threadManager = new ThreadManager(config, statCalculator, outputManager);
 
-        MessageBuilder apiMessageBuilder = MessageBuilder.defaultBuilder(config);
-        playerStatsAPI = new PlayerStatsAPI(apiMessageBuilder, offlinePlayerHandler);
+        outputManager = new OutputManager(adventure, config, shareManager);
+        requestProcessor = new RequestProcessor(offlinePlayerHandler, outputManager);
+        threadManager = new ThreadManager(config, requestProcessor, outputManager);
+
+        playerStatsAPI = new PlayerStatsImpl(outputManager, offlinePlayerHandler);
     }
 
     private void setupMetrics() {

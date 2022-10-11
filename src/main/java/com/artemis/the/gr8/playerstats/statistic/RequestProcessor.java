@@ -1,27 +1,68 @@
 package com.artemis.the.gr8.playerstats.statistic;
 
 import com.artemis.the.gr8.playerstats.ThreadManager;
+import com.artemis.the.gr8.playerstats.msg.OutputManager;
+import com.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
+import com.artemis.the.gr8.playerstats.statistic.result.StatResult;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.google.common.collect.ImmutableList;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
-public final class StatCalculator {
+public final class RequestProcessor {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
+    private static OutputManager outputManager;
 
-    public StatCalculator(OfflinePlayerHandler offlinePlayerHandler) {
+    public RequestProcessor(OfflinePlayerHandler offlinePlayerHandler, OutputManager outputManager) {
         this.offlinePlayerHandler = offlinePlayerHandler;
+        RequestProcessor.outputManager = outputManager;
     }
 
-    public int getPlayerStat(StatRequest.Settings requestSettings) {
+    public @NotNull StatResult<TextComponent> getInternalResult(@NotNull StatRequest.Settings requestSettings) {
+        StatResult<?> result = switch (requestSettings.getTarget()) {
+            case PLAYER -> getPlayerResult(requestSettings);
+            case SERVER -> getServerResult(requestSettings);
+            case TOP -> getTopResult(requestSettings);
+        };
+
+        return new StatResult<>(result.formattedComponent(), result.formattedComponent(), result.formattedString());
+    }
+
+    public @NotNull StatResult<Integer> getPlayerResult(StatRequest.Settings requestSettings) {
+        int stat = getPlayerStat(requestSettings);
+        TextComponent result = outputManager.formatAndSavePlayerStat(requestSettings, stat);
+        String serializedResult = ComponentUtils.getTranslatableComponentSerializer().serialize(result);
+
+        return new StatResult<>(stat, result, serializedResult);
+    }
+
+    public @NotNull StatResult<Long> getServerResult(StatRequest.Settings requestSettings) {
+        long stat = getServerStat(requestSettings);
+        TextComponent result = outputManager.formatAndSaveServerStat(requestSettings, stat);
+        String serializedResult = ComponentUtils.getTranslatableComponentSerializer().serialize(result);
+
+        return new StatResult<>(stat, result, serializedResult);
+    }
+
+    public @NotNull StatResult<LinkedHashMap<String, Integer>> getTopResult(StatRequest.Settings requestSettings) {
+        LinkedHashMap<String, Integer> stats = getTopStats(requestSettings);
+        TextComponent result = outputManager.formatAndSaveTopStat(requestSettings, stats);
+        String serializedResult = ComponentUtils.getTranslatableComponentSerializer().serialize(result);
+
+        return new StatResult<>(stats, result, serializedResult);
+    }
+
+    private int getPlayerStat(@NotNull StatRequest.Settings requestSettings) {
         OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(requestSettings.getPlayerName());
         return switch (requestSettings.getStatistic().getType()) {
             case UNTYPED -> player.getStatistic(requestSettings.getStatistic());
@@ -31,19 +72,19 @@ public final class StatCalculator {
         };
     }
 
-    public LinkedHashMap<String, Integer> getTopStats(StatRequest.Settings requestSettings) {
-        return getAllStatsAsync(requestSettings).entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .limit(requestSettings.getTopListSize())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-    }
-
-    public long getServerStat(StatRequest.Settings requestSettings) {
+    private long getServerStat(StatRequest.Settings requestSettings) {
         List<Integer> numbers = getAllStatsAsync(requestSettings)
                 .values()
                 .parallelStream()
                 .toList();
         return numbers.parallelStream().mapToLong(Integer::longValue).sum();
+    }
+
+    private LinkedHashMap<String, Integer> getTopStats(StatRequest.Settings requestSettings) {
+        return getAllStatsAsync(requestSettings).entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .limit(requestSettings.getTopListSize())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
     /**
@@ -72,7 +113,7 @@ public final class StatCalculator {
         return allStats;
     }
 
-    private StatAction getStatTask(StatRequest.Settings requestSettings) {
+    private @NotNull StatAction getStatTask(StatRequest.Settings requestSettings) {
         int size = offlinePlayerHandler.getOfflinePlayerCount() != 0 ? offlinePlayerHandler.getOfflinePlayerCount() : 16;
         ConcurrentHashMap<String, Integer> allStats = new ConcurrentHashMap<>(size);
         ImmutableList<String> playerNames = ImmutableList.copyOf(offlinePlayerHandler.getOfflinePlayerNames());

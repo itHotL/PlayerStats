@@ -5,6 +5,7 @@ import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.enums.Target;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.statistic.request.*;
+import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -31,11 +32,11 @@ public class StatCommand implements CommandExecutor {
             outputManager.sendExamples(sender);
         }
         else {
-            InternalStatRequest request = new InternalStatRequest(sender, args);
+            StatRequest<TextComponent> request = new InternalStatRequest(sender, args);
             if (request.isValid()) {
                 threadManager.startStatThread(request);
             } else {
-                sendFeedback(request);
+                sendFeedback(sender, request);
                 return false;
             }
         }
@@ -52,11 +53,11 @@ public class StatCommand implements CommandExecutor {
      * <li>If the <code>target</code> is Player, is a valid <code>playerName</code> provided?
      * </ul>
      *
+     * @param sender the CommandSender to send feedback to
      * @param request the StatRequest to give feedback on
      */
-    private void sendFeedback(InternalStatRequest request) {
+    private void sendFeedback(CommandSender sender, StatRequest<?> request) {
         StatRequest.Settings settings = request.getSettings();
-        CommandSender sender = settings.getCommandSender();
 
         if (settings.getStatistic() == null) {
             outputManager.sendFeedbackMsg(sender, StandardMessage.MISSING_STAT_NAME);

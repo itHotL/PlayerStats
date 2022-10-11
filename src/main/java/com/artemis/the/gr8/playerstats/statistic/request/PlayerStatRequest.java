@@ -2,9 +2,7 @@ package com.artemis.the.gr8.playerstats.statistic.request;
 
 import com.artemis.the.gr8.playerstats.Main;
 import com.artemis.the.gr8.playerstats.api.RequestGenerator;
-import com.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import com.artemis.the.gr8.playerstats.statistic.result.StatResult;
-import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -40,18 +38,6 @@ public final class PlayerStatRequest extends StatRequest<Integer> implements Req
 
     @Override
     public @NotNull StatResult<Integer> execute() {
-        int stat = Main
-                .getStatCalculator()
-                .getPlayerStat(settings);
-
-        TextComponent prettyComponent = Main
-                .getOutputManager()
-                .formatAndSavePlayerStat(settings, stat);
-
-        String prettyString = ComponentUtils
-                .getTranslatableComponentSerializer()
-                .serialize(prettyComponent);
-
-        return new StatResult<>(stat, prettyComponent, prettyString);
+        return Main.getRequestProcessor().getPlayerResult(settings);
     }
 }

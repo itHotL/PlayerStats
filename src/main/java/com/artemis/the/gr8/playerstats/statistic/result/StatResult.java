@@ -1,6 +1,6 @@
 package com.artemis.the.gr8.playerstats.statistic.result;
 
-import com.artemis.the.gr8.playerstats.api.ApiFormatter;
+import com.artemis.the.gr8.playerstats.api.StatFormatter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 
@@ -31,7 +31,7 @@ import net.kyori.adventure.text.TextComponent;
  * To send a Component, you need to get a {@link BukkitAudiences} object,
  * and use that to send the desired Component. Normally you would have to add
  * Adventure as a dependency to your project, but since the library is included
- * in PlayerStats, you can access it through the PlayerStatsAPI. Information
+ * in PlayerStats, you can access it through the PlayerStatsImpl. Information
  * on how to get and use the BukkitAudiences object can be found on
  * <a href="https://docs.adventure.kyori.net/platform/bukkit.html">Adventure's website</a>.
  *
@@ -39,7 +39,7 @@ import net.kyori.adventure.text.TextComponent;
  * same information in String-format. Don't use Adventure's <code>#content()</code>
  * or <code>#toString()</code> methods on the Components - those won't get the actual
  * message. And finally, if you want the results to be formatted differently,
- * you can get an instance of the {@link ApiFormatter}.
+ * you can get an instance of the {@link StatFormatter}.
  */
 public record StatResult<T>(T value, TextComponent formattedComponent, String formattedString) {
 

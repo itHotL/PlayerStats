@@ -5,7 +5,8 @@ import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import java.util.LinkedHashMap;
 
 /**
- * Turns user input into a {@link StatRequest} that can be used to get statistic data
+ * Turns user input into a {@link StatRequest} that can be
+ * used to get statistic data.
  */
 public interface StatManager {
 

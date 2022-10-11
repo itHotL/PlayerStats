@@ -3,11 +3,11 @@ package com.artemis.the.gr8.playerstats.statistic;
 import com.artemis.the.gr8.playerstats.ThreadManager;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
+import com.artemis.the.gr8.playerstats.statistic.result.StatResult;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
-import com.artemis.the.gr8.playerstats.enums.Target;
 import com.artemis.the.gr8.playerstats.reload.ReloadThread;
-import net.kyori.adventure.text.TextComponent;
+import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -18,14 +18,14 @@ import java.util.*;
 public final class StatThread extends Thread {
 
     private static OutputManager outputManager;
-    private static StatCalculator statCalculator;
+    private static RequestProcessor requestProcessor;
 
     private final ReloadThread reloadThread;
     private final StatRequest<?> statRequest;
 
-    public StatThread(OutputManager m, StatCalculator t, int ID, StatRequest<?> s, @Nullable ReloadThread r) {
+    public StatThread(OutputManager m, RequestProcessor t, int ID, StatRequest<?> s, @Nullable ReloadThread r) {
         outputManager = m;
-        statCalculator = t;
+        requestProcessor = t;
 
         reloadThread = r;
         statRequest = s;
@@ -35,16 +35,14 @@ public final class StatThread extends Thread {
     }
 
     @Override
-    public void run() throws IllegalStateException, NullPointerException {
+    public void run() throws IllegalStateException {
         MyLogger.logHighLevelMsg(this.getName() + " started!");
+        CommandSender statRequester = statRequest.getSettings().getCommandSender();
 
-        if (statRequest == null) {
-            throw new NullPointerException("No statistic requestSettings was found!");
-        }
         if (reloadThread != null && reloadThread.isAlive()) {
             try {
                 MyLogger.logLowLevelMsg(this.getName() + ": Waiting for " + reloadThread.getName() + " to finish up...");
-                outputManager.sendFeedbackMsg(statRequest.getSettings().getCommandSender(), StandardMessage.STILL_RELOADING);
+                outputManager.sendFeedbackMsg(statRequester, StandardMessage.STILL_RELOADING);
                 reloadThread.join();
 
             } catch (InterruptedException e) {
@@ -55,21 +53,16 @@ public final class StatThread extends Thread {
 
         long lastCalc = ThreadManager.getLastRecordedCalcTime();
         if (lastCalc > 2000) {
-            outputManager.sendFeedbackMsgWaitAMoment(statRequest.getSettings().getCommandSender(), lastCalc > 20000);
+            outputManager.sendFeedbackMsgWaitAMoment(statRequester, lastCalc > 20000);
         }
 
-        Target selection = statRequest.getSettings().getTarget();
         try {
-            TextComponent statResult = switch (selection) {
-                case PLAYER -> outputManager.formatAndSavePlayerStat(statRequest.getSettings(), statCalculator.getPlayerStat(statRequest.getSettings()));
-                case TOP -> outputManager.formatAndSaveTopStat(statRequest.getSettings(), statCalculator.getTopStats(statRequest.getSettings()));
-                case SERVER -> outputManager.formatAndSaveServerStat(statRequest.getSettings(), statCalculator.getServerStat(statRequest.getSettings()));
-            };
-            outputManager.sendToCommandSender(statRequest.getSettings().getCommandSender(), statResult);
+            StatResult<?> result = statRequest.execute();
+            outputManager.sendToCommandSender(statRequester, result.formattedComponent());
         }
         catch (ConcurrentModificationException e) {
             if (!statRequest.getSettings().isConsoleSender()) {
-                outputManager.sendFeedbackMsg(statRequest.getSettings().getCommandSender(), StandardMessage.UNKNOWN_ERROR);
+                outputManager.sendFeedbackMsg(statRequester, StandardMessage.UNKNOWN_ERROR);
             }
         }
     }

@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 
  * @see StatResult
  */
-public interface ApiFormatter {
+public interface StatFormatter {
 
     /**
      * Turns a TextComponent into its String representation. This method is equipped

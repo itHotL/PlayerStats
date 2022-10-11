@@ -1,7 +1,7 @@
 package com.artemis.the.gr8.playerstats.msg;
 
 import com.artemis.the.gr8.playerstats.Main;
-import com.artemis.the.gr8.playerstats.api.ApiFormatter;
+import com.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.artemis.the.gr8.playerstats.msg.components.ComponentFactory;
 import com.artemis.the.gr8.playerstats.msg.components.ExampleMessage;
 import com.artemis.the.gr8.playerstats.msg.components.HelpMessage;
@@ -39,7 +39,7 @@ import static net.kyori.adventure.text.Component.*;
  * @see PrideComponentFactory
  * @see BukkitConsoleComponentFactory
  */
-public final class MessageBuilder implements ApiFormatter {
+public final class MessageBuilder implements StatFormatter {
 
     private static ConfigHandler config;
     private boolean useHoverText;
