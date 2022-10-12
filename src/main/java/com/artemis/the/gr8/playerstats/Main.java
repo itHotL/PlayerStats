@@ -10,6 +10,7 @@ import com.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
+import com.artemis.the.gr8.playerstats.share.ShareManager;
 import com.artemis.the.gr8.playerstats.statistic.RequestProcessor;
 import com.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
@@ -43,7 +44,7 @@ public final class Main extends JavaPlugin {
     private static ShareManager shareManager;
     private static RequestProcessor requestProcessor;
 
-    private static PlayerStats playerStatsAPI;
+    private static PlayerStats playerStatsImpl;
 
 
     @Override
@@ -103,10 +104,10 @@ public final class Main extends JavaPlugin {
     }
 
     public static @NotNull PlayerStats getPlayerStatsAPI() throws IllegalStateException {
-        if (playerStatsAPI == null) {
+        if (playerStatsImpl == null) {
             throw new IllegalStateException("PlayerStats does not seem to be loaded!");
         }
-        return playerStatsAPI;
+        return playerStatsImpl;
     }
 
     public static @NotNull RequestProcessor getRequestProcessor() throws IllegalStateException {
@@ -156,16 +157,15 @@ public final class Main extends JavaPlugin {
         adventure = BukkitAudiences.create(this);
         enumHandler = new EnumHandler();
         languageKeyHandler = new LanguageKeyHandler();
-
         config = new ConfigHandler();
+
         offlinePlayerHandler = new OfflinePlayerHandler(config);
         shareManager = new ShareManager(config);
+        outputManager = new OutputManager(adventure, config);
+        requestProcessor = new RequestProcessor(offlinePlayerHandler, outputManager, shareManager);
 
-        outputManager = new OutputManager(adventure, config, shareManager);
-        requestProcessor = new RequestProcessor(offlinePlayerHandler, outputManager);
-        threadManager = new ThreadManager(config, requestProcessor, outputManager);
-
-        playerStatsAPI = new PlayerStatsImpl(outputManager, offlinePlayerHandler);
+        threadManager = new ThreadManager(config, outputManager);
+        playerStatsImpl = new PlayerStatsImpl(offlinePlayerHandler, outputManager);
     }
 
     private void setupMetrics() {

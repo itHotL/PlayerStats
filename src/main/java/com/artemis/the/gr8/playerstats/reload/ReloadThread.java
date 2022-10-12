@@ -1,7 +1,7 @@
 package com.artemis.the.gr8.playerstats.reload;
 
 import com.artemis.the.gr8.playerstats.Main;
-import com.artemis.the.gr8.playerstats.ShareManager;
+import com.artemis.the.gr8.playerstats.share.ShareManager;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;

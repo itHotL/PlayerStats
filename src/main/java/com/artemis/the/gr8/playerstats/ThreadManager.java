@@ -4,9 +4,8 @@ import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.reload.ReloadThread;
-import com.artemis.the.gr8.playerstats.statistic.RequestProcessor;
 import com.artemis.the.gr8.playerstats.statistic.StatThread;
-import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
+import com.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -30,17 +29,15 @@ public final class ThreadManager {
 
     private static ConfigHandler config;
     private static OutputManager outputManager;
-    private static RequestProcessor requestProcessor;
 
     private ReloadThread activatedReloadThread;
     private StatThread activatedStatThread;
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    public ThreadManager(ConfigHandler config, RequestProcessor requestProcessor, OutputManager outputManager) {
+    public ThreadManager(ConfigHandler config, OutputManager outputManager) {
         ThreadManager.config = config;
         ThreadManager.outputManager = outputManager;
-        ThreadManager.requestProcessor = requestProcessor;
 
         statThreads = new HashMap<>();
         statThreadID = 0;
@@ -98,7 +95,7 @@ public final class ThreadManager {
     }
 
     private void startNewStatThread(StatRequest<?> request) {
-        activatedStatThread = new StatThread(outputManager, requestProcessor, statThreadID, request, activatedReloadThread);
+        activatedStatThread = new StatThread(outputManager, statThreadID, request, activatedReloadThread);
         statThreads.put(request.getSettings().getCommandSender().getName(), activatedStatThread);
         activatedStatThread.start();
     }

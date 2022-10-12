@@ -1,4 +1,4 @@
-package com.artemis.the.gr8.playerstats.statistic.result;
+package com.artemis.the.gr8.playerstats.statistic;
 
 import com.artemis.the.gr8.playerstats.api.StatFormatter;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;

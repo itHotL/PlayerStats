@@ -1,6 +1,6 @@
 package com.artemis.the.gr8.playerstats.api;
 
-import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
+import com.artemis.the.gr8.playerstats.statistic.StatRequest;
 
 import java.util.LinkedHashMap;
 

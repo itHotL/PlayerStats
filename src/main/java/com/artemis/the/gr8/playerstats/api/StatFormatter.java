@@ -3,7 +3,7 @@ package com.artemis.the.gr8.playerstats.api;
 import com.artemis.the.gr8.playerstats.enums.Unit;
 import com.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import com.artemis.the.gr8.playerstats.msg.msgutils.NumberFormatter;
-import com.artemis.the.gr8.playerstats.statistic.result.StatResult;
+import com.artemis.the.gr8.playerstats.statistic.StatResult;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.Nullable;

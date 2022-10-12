@@ -2,8 +2,6 @@ package com.artemis.the.gr8.playerstats.statistic;
 
 import com.artemis.the.gr8.playerstats.ThreadManager;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
-import com.artemis.the.gr8.playerstats.statistic.result.StatResult;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.reload.ReloadThread;
@@ -18,15 +16,12 @@ import java.util.*;
 public final class StatThread extends Thread {
 
     private static OutputManager outputManager;
-    private static RequestProcessor requestProcessor;
 
     private final ReloadThread reloadThread;
     private final StatRequest<?> statRequest;
 
-    public StatThread(OutputManager m, RequestProcessor t, int ID, StatRequest<?> s, @Nullable ReloadThread r) {
+    public StatThread(OutputManager m, int ID, StatRequest<?> s, @Nullable ReloadThread r) {
         outputManager = m;
-        requestProcessor = t;
-
         reloadThread = r;
         statRequest = s;
 

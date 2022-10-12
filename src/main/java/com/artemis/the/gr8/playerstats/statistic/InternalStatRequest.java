@@ -1,7 +1,7 @@
-package com.artemis.the.gr8.playerstats.statistic.request;
+package com.artemis.the.gr8.playerstats.statistic;
 
 import com.artemis.the.gr8.playerstats.Main;
-import com.artemis.the.gr8.playerstats.statistic.result.StatResult;
+import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.text.TextComponent;
@@ -21,12 +21,14 @@ import java.util.regex.Pattern;
 
 public final class InternalStatRequest extends StatRequest<TextComponent> {
 
+    private final ConfigHandler config;
     private final OfflinePlayerHandler offlinePlayerHandler;
     private final EnumHandler enumHandler;
     private final Pattern targetPattern;
 
     public InternalStatRequest(CommandSender sender, String[] args) {
         super(sender);
+        config = Main.getConfigHandler();
         offlinePlayerHandler = Main.getOfflinePlayerHandler();
         enumHandler = Main.getEnumHandler();
         targetPattern = Pattern.compile("top|server|me|player");
@@ -36,7 +38,7 @@ public final class InternalStatRequest extends StatRequest<TextComponent> {
 
     @Override
     public @NotNull StatResult<TextComponent> execute() {
-        return Main.getRequestProcessor().getInternalResult(settings);
+        return Main.getRequestProcessor().getInternalResult(super.getSettings());
     }
 
     private void processArgs(CommandSender sender, String[] args) {
@@ -56,31 +58,31 @@ public final class InternalStatRequest extends StatRequest<TextComponent> {
                             continue;
                         }
                         else {
-                            super.settings.configureForPlayer(playerName);
+                            super.getSettings().configureForPlayer(playerName);
                             String[] extractedPlayerName = removeArg(leftoverArgs, playerName);
                             return removeArg(extractedPlayerName, arg);
                         }
                     }
                     case "me" -> {
                         if (sender instanceof Player) {
-                            super.settings.configureForPlayer(sender.getName());
+                            super.getSettings().configureForPlayer(sender.getName());
                         } else {
-                            super.settings.configureForServer();
+                            super.getSettings().configureForServer();
                         }
                     }
-                    case "server" -> super.settings.configureForServer();
-                    case "top" -> super.settings.configureForTop();
+                    case "server" -> super.getSettings().configureForServer();
+                    case "top" -> super.getSettings().configureForTop(config.getTopListMaxSize());
                 }
                 return removeArg(leftoverArgs, arg);
             }
         }
         //if no target is found, but there is a playerName, assume target = Target.PLAYER
         if (playerName != null) {
-            super.settings.configureForPlayer(playerName);
+            super.getSettings().configureForPlayer(playerName);
             return removeArg(leftoverArgs, playerName);
         }
         //otherwise, assume target = Target.TOP
-        super.settings.configureForTop();
+        super.getSettings().configureForTop(config.getTopListMaxSize());
         return leftoverArgs;
     }
 
@@ -102,23 +104,23 @@ public final class InternalStatRequest extends StatRequest<TextComponent> {
         for (String arg : leftoverArgs) {
             if (enumHandler.isSubStatEntry(arg)) {
                 switch (statistic.getType()) {
-                    case UNTYPED -> super.configureUntyped(statistic);
+                    case UNTYPED -> super.getSettings().configureUntyped(statistic);
                     case ITEM -> {
                         Material item = EnumHandler.getItemEnum(arg);
                         if (item != null) {
-                            super.configureBlockOrItemType(statistic, item);
+                            super.getSettings().configureBlockOrItemType(statistic, item);
                         }
                     }
                     case BLOCK -> {
                         Material block = EnumHandler.getBlockEnum(arg);
                         if (block != null) {
-                            super.configureBlockOrItemType(statistic, block);
+                            super.getSettings().configureBlockOrItemType(statistic, block);
                         }
                     }
                     case ENTITY -> {
                         EntityType entityType = EnumHandler.getEntityEnum(arg);
                         if (entityType != null) {
-                            super.configureEntityType(statistic, entityType);
+                            super.getSettings().configureEntityType(statistic, entityType);
                         }
                     }
                 }
@@ -142,5 +144,4 @@ public final class InternalStatRequest extends StatRequest<TextComponent> {
         currentArgs.remove(argToRemove);
         return currentArgs.toArray(String[]::new);
     }
-
 }

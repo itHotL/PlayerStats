@@ -1,9 +1,9 @@
 package com.artemis.the.gr8.playerstats.commands;
 
-import com.artemis.the.gr8.playerstats.ShareManager;
+import com.artemis.the.gr8.playerstats.share.ShareManager;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.artemis.the.gr8.playerstats.statistic.result.InternalStatResult;
+import com.artemis.the.gr8.playerstats.share.StoredResult;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -37,7 +37,7 @@ public final class ShareCommand implements CommandExecutor {
                 outputManager.sendFeedbackMsg(sender, StandardMessage.STILL_ON_SHARE_COOLDOWN);
             }
             else {
-                InternalStatResult result = shareManager.getStatResult(sender.getName(), shareCode);
+                StoredResult result = shareManager.getStatResult(sender.getName(), shareCode);
                 if (result == null) {  //at this point the only possible cause of formattedComponent being null is the request being older than 25 player-requests ago
                     outputManager.sendFeedbackMsg(sender, StandardMessage.STAT_RESULTS_TOO_OLD);
                 } else {

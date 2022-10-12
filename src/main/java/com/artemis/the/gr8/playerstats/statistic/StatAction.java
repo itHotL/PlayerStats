@@ -1,7 +1,6 @@
 package com.artemis.the.gr8.playerstats.statistic;
 
 import com.artemis.the.gr8.playerstats.ThreadManager;
-import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.google.common.collect.ImmutableList;

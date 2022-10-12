@@ -1,11 +1,10 @@
 package com.artemis.the.gr8.playerstats.msg;
 
-import com.artemis.the.gr8.playerstats.ShareManager;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
 import com.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
-import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
+import com.artemis.the.gr8.playerstats.statistic.StatRequest;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
@@ -19,7 +18,6 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static com.artemis.the.gr8.playerstats.enums.StandardMessage.*;
@@ -35,16 +33,13 @@ public final class OutputManager {
 
     private static BukkitAudiences adventure;
     private static ConfigHandler config;
-    private static ShareManager shareManager;
     private static MessageBuilder messageBuilder;
     private static MessageBuilder consoleMessageBuilder;
-
     private static EnumMap<StandardMessage, Function<MessageBuilder, TextComponent>> standardMessages;
 
-    public OutputManager(BukkitAudiences adventure, ConfigHandler config, ShareManager shareManager) {
+    public OutputManager(BukkitAudiences adventure, ConfigHandler config) {
         OutputManager.adventure = adventure;
         OutputManager.config = config;
-        OutputManager.shareManager = shareManager;
 
         getMessageBuilders();
         prepareFunctions();
@@ -58,39 +53,34 @@ public final class OutputManager {
         return messageBuilder;
     }
 
-    //TODO separate formatting from internal saving for sharing
-
-    /** @return a TextComponent with the following parts:
+    /**
+     * @return a TextComponent with the following parts:
      * <br>[player-name]: [number] [stat-name] {sub-stat-name}
      */
-    public TextComponent formatAndSavePlayerStat(@NotNull StatRequest.Settings requestSettings, int playerStat) {
-        BiFunction<Integer, CommandSender, TextComponent> playerStatFunction =
-                getMessageBuilder(requestSettings.getCommandSender()).formattedPlayerStatFunction(playerStat, requestSettings);
-
-        return processFunction(requestSettings.getCommandSender(), playerStatFunction);
+    public @NotNull FormattingFunction formatPlayerStat(@NotNull StatRequest.Settings requestSettings, int playerStat) {
+        return getMessageBuilder(requestSettings.getCommandSender())
+                .formattedPlayerStatFunction(playerStat, requestSettings);
     }
 
-    /** @return a TextComponent with the following parts:
+    /**
+     * @return a TextComponent with the following parts:
      * <br>[Total on] [server-name]: [number] [stat-name] [sub-stat-name]
      */
-    public TextComponent formatAndSaveServerStat(@NotNull StatRequest.Settings requestSettings, long serverStat) {
-        BiFunction<Integer, CommandSender, TextComponent> serverStatFunction =
-                getMessageBuilder(requestSettings.getCommandSender()).formattedServerStatFunction(serverStat, requestSettings);
-
-        return processFunction(requestSettings.getCommandSender(), serverStatFunction);
+    public @NotNull FormattingFunction formatServerStat(@NotNull StatRequest.Settings requestSettings, long serverStat) {
+        return getMessageBuilder(requestSettings.getCommandSender())
+                .formattedServerStatFunction(serverStat, requestSettings);
     }
 
-    /** @return a TextComponent with the following parts:
+    /**
+     * @return a TextComponent with the following parts:
      * <br>[PlayerStats] [Top 10] [stat-name] [sub-stat-name]
      * <br> [1.] [player-name] [number]
      * <br> [2.] [player-name] [number]
      * <br> [3.] etc...
      */
-    public TextComponent formatAndSaveTopStat(@NotNull StatRequest.Settings requestSettings, @NotNull LinkedHashMap<String, Integer> topStats) {
-        BiFunction<Integer, CommandSender, TextComponent> topStatFunction =
-                getMessageBuilder(requestSettings.getCommandSender()).formattedTopStatFunction(topStats, requestSettings);
-
-        return processFunction(requestSettings.getCommandSender(), topStatFunction);
+    public @NotNull FormattingFunction formatTopStats(@NotNull StatRequest.Settings requestSettings, @NotNull LinkedHashMap<String, Integer> topStats) {
+        return getMessageBuilder(requestSettings.getCommandSender())
+                .formattedTopStatFunction(topStats, requestSettings);
     }
 
     public void sendFeedbackMsg(@NotNull CommandSender sender, StandardMessage message) {
@@ -137,21 +127,6 @@ public final class OutputManager {
         adventure.sender(sender).sendMessage(component);
     }
 
-    private TextComponent processFunction(CommandSender sender, @NotNull BiFunction<Integer, CommandSender, TextComponent> statResultFunction) {
-        boolean saveOutput = !(sender instanceof ConsoleCommandSender) &&
-                ShareManager.isEnabled() &&
-                shareManager.senderHasPermission(sender);
-
-        if (saveOutput) {
-            int shareCode =
-                    shareManager.saveStatResult(sender.getName(), statResultFunction.apply(null, sender));
-            return statResultFunction.apply(shareCode, null);
-        }
-        else {
-            return statResultFunction.apply(null, null);
-        }
-    }
-
     private MessageBuilder getMessageBuilder(CommandSender sender) {
         return sender instanceof ConsoleCommandSender ? consoleMessageBuilder : messageBuilder;
     }
@@ -168,7 +143,7 @@ public final class OutputManager {
         return MessageBuilder.defaultBuilder(config);
     }
 
-    private static MessageBuilder getConsoleMessageBuilder() {
+    private static @NotNull MessageBuilder getConsoleMessageBuilder() {
         MessageBuilder consoleBuilder;
         if (isBukkit()) {
             consoleBuilder = MessageBuilder.fromComponentFactory(config, new BukkitConsoleComponentFactory(config));

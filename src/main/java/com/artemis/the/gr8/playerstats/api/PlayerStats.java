@@ -1,7 +1,7 @@
 package com.artemis.the.gr8.playerstats.api;
 
 import com.artemis.the.gr8.playerstats.Main;
-import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
+import com.artemis.the.gr8.playerstats.statistic.StatRequest;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 

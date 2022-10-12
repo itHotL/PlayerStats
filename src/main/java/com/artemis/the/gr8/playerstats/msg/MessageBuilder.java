@@ -8,7 +8,7 @@ import com.artemis.the.gr8.playerstats.msg.components.HelpMessage;
 import com.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
 import com.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
 import com.artemis.the.gr8.playerstats.msg.msgutils.*;
-import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
+import com.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.enums.Target;
@@ -313,7 +313,7 @@ public final class MessageBuilder implements StatFormatter {
      * <br>- If both parameters are null, the formattedComponent will be returned
      * as is.
      */
-    public @NotNull BiFunction<Integer, CommandSender, TextComponent> formattedPlayerStatFunction(int stat, @NotNull StatRequest.Settings request) {
+    public @NotNull FormattingFunction formattedPlayerStatFunction(int stat, @NotNull StatRequest.Settings request) {
         TextComponent playerStat = formatPlayerStat(request.getPlayerName(), stat, request.getStatistic(), request.getSubStatEntryName());
         return getFormattingFunction(playerStat, Target.PLAYER);
     }
@@ -329,7 +329,7 @@ public final class MessageBuilder implements StatFormatter {
      * <br>- If both parameters are null, the formattedComponent will be returned
      * as is.
      */
-    public @NotNull BiFunction<Integer, CommandSender, TextComponent> formattedServerStatFunction(long stat, @NotNull StatRequest.Settings request) {
+    public @NotNull FormattingFunction formattedServerStatFunction(long stat, @NotNull StatRequest.Settings request) {
         TextComponent serverStat = formatServerStat(stat, request.getStatistic(), request.getSubStatEntryName());
         return getFormattingFunction(serverStat, Target.SERVER);
     }
@@ -345,13 +345,13 @@ public final class MessageBuilder implements StatFormatter {
      * <br>- If both parameters are null, the formattedComponent will be returned
      * as is.
      */
-    public @NotNull BiFunction<Integer, CommandSender, TextComponent> formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest.Settings request) {
+    public @NotNull FormattingFunction formattedTopStatFunction(@NotNull LinkedHashMap<String, Integer> topStats, @NotNull StatRequest.Settings request) {
         final TextComponent title = getTopStatTitle(topStats.size(), request.getStatistic(), request.getSubStatEntryName());
         final TextComponent list = getTopStatListComponent(topStats, request.getStatistic());
         final boolean useEnters = config.useEnters(Target.TOP, false);
         final boolean useEntersForShared = config.useEnters(Target.TOP, true);
 
-        return (shareCode, sender) -> {
+        BiFunction<Integer, CommandSender, TextComponent> biFunction = (shareCode, sender) -> {
             TextComponent.Builder topBuilder = text();
 
             //if we're adding a share-button
@@ -395,6 +395,7 @@ public final class MessageBuilder implements StatFormatter {
             }
             return topBuilder.build();
         };
+        return new FormattingFunction(biFunction);
     }
 
     private @NotNull TextComponent getPlayerStatComponent(String playerName, TextComponent statNumberComponent, Statistic statistic, @Nullable String subStatName, @Nullable Unit unit) {
@@ -676,11 +677,11 @@ public final class MessageBuilder implements StatFormatter {
         return componentFactory.sharerName(sender.getName());
     }
 
-    private @NotNull BiFunction<Integer, CommandSender, TextComponent> getFormattingFunction(@NotNull TextComponent statResult, Target target) {
+    private @NotNull FormattingFunction getFormattingFunction(@NotNull TextComponent statResult, Target target) {
         boolean useEnters = config.useEnters(target, false);
         boolean useEntersForShared = config.useEnters(target, true);
 
-        return (shareCode, sender) -> {
+        BiFunction<Integer, CommandSender, TextComponent> biFunction = (shareCode, sender) -> {
             TextComponent.Builder statBuilder = text();
 
             //if we're adding a share-button
@@ -711,6 +712,7 @@ public final class MessageBuilder implements StatFormatter {
             }
             return statBuilder.build();
         };
+        return new FormattingFunction(biFunction);
     }
 
     private int getNumberOfDotsToAlign(String displayText) {

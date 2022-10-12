@@ -1,8 +1,6 @@
-package com.artemis.the.gr8.playerstats.statistic.request;
+package com.artemis.the.gr8.playerstats.statistic;
 
-import com.artemis.the.gr8.playerstats.Main;
 import com.artemis.the.gr8.playerstats.api.PlayerStats;
-import com.artemis.the.gr8.playerstats.statistic.result.StatResult;
 import com.artemis.the.gr8.playerstats.enums.Target;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -22,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public abstract class StatRequest<T> {
 
-  protected final Settings settings;
+  private final Settings settings;
 
   protected StatRequest(CommandSender requester) {
     settings = new Settings(requester);
@@ -77,40 +75,6 @@ public abstract class StatRequest<T> {
     }
   }
 
-  protected StatRequest<T> configureUntyped(@NotNull Statistic statistic) {
-    if (statistic.getType() == Statistic.Type.UNTYPED) {
-      settings.statistic = statistic;
-      return this;
-    }
-    throw new IllegalArgumentException("This statistic is not of Type.Untyped");
-  }
-
-  protected StatRequest<T> configureBlockOrItemType(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
-    Statistic.Type type = statistic.getType();
-    if (type == Statistic.Type.BLOCK && material.isBlock()) {
-      settings.block = material;
-    }
-    else if (type == Statistic.Type.ITEM && material.isItem()){
-      settings.item = material;
-    }
-    else {
-      throw new IllegalArgumentException("Either this statistic is not of Type.Block or Type.Item, or no valid block or item has been provided");
-    }
-    settings.statistic = statistic;
-    settings.subStatEntryName = material.toString();
-    return this;
-  }
-
-  protected StatRequest<T> configureEntityType(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
-    if (statistic.getType() == Statistic.Type.ENTITY) {
-      settings.statistic = statistic;
-      settings.entity = entityType;
-      settings.subStatEntryName = entityType.toString();
-      return this;
-    }
-    throw new IllegalArgumentException("This statistic is not of Type.Entity");
-  }
-
   public static final class Settings {
     private final CommandSender sender;
     private Statistic statistic;
@@ -139,15 +103,40 @@ public abstract class StatRequest<T> {
       this.target = Target.SERVER;
     }
 
-    void configureForTop() {
-        configureForTop(Main.getConfigHandler().getTopListMaxSize());
-    }
-
     void configureForTop(int topListSize) {
         this.target = Target.TOP;
-        this.topListSize = topListSize != 0 ?
-                topListSize :
-                Main.getConfigHandler().getTopListMaxSize();
+        this.topListSize = topListSize;
+    }
+
+    void configureUntyped(@NotNull Statistic statistic) {
+      if (statistic.getType() == Statistic.Type.UNTYPED) {
+        this.statistic = statistic;
+      }
+      throw new IllegalArgumentException("This statistic is not of Type.Untyped");
+    }
+
+     void configureBlockOrItemType(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
+      Statistic.Type type = statistic.getType();
+      if (type == Statistic.Type.BLOCK && material.isBlock()) {
+        this.block = material;
+      }
+      else if (type == Statistic.Type.ITEM && material.isItem()){
+        this.item = material;
+      }
+      else {
+        throw new IllegalArgumentException("Either this statistic is not of Type.Block or Type.Item, or no valid block or item has been provided");
+      }
+      this.statistic = statistic;
+      this.subStatEntryName = material.toString();
+    }
+
+     void configureEntityType(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
+      if (statistic.getType() == Statistic.Type.ENTITY) {
+        this.statistic = statistic;
+        this.entity = entityType;
+        this.subStatEntryName = entityType.toString();
+      }
+      throw new IllegalArgumentException("This statistic is not of Type.Entity");
     }
 
     public @NotNull CommandSender getCommandSender() {

@@ -1,6 +1,5 @@
-package com.artemis.the.gr8.playerstats;
+package com.artemis.the.gr8.playerstats.share;
 
-import com.artemis.the.gr8.playerstats.statistic.result.InternalStatResult;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import net.kyori.adventure.text.TextComponent;
@@ -30,7 +29,7 @@ public final class ShareManager {
     private static int waitingTime;
 
     private static volatile AtomicInteger resultID;
-    private static ConcurrentHashMap<Integer, InternalStatResult> statResultQueue;
+    private static ConcurrentHashMap<Integer, StoredResult> statResultQueue;
     private static ConcurrentHashMap<String, Instant> shareTimeStamp;
     private static ArrayBlockingQueue<Integer> sharedResults;
 
@@ -75,8 +74,7 @@ public final class ShareManager {
         removeExcessResults(playerName);
 
         int ID = getNextIDNumber();
-        //UUID shareCode = UUID.randomUUID();
-        InternalStatResult result = new InternalStatResult(playerName, statResult, ID);
+        StoredResult result = new StoredResult(playerName, statResult, ID);
         int shareCode = result.hashCode();
         statResultQueue.put(shareCode, result);
         MyLogger.logMediumLevelMsg("Saving statResults with no. " + ID);
@@ -103,7 +101,7 @@ public final class ShareManager {
      * and returns the formattedComponent. If no formattedComponent was found,
      * returns null.
      */
-    public @Nullable InternalStatResult getStatResult(String playerName, int shareCode) {
+    public @Nullable StoredResult getStatResult(String playerName, int shareCode) {
         if (statResultQueue.containsKey(shareCode)) {
             shareTimeStamp.put(playerName, Instant.now());
 
@@ -134,7 +132,7 @@ public final class ShareManager {
      * StatResults saved, remove the oldest one.
      */
     private void removeExcessResults(String playerName) {
-        List<InternalStatResult> alreadySavedResults = statResultQueue.values()
+        List<StoredResult> alreadySavedResults = statResultQueue.values()
                 .parallelStream()
                 .filter(result -> result.executorName().equalsIgnoreCase(playerName))
                 .toList();
@@ -142,7 +140,7 @@ public final class ShareManager {
         if (alreadySavedResults.size() > 25) {
             int hashCode = alreadySavedResults
                     .parallelStream()
-                    .min(Comparator.comparing(InternalStatResult::ID))
+                    .min(Comparator.comparing(StoredResult::ID))
                     .orElseThrow().hashCode();
             MyLogger.logMediumLevelMsg("Removing old stat no. " + statResultQueue.get(hashCode).ID() + " for player " + playerName);
             statResultQueue.remove(hashCode);

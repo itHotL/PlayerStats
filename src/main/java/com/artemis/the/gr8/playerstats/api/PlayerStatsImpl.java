@@ -1,7 +1,9 @@
 package com.artemis.the.gr8.playerstats.api;
 
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.artemis.the.gr8.playerstats.statistic.request.*;
+import com.artemis.the.gr8.playerstats.statistic.PlayerStatRequest;
+import com.artemis.the.gr8.playerstats.statistic.ServerStatRequest;
+import com.artemis.the.gr8.playerstats.statistic.TopStatRequest;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 
 import java.util.LinkedHashMap;
@@ -11,13 +13,13 @@ import static org.jetbrains.annotations.ApiStatus.Internal;
 /** The implementation of the API Interface */
 public final class PlayerStatsImpl implements PlayerStats, StatManager {
 
-    private final OfflinePlayerHandler offlinePlayerHandler;
     private static OutputManager outputManager;
+    private final OfflinePlayerHandler offlinePlayerHandler;
 
     @Internal
-    public PlayerStatsImpl(OutputManager outputManager, OfflinePlayerHandler offlinePlayers) {
+    public PlayerStatsImpl(OfflinePlayerHandler offlinePlayerHandler, OutputManager outputManager) {
         PlayerStatsImpl.outputManager = outputManager;
-        offlinePlayerHandler = offlinePlayers;
+        this.offlinePlayerHandler = offlinePlayerHandler;
     }
 
     @Override

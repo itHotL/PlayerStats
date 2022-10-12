@@ -1,15 +1,17 @@
 package com.artemis.the.gr8.playerstats.statistic;
 
 import com.artemis.the.gr8.playerstats.ThreadManager;
+import com.artemis.the.gr8.playerstats.msg.FormattingFunction;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
-import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
-import com.artemis.the.gr8.playerstats.statistic.result.StatResult;
+import com.artemis.the.gr8.playerstats.share.ShareManager;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.google.common.collect.ImmutableList;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -22,44 +24,49 @@ public final class RequestProcessor {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
     private static OutputManager outputManager;
+    private static ShareManager shareManager;
 
-    public RequestProcessor(OfflinePlayerHandler offlinePlayerHandler, OutputManager outputManager) {
+    public RequestProcessor(OfflinePlayerHandler offlinePlayerHandler, OutputManager outputManager, ShareManager shareManager) {
         this.offlinePlayerHandler = offlinePlayerHandler;
         RequestProcessor.outputManager = outputManager;
+        RequestProcessor.shareManager = shareManager;
     }
 
     public @NotNull StatResult<TextComponent> getInternalResult(@NotNull StatRequest.Settings requestSettings) {
         StatResult<?> result = switch (requestSettings.getTarget()) {
-            case PLAYER -> getPlayerResult(requestSettings);
-            case SERVER -> getServerResult(requestSettings);
-            case TOP -> getTopResult(requestSettings);
+            case PLAYER -> processPlayerRequest(requestSettings);
+            case SERVER -> processServerRequest(requestSettings);
+            case TOP -> processTopRequest(requestSettings);
         };
 
         return new StatResult<>(result.formattedComponent(), result.formattedComponent(), result.formattedString());
     }
 
-    public @NotNull StatResult<Integer> getPlayerResult(StatRequest.Settings requestSettings) {
+    public @NotNull StatResult<Integer> processPlayerRequest(StatRequest.Settings requestSettings) {
         int stat = getPlayerStat(requestSettings);
-        TextComponent result = outputManager.formatAndSavePlayerStat(requestSettings, stat);
-        String serializedResult = ComponentUtils.getTranslatableComponentSerializer().serialize(result);
+        FormattingFunction formattingFunction = outputManager.formatPlayerStat(requestSettings, stat);
+        TextComponent formattedResult = processFunction(requestSettings.getCommandSender(), formattingFunction);
+        String resultAsString = ComponentUtils.getTranslatableComponentSerializer().serialize(formattedResult);
 
-        return new StatResult<>(stat, result, serializedResult);
+        return new StatResult<>(stat, formattedResult, resultAsString);
     }
 
-    public @NotNull StatResult<Long> getServerResult(StatRequest.Settings requestSettings) {
+    public @NotNull StatResult<Long> processServerRequest(StatRequest.Settings requestSettings) {
         long stat = getServerStat(requestSettings);
-        TextComponent result = outputManager.formatAndSaveServerStat(requestSettings, stat);
-        String serializedResult = ComponentUtils.getTranslatableComponentSerializer().serialize(result);
+        FormattingFunction formattingFunction = outputManager.formatServerStat(requestSettings, stat);
+        TextComponent formattedResult = processFunction(requestSettings.getCommandSender(), formattingFunction);
+        String resultAsString = ComponentUtils.getTranslatableComponentSerializer().serialize(formattedResult);
 
-        return new StatResult<>(stat, result, serializedResult);
+        return new StatResult<>(stat, formattedResult, resultAsString);
     }
 
-    public @NotNull StatResult<LinkedHashMap<String, Integer>> getTopResult(StatRequest.Settings requestSettings) {
+    public @NotNull StatResult<LinkedHashMap<String, Integer>> processTopRequest(StatRequest.Settings requestSettings) {
         LinkedHashMap<String, Integer> stats = getTopStats(requestSettings);
-        TextComponent result = outputManager.formatAndSaveTopStat(requestSettings, stats);
-        String serializedResult = ComponentUtils.getTranslatableComponentSerializer().serialize(result);
+        FormattingFunction formattingFunction = outputManager.formatTopStats(requestSettings, stats);
+        TextComponent formattedResult = processFunction(requestSettings.getCommandSender(), formattingFunction);
+        String resultAsString = ComponentUtils.getTranslatableComponentSerializer().serialize(formattedResult);
 
-        return new StatResult<>(stats, result, serializedResult);
+        return new StatResult<>(stats, formattedResult, resultAsString);
     }
 
     private int getPlayerStat(@NotNull StatRequest.Settings requestSettings) {
@@ -85,6 +92,20 @@ public final class RequestProcessor {
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(requestSettings.getTopListSize())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    }
+
+    private TextComponent processFunction(CommandSender sender, FormattingFunction function) {
+        if (outputShouldBeStored(sender)) {
+            int shareCode = shareManager.saveStatResult(sender.getName(), function.getResultWithSharerName(sender));
+            return function.getResultWithShareButton(shareCode);
+        }
+        return function.getDefaultResult();
+    }
+
+    private boolean outputShouldBeStored(CommandSender sender) {
+        return !(sender instanceof ConsoleCommandSender) &&
+                ShareManager.isEnabled() &&
+                shareManager.senderHasPermission(sender);
     }
 
     /**
