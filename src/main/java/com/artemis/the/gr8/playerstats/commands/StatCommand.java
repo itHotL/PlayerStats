@@ -5,18 +5,30 @@ import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.enums.Target;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.statistic.InternalStatRequest;
+import com.artemis.the.gr8.playerstats.statistic.PlayerStatRequest;
 import com.artemis.the.gr8.playerstats.statistic.StatRequest;
+import com.artemis.the.gr8.playerstats.utils.EnumHandler;
+import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class StatCommand implements CommandExecutor {
 
     private static ThreadManager threadManager;
     private static OutputManager outputManager;
+    private OfflinePlayerHandler offlinePlayerHandler;
+    private EnumHandler enumHandler;
 
     public StatCommand(OutputManager m, ThreadManager t) {
         threadManager = t;
@@ -42,6 +54,88 @@ public class StatCommand implements CommandExecutor {
             }
         }
         return true;
+    }
+
+    private final class ArgProcessor {
+
+        private String[] argsToProcess;
+        private Statistic statistic;
+        private String subStatistic;
+
+        private ArgProcessor(CommandSender sender, String[] args) {
+            argsToProcess = args;
+            process(sender);
+        }
+
+        private StatRequest<?> process(CommandSender sender) {
+            Pattern pattern = Pattern.compile("top|server|me|player");
+            extractStatistic();
+
+            String playerName = tryToFindPlayerName(argsToProcess);
+
+            for (String arg : argsToProcess) {
+                Matcher matcher = pattern.matcher(arg);
+                if (matcher.find()) {
+                    switch (matcher.group()) {
+                        case "player" -> {
+                            if (playerName != null || containsPlayerTwice(argsToProcess)) {
+                                new PlayerStatRequest(playerName);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void extractStatistic() {
+            String statName = null;
+            for (String arg : argsToProcess) {
+                if (enumHandler.isStatistic(arg)) {
+                    statName = arg;
+                    break;
+                }
+            }
+            if (statName != null) {
+                statistic = EnumHandler.getStatEnum(statName);
+                argsToProcess = removeArg(argsToProcess, statName);
+            }
+        }
+
+        private void extractSubStatistic() {
+            if (statistic == null ||
+                statistic.getType() == Statistic.Type.UNTYPED ||
+                argsToProcess.length == 0) {
+                return;
+            }
+
+            for (String arg : argsToProcess) {
+
+            }
+        }
+
+        @Contract(pure = true)
+        private @Nullable String tryToFindPlayerName(@NotNull String[] args) {
+            for (String arg : args) {
+                if (offlinePlayerHandler.isRelevantPlayer(arg)) {
+                    return arg;
+                }
+            }
+            return null;
+        }
+
+        private boolean containsPlayerTwice(String[] args) {
+            return Arrays.stream(args)
+                    .filter(arg -> arg.equalsIgnoreCase("player"))
+                    .toList()
+                    .size() >= 2;
+        }
+
+        private String[] removeArg(@NotNull String[] args, String argToRemove) {
+            ArrayList<String> currentArgs = new ArrayList<>(Arrays.asList(args));
+            currentArgs.remove(argToRemove);
+            return currentArgs.toArray(String[]::new);
+        }
+
     }
 
     /**

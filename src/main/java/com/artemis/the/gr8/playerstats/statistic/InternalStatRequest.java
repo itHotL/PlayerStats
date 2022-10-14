@@ -3,6 +3,7 @@ package com.artemis.the.gr8.playerstats.statistic;
 import com.artemis.the.gr8.playerstats.Main;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.utils.EnumHandler;
+import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Material;
@@ -42,7 +43,11 @@ public final class InternalStatRequest extends StatRequest<TextComponent> {
     }
 
     private void processArgs(CommandSender sender, String[] args) {
+        MyLogger.logWarning("processArgs: " + Arrays.toString(args));
+
         String[] argsMinusTarget = extractAndStoreTarget(sender, args);
+        MyLogger.logWarning("processArgs minus target: " + Arrays.toString(argsMinusTarget));
+
         findStatAndSubStat(argsMinusTarget);
     }
 
@@ -59,6 +64,7 @@ public final class InternalStatRequest extends StatRequest<TextComponent> {
                         }
                         else {
                             super.getSettings().configureForPlayer(playerName);
+
                             String[] extractedPlayerName = removeArg(leftoverArgs, playerName);
                             return removeArg(extractedPlayerName, arg);
                         }
@@ -87,8 +93,10 @@ public final class InternalStatRequest extends StatRequest<TextComponent> {
     }
 
     private void findStatAndSubStat(@NotNull String[] leftoverArgs) {
+        MyLogger.logWarning("findStatAndSubStat: " + Arrays.toString(leftoverArgs));
         for (String arg : leftoverArgs) {
             if (enumHandler.isStatistic(arg)) {
+                MyLogger.logWarning("statistic found: " + arg);
                 Statistic stat = EnumHandler.getStatEnum(arg);
                 String[] argsWithoutStat = removeArg(leftoverArgs, arg);
                 findAndStoreSubStat(argsWithoutStat, stat);
@@ -97,7 +105,12 @@ public final class InternalStatRequest extends StatRequest<TextComponent> {
     }
 
     private void findAndStoreSubStat(String[] leftoverArgs, Statistic statistic) {
-        if (statistic == null || leftoverArgs.length == 0) {
+        MyLogger.logWarning("findAndStoreSubStat: " + Arrays.toString(leftoverArgs));
+        if (statistic == null) {
+            return;
+        }
+        else if (leftoverArgs.length == 0) {
+            super.getSettings().configureUntyped(statistic);
             return;
         }
 

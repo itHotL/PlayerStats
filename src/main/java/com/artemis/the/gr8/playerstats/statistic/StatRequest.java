@@ -109,10 +109,10 @@ public abstract class StatRequest<T> {
     }
 
     void configureUntyped(@NotNull Statistic statistic) {
-      if (statistic.getType() == Statistic.Type.UNTYPED) {
-        this.statistic = statistic;
+      if (statistic.getType() != Statistic.Type.UNTYPED) {
+        throw new IllegalArgumentException("This statistic is not of Type.Untyped");
       }
-      throw new IllegalArgumentException("This statistic is not of Type.Untyped");
+      this.statistic = statistic;
     }
 
      void configureBlockOrItemType(@NotNull Statistic statistic, @NotNull Material material) throws IllegalArgumentException {
@@ -131,12 +131,12 @@ public abstract class StatRequest<T> {
     }
 
      void configureEntityType(@NotNull Statistic statistic, @NotNull EntityType entityType) throws IllegalArgumentException {
-      if (statistic.getType() == Statistic.Type.ENTITY) {
-        this.statistic = statistic;
-        this.entity = entityType;
-        this.subStatEntryName = entityType.toString();
+      if (statistic.getType() != Statistic.Type.ENTITY) {
+        throw new IllegalArgumentException("This statistic is not of Type.Entity");
       }
-      throw new IllegalArgumentException("This statistic is not of Type.Entity");
+      this.statistic = statistic;
+      this.entity = entityType;
+      this.subStatEntryName = entityType.toString();
     }
 
     public @NotNull CommandSender getCommandSender() {
