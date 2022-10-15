@@ -56,7 +56,7 @@ public final class Main extends JavaPlugin {
         //register all commands and the tabCompleter
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(outputManager, threadManager));
+            statcmd.setExecutor(new StatCommand(outputManager, threadManager, config, offlinePlayerHandler, enumHandler));
             statcmd.setTabCompleter(new TabCompleter(enumHandler, offlinePlayerHandler));
         }
         PluginCommand reloadcmd = this.getCommand("statisticreload");
@@ -78,17 +78,6 @@ public final class Main extends JavaPlugin {
             adventure = null;
         }
         this.getLogger().info("Disabled PlayerStats!");
-    }
-
-    /**
-     * @return Adventure's BukkitAudiences object
-     * @throws IllegalStateException if PlayerStats is not enabled
-     */
-    public static @NotNull BukkitAudiences getAdventure() throws IllegalStateException {
-        if (adventure == null) {
-            throw new IllegalStateException("Tried to access Adventure without PlayerStats being enabled!");
-        }
-        return adventure;
     }
 
     /**
@@ -117,19 +106,9 @@ public final class Main extends JavaPlugin {
         return requestProcessor;
     }
 
-    /**
-     * @return PlayerStats' ConfigHandler
-     */
-    public static @NotNull ConfigHandler getConfigHandler() {
-        if (config == null) {
-            config = new ConfigHandler();
-        }
-        return config;
-    }
-
-    public static @NotNull OfflinePlayerHandler getOfflinePlayerHandler() {
+    public static @NotNull OfflinePlayerHandler getOfflinePlayerHandler() throws IllegalStateException {
         if (offlinePlayerHandler == null) {
-            offlinePlayerHandler = new OfflinePlayerHandler(getConfigHandler());
+            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
         }
         return offlinePlayerHandler;
     }
@@ -139,17 +118,6 @@ public final class Main extends JavaPlugin {
             languageKeyHandler = new LanguageKeyHandler();
         }
         return languageKeyHandler;
-    }
-
-    /**
-     * Gets the EnumHandler. If there is no EnumHandler, one will be created.
-     * @return PlayerStat's EnumHandler
-     */
-    public static @NotNull EnumHandler getEnumHandler() {
-        if (enumHandler == null) {
-            enumHandler = new EnumHandler();
-        }
-        return enumHandler;
     }
 
     private void initializeMainClasses() {

@@ -29,10 +29,8 @@ import net.kyori.adventure.text.TextComponent;
  * By default, the resulting message is a {@link TextComponent}, which can be
  * sent directly to a Minecraft client or console with the Adventure library.
  * To send a Component, you need to get a {@link BukkitAudiences} object,
- * and use that to send the desired Component. Normally you would have to add
- * Adventure as a dependency to your project, but since the library is included
- * in PlayerStats, you can access it through the PlayerStatsImpl. Information
- * on how to get and use the BukkitAudiences object can be found on
+ * and use that to send the desired Component. Information on how to get
+ * and use the BukkitAudiences object can be found on
  * <a href="https://docs.adventure.kyori.net/platform/bukkit.html">Adventure's website</a>.
  *
  * <p>You can also use the provided {@link #formattedString ()} method to get the
