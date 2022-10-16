@@ -1,7 +1,8 @@
 package com.artemis.the.gr8.playerstats;
 
 import com.artemis.the.gr8.playerstats.api.PlayerStats;
-import com.artemis.the.gr8.playerstats.api.PlayerStatsImpl;
+import com.artemis.the.gr8.playerstats.api.PlayerStatsAPI;
+import com.artemis.the.gr8.playerstats.statistic.RequestManager;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.commands.ReloadCommand;
 import com.artemis.the.gr8.playerstats.commands.ShareCommand;
@@ -13,6 +14,7 @@ import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import com.artemis.the.gr8.playerstats.share.ShareManager;
 import com.artemis.the.gr8.playerstats.statistic.RequestProcessor;
 import com.artemis.the.gr8.playerstats.utils.EnumHandler;
+import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -42,7 +44,6 @@ public final class Main extends JavaPlugin {
 
     private static OutputManager outputManager;
     private static ShareManager shareManager;
-    private static RequestProcessor requestProcessor;
 
     private static PlayerStats playerStatsImpl;
 
@@ -80,6 +81,15 @@ public final class Main extends JavaPlugin {
         this.getLogger().info("Disabled PlayerStats!");
     }
 
+    public void reloadPlugin() {
+        config.reload();
+        MyLogger.setDebugLevel(config.getDebugLevel());
+        languageKeyHandler.reload();
+        offlinePlayerHandler.reload();
+        outputManager.update();
+        ShareManager.updateSettings(config);
+    }
+
     /**
      *
      * @return the JavaPlugin instance associated with PlayerStats
@@ -99,27 +109,6 @@ public final class Main extends JavaPlugin {
         return playerStatsImpl;
     }
 
-    public static @NotNull RequestProcessor getRequestProcessor() throws IllegalStateException {
-        if (requestProcessor == null) {
-            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
-        }
-        return requestProcessor;
-    }
-
-    public static @NotNull OfflinePlayerHandler getOfflinePlayerHandler() throws IllegalStateException {
-        if (offlinePlayerHandler == null) {
-            throw new IllegalStateException("PlayerStats does not seem to be loaded!");
-        }
-        return offlinePlayerHandler;
-    }
-
-    public static @NotNull LanguageKeyHandler getLanguageKeyHandler() {
-        if (languageKeyHandler == null) {
-            languageKeyHandler = new LanguageKeyHandler();
-        }
-        return languageKeyHandler;
-    }
-
     private void initializeMainClasses() {
         pluginInstance = this;
         adventure = BukkitAudiences.create(this);
@@ -129,11 +118,12 @@ public final class Main extends JavaPlugin {
 
         offlinePlayerHandler = new OfflinePlayerHandler(config);
         shareManager = new ShareManager(config);
-        outputManager = new OutputManager(adventure, config);
-        requestProcessor = new RequestProcessor(offlinePlayerHandler, outputManager, shareManager);
+        outputManager = new OutputManager(adventure, config, languageKeyHandler);
 
-        threadManager = new ThreadManager(config, outputManager);
-        playerStatsImpl = new PlayerStatsImpl(offlinePlayerHandler, outputManager);
+        RequestProcessor requestProcessor = new RequestProcessor(offlinePlayerHandler, outputManager, shareManager);
+        RequestManager statManager = new RequestManager(offlinePlayerHandler, requestProcessor);
+        threadManager = new ThreadManager(this, config, outputManager, statManager);
+        playerStatsImpl = new PlayerStatsAPI(statManager, outputManager);
     }
 
     private void setupMetrics() {

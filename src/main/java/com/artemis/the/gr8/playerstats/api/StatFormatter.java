@@ -1,7 +1,6 @@
 package com.artemis.the.gr8.playerstats.api;
 
 import com.artemis.the.gr8.playerstats.enums.Unit;
-import com.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import com.artemis.the.gr8.playerstats.msg.msgutils.NumberFormatter;
 import com.artemis.the.gr8.playerstats.statistic.StatResult;
 import net.kyori.adventure.text.TextComponent;
@@ -19,6 +18,15 @@ import org.jetbrains.annotations.Nullable;
 public interface StatFormatter {
 
     /**
+     * Gets a {@link NumberFormatter} to format raw numbers into something more readable.
+     *
+     * @return the <code>NumberFormatter</code>
+     */
+    default NumberFormatter getNumberFormatter() {
+        return new NumberFormatter();
+    }
+
+    /**
      * Turns a TextComponent into its String representation. This method is equipped
      * to turn all PlayerStats' formatted statResults into String, using a custom
      * Serializer.
@@ -28,19 +36,7 @@ public interface StatFormatter {
      * but with color, style and formatting. TranslatableComponents will be turned into
      * plain English.
      */
-    default String TextComponentToString(TextComponent component) {
-        return ComponentUtils.getTranslatableComponentSerializer()
-                .serialize(component);
-    }
-
-    /**
-     * Gets a {@link NumberFormatter} to format raw numbers into something more readable.
-     *
-     * @return the <code>NumberFormatter</code>
-     */
-    default NumberFormatter getNumberFormatter() {
-        return new NumberFormatter();
-    }
+    String textComponentToString(TextComponent component);
 
     /**
      * Gets the default prefix PlayerStats uses.

@@ -16,12 +16,14 @@ import java.util.*;
 public final class StatThread extends Thread {
 
     private static OutputManager outputManager;
+    private final RequestManager statManager;
 
     private final ReloadThread reloadThread;
     private final StatRequest<?> statRequest;
 
-    public StatThread(OutputManager m, int ID, StatRequest<?> s, @Nullable ReloadThread r) {
+    public StatThread(OutputManager m, RequestManager stat, int ID, StatRequest<?> s, @Nullable ReloadThread r) {
         outputManager = m;
+        statManager = stat;
         reloadThread = r;
         statRequest = s;
 
@@ -52,7 +54,7 @@ public final class StatThread extends Thread {
         }
 
         try {
-            StatResult<?> result = statRequest.execute();
+            StatResult<?> result = statManager.execute(statRequest);
             outputManager.sendToCommandSender(statRequester, result.formattedComponent());
         }
         catch (ConcurrentModificationException e) {

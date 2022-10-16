@@ -9,7 +9,6 @@ import com.artemis.the.gr8.playerstats.statistic.RequestProcessor;
 import com.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.enums.DebugLevel;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
@@ -17,14 +16,14 @@ import org.jetbrains.annotations.Nullable;
 /** The Thread that is in charge of reloading PlayerStats. */
 public final class ReloadThread extends Thread {
 
-    private static ConfigHandler config;
+    private final Main main;
     private static OutputManager outputManager;
 
     private final StatThread statThread;
     private final CommandSender sender;
 
-    public ReloadThread(ConfigHandler c, OutputManager m, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
-        config = c;
+    public ReloadThread(Main main, OutputManager m, int ID, @Nullable StatThread s, @Nullable CommandSender se) {
+        this.main = main;
         outputManager = m;
 
         statThread = s;
@@ -58,20 +57,10 @@ public final class ReloadThread extends Thread {
         }
 
         MyLogger.logLowLevelMsg("Reloading!");
-        reloadEverything();
+        main.reloadPlugin();
 
         if (sender != null) {
             outputManager.sendFeedbackMsg(sender, StandardMessage.RELOADED_CONFIG);
         }
-    }
-
-    private void reloadEverything() {
-        config.reload();
-        MyLogger.setDebugLevel(config.getDebugLevel());
-        Main.getLanguageKeyHandler().reload();
-        Main.getOfflinePlayerHandler().reload();
-
-        OutputManager.updateMessageBuilders();
-        ShareManager.updateSettings(config);
     }
 }

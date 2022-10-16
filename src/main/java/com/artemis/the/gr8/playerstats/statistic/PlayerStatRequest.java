@@ -1,6 +1,5 @@
 package com.artemis.the.gr8.playerstats.statistic;
 
-import com.artemis.the.gr8.playerstats.Main;
 import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -31,10 +30,5 @@ public final class PlayerStatRequest extends StatRequest<Integer> implements Req
     public StatRequest<Integer> entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
         super.getSettings().configureEntityType(statistic, entityType);
         return this;
-    }
-
-    @Override
-    public @NotNull StatResult<Integer> execute() {
-        return Main.getRequestProcessor().processPlayerRequest(super.getSettings());
     }
 }

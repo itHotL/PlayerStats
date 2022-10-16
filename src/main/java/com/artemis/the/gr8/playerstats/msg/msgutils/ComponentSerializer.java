@@ -1,7 +1,5 @@
-package com.artemis.the.gr8.playerstats.msg.components;
+package com.artemis.the.gr8.playerstats.msg.msgutils;
 
-import com.artemis.the.gr8.playerstats.Main;
-import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import net.kyori.adventure.text.*;
 import net.kyori.adventure.text.flattener.ComponentFlattener;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -11,7 +9,13 @@ import org.jetbrains.annotations.NotNull;
 /**
  * A small utility class for turning PlayerStats' custom Components into String.
  */
-public final class ComponentUtils {
+public final class ComponentSerializer {
+
+    private final LanguageKeyHandler languageKeyHandler;
+
+    public ComponentSerializer(LanguageKeyHandler languageKeyHandler) {
+        this.languageKeyHandler = languageKeyHandler;
+    }
 
     /**
      * Returns a LegacyComponentSerializer that is capable of serializing
@@ -23,8 +27,7 @@ public final class ComponentUtils {
      * @return the Serializer
      * @see LanguageKeyHandler
      */
-    public static @NotNull LegacyComponentSerializer getTranslatableComponentSerializer() {
-        LanguageKeyHandler languageKeyHandler = Main.getLanguageKeyHandler();
+    public @NotNull LegacyComponentSerializer getTranslatableComponentSerializer() {
         LegacyComponentSerializer serializer = getTextComponentSerializer();
 
         ComponentFlattener flattener = ComponentFlattener.basic().toBuilder()

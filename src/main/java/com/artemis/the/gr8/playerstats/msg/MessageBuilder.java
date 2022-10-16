@@ -1,6 +1,5 @@
 package com.artemis.the.gr8.playerstats.msg;
 
-import com.artemis.the.gr8.playerstats.Main;
 import com.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.artemis.the.gr8.playerstats.msg.components.ComponentFactory;
 import com.artemis.the.gr8.playerstats.msg.components.ExampleMessage;
@@ -48,28 +47,30 @@ public final class MessageBuilder implements StatFormatter {
     private final ComponentFactory componentFactory;
     private final LanguageKeyHandler languageKeyHandler;
     private final NumberFormatter formatter;
+    private final ComponentSerializer serializer;
 
-    private MessageBuilder(ConfigHandler config) {
-        this (config, new ComponentFactory(config));
+    private MessageBuilder(ConfigHandler config, LanguageKeyHandler language) {
+        this (config, language, new ComponentFactory(config));
     }
 
-    private MessageBuilder(ConfigHandler configHandler, ComponentFactory factory) {
+    private MessageBuilder(ConfigHandler configHandler, LanguageKeyHandler language, ComponentFactory factory) {
         config = configHandler;
         useHoverText = config.useHoverText();
         componentFactory = factory;
 
+        languageKeyHandler = language;
         formatter = new NumberFormatter();
-        languageKeyHandler = Main.getLanguageKeyHandler();
-    }
-
-    @Contract("_ -> new")
-    public static @NotNull MessageBuilder defaultBuilder(ConfigHandler config) {
-        return new MessageBuilder(config);
+        serializer = new ComponentSerializer(languageKeyHandler);
     }
 
     @Contract("_, _ -> new")
-    public static @NotNull MessageBuilder fromComponentFactory(ConfigHandler config, ComponentFactory factory) {
-        return new MessageBuilder(config, factory);
+    public static @NotNull MessageBuilder defaultBuilder(ConfigHandler config, LanguageKeyHandler language) {
+        return new MessageBuilder(config, language);
+    }
+
+    @Contract("_, _, _ -> new")
+    public static @NotNull MessageBuilder fromComponentFactory(ConfigHandler config, LanguageKeyHandler language, ComponentFactory factory) {
+        return new MessageBuilder(config, language, factory);
     }
 
     /**
@@ -82,6 +83,11 @@ public final class MessageBuilder implements StatFormatter {
 
     public void setConsoleBuilder(boolean isConsoleBuilder) {
         this.isConsoleBuilder = isConsoleBuilder;
+    }
+
+    @Override
+    public @NotNull String textComponentToString(TextComponent component) {
+        return serializer.getTranslatableComponentSerializer().serialize(component);
     }
 
     @Override

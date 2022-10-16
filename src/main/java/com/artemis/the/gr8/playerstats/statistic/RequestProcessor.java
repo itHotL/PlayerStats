@@ -3,7 +3,6 @@ package com.artemis.the.gr8.playerstats.statistic;
 import com.artemis.the.gr8.playerstats.ThreadManager;
 import com.artemis.the.gr8.playerstats.msg.FormattingFunction;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.artemis.the.gr8.playerstats.msg.components.ComponentUtils;
 import com.artemis.the.gr8.playerstats.share.ShareManager;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
@@ -20,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
-public final class RequestProcessor {
+public class RequestProcessor {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
     private static OutputManager outputManager;
@@ -32,21 +31,11 @@ public final class RequestProcessor {
         RequestProcessor.shareManager = shareManager;
     }
 
-    public @NotNull StatResult<TextComponent> getInternalResult(@NotNull StatRequest.Settings requestSettings) {
-        StatResult<?> result = switch (requestSettings.getTarget()) {
-            case PLAYER -> processPlayerRequest(requestSettings);
-            case SERVER -> processServerRequest(requestSettings);
-            case TOP -> processTopRequest(requestSettings);
-        };
-
-        return new StatResult<>(result.formattedComponent(), result.formattedComponent(), result.formattedString());
-    }
-
     public @NotNull StatResult<Integer> processPlayerRequest(StatRequest.Settings requestSettings) {
         int stat = getPlayerStat(requestSettings);
         FormattingFunction formattingFunction = outputManager.formatPlayerStat(requestSettings, stat);
         TextComponent formattedResult = processFunction(requestSettings.getCommandSender(), formattingFunction);
-        String resultAsString = ComponentUtils.getTranslatableComponentSerializer().serialize(formattedResult);
+        String resultAsString = outputManager.textComponentToString(formattedResult);
 
         return new StatResult<>(stat, formattedResult, resultAsString);
     }
@@ -55,7 +44,7 @@ public final class RequestProcessor {
         long stat = getServerStat(requestSettings);
         FormattingFunction formattingFunction = outputManager.formatServerStat(requestSettings, stat);
         TextComponent formattedResult = processFunction(requestSettings.getCommandSender(), formattingFunction);
-        String resultAsString = ComponentUtils.getTranslatableComponentSerializer().serialize(formattedResult);
+        String resultAsString = outputManager.textComponentToString(formattedResult);
 
         return new StatResult<>(stat, formattedResult, resultAsString);
     }
@@ -64,7 +53,7 @@ public final class RequestProcessor {
         LinkedHashMap<String, Integer> stats = getTopStats(requestSettings);
         FormattingFunction formattingFunction = outputManager.formatTopStats(requestSettings, stats);
         TextComponent formattedResult = processFunction(requestSettings.getCommandSender(), formattingFunction);
-        String resultAsString = ComponentUtils.getTranslatableComponentSerializer().serialize(formattedResult);
+        String resultAsString = outputManager.textComponentToString(formattedResult);
 
         return new StatResult<>(stats, formattedResult, resultAsString);
     }

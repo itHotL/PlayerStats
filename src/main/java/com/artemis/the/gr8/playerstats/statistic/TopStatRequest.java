@@ -1,6 +1,5 @@
 package com.artemis.the.gr8.playerstats.statistic;
 
-import com.artemis.the.gr8.playerstats.Main;
 import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -33,10 +32,5 @@ public final class TopStatRequest extends StatRequest<LinkedHashMap<String, Inte
     public StatRequest<LinkedHashMap<String, Integer>> entityType(@NotNull Statistic statistic, @NotNull EntityType entityType) {
         super.getSettings().configureEntityType(statistic, entityType);
         return this;
-    }
-
-    @Override
-    public @NotNull StatResult<LinkedHashMap<String, Integer>> execute() {
-        return Main.getRequestProcessor().processTopRequest(super.getSettings());
     }
 }

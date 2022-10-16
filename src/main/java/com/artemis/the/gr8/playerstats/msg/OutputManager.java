@@ -1,9 +1,11 @@
 package com.artemis.the.gr8.playerstats.msg;
 
+import com.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
 import com.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
+import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import com.artemis.the.gr8.playerstats.statistic.StatRequest;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
@@ -33,24 +35,30 @@ public final class OutputManager {
 
     private static BukkitAudiences adventure;
     private static ConfigHandler config;
-    private static MessageBuilder messageBuilder;
-    private static MessageBuilder consoleMessageBuilder;
     private static EnumMap<StandardMessage, Function<MessageBuilder, TextComponent>> standardMessages;
 
-    public OutputManager(BukkitAudiences adventure, ConfigHandler config) {
+    private final LanguageKeyHandler languageKeyHandler;
+    private MessageBuilder messageBuilder;
+    private MessageBuilder consoleMessageBuilder;
+
+    public OutputManager(BukkitAudiences adventure, ConfigHandler config, LanguageKeyHandler language) {
         OutputManager.adventure = adventure;
         OutputManager.config = config;
-
+        languageKeyHandler = language;
         getMessageBuilders();
         prepareFunctions();
     }
 
-    public static void updateMessageBuilders() {
+    public void update() {
         getMessageBuilders();
     }
 
-    public MessageBuilder getCurrentMainMessageBuilder() {
+    public StatFormatter getMainMessageBuilder() {
         return messageBuilder;
+    }
+
+    public @NotNull String textComponentToString(TextComponent component) {
+        return messageBuilder.textComponentToString(component);
     }
 
     /**
@@ -131,22 +139,22 @@ public final class OutputManager {
         return sender instanceof ConsoleCommandSender ? consoleMessageBuilder : messageBuilder;
     }
 
-    private static void getMessageBuilders() {
+    private void getMessageBuilders() {
         messageBuilder = getClientMessageBuilder();
         consoleMessageBuilder = getConsoleMessageBuilder();
     }
 
-    private static MessageBuilder getClientMessageBuilder() {
+    private MessageBuilder getClientMessageBuilder() {
         if (useRainbowStyle()) {
-            return MessageBuilder.fromComponentFactory(config, new PrideComponentFactory(config));
+            return MessageBuilder.fromComponentFactory(config, languageKeyHandler, new PrideComponentFactory(config));
         }
-        return MessageBuilder.defaultBuilder(config);
+        return MessageBuilder.defaultBuilder(config, languageKeyHandler);
     }
 
-    private static @NotNull MessageBuilder getConsoleMessageBuilder() {
+    private @NotNull MessageBuilder getConsoleMessageBuilder() {
         MessageBuilder consoleBuilder;
         if (isBukkit()) {
-            consoleBuilder = MessageBuilder.fromComponentFactory(config, new BukkitConsoleComponentFactory(config));
+            consoleBuilder = MessageBuilder.fromComponentFactory(config,languageKeyHandler, new BukkitConsoleComponentFactory(config));
         } else {
             consoleBuilder = getClientMessageBuilder();
         }
@@ -155,11 +163,11 @@ public final class OutputManager {
         return consoleBuilder;
     }
 
-    private static boolean useRainbowStyle() {
+    private boolean useRainbowStyle() {
         return config.useRainbowMode() || (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE));
     }
 
-    private static boolean isBukkit() {
+    private boolean isBukkit() {
         return Bukkit.getName().equalsIgnoreCase("CraftBukkit");
     }
 

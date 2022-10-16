@@ -1,6 +1,6 @@
 package com.artemis.the.gr8.playerstats.statistic;
 
-import com.artemis.the.gr8.playerstats.api.PlayerStats;
+import com.artemis.the.gr8.playerstats.api.StatManager;
 import com.artemis.the.gr8.playerstats.enums.Target;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -12,11 +12,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Holds all the information PlayerStats needs to perform
- * a lookup, and can be executed to get the results. Calling
- * {@link #execute()} on a Top- or ServerRequest can take some
- * time (especially if there is a substantial amount of
- * OfflinePlayers on this particular server), so I strongly
- * advice you to call this asynchronously!
+ * a lookup, and can be executed by the {@link StatManager}
+ * to get the results.
  */
 public abstract class StatRequest<T> {
 
@@ -25,17 +22,6 @@ public abstract class StatRequest<T> {
   protected StatRequest(CommandSender requester) {
     settings = new Settings(requester);
   }
-
-  /**
-   * Executes this StatRequest. This calculation can take some time,
-   * so don't call this from the main Thread if you can help it!
-   *
-   * @return a StatResult containing the value of this lookup, both as
-   * numerical value and as formatted message
-   * @see PlayerStats
-   * @see StatResult
-   */
-  public abstract StatResult<T> execute();
 
   /**
    * Use this method to view the settings that have

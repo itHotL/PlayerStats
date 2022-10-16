@@ -1,13 +1,10 @@
 package com.artemis.the.gr8.playerstats.api;
 
 import com.artemis.the.gr8.playerstats.statistic.StatRequest;
+import com.artemis.the.gr8.playerstats.statistic.StatResult;
 
 import java.util.LinkedHashMap;
 
-/**
- * Turns user input into a {@link StatRequest} that can be
- * used to get statistic data.
- */
 public interface StatManager {
 
     /** Gets a RequestGenerator that can be used to create a PlayerStatRequest.
@@ -16,14 +13,36 @@ public interface StatManager {
      *
      * @param playerName the player whose statistic is being requested
      * @return the RequestGenerator */
-    RequestGenerator<Integer> playerStatRequest(String playerName);
+    RequestGenerator<Integer> createPlayerStatRequest(String playerName);
+
+    /**
+     * Executes this StatRequest. This calculation can take some time,
+     * so don't call this from the main Thread if you can help it!
+     *
+     * @return a StatResult containing the value of this lookup, both as
+     * numerical value and as formatted message
+     * @see PlayerStats
+     * @see StatResult
+     */
+    StatResult<Integer> executePlayerStatRequest(StatRequest<Integer> request);
 
     /** Gets a RequestGenerator that can be used to create a ServerStatRequest.
      * This RequestGenerator will make sure all default settings
      * for a server-statistic-lookup are configured.
      *
      * @return the RequestGenerator*/
-    RequestGenerator<Long> serverStatRequest();
+    RequestGenerator<Long> createServerStatRequest();
+
+    /**
+     * Executes this StatRequest. This calculation can take some time,
+     * so don't call this from the main Thread if you can help it!
+     *
+     * @return a StatResult containing the value of this lookup, both as
+     * numerical value and as formatted message
+     * @see PlayerStats
+     * @see StatResult
+     */
+    StatResult<Long> executeServerStatRequest(StatRequest<Long> request);
 
     /** Gets a RequestGenerator that can be used to create a TopStatRequest
      * for a top-list of the specified size. This RequestGenerator will
@@ -31,7 +50,7 @@ public interface StatManager {
      *
      * @param topListSize how big the top-x should be (10 by default)
      * @return the RequestGenerator*/
-    RequestGenerator<LinkedHashMap<String, Integer>> topStatRequest(int topListSize);
+    RequestGenerator<LinkedHashMap<String, Integer>> createTopStatRequest(int topListSize);
 
     /** Gets a RequestGenerator that can be used to create a TopStatRequest
      * for all offline players on the server (those that are included by
@@ -39,5 +58,16 @@ public interface StatManager {
      * all default settings for a top-statistic-lookup are configured.
      *
      * @return the RequestGenerator*/
-    RequestGenerator<LinkedHashMap<String, Integer>> totalTopStatRequest();
+    RequestGenerator<LinkedHashMap<String, Integer>> createTotalTopStatRequest();
+
+    /**
+     * Executes this StatRequest. This calculation can take some time,
+     * so don't call this from the main Thread if you can help it!
+     *
+     * @return a StatResult containing the value of this lookup, both as
+     * numerical value and as formatted message
+     * @see PlayerStats
+     * @see StatResult
+     */
+    StatResult<LinkedHashMap<String, Integer>> executeTopRequest(StatRequest<LinkedHashMap<String, Integer>> request);
 }
