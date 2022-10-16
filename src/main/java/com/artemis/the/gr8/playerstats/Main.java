@@ -1,7 +1,8 @@
 package com.artemis.the.gr8.playerstats;
 
 import com.artemis.the.gr8.playerstats.api.PlayerStats;
-import com.artemis.the.gr8.playerstats.api.PlayerStatsAPI;
+import com.artemis.the.gr8.playerstats.api.StatFormatter;
+import com.artemis.the.gr8.playerstats.api.StatManager;
 import com.artemis.the.gr8.playerstats.statistic.RequestManager;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.commands.ReloadCommand;
@@ -27,13 +28,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-
 /**
  * PlayerStats' Main class
  */
-public final class Main extends JavaPlugin {
+public final class Main extends JavaPlugin implements PlayerStats {
 
     private static JavaPlugin pluginInstance;
+    private static PlayerStats playerStatsAPI;
     private static BukkitAudiences adventure;
 
     private static ConfigHandler config;
@@ -42,11 +43,9 @@ public final class Main extends JavaPlugin {
     private static OfflinePlayerHandler offlinePlayerHandler;
     private static EnumHandler enumHandler;
 
+    private static RequestManager statRequestManager;
     private static OutputManager outputManager;
     private static ShareManager shareManager;
-
-    private static PlayerStats playerStatsImpl;
-
 
     @Override
     public void onEnable() {
@@ -103,14 +102,16 @@ public final class Main extends JavaPlugin {
     }
 
     public static @NotNull PlayerStats getPlayerStatsAPI() throws IllegalStateException {
-        if (playerStatsImpl == null) {
+        if (playerStatsAPI == null) {
             throw new IllegalStateException("PlayerStats does not seem to be loaded!");
         }
-        return playerStatsImpl;
+        return playerStatsAPI;
     }
 
     private void initializeMainClasses() {
         pluginInstance = this;
+        playerStatsAPI = this;
+
         adventure = BukkitAudiences.create(this);
         enumHandler = new EnumHandler();
         languageKeyHandler = new LanguageKeyHandler();
@@ -121,9 +122,8 @@ public final class Main extends JavaPlugin {
         outputManager = new OutputManager(adventure, config, languageKeyHandler);
 
         RequestProcessor requestProcessor = new RequestProcessor(offlinePlayerHandler, outputManager, shareManager);
-        RequestManager statManager = new RequestManager(offlinePlayerHandler, requestProcessor);
-        threadManager = new ThreadManager(this, config, outputManager, statManager);
-        playerStatsImpl = new PlayerStatsAPI(statManager, outputManager);
+        statRequestManager = new RequestManager(offlinePlayerHandler, requestProcessor);
+        threadManager = new ThreadManager(this, config, outputManager, statRequestManager);
     }
 
     private void setupMetrics() {
@@ -144,5 +144,20 @@ public final class Main extends JavaPlugin {
                 metrics.addCustomChart(new SimplePie("using_placeholder_expansion", () -> placeholderExpansionActive ? "yes" : "no"));
             }
         }.runTaskLaterAsynchronously(this, 200);
+    }
+
+    @Override
+    public String getVersion() {
+        return "1.8";
+    }
+
+    @Override
+    public StatManager getStatManager() {
+        return statRequestManager;
+    }
+
+    @Override
+    public StatFormatter getFormatter() {
+        return outputManager.getMainMessageBuilder();
     }
 }

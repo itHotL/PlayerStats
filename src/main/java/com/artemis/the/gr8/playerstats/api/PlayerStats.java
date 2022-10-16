@@ -8,18 +8,21 @@ import org.jetbrains.annotations.NotNull;
 /**
  * The outgoing API that represents the core functionality of PlayerStats!
  *
- * <p> To work with it, you'll need to call PlayerStats.{@link #getAPI()} and get an instance of
- * {@link PlayerStatsAPI}. You can then use this object to access any of the further methods.
+ * <p> To work with it, you'll need to call PlayerStats.{@link #getAPI()}
+ * and get an instance of PlayerStats. You can then use this object to
+ * access any of the further methods.
  *
  * @see RequestManager
  * @see StatFormatter
 */
 public interface PlayerStats {
 
-    /** Gets an instance of the {@link PlayerStatsAPI}.
+    /** Gets an instance of the PlayerStatsAPI.
 
      * @return the PlayerStats API
-     * @throws IllegalStateException if PlayerStats is not loaded on the server when this method is called*/
+     * @throws IllegalStateException if PlayerStats is not loaded on
+     * the server when this method is called
+     */
     @Contract(pure = true)
     static @NotNull PlayerStats getAPI() throws IllegalStateException {
         return Main.getPlayerStatsAPI();
@@ -34,9 +37,7 @@ public interface PlayerStats {
      *
      * @return the version of PlayerStatsAPI present on the server
      */
-    default String getVersion() {
-        return "1.8";
-    }
+    String getVersion();
 
     StatManager getStatManager();
 

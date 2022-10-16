@@ -1,7 +1,5 @@
 package com.artemis.the.gr8.playerstats.commands;
 
-import com.artemis.the.gr8.playerstats.api.PlayerStats;
-import com.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import org.bukkit.Material;
@@ -29,14 +27,12 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
         this.enumHandler = enumHandler;
         this.offlinePlayerHandler = offlinePlayerHandler;
         prepareLists();
-
     }
 
     //args[0] = statistic                                                        (length = 1)
     //args[1] = target (player/server/top)    OR sub-stat (block/item/entity)    (length = 2)
     //args[2] = playerName                    OR target (player/server/top)      (length = 3)
     //args[3] =                                  playerName                      (length = 4)
-
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length >= 1) {

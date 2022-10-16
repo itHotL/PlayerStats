@@ -83,9 +83,9 @@ public final class NumberFormatter {
 
         while(currUnit != null){
             //Define amount of units
-            int amount = 0;
+            int amount;
 
-            //Current unit is equal to smallest unit, in this case round the remainder
+            //Current unit is equal to the smallest unit, in this case round the remainder
             if(currUnit == smallestUnit){
                 amount = (int) Math.round(leftoverSeconds / currUnit.getSeconds());
             }
