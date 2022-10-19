@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
-public class RequestProcessor {
+public final class RequestProcessor {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
     private static OutputManager outputManager;

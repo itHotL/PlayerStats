@@ -4,6 +4,8 @@ import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.reload.PlayerLoadAction;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,11 +22,13 @@ import java.util.function.Predicate;
 public final class OfflinePlayerHandler extends FileHandler {
 
     private static ConfigHandler config;
+    private static FileConfiguration excludedPlayers;
     private ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
     private ArrayList<String> playerNames;
 
     public OfflinePlayerHandler(ConfigHandler configHandler) {
         super("excluded_players.yml");
+        excludedPlayers = super.getFileConfiguration();
         config = configHandler;
         loadOfflinePlayers();
     }
@@ -32,6 +36,7 @@ public final class OfflinePlayerHandler extends FileHandler {
     @Override
     public void reload() {
         super.reload();
+        excludedPlayers = super.getFileConfiguration();
         loadOfflinePlayers();
     }
 
@@ -44,6 +49,23 @@ public final class OfflinePlayerHandler extends FileHandler {
      */
     public boolean isRelevantPlayer(String playerName) {
         return offlinePlayerUUIDs.containsKey(playerName);
+    }
+
+    public void excludePlayer(UUID uniqueID) {
+        super.addValueToListInFile("excluded", uniqueID);
+    }
+
+    public static boolean isExcluded(UUID uniqueID) {
+        List<?> excluded = excludedPlayers.getList("excluded");
+        if (excluded == null) {
+            return false;
+        }
+        for (Object obj : excluded) {
+            if (obj.equals(uniqueID)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -75,7 +97,7 @@ public final class OfflinePlayerHandler extends FileHandler {
      * @throws IllegalArgumentException if this player is not on the list
      * of players that should be included in statistic calculations
      */
-    public OfflinePlayer getOfflinePlayer(String playerName) throws IllegalArgumentException {
+    public @NotNull OfflinePlayer getOfflinePlayer(String playerName) throws IllegalArgumentException {
         if (offlinePlayerUUIDs.get(playerName) != null) {
             return Bukkit.getOfflinePlayer(offlinePlayerUUIDs.get(playerName));
         }
@@ -119,7 +141,7 @@ public final class OfflinePlayerHandler extends FileHandler {
         return Bukkit.getWhitelistedPlayers().toArray(OfflinePlayer[]::new);
     }
 
-    private OfflinePlayer[] getNonBannedPlayers() {
+    private @NotNull OfflinePlayer[] getNonBannedPlayers() {
         if (Bukkit.getPluginManager().isPluginEnabled("LiteBans")) {
             return Arrays.stream(Bukkit.getOfflinePlayers())
                     .parallel()

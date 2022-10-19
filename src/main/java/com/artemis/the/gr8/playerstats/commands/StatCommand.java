@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class StatCommand implements CommandExecutor {
+public final class StatCommand implements CommandExecutor {
 
     private static final Pattern pattern = Pattern.compile("top|server|me|player");
 
@@ -45,7 +45,7 @@ public class StatCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {  //in case of less than 1 argument or "help", display the help message
             outputManager.sendHelp(sender);
         }

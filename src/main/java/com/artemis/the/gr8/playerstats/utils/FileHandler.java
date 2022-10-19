@@ -9,6 +9,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public abstract class FileHandler {
@@ -45,22 +47,31 @@ public abstract class FileHandler {
         return fileConfiguration;
     }
 
-    /**
-     * Add new key-value pairs to the config without losing comments,
-     * using <a href="https://github.com/tchristofferson/Config-Updater">tchristofferson's Config-Updater</a>
-     */
-    public void updateFile() {
-        JavaPlugin plugin = Main.getPluginInstance();
-        try {
-            ConfigUpdater.update(plugin, fileName, file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void addValues(@NotNull Map<String, Object> keyValuePairs) {
+    public void addValuesToFile(@NotNull Map<String, Object> keyValuePairs) {
         keyValuePairs.forEach(this::addValue);
         save();
+        updateFile();
+    }
+
+    /**
+     * @param key the Key under which the List will be stored
+     *            (or expanded if it already exists)
+     * @param value the value(s) to expand the List with
+     */
+    public void addValueToListInFile(@NotNull String key, @NotNull Object value) {
+        List<?> currentValues = fileConfiguration.getList(key);
+
+        List<Object> updatedValues;
+        if (currentValues != null) {
+            updatedValues = new ArrayList<>(currentValues);
+        } else {
+            updatedValues = new ArrayList<>();
+        }
+        updatedValues.add(value);
+
+        addValue(key, updatedValues);
+        save();
+        updateFile();
     }
 
     private void addValue(String key, Object value) {
@@ -70,6 +81,19 @@ public abstract class FileHandler {
     private void save() {
         try {
             fileConfiguration.save(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Add new key-value pairs to the config without losing comments,
+     * using <a href="https://github.com/tchristofferson/Config-Updater">tchristofferson's Config-Updater</a>
+     */
+    private void updateFile() {
+        JavaPlugin plugin = Main.getPluginInstance();
+        try {
+            ConfigUpdater.update(plugin, fileName, file);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -11,13 +11,13 @@ commands:
     aliases:
       - stat
       - stats
-    description: general statistic command
+    description: show player statistics in private chat
     permission: playerstats.stat
   statisticshare:
     aliases:
       - statshare
       - statsshare
-    description: shares last stat lookup in chat
+    description: share last stat lookup in chat
     usage: "§b/statshare"
     permission: playerstats.share
   statisticreload:
@@ -27,6 +27,13 @@ commands:
     description: reloads the config
     usage: "§a/statreload"
     permission: playerstats.reload
+  statisticexclude:
+    aliases:
+      - statexclude
+      - statsexclude
+    description: hide this player's statistics from /stat results
+    usage: "§c/statexclude"
+    permission: playerstats.exclude
 permissions:
   playerstats.stat:
     description: allows usage of /statistic
@@ -34,6 +41,9 @@ permissions:
   playerstats.share:
     description: allows sharing stats in chat
     default: true
+  playerstats.exclude:
+    description: allows usage of /statexclude
+    default: op
   playerstats.reload:
     description: allows usage of /statreload
     default: op

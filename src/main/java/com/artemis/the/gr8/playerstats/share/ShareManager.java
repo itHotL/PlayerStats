@@ -26,12 +26,12 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 public final class ShareManager {
 
     private static boolean isEnabled;
-    private static int waitingTime;
+    private int waitingTime;
 
-    private static volatile AtomicInteger resultID;
-    private static ConcurrentHashMap<Integer, StoredResult> statResultQueue;
-    private static ConcurrentHashMap<String, Instant> shareTimeStamp;
-    private static ArrayBlockingQueue<Integer> sharedResults;
+    private volatile AtomicInteger NumberOfStoredResults;
+    private ConcurrentHashMap<Integer, StoredResult> statResultQueue;
+    private ConcurrentHashMap<String, Instant> shareTimeStamp;
+    private ArrayBlockingQueue<Integer> sharedResults;
 
     public ShareManager(ConfigHandler config) {
        updateSettings(config);
@@ -41,14 +41,14 @@ public final class ShareManager {
         return isEnabled;
     }
 
-    public static synchronized void updateSettings(ConfigHandler config) {
+    public void updateSettings(ConfigHandler config) {
         isEnabled = config.allowStatSharing() && config.useHoverText();
         waitingTime = config.getStatShareWaitingTime();
 
         if (isEnabled) {
             sharedResults = new ArrayBlockingQueue<>(500);  //reset the sharedResultsQueue
-            if (resultID == null) {  //if we went from disabled to enabled, initialize
-                resultID = new AtomicInteger();  //always starts with value 0
+            if (NumberOfStoredResults == null) {  //if we went from disabled to enabled, initialize
+                NumberOfStoredResults = new AtomicInteger();  //always starts with value 0
                 statResultQueue = new ConcurrentHashMap<>();
                 shareTimeStamp = new ConcurrentHashMap<>();
             }
@@ -148,6 +148,6 @@ public final class ShareManager {
     }
 
     private int getNextIDNumber() {
-        return resultID.incrementAndGet();
+        return NumberOfStoredResults.incrementAndGet();
     }
 }

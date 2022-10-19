@@ -26,6 +26,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -85,8 +86,8 @@ public final class Main extends JavaPlugin implements PlayerStats {
         MyLogger.setDebugLevel(config.getDebugLevel());
         languageKeyHandler.reload();
         offlinePlayerHandler.reload();
-        outputManager.update();
-        ShareManager.updateSettings(config);
+        outputManager.updateSettings();
+        shareManager.updateSettings(config);
     }
 
     /**
@@ -146,8 +147,9 @@ public final class Main extends JavaPlugin implements PlayerStats {
         }.runTaskLaterAsynchronously(this, 200);
     }
 
+    @Contract(pure = true)
     @Override
-    public String getVersion() {
+    public @NotNull String getVersion() {
         return "1.8";
     }
 

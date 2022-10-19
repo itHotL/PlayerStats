@@ -28,8 +28,8 @@ public final class PlayerLoadAction extends RecursiveAction {
      * Fills a ConcurrentHashMap with PlayerNames and UUIDs for all OfflinePlayers
      * that should be included in statistic calculations.
      *
-     * @param players array of all OfflinePlayers (straight from Bukkit)
-     * @param lastPlayedLimit whether to set a limit based on last-played-date
+     * @param players array of all OfflinePlayers to filter and load
+     * @param lastPlayedLimit optional limit for amount of days ago players last played
      * @param offlinePlayerUUIDs the ConcurrentHashMap to put playerNames and UUIDs in
      * @see OfflinePlayerHandler
      */
@@ -76,8 +76,7 @@ public final class PlayerLoadAction extends RecursiveAction {
             OfflinePlayer player = players[i];
             String playerName = player.getName();
             MyLogger.actionRunning(Thread.currentThread().getName());
-            if (playerName != null &&
-                    (lastPlayedLimit == 0 || UnixTimeHandler.hasPlayedSince(lastPlayedLimit, player.getLastPlayed()))) {
+            if (playerName != null && UnixTimeHandler.hasPlayedSince(lastPlayedLimit, player.getLastPlayed())) {
                 offlinePlayerUUIDs.put(playerName, player.getUniqueId());
             }
         }

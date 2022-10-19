@@ -1,23 +1,23 @@
 package com.artemis.the.gr8.playerstats.commands;
 
-import com.artemis.the.gr8.playerstats.ThreadManager;
 
+import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public final class ReloadCommand implements CommandExecutor {
+public final class ExcludeCommand implements CommandExecutor {
 
-    private static ThreadManager threadManager;
+    private final OfflinePlayerHandler offlinePlayerHandler;
 
-    public ReloadCommand(ThreadManager t) {
-        threadManager = t;
+    public ExcludeCommand(OfflinePlayerHandler offlinePlayerHandler) {
+        this.offlinePlayerHandler = offlinePlayerHandler;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        threadManager.startReloadThread(sender);
-        return true;
+
+        return false;
     }
 }

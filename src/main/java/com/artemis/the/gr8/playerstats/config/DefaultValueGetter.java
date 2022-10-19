@@ -5,7 +5,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DefaultValueGetter {
+public final class DefaultValueGetter {
 
     private final FileConfiguration config;
     private final Map<String, Object> defaultValuesToAdjust;

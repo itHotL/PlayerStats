@@ -49,7 +49,7 @@ public final class OutputManager {
         prepareFunctions();
     }
 
-    public void update() {
+    public void updateSettings() {
         getMessageBuilders();
     }
 
