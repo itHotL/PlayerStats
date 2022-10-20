@@ -100,7 +100,9 @@ public final class StatCommand implements CommandExecutor {
 
     private final class ArgProcessor {
 
+        private final CommandSender sender;
         private String[] argsToProcess;
+
         private Statistic statistic;
         private String subStatName;
         private Target target;
@@ -108,11 +110,12 @@ public final class StatCommand implements CommandExecutor {
         private StatRequest<?> request;
 
         private ArgProcessor(CommandSender sender, String[] args) {
-            argsToProcess = args;
+            this.sender = sender;
+            this.argsToProcess = args;
 
             extractStatistic();
             extractSubStatistic();
-            extractTarget(sender);
+            extractTarget();
             combineProcessedArgsIntoRequest();
         }
 
@@ -124,9 +127,9 @@ public final class StatCommand implements CommandExecutor {
 
             RequestGenerator<?> requestGenerator =
                     switch (target) {
-                case PLAYER -> new PlayerStatRequest(playerName);
-                case SERVER -> new ServerStatRequest();
-                case TOP -> new TopStatRequest(config.getTopListMaxSize());
+                case PLAYER -> new PlayerStatRequest(sender, playerName);
+                case SERVER -> new ServerStatRequest(sender);
+                case TOP -> new TopStatRequest(sender, config.getTopListMaxSize());
             };
 
             switch (statistic.getType()) {
@@ -152,7 +155,7 @@ public final class StatCommand implements CommandExecutor {
             }
         }
 
-        private void extractTarget(CommandSender sender) {
+        private void extractTarget() {
             String targetArg = null;
             for (String arg : argsToProcess) {
                 Matcher matcher = pattern.matcher(arg);

@@ -3,12 +3,9 @@ package com.artemis.the.gr8.playerstats;
 import com.artemis.the.gr8.playerstats.api.PlayerStats;
 import com.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.artemis.the.gr8.playerstats.api.StatManager;
+import com.artemis.the.gr8.playerstats.commands.*;
 import com.artemis.the.gr8.playerstats.statistic.RequestManager;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.artemis.the.gr8.playerstats.commands.ReloadCommand;
-import com.artemis.the.gr8.playerstats.commands.ShareCommand;
-import com.artemis.the.gr8.playerstats.commands.StatCommand;
-import com.artemis.the.gr8.playerstats.commands.TabCompleter;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
@@ -50,20 +47,9 @@ public final class Main extends JavaPlugin implements PlayerStats {
 
     @Override
     public void onEnable() {
-        //initialize all the Managers, singletons, ConfigHandler and the API
         initializeMainClasses();
+        registerCommands();
         setupMetrics();
-
-        //register all commands and the tabCompleter
-        PluginCommand statcmd = this.getCommand("statistic");
-        if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(outputManager, threadManager, config, offlinePlayerHandler, enumHandler));
-            statcmd.setTabCompleter(new TabCompleter(enumHandler, offlinePlayerHandler));
-        }
-        PluginCommand reloadcmd = this.getCommand("statisticreload");
-        if (reloadcmd != null) reloadcmd.setExecutor(new ReloadCommand(threadManager));
-        PluginCommand sharecmd = this.getCommand("statisticshare");
-        if (sharecmd != null) sharecmd.setExecutor(new ShareCommand(shareManager, outputManager));
 
         //register the listener
         Bukkit.getPluginManager().registerEvents(new JoinListener(threadManager), this);
@@ -109,6 +95,11 @@ public final class Main extends JavaPlugin implements PlayerStats {
         return playerStatsAPI;
     }
 
+    /**
+     * Initialize all classes that need initializing,
+     * and store references to classes that are
+     * needed for the Command classes or the API.
+     */
     private void initializeMainClasses() {
         pluginInstance = this;
         playerStatsAPI = this;
@@ -127,6 +118,37 @@ public final class Main extends JavaPlugin implements PlayerStats {
         threadManager = new ThreadManager(this, config, outputManager, statRequestManager);
     }
 
+    /**
+     * Register all commands and assign the tabCompleter
+     * to the relevant commands.
+     */
+    private void registerCommands() {
+        TabCompleter tabCompleter = new TabCompleter(enumHandler, offlinePlayerHandler);
+
+        PluginCommand statcmd = this.getCommand("statistic");
+        if (statcmd != null) {
+            statcmd.setExecutor(new StatCommand(outputManager, threadManager, config, offlinePlayerHandler, enumHandler));
+            statcmd.setTabCompleter(tabCompleter);
+        }
+        PluginCommand excludecmd = this.getCommand("statisticexclude");
+        if (excludecmd != null) {
+            excludecmd.setExecutor(new ExcludeCommand(offlinePlayerHandler));
+            excludecmd.setTabCompleter(tabCompleter);
+        }
+
+        PluginCommand reloadcmd = this.getCommand("statisticreload");
+        if (reloadcmd != null) {
+            reloadcmd.setExecutor(new ReloadCommand(threadManager));
+        }
+        PluginCommand sharecmd = this.getCommand("statisticshare");
+        if (sharecmd != null) {
+            sharecmd.setExecutor(new ShareCommand(shareManager, outputManager));
+        }
+    }
+
+    /**
+     * Setup bstats
+     */
     private void setupMetrics() {
         new BukkitRunnable() {
             @Override

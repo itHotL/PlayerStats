@@ -4,13 +4,18 @@ import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 public final class PlayerStatRequest extends StatRequest<Integer> implements RequestGenerator<Integer> {
 
     public PlayerStatRequest(String playerName) {
-        super(Bukkit.getConsoleSender());
+        this(Bukkit.getConsoleSender(), playerName);
+    }
+
+    public PlayerStatRequest(CommandSender sender, String playerName) {
+        super(sender);
         super.getSettings().configureForPlayer(playerName);
     }
 

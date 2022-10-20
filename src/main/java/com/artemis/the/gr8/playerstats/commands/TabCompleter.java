@@ -36,24 +36,38 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
     //args[3] =                                  playerName                      (length = 4)
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (args.length >= 1) {
+        if (command.getName().equalsIgnoreCase("statistic")) {
+            return getStatCommandSuggestions(args);
+        }
+        else if (command.getName().equalsIgnoreCase("statisticexclude")) {
+            return getExcludeCommandSuggestions(args);
+        }
+        return null;
+    }
+
+    private @Nullable List<String> getExcludeCommandSuggestions(@NotNull String[] args) {
+        if (args.length == 1) {
+            return getDynamicTabSuggestions(offlinePlayerHandler.getOfflinePlayerNames(), args[0]);
+        }
+        return null;
+    }
+
+    private @Nullable List<String> getStatCommandSuggestions(@NotNull String[] args) {
+        if (args.length == 1) {
+            return getFirstArgSuggestions(args[0]);
+        }
+        else if (args.length > 1) {
             String currentArg = args[args.length-1];
-
-            if (args.length == 1) {
-                return getFirstArgSuggestions(args[0]);
-            }
-
-           //after checking if args[0] is a viable statistic, suggest sub-stat OR targets
             String previousArg = args[args.length-2];
 
+            //after checking if args[0] is a viable statistic, suggest sub-stat or targets
             if (enumHandler.isStatistic(previousArg)) {
                 Statistic stat = EnumHandler.getStatEnum(previousArg);
                 if (stat != null) {
-                    return getDynamicTabSuggestions(getAfterStatSuggestions(stat), currentArg);
+                    return getDynamicTabSuggestions(getSuggestionsAfterStat(stat), currentArg);
                 }
             }
             else if (previousArg.equalsIgnoreCase("player")) {
-
                 if (args.length >= 3 && enumHandler.isEntityStatistic(args[args.length-3])) {
                     return targetSuggestions;  //if arg before "player" was entity-sub-stat, suggest targets
                 }
@@ -89,7 +103,7 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
                 .collect(Collectors.toList());
     }
 
-    private List<String> getAfterStatSuggestions(@NotNull Statistic stat) {
+    private List<String> getSuggestionsAfterStat(@NotNull Statistic stat) {
         switch (stat.getType()) {
             case BLOCK -> {
                 return getAllBlockNames();

@@ -4,6 +4,7 @@ import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +13,11 @@ import java.util.LinkedHashMap;
 public final class TopStatRequest extends StatRequest<LinkedHashMap<String, Integer>> implements RequestGenerator<LinkedHashMap<String, Integer>> {
 
     public TopStatRequest(int topListSize) {
-        super(Bukkit.getConsoleSender());
+        this(Bukkit.getConsoleSender(), topListSize);
+    }
+
+    public TopStatRequest(CommandSender sender, int topListSize) {
+        super(sender);
         super.getSettings().configureForTop(topListSize);
     }
 

@@ -4,6 +4,7 @@ import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,7 +12,11 @@ public final class ServerStatRequest extends StatRequest<Long> implements Reques
 
 
     public ServerStatRequest() {
-        super(Bukkit.getConsoleSender());
+        this(Bukkit.getConsoleSender());
+    }
+
+    public ServerStatRequest(CommandSender sender) {
+        super(sender);
         super.getSettings().configureForServer();
     }
 
