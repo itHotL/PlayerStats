@@ -12,12 +12,11 @@ import java.util.regex.Pattern;
 public final class StringUtils {
 
     private static final Pattern lowercaseLetterAfterSpace;
-    private static final Pattern underscore;
 
     static {
         lowercaseLetterAfterSpace = Pattern.compile("(?<= )[a-z]");
-        underscore = Pattern.compile("_");
     }
+
     private StringUtils() {
     }
 
@@ -34,16 +33,16 @@ public final class StringUtils {
         capitals.setCharAt(0, Character.toUpperCase(capitals.charAt(0)));
 
         while (capitals.indexOf("_") != -1) {
-            MyLogger.logHighLevelMsg("Replacing underscores...");
             int index = capitals.indexOf("_");
             capitals.setCharAt(index, ' ');
+            MyLogger.logHighLevelMsg("Replacing underscores: " + capitals);
         }
 
         Matcher matcher = lowercaseLetterAfterSpace.matcher(capitals);
         while (matcher.find()) {
-            MyLogger.logHighLevelMsg("Capitalizing names...");
             int index = matcher.start();
             capitals.setCharAt(index, Character.toUpperCase(capitals.charAt(index)));
+            MyLogger.logHighLevelMsg("Capitalizing names: " + capitals);
         }
         return capitals.toString();
     }
