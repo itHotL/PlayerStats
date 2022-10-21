@@ -1,6 +1,6 @@
 package com.artemis.the.gr8.playerstats.commands;
 
-import com.artemis.the.gr8.playerstats.ThreadManager;
+import com.artemis.the.gr8.playerstats.multithreading.ThreadManager;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

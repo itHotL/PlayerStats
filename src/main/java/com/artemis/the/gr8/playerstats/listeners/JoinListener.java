@@ -1,6 +1,6 @@
 package com.artemis.the.gr8.playerstats.listeners;
 
-import com.artemis.the.gr8.playerstats.ThreadManager;
+import com.artemis.the.gr8.playerstats.multithreading.ThreadManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;

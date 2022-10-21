@@ -7,6 +7,7 @@ import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,16 +18,18 @@ import java.util.stream.Collectors;
 
 public final class TabCompleter implements org.bukkit.command.TabCompleter {
 
-    private final EnumHandler enumHandler;
     private final OfflinePlayerHandler offlinePlayerHandler;
+    private final EnumHandler enumHandler;
 
-    private List<String> targetSuggestions;
-    private List<String> itemBrokenSuggestions;
-    private List<String> entitySuggestions;
+    private List<String> statCommandTargets;
+    private List<String> excludeCommandOptions;
+    private List<String> itemsThatCanBreak;
+    private List<String> entitiesThatCanDie;
 
-    public TabCompleter(EnumHandler enumHandler, OfflinePlayerHandler offlinePlayerHandler) {
-        this.enumHandler = enumHandler;
-        this.offlinePlayerHandler = offlinePlayerHandler;
+    public TabCompleter() {
+        offlinePlayerHandler = OfflinePlayerHandler.getInstance();
+        enumHandler = EnumHandler.getInstance();
+
         prepareLists();
     }
 
@@ -46,50 +49,58 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
     }
 
     private @Nullable List<String> getExcludeCommandSuggestions(@NotNull String[] args) {
-        if (args.length == 1) {
-            return getDynamicTabSuggestions(offlinePlayerHandler.getOfflinePlayerNames(), args[0]);
+        if (args.length == 0) {
+            return null;
         }
-        return null;
+
+        List<String> tabSuggestions = new ArrayList<>();
+        if (args.length == 1) {
+            tabSuggestions = excludeCommandOptions;
+        }
+        else if (args.length == 2) {
+            tabSuggestions = switch (args[0]) {
+                case "add" -> offlinePlayerHandler.getOfflinePlayerNames();
+                case "remove" -> removablePlayerNames();
+                default -> tabSuggestions;
+            };
+        }
+        return getDynamicTabSuggestions(tabSuggestions, args[args.length-1]);
     }
 
     private @Nullable List<String> getStatCommandSuggestions(@NotNull String[] args) {
-        if (args.length == 1) {
-            return getFirstArgSuggestions(args[0]);
+        if (args.length == 0) {
+            return null;
         }
-        else if (args.length > 1) {
-            String currentArg = args[args.length-1];
+
+        List<String> tabSuggestions = new ArrayList<>();
+        if (args.length == 1) {
+            tabSuggestions = firstStatCommandArgSuggestions();
+        }
+        else {
             String previousArg = args[args.length-2];
 
             //after checking if args[0] is a viable statistic, suggest sub-stat or targets
             if (enumHandler.isStatistic(previousArg)) {
-                Statistic stat = EnumHandler.getStatEnum(previousArg);
+                Statistic stat = enumHandler.getStatEnum(previousArg);
                 if (stat != null) {
-                    return getDynamicTabSuggestions(getSuggestionsAfterStat(stat), currentArg);
+                    tabSuggestions = suggestionsAfterFirstStatCommandArg(stat);
                 }
             }
             else if (previousArg.equalsIgnoreCase("player")) {
                 if (args.length >= 3 && enumHandler.isEntityStatistic(args[args.length-3])) {
-                    return targetSuggestions;  //if arg before "player" was entity-sub-stat, suggest targets
+                    tabSuggestions = statCommandTargets;  //if arg before "player" was entity-sub-stat, suggest targets
                 }
                 else {  //otherwise "player" is the target: suggest playerNames
-                    return getDynamicTabSuggestions(offlinePlayerHandler.getOfflinePlayerNames(), currentArg);
+                    tabSuggestions = offlinePlayerHandler.getOfflinePlayerNames();
                 }
             }
 
             //after a substatistic, suggest targets
             else if (enumHandler.isSubStatEntry(previousArg)) {
-                return targetSuggestions;
+                tabSuggestions = statCommandTargets;
             }
-
         }
-        return null;
-    }
-
-    private List<String> getFirstArgSuggestions(String currentArg) {
-        List<String> suggestions = enumHandler.getStatNames();
-        suggestions.add("examples");
-        suggestions.add("help");
-        return getDynamicTabSuggestions(suggestions, currentArg);
+        return getDynamicTabSuggestions(tabSuggestions, args[args.length-1]);
     }
 
     /**
@@ -103,52 +114,53 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
                 .collect(Collectors.toList());
     }
 
-    private List<String> getSuggestionsAfterStat(@NotNull Statistic stat) {
+    private @NotNull List<String> firstStatCommandArgSuggestions() {
+        List<String> suggestions = enumHandler.getAllStatNames();
+        suggestions.add("examples");
+        suggestions.add("help");
+        return suggestions;
+    }
+
+    private List<String> suggestionsAfterFirstStatCommandArg(@NotNull Statistic stat) {
         switch (stat.getType()) {
             case BLOCK -> {
-                return getAllBlockNames();
+                return enumHandler.getAllBlockNames();
             }
             case ITEM -> {
                 if (stat == Statistic.BREAK_ITEM) {
-                    return getItemBrokenSuggestions();
+                    return itemsThatCanBreak;
                 } else {
-                    return getAllItemNames();
+                    return enumHandler.getAllItemNames();
                 }
             }
             case ENTITY -> {
-                return getEntitySuggestions();
+                return entitiesThatCanDie;
             }
             default -> {
-                return targetSuggestions;
+                return statCommandTargets;
             }
         }
     }
 
-    private List<String> getAllItemNames() {
-        return enumHandler.getItemNames();
-    }
-
-    private List<String> getItemBrokenSuggestions() {
-        return itemBrokenSuggestions;
-    }
-
-    private List<String> getAllBlockNames() {
-        return enumHandler.getBlockNames();
-    }
-
-    private List<String> getEntitySuggestions() {
-        return entitySuggestions;
+    @Contract(pure = true)
+    private @Nullable List<String> removablePlayerNames() {
+        return statCommandTargets;
     }
 
     private void prepareLists() {
-        targetSuggestions = new ArrayList<>();
-        targetSuggestions.add("top");
-        targetSuggestions.add("player");
-        targetSuggestions.add("server");
-        targetSuggestions.add("me");
+        statCommandTargets = new ArrayList<>();
+        statCommandTargets.add("top");
+        statCommandTargets.add("player");
+        statCommandTargets.add("server");
+        statCommandTargets.add("me");
+
+        excludeCommandOptions = new ArrayList<>();
+        excludeCommandOptions.add("add");
+        excludeCommandOptions.add("list");
+        excludeCommandOptions.add("remove");
 
         //breaking an item means running its durability negative
-        itemBrokenSuggestions = Arrays.stream(Material.values())
+        itemsThatCanBreak = Arrays.stream(Material.values())
                 .parallel()
                 .filter(Material::isItem)
                 .filter(item -> item.getMaxDurability() != 0)
@@ -157,7 +169,7 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
                 .collect(Collectors.toList());
 
         //the only statistics dealing with entities are killed_entity and entity_killed_by
-        entitySuggestions = Arrays.stream(EntityType.values())
+        entitiesThatCanDie = Arrays.stream(EntityType.values())
                 .parallel()
                 .filter(EntityType::isAlive)
                 .map(EntityType::toString)

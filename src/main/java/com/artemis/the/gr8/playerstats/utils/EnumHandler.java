@@ -21,13 +21,28 @@ import java.util.stream.Stream;
  */
 public final class EnumHandler {
 
+    private static volatile EnumHandler instance;
     private static List<String> blockNames;
     private static List<String> itemNames;
     private static List<String> statNames;
     private static List<String> subStatNames;
 
-    public EnumHandler() {
+    private EnumHandler() {
         prepareLists();
+    }
+
+    public static EnumHandler getInstance() {
+        EnumHandler localVar = instance;
+        if (localVar != null) {
+            return localVar;
+        }
+
+        synchronized (EnumHandler.class) {
+            if (instance == null) {
+                instance = new EnumHandler();
+            }
+            return instance;
+        }
     }
 
     /**
@@ -35,7 +50,7 @@ public final class EnumHandler {
      *
      * @return the List
      */
-    public List<String> getBlockNames() {
+    public List<String> getAllBlockNames() {
         return blockNames;
     }
 
@@ -44,7 +59,7 @@ public final class EnumHandler {
      *
      * @return the List
      */
-    public List<String> getItemNames() {
+    public List<String> getAllItemNames() {
         return itemNames;
     }
 
@@ -53,7 +68,7 @@ public final class EnumHandler {
      *
      * @return the List
      */
-    public List<String> getStatNames() {
+    public List<String> getAllStatNames() {
         return statNames;
     }
 
@@ -64,7 +79,7 @@ public final class EnumHandler {
      * @return Material enum constant (uppercase), or null if none
      * can be found
      */
-    public static @Nullable Material getItemEnum(String itemName) {
+    public @Nullable Material getItemEnum(String itemName) {
         if (itemName == null) return null;
 
         Material item = Material.matchMaterial(itemName);
@@ -78,7 +93,7 @@ public final class EnumHandler {
      * @return EntityType enum constant (uppercase), or null if none
      * can be found
      */
-    public static @Nullable EntityType getEntityEnum(String entityName) {
+    public @Nullable EntityType getEntityEnum(String entityName) {
         try {
             return EntityType.valueOf(entityName.toUpperCase());
         }
@@ -94,7 +109,7 @@ public final class EnumHandler {
      * @return Material enum constant (uppercase), or null if none
      * can be found
      */
-    public static @Nullable Material getBlockEnum(String materialName) {
+    public @Nullable Material getBlockEnum(String materialName) {
         if (materialName == null) return null;
 
         Material block = Material.matchMaterial(materialName);
@@ -107,7 +122,7 @@ public final class EnumHandler {
      * @param statName String (case-insensitive)
      * @return the Statistic enum constant, or null
      */
-    public static @Nullable Statistic getStatEnum(@NotNull String statName)  {
+    public @Nullable Statistic getStatEnum(@NotNull String statName)  {
         try {
             return Statistic.valueOf(statName.toUpperCase());
         }
@@ -133,7 +148,7 @@ public final class EnumHandler {
      * @param statName the String to check (case-insensitive)
      * @return true if this String is a Statistic of Type.Entity
      */
-    public boolean isEntityStatistic(String statName) {
+    public boolean isEntityStatistic(@NotNull String statName) {
         return statName.equalsIgnoreCase(Statistic.ENTITY_KILLED_BY.toString()) ||
                 statName.equalsIgnoreCase(Statistic.KILL_ENTITY.toString());
     }
@@ -157,7 +172,7 @@ public final class EnumHandler {
      * @return "block", "entity", "item", or "sub-statistic" if the
      * provided Type is null.
      */
-    public static String getSubStatTypeName(Statistic.Type statType) {
+    public String getSubStatTypeName(Statistic.Type statType) {
         String subStat = "sub-statistic";
         if (statType == null) return subStat;
         switch (statType) {

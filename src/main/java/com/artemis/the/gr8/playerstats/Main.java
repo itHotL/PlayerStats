@@ -4,14 +4,13 @@ import com.artemis.the.gr8.playerstats.api.PlayerStats;
 import com.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.artemis.the.gr8.playerstats.api.StatManager;
 import com.artemis.the.gr8.playerstats.commands.*;
+import com.artemis.the.gr8.playerstats.multithreading.ThreadManager;
 import com.artemis.the.gr8.playerstats.statistic.RequestManager;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.listeners.JoinListener;
 import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import com.artemis.the.gr8.playerstats.share.ShareManager;
-import com.artemis.the.gr8.playerstats.statistic.RequestProcessor;
-import com.artemis.the.gr8.playerstats.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
@@ -39,9 +38,8 @@ public final class Main extends JavaPlugin implements PlayerStats {
     private static ThreadManager threadManager;
     private static LanguageKeyHandler languageKeyHandler;
     private static OfflinePlayerHandler offlinePlayerHandler;
-    private static EnumHandler enumHandler;
 
-    private static RequestManager statRequestManager;
+    private static RequestManager requestManager;
     private static OutputManager outputManager;
     private static ShareManager shareManager;
 
@@ -73,7 +71,7 @@ public final class Main extends JavaPlugin implements PlayerStats {
         languageKeyHandler.reload();
         offlinePlayerHandler.reload();
         outputManager.updateSettings();
-        shareManager.updateSettings(config);
+        shareManager.updateSettings();
     }
 
     /**
@@ -103,19 +101,17 @@ public final class Main extends JavaPlugin implements PlayerStats {
     private void initializeMainClasses() {
         pluginInstance = this;
         playerStatsAPI = this;
-
         adventure = BukkitAudiences.create(this);
-        enumHandler = new EnumHandler();
-        languageKeyHandler = new LanguageKeyHandler();
-        config = new ConfigHandler();
 
-        offlinePlayerHandler = new OfflinePlayerHandler(config);
-        shareManager = new ShareManager(config);
-        outputManager = new OutputManager(adventure, config, languageKeyHandler);
+        config = ConfigHandler.getInstance();
+        languageKeyHandler = LanguageKeyHandler.getInstance();
+        offlinePlayerHandler = OfflinePlayerHandler.getInstance();
 
-        RequestProcessor requestProcessor = new RequestProcessor(offlinePlayerHandler, outputManager, shareManager);
-        statRequestManager = new RequestManager(offlinePlayerHandler, requestProcessor);
-        threadManager = new ThreadManager(this, config, outputManager, statRequestManager);
+        outputManager = new OutputManager(adventure);
+        shareManager = new ShareManager();
+
+        requestManager = new RequestManager(outputManager, shareManager);
+        threadManager = new ThreadManager(this, outputManager);
     }
 
     /**
@@ -123,16 +119,16 @@ public final class Main extends JavaPlugin implements PlayerStats {
      * to the relevant commands.
      */
     private void registerCommands() {
-        TabCompleter tabCompleter = new TabCompleter(enumHandler, offlinePlayerHandler);
+        TabCompleter tabCompleter = new TabCompleter();
 
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(outputManager, threadManager, config, offlinePlayerHandler, enumHandler));
+            statcmd.setExecutor(new StatCommand(outputManager, threadManager));
             statcmd.setTabCompleter(tabCompleter);
         }
         PluginCommand excludecmd = this.getCommand("statisticexclude");
         if (excludecmd != null) {
-            excludecmd.setExecutor(new ExcludeCommand(offlinePlayerHandler));
+            excludecmd.setExecutor(new ExcludeCommand());
             excludecmd.setTabCompleter(tabCompleter);
         }
 
@@ -177,7 +173,7 @@ public final class Main extends JavaPlugin implements PlayerStats {
 
     @Override
     public StatManager getStatManager() {
-        return statRequestManager;
+        return requestManager;
     }
 
     @Override

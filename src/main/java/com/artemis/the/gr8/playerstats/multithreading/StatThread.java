@@ -1,10 +1,11 @@
-package com.artemis.the.gr8.playerstats.statistic;
+package com.artemis.the.gr8.playerstats.multithreading;
 
-import com.artemis.the.gr8.playerstats.ThreadManager;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
+import com.artemis.the.gr8.playerstats.statistic.RequestManager;
+import com.artemis.the.gr8.playerstats.statistic.StatRequest;
+import com.artemis.the.gr8.playerstats.statistic.StatResult;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
-import com.artemis.the.gr8.playerstats.reload.ReloadThread;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,17 +14,15 @@ import java.util.*;
 /**
  * The Thread that is in charge of getting and calculating statistics.
  */
-public final class StatThread extends Thread {
+final class StatThread extends Thread {
 
     private static OutputManager outputManager;
-    private final RequestManager statManager;
 
     private final ReloadThread reloadThread;
     private final StatRequest<?> statRequest;
 
-    public StatThread(OutputManager m, RequestManager stat, int ID, StatRequest<?> s, @Nullable ReloadThread r) {
+    public StatThread(OutputManager m, int ID, StatRequest<?> s, @Nullable ReloadThread r) {
         outputManager = m;
-        statManager = stat;
         reloadThread = r;
         statRequest = s;
 
@@ -54,7 +53,7 @@ public final class StatThread extends Thread {
         }
 
         try {
-            StatResult<?> result = statManager.execute(statRequest);
+            StatResult<?> result = RequestManager.execute(statRequest);
             outputManager.sendToCommandSender(statRequester, result.formattedComponent());
         }
         catch (ConcurrentModificationException e) {

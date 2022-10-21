@@ -1,6 +1,6 @@
-package com.artemis.the.gr8.playerstats.statistic;
+package com.artemis.the.gr8.playerstats.multithreading;
 
-import com.artemis.the.gr8.playerstats.ThreadManager;
+import com.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.google.common.collect.ImmutableList;
@@ -16,8 +16,6 @@ import java.util.concurrent.RecursiveTask;
 final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>> {
 
     private static int threshold;
-
-    private final OfflinePlayerHandler offlinePlayerHandler;
     private final ImmutableList<String> playerNames;
     private final StatRequest.Settings requestSettings;
     private final ConcurrentHashMap<String, Integer> allStats;
@@ -28,15 +26,13 @@ final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>>
      * ForkJoinPool, and returns the ConcurrentHashMap when
      * everything is done.
      *
-     * @param offlinePlayerHandler the OfflinePlayerHandler to convert playerNames into Players
      * @param playerNames ImmutableList of playerNames for players that should be included in stat calculations
      * @param requestSettings a validated requestSettings object
      * @param allStats the ConcurrentHashMap to put the results on
      */
-    public StatAction(OfflinePlayerHandler offlinePlayerHandler, ImmutableList<String> playerNames, StatRequest.Settings requestSettings, ConcurrentHashMap<String, Integer> allStats) {
+    public StatAction(ImmutableList<String> playerNames, StatRequest.Settings requestSettings, ConcurrentHashMap<String, Integer> allStats) {
         threshold = ThreadManager.getTaskThreshold();
 
-        this.offlinePlayerHandler = offlinePlayerHandler;
         this.playerNames = playerNames;
         this.requestSettings = requestSettings;
         this.allStats = allStats;
@@ -50,8 +46,8 @@ final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>>
             return getStatsDirectly();
         }
         else {
-            final StatAction subTask1 = new StatAction(offlinePlayerHandler, playerNames.subList(0, playerNames.size()/2), requestSettings, allStats);
-            final StatAction subTask2 = new StatAction(offlinePlayerHandler, playerNames.subList(playerNames.size()/2, playerNames.size()), requestSettings, allStats);
+            final StatAction subTask1 = new StatAction(playerNames.subList(0, playerNames.size()/2), requestSettings, allStats);
+            final StatAction subTask2 = new StatAction(playerNames.subList(playerNames.size()/2, playerNames.size()), requestSettings, allStats);
 
             //queue and compute all subtasks in the right order
             subTask1.fork();
@@ -61,6 +57,8 @@ final class StatAction extends RecursiveTask<ConcurrentHashMap<String, Integer>>
     }
 
     private ConcurrentHashMap<String, Integer> getStatsDirectly() {
+        OfflinePlayerHandler offlinePlayerHandler = OfflinePlayerHandler.getInstance();
+
         Iterator<String> iterator = playerNames.iterator();
         if (iterator.hasNext()) {
             do {

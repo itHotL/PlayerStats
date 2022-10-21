@@ -13,16 +13,31 @@ import java.util.Map;
 /** Handles all PlayerStats' config-settings. */
 public final class ConfigHandler extends FileHandler {
 
+    private static volatile ConfigHandler instance;
     private final int configVersion;
     private FileConfiguration config;
 
-    public ConfigHandler() {
+    private ConfigHandler() {
         super("config.yml");
         config = super.getFileConfiguration();
 
         configVersion = 6;
         checkAndUpdateConfigVersion();
         MyLogger.setDebugLevel(getDebugLevel());
+    }
+
+    public static ConfigHandler getInstance() {
+        ConfigHandler localVar = instance;
+        if (localVar != null) {
+            return localVar;
+        }
+
+        synchronized (ConfigHandler.class) {
+            if (instance == null) {
+                instance = new ConfigHandler();
+            }
+            return instance;
+        }
     }
 
     @Override

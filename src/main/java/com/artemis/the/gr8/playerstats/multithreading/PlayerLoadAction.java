@@ -1,6 +1,6 @@
-package com.artemis.the.gr8.playerstats.reload;
+package com.artemis.the.gr8.playerstats.multithreading;
 
-import com.artemis.the.gr8.playerstats.ThreadManager;
+import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
 import com.artemis.the.gr8.playerstats.utils.UnixTimeHandler;
@@ -13,7 +13,7 @@ import java.util.concurrent.RecursiveAction;
 /**
  * The action that is executed when a reload-command is triggered.
  */
-public final class PlayerLoadAction extends RecursiveAction {
+final class PlayerLoadAction extends RecursiveAction {
 
     private static int threshold;
 
@@ -21,7 +21,6 @@ public final class PlayerLoadAction extends RecursiveAction {
     private final int start;
     private final int end;
 
-    private final int lastPlayedLimit;
     private final ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
 
     /**
@@ -29,25 +28,19 @@ public final class PlayerLoadAction extends RecursiveAction {
      * that should be included in statistic calculations.
      *
      * @param players array of all OfflinePlayers to filter and load
-     * @param lastPlayedLimit optional limit for amount of days ago players last played
      * @param offlinePlayerUUIDs the ConcurrentHashMap to put playerNames and UUIDs in
      * @see OfflinePlayerHandler
      */
-    public PlayerLoadAction(OfflinePlayer[] players,
-                            int lastPlayedLimit, ConcurrentHashMap<String, UUID> offlinePlayerUUIDs) {
-
-       this(players, 0, players.length, lastPlayedLimit, offlinePlayerUUIDs);
+    public PlayerLoadAction(OfflinePlayer[] players, ConcurrentHashMap<String, UUID> offlinePlayerUUIDs) {
+       this(players, 0, players.length, offlinePlayerUUIDs);
     }
 
-    private PlayerLoadAction(OfflinePlayer[] players, int start, int end,
-                             int lastPlayedLimit, ConcurrentHashMap<String, UUID> offlinePlayerUUIDs) {
+    private PlayerLoadAction(OfflinePlayer[] players, int start, int end, ConcurrentHashMap<String, UUID> offlinePlayerUUIDs) {
         threshold = ThreadManager.getTaskThreshold();
 
         this.players = players;
         this.start = start;
         this.end = end;
-
-        this.lastPlayedLimit = lastPlayedLimit;
         this.offlinePlayerUUIDs = offlinePlayerUUIDs;
 
         MyLogger.subActionCreated(Thread.currentThread().getName());
@@ -62,9 +55,9 @@ public final class PlayerLoadAction extends RecursiveAction {
         else {
             final int split = length / 2;
             final PlayerLoadAction subTask1 = new PlayerLoadAction(players, start, (start + split),
-                    lastPlayedLimit, offlinePlayerUUIDs);
+                    offlinePlayerUUIDs);
             final PlayerLoadAction subTask2 = new PlayerLoadAction(players, (start + split), end,
-                    lastPlayedLimit, offlinePlayerUUIDs);
+                    offlinePlayerUUIDs);
 
             //queue and compute all subtasks in the right order
             invokeAll(subTask1, subTask2);
@@ -72,11 +65,16 @@ public final class PlayerLoadAction extends RecursiveAction {
     }
 
     private void process() {
+        OfflinePlayerHandler offlinePlayerHandler = OfflinePlayerHandler.getInstance();
+        int lastPlayedLimit = ConfigHandler.getInstance().getLastPlayedLimit();
+
         for (int i = start; i < end; i++) {
             OfflinePlayer player = players[i];
             String playerName = player.getName();
             MyLogger.actionRunning(Thread.currentThread().getName());
-            if (playerName != null && UnixTimeHandler.hasPlayedSince(lastPlayedLimit, player.getLastPlayed())) {
+            if (playerName != null &&
+                    !offlinePlayerHandler.isExcluded(player.getUniqueId()) &&
+                    UnixTimeHandler.hasPlayedSince(lastPlayedLimit, player.getLastPlayed())) {
                 offlinePlayerUUIDs.put(playerName, player.getUniqueId());
             }
         }

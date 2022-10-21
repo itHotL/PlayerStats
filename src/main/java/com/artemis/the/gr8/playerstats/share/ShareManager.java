@@ -33,15 +33,16 @@ public final class ShareManager {
     private ConcurrentHashMap<String, Instant> shareTimeStamp;
     private ArrayBlockingQueue<Integer> sharedResults;
 
-    public ShareManager(ConfigHandler config) {
-       updateSettings(config);
+    public ShareManager() {
+       updateSettings();
     }
 
     public static boolean isEnabled() {
         return isEnabled;
     }
 
-    public void updateSettings(ConfigHandler config) {
+    public void updateSettings() {
+        ConfigHandler config = ConfigHandler.getInstance();
         isEnabled = config.allowStatSharing() && config.useHoverText();
         waitingTime = config.getStatShareWaitingTime();
 

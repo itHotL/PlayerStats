@@ -34,17 +34,18 @@ import static com.artemis.the.gr8.playerstats.enums.StandardMessage.*;
 public final class OutputManager {
 
     private static BukkitAudiences adventure;
-    private static ConfigHandler config;
     private static EnumMap<StandardMessage, Function<MessageBuilder, TextComponent>> standardMessages;
 
+    private final ConfigHandler config;
     private final LanguageKeyHandler languageKeyHandler;
     private MessageBuilder messageBuilder;
     private MessageBuilder consoleMessageBuilder;
 
-    public OutputManager(BukkitAudiences adventure, ConfigHandler config, LanguageKeyHandler language) {
+    public OutputManager(BukkitAudiences adventure) {
         OutputManager.adventure = adventure;
-        OutputManager.config = config;
-        languageKeyHandler = language;
+        languageKeyHandler = LanguageKeyHandler.getInstance();
+        config = ConfigHandler.getInstance();
+
         getMessageBuilders();
         prepareFunctions();
     }

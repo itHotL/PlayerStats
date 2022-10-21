@@ -22,13 +22,28 @@ import java.util.regex.Pattern;
  */
 public final class LanguageKeyHandler extends FileHandler {
 
+    private static volatile LanguageKeyHandler instance;
     private static HashMap<Statistic, String> statisticKeys;
     private final Pattern subStatKey;
 
-    public LanguageKeyHandler() {
+    private LanguageKeyHandler() {
         super("language.yml");
         statisticKeys = generateStatisticKeys();
         subStatKey = Pattern.compile("(item|entity|block)\\.minecraft\\.");
+    }
+
+    public static LanguageKeyHandler getInstance() {
+        LanguageKeyHandler localVar = instance;
+        if (localVar != null) {
+            return localVar;
+        }
+
+        synchronized (LanguageKeyHandler.class) {
+            if (instance == null) {
+                instance = new LanguageKeyHandler();
+            }
+            return instance;
+        }
     }
 
     @Contract(pure = true)
@@ -222,7 +237,7 @@ public final class LanguageKeyHandler extends FileHandler {
         if (block == null) return null;
         else if (block.toString().toLowerCase().contains("wall_banner")) {  //replace wall_banner with regular banner, since there is no key for wall banners
             String blockName = block.toString().toLowerCase().replace("wall_", "");
-            Material newBlock = EnumHandler.getBlockEnum(blockName);
+            Material newBlock = EnumHandler.getInstance().getBlockEnum(blockName);
             return (newBlock != null) ? "block.minecraft." + newBlock.getKey().getKey() : null;
         }
         else {

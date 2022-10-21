@@ -1,10 +1,11 @@
 package com.artemis.the.gr8.playerstats.utils;
 
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
-import com.artemis.the.gr8.playerstats.reload.PlayerLoadAction;
+import com.artemis.the.gr8.playerstats.multithreading.ThreadManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -21,31 +22,47 @@ import java.util.function.Predicate;
  */
 public final class OfflinePlayerHandler extends FileHandler {
 
-    private static ConfigHandler config;
+    private static volatile OfflinePlayerHandler instance;
+    private final ConfigHandler config;
     private static FileConfiguration excludedPlayers;
-    private ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
-    private ArrayList<String> playerNames;
+    private static ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
 
-    public OfflinePlayerHandler(ConfigHandler configHandler) {
+    private OfflinePlayerHandler() {
         super("excluded_players.yml");
+        config = ConfigHandler.getInstance();
+
         excludedPlayers = super.getFileConfiguration();
-        config = configHandler;
         loadOfflinePlayers();
+    }
+
+    public static OfflinePlayerHandler getInstance() {
+        OfflinePlayerHandler localVar = instance;
+        if (localVar != null) {
+            return localVar;
+        }
+
+        synchronized (OfflinePlayerHandler.class) {
+            if (instance == null) {
+                instance = new OfflinePlayerHandler();
+            }
+            return instance;
+        }
     }
 
     @Override
     public void reload() {
         super.reload();
         excludedPlayers = super.getFileConfiguration();
+
         loadOfflinePlayers();
     }
 
     /**
-     * Checks if a given playerName is on the private HashMap of players
-     * that should be included in statistic calculations.
+     * Checks if a given player is currently
+     * included for /statistic lookups.
      *
      * @param playerName String (case-sensitive)
-     * @return true if this Player should be included in calculations
+     * @return true if this player is included
      */
     public boolean isRelevantPlayer(String playerName) {
         return offlinePlayerUUIDs.containsKey(playerName);
@@ -55,22 +72,20 @@ public final class OfflinePlayerHandler extends FileHandler {
         super.addValueToListInFile("excluded", uniqueID);
     }
 
-    public static boolean isExcluded(UUID uniqueID) {
+    public boolean isExcluded(UUID uniqueID) {
         List<?> excluded = excludedPlayers.getList("excluded");
         if (excluded == null) {
             return false;
         }
-        for (Object obj : excluded) {
-            if (obj.equals(uniqueID)) {
-                return true;
-            }
-        }
-        return false;
+
+        return excluded.stream()
+                .filter(Objects::nonNull)
+                .anyMatch(obj -> obj.equals(uniqueID));
     }
 
     /**
-     * Gets the number of OfflinePlayers that are included in
-     * statistic calculations.
+     * Gets the number of OfflinePlayers that are
+     * currently included in statistic calculations.
      *
      * @return the number of included OfflinePlayers
      */
@@ -84,8 +99,9 @@ public final class OfflinePlayerHandler extends FileHandler {
      *
      * @return the ArrayList
      */
-    public ArrayList<String> getOfflinePlayerNames() {
-        return playerNames;
+    @Contract(" -> new")
+    public @NotNull ArrayList<String> getOfflinePlayerNames() {
+        return Collections.list(offlinePlayerUUIDs.keys());
     }
 
     /**
@@ -127,12 +143,9 @@ public final class OfflinePlayerHandler extends FileHandler {
             int size = offlinePlayerUUIDs != null ? offlinePlayerUUIDs.size() : 16;
             offlinePlayerUUIDs = new ConcurrentHashMap<>(size);
 
-            PlayerLoadAction task = new PlayerLoadAction(offlinePlayers, config.getLastPlayedLimit(), offlinePlayerUUIDs);
-            MyLogger.actionCreated(offlinePlayers != null ? offlinePlayers.length : 0);
-            ForkJoinPool.commonPool().invoke(task);
-            MyLogger.actionFinished();
+            ForkJoinPool.commonPool().invoke(ThreadManager.getPlayerLoadAction(offlinePlayers, offlinePlayerUUIDs));
 
-            playerNames = Collections.list(offlinePlayerUUIDs.keys());
+            MyLogger.actionFinished();
             MyLogger.logLowLevelTask(("Loaded " + offlinePlayerUUIDs.size() + " offline players"), time);
         });
     }

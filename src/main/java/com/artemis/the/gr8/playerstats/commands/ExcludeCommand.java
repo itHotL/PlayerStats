@@ -11,8 +11,8 @@ public final class ExcludeCommand implements CommandExecutor {
 
     private final OfflinePlayerHandler offlinePlayerHandler;
 
-    public ExcludeCommand(OfflinePlayerHandler offlinePlayerHandler) {
-        this.offlinePlayerHandler = offlinePlayerHandler;
+    public ExcludeCommand() {
+        this.offlinePlayerHandler = OfflinePlayerHandler.getInstance();
     }
 
     @Override

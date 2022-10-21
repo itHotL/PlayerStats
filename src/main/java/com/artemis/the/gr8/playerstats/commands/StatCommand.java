@@ -1,6 +1,6 @@
 package com.artemis.the.gr8.playerstats.commands;
 
-import com.artemis.the.gr8.playerstats.ThreadManager;
+import com.artemis.the.gr8.playerstats.multithreading.ThreadManager;
 import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
@@ -32,16 +32,15 @@ public final class StatCommand implements CommandExecutor {
 
     private static ThreadManager threadManager;
     private static OutputManager outputManager;
-    private static ConfigHandler config;
-    private final OfflinePlayerHandler offlinePlayerHandler;
+    private final ConfigHandler config;
     private final EnumHandler enumHandler;
 
-    public StatCommand(OutputManager m, ThreadManager t, ConfigHandler c, OfflinePlayerHandler o, EnumHandler e) {
-        threadManager = t;
-        outputManager = m;
-        config = c;
-        offlinePlayerHandler = o;
-        enumHandler = e;
+    public StatCommand(OutputManager outputManager, ThreadManager threadManager) {
+        StatCommand.threadManager = threadManager;
+        StatCommand.outputManager = outputManager;
+
+        config = ConfigHandler.getInstance();
+        enumHandler = EnumHandler.getInstance();
     }
 
     @Override
@@ -135,19 +134,19 @@ public final class StatCommand implements CommandExecutor {
             switch (statistic.getType()) {
                 case UNTYPED -> request = requestGenerator.untyped(statistic);
                 case BLOCK -> {
-                    Material block = EnumHandler.getBlockEnum(subStatName);
+                    Material block = enumHandler.getBlockEnum(subStatName);
                     if (block != null) {
                         request = requestGenerator.blockOrItemType(statistic, block);
                     }
                 }
                 case ITEM -> {
-                    Material item = EnumHandler.getItemEnum(subStatName);
+                    Material item = enumHandler.getItemEnum(subStatName);
                     if (item != null) {
                         request = requestGenerator.blockOrItemType(statistic, item);
                     }
                 }
                 case ENTITY -> {
-                    EntityType entity = EnumHandler.getEntityEnum(subStatName);
+                    EntityType entity = enumHandler.getEntityEnum(subStatName);
                     if (entity != null) {
                         request = requestGenerator.entityType(statistic, entity);
                     }
@@ -202,7 +201,7 @@ public final class StatCommand implements CommandExecutor {
                 }
             }
             if (statName != null) {
-                statistic = EnumHandler.getStatEnum(statName);
+                statistic = enumHandler.getStatEnum(statName);
                 argsToProcess = removeArg(statName);
             }
         }
@@ -241,6 +240,8 @@ public final class StatCommand implements CommandExecutor {
 
         @Contract(pure = true)
         private @Nullable String tryToFindPlayerName(@NotNull String[] args) {
+            OfflinePlayerHandler offlinePlayerHandler = OfflinePlayerHandler.getInstance();
+
             for (String arg : args) {
                 if (offlinePlayerHandler.isRelevantPlayer(arg)) {
                     return arg;

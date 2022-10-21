@@ -144,7 +144,9 @@ public final class MessageBuilder implements StatFormatter {
         return componentFactory.pluginPrefix()
                 .append(space())
                 .append(componentFactory.message().content(
-                "Please add a valid " + EnumHandler.getSubStatTypeName(statType) + " to look up this statistic!"));
+                "Please add a valid " +
+                        EnumHandler.getInstance().getSubStatTypeName(statType) +
+                        " to look up this statistic!"));
     }
 
     public @NotNull TextComponent missingPlayerName() {
@@ -160,7 +162,9 @@ public final class MessageBuilder implements StatFormatter {
                 .append(componentFactory.messageAccent().content("\"" + subStatName + "\""))
                 .append(space())
                 .append(componentFactory.message().content(
-                "is not a valid " + EnumHandler.getSubStatTypeName(statType) + "!"));
+                "is not a valid " +
+                        EnumHandler.getInstance().getSubStatTypeName(statType) +
+                        "!"));
     }
 
     public @NotNull TextComponent requestAlreadyRunning() {
@@ -509,12 +513,14 @@ public final class MessageBuilder implements StatFormatter {
     }
 
     private TextComponent getStatAndSubStatNameComponent(Statistic statistic, @Nullable String subStatName, Target target) {
+        EnumHandler enumHandler = EnumHandler.getInstance();
+
         String statKey = languageKeyHandler.getStatKey(statistic);
         String subStatKey = switch (statistic.getType()) {
             case UNTYPED -> null;
-            case ENTITY -> languageKeyHandler.getEntityKey(EnumHandler.getEntityEnum(subStatName));
-            case BLOCK -> languageKeyHandler.getBlockKey(EnumHandler.getBlockEnum(subStatName));
-            case ITEM -> languageKeyHandler.getItemKey(EnumHandler.getItemEnum(subStatName));
+            case ENTITY -> languageKeyHandler.getEntityKey(enumHandler.getEntityEnum(subStatName));
+            case BLOCK -> languageKeyHandler.getBlockKey(enumHandler.getBlockEnum(subStatName));
+            case ITEM -> languageKeyHandler.getItemKey(enumHandler.getItemEnum(subStatName));
         };
         if (subStatKey == null) {
             subStatKey = StringUtils.prettify(subStatName);

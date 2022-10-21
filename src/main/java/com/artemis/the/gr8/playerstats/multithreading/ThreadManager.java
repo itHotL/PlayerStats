@@ -1,17 +1,20 @@
-package com.artemis.the.gr8.playerstats;
+package com.artemis.the.gr8.playerstats.multithreading;
 
+import com.artemis.the.gr8.playerstats.Main;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
-import com.artemis.the.gr8.playerstats.reload.ReloadThread;
-import com.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.artemis.the.gr8.playerstats.statistic.StatRequest;
-import com.artemis.the.gr8.playerstats.statistic.RequestManager;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
+import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
+import com.google.common.collect.ImmutableList;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The ThreadManager is in charge of the Threads that PlayerStats
@@ -29,20 +32,18 @@ public final class ThreadManager {
     private int reloadThreadID;
 
     private final Main main;
-    private static ConfigHandler config;
+    private final ConfigHandler config;
     private static OutputManager outputManager;
-    private final RequestManager statManager;
 
     private ReloadThread activatedReloadThread;
     private StatThread activatedStatThread;
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    public ThreadManager(Main main, ConfigHandler config, OutputManager outputManager, RequestManager statManager) {
+    public ThreadManager(Main main, OutputManager outputManager) {
         this.main = main;
-        ThreadManager.config = config;
+        this.config = ConfigHandler.getInstance();
         ThreadManager.outputManager = outputManager;
-        this.statManager = statManager;
 
         statThreads = new HashMap<>();
         statThreadID = 0;
@@ -50,8 +51,25 @@ public final class ThreadManager {
         lastRecordedCalcTime = 0;
     }
 
-    public static int getTaskThreshold() {
+    static int getTaskThreshold() {
         return threshold;
+    }
+
+    public static @NotNull StatAction getStatAction(StatRequest.Settings requestSettings) {
+        OfflinePlayerHandler offlinePlayerHandler = OfflinePlayerHandler.getInstance();
+
+        ImmutableList<String> relevantPlayerNames = ImmutableList.copyOf(offlinePlayerHandler.getOfflinePlayerNames());
+        ConcurrentHashMap<String, Integer> resultingStatNumbers = new ConcurrentHashMap<>(relevantPlayerNames.size());
+        StatAction task = new StatAction(relevantPlayerNames, requestSettings, resultingStatNumbers);
+
+        MyLogger.actionCreated(relevantPlayerNames.size());
+        return task;
+    }
+
+    public static @NotNull PlayerLoadAction getPlayerLoadAction(OfflinePlayer[] playersToLoad, ConcurrentHashMap<String, UUID> mapToFill) {
+        PlayerLoadAction task = new PlayerLoadAction(playersToLoad, mapToFill);
+        MyLogger.actionCreated(playersToLoad != null ? playersToLoad.length : 0);
+        return task;
     }
 
     public void startReloadThread(CommandSender sender) {
@@ -100,7 +118,7 @@ public final class ThreadManager {
     }
 
     private void startNewStatThread(StatRequest<?> request) {
-        activatedStatThread = new StatThread(outputManager, statManager, statThreadID, request, activatedReloadThread);
+        activatedStatThread = new StatThread(outputManager, statThreadID, request, activatedReloadThread);
         statThreads.put(request.getSettings().getCommandSender().getName(), activatedStatThread);
         activatedStatThread.start();
     }

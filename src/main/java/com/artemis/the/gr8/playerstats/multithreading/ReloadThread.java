@@ -1,20 +1,14 @@
-package com.artemis.the.gr8.playerstats.reload;
+package com.artemis.the.gr8.playerstats.multithreading;
 
 import com.artemis.the.gr8.playerstats.Main;
-import com.artemis.the.gr8.playerstats.share.ShareManager;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
-import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
-import com.artemis.the.gr8.playerstats.statistic.RequestProcessor;
-import com.artemis.the.gr8.playerstats.statistic.StatThread;
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
-import com.artemis.the.gr8.playerstats.utils.OfflinePlayerHandler;
-import com.artemis.the.gr8.playerstats.enums.DebugLevel;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 
 /** The Thread that is in charge of reloading PlayerStats. */
-public final class ReloadThread extends Thread {
+final class ReloadThread extends Thread {
 
     private final Main main;
     private static OutputManager outputManager;
@@ -34,13 +28,8 @@ public final class ReloadThread extends Thread {
     }
 
     /**
-     * This method will perform a series of tasks. If a {@link StatThread}
+     * This method will call reload() from Main. If a {@link StatThread}
      * is still running, it will join the statThread and wait for it to finish.
-     * Then, it will reload the config, update the {@link LanguageKeyHandler},
-     * the {@link OfflinePlayerHandler}, the {@link DebugLevel}, update
-     * the share-settings in {@link ShareManager} and topListSize-settings
-     * in {@link RequestProcessor}, and update the MessageBuilders in the
-     * {@link OutputManager}.
      */
     @Override
     public void run() {
