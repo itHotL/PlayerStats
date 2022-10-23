@@ -5,6 +5,7 @@ import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
 import com.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
+import com.artemis.the.gr8.playerstats.msg.msgutils.FormattingFunction;
 import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import com.artemis.the.gr8.playerstats.statistic.StatRequest;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;

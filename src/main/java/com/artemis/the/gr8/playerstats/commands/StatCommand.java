@@ -243,7 +243,7 @@ public final class StatCommand implements CommandExecutor {
             OfflinePlayerHandler offlinePlayerHandler = OfflinePlayerHandler.getInstance();
 
             for (String arg : args) {
-                if (offlinePlayerHandler.isRelevantPlayer(arg)) {
+                if (offlinePlayerHandler.isLoadedPlayer(arg)) {
                     return arg;
                 }
             }

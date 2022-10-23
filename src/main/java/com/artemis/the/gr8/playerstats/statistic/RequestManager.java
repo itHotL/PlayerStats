@@ -2,7 +2,7 @@ package com.artemis.the.gr8.playerstats.statistic;
 
 import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.artemis.the.gr8.playerstats.api.StatManager;
-import com.artemis.the.gr8.playerstats.msg.FormattingFunction;
+import com.artemis.the.gr8.playerstats.msg.msgutils.FormattingFunction;
 import com.artemis.the.gr8.playerstats.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.multithreading.ThreadManager;
 import com.artemis.the.gr8.playerstats.share.ShareManager;
@@ -28,9 +28,9 @@ public final class RequestManager implements StatManager {
     private static RequestProcessor processor;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
-    public RequestManager(OutputManager outputManager, ShareManager shareManager) {
-        processor = new RequestProcessor(outputManager, shareManager);
+    public RequestManager(OutputManager outputManager) {
         offlinePlayerHandler = OfflinePlayerHandler.getInstance();
+        processor = new RequestProcessor(outputManager);
     }
 
     public static StatResult<?> execute(@NotNull StatRequest<?> request) {
@@ -82,9 +82,9 @@ public final class RequestManager implements StatManager {
         private static OutputManager outputManager;
         private static ShareManager shareManager;
 
-        public RequestProcessor(OutputManager outputManager, ShareManager shareManager) {
+        public RequestProcessor(OutputManager outputManager) {
             RequestProcessor.outputManager = outputManager;
-            RequestProcessor.shareManager = shareManager;
+            RequestProcessor.shareManager = ShareManager.getInstance();
         }
 
         public @NotNull StatResult<Integer> processPlayerRequest(StatRequest.Settings requestSettings) {
@@ -149,7 +149,7 @@ public final class RequestManager implements StatManager {
 
         private boolean outputShouldBeStored(CommandSender sender) {
             return !(sender instanceof ConsoleCommandSender) &&
-                    ShareManager.isEnabled() &&
+                    shareManager.isEnabled() &&
                     shareManager.senderHasPermission(sender);
         }
 

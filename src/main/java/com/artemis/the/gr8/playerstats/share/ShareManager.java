@@ -25,6 +25,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
  */
 public final class ShareManager {
 
+    private static volatile ShareManager instance;
     private static boolean isEnabled;
     private int waitingTime;
 
@@ -33,11 +34,25 @@ public final class ShareManager {
     private ConcurrentHashMap<String, Instant> shareTimeStamp;
     private ArrayBlockingQueue<Integer> sharedResults;
 
-    public ShareManager() {
+    private ShareManager() {
        updateSettings();
     }
 
-    public static boolean isEnabled() {
+    public static ShareManager getInstance() {
+        ShareManager localVar = instance;
+        if (localVar != null) {
+            return localVar;
+        }
+
+        synchronized (ShareManager.class) {
+            if (instance == null) {
+                instance = new ShareManager();
+            }
+            return instance;
+        }
+    }
+
+    public boolean isEnabled() {
         return isEnabled;
     }
 

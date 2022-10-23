@@ -33,7 +33,7 @@ import net.kyori.adventure.text.TextComponent;
  * and use the BukkitAudiences object can be found on
  * <a href="https://docs.adventure.kyori.net/platform/bukkit.html">Adventure's website</a>.
  *
- * <p>You can also use the provided {@link #formattedString ()} method to get the
+ * <p>You can also use the provided {@link #formattedString()} method to get the
  * same information in String-format. Don't use Adventure's <code>#content()</code>
  * or <code>#toString()</code> methods on the Components - those won't get the actual
  * message. And finally, if you want the results to be formatted differently,

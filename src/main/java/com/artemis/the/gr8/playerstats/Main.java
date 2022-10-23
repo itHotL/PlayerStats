@@ -106,11 +106,10 @@ public final class Main extends JavaPlugin implements PlayerStats {
         config = ConfigHandler.getInstance();
         languageKeyHandler = LanguageKeyHandler.getInstance();
         offlinePlayerHandler = OfflinePlayerHandler.getInstance();
+        shareManager = ShareManager.getInstance();
 
         outputManager = new OutputManager(adventure);
-        shareManager = new ShareManager();
-
-        requestManager = new RequestManager(outputManager, shareManager);
+        requestManager = new RequestManager(outputManager);
         threadManager = new ThreadManager(this, outputManager);
     }
 
@@ -138,7 +137,7 @@ public final class Main extends JavaPlugin implements PlayerStats {
         }
         PluginCommand sharecmd = this.getCommand("statisticshare");
         if (sharecmd != null) {
-            sharecmd.setExecutor(new ShareCommand(shareManager, outputManager));
+            sharecmd.setExecutor(new ShareCommand(outputManager));
         }
     }
 

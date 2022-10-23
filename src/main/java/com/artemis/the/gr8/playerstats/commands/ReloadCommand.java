@@ -11,8 +11,8 @@ public final class ReloadCommand implements CommandExecutor {
 
     private static ThreadManager threadManager;
 
-    public ReloadCommand(ThreadManager t) {
-        threadManager = t;
+    public ReloadCommand(ThreadManager threadManager) {
+        ReloadCommand.threadManager = threadManager;
     }
 
     @Override

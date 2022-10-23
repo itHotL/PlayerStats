@@ -9,9 +9,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public abstract class FileHandler {
 
@@ -48,7 +49,7 @@ public abstract class FileHandler {
     }
 
     public void addValuesToFile(@NotNull Map<String, Object> keyValuePairs) {
-        keyValuePairs.forEach(this::addValue);
+        keyValuePairs.forEach(this::setValue);
         save();
         updateFile();
     }
@@ -58,23 +59,30 @@ public abstract class FileHandler {
      *            (or expanded if it already exists)
      * @param value the value(s) to expand the List with
      */
-    public void addValueToListInFile(@NotNull String key, @NotNull Object value) {
-        List<?> currentValues = fileConfiguration.getList(key);
+    public void addEntryToListInFile(@NotNull String key, @NotNull String value) {
+        List<String> existingList = fileConfiguration.getStringList(key);
 
-        List<Object> updatedValues;
-        if (currentValues != null) {
-            updatedValues = new ArrayList<>(currentValues);
-        } else {
-            updatedValues = new ArrayList<>();
-        }
-        updatedValues.add(value);
+        List<String> updatedList = existingList.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        updatedList.add(value);
 
-        addValue(key, updatedValues);
+        setValue(key, updatedList);
         save();
         updateFile();
     }
 
-    private void addValue(String key, Object value) {
+    public void removeEntryFromListInFile(@NotNull String key, @NotNull String value) {
+        List<String> currentValues = fileConfiguration.getStringList(key);
+
+        if (currentValues.remove(value)) {
+            setValue(key, currentValues);
+            save();
+            updateFile();
+        }
+    }
+
+    private void setValue(String key, Object value) {
         fileConfiguration.set(key, value);
     }
 

@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * A utility class that deals with OfflinePlayers. It stores a list
@@ -64,23 +65,34 @@ public final class OfflinePlayerHandler extends FileHandler {
      * @param playerName String (case-sensitive)
      * @return true if this player is included
      */
-    public boolean isRelevantPlayer(String playerName) {
+    public boolean isLoadedPlayer(String playerName) {
         return offlinePlayerUUIDs.containsKey(playerName);
     }
 
-    public void excludePlayer(UUID uniqueID) {
-        super.addValueToListInFile("excluded", uniqueID);
+    public void addPlayerToExcludeList(UUID uniqueID) {
+        super.addEntryToListInFile("excluded", uniqueID.toString());
+    }
+
+    public void removePlayerFromExcludeList(UUID uniqueID) {
+        super.removeEntryFromListInFile("excluded", uniqueID.toString());
+    }
+
+    public List<String> getListOfExcludedPlayerNames() {
+        List<String> excludedUUIDs = excludedPlayers.getStringList("excluded");
+        return excludedUUIDs.stream()
+                .map(UUID::fromString)
+                .map(Bukkit::getOfflinePlayer)
+                .map(OfflinePlayer::getName)
+                .collect(Collectors.toList());
     }
 
     public boolean isExcluded(UUID uniqueID) {
-        List<?> excluded = excludedPlayers.getList("excluded");
-        if (excluded == null) {
-            return false;
-        }
+        List<String> excluded = excludedPlayers.getStringList("excluded");
 
         return excluded.stream()
                 .filter(Objects::nonNull)
-                .anyMatch(obj -> obj.equals(uniqueID));
+                .map(UUID::fromString)
+                .anyMatch(uuid -> uuid.equals(uniqueID));
     }
 
     /**

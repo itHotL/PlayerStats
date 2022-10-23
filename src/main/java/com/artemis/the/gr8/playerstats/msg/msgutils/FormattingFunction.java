@@ -1,4 +1,4 @@
-package com.artemis.the.gr8.playerstats.msg;
+package com.artemis.the.gr8.playerstats.msg.msgutils;
 
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.command.CommandSender;

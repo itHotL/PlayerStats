@@ -6,5 +6,8 @@
 # This can be used for more fine-grained filtering, for example to exclude alt accounts.
 # For more general filtering settings, see the config.yml (section 'General')
 
+# Format:
+#  - playerUUID-1
+#  - playerUUID-2
 excluded:
   -

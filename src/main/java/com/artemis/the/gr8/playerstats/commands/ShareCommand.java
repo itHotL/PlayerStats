@@ -12,17 +12,17 @@ import org.jetbrains.annotations.NotNull;
 
 public final class ShareCommand implements CommandExecutor {
 
-    private static ShareManager shareManager;
     private static OutputManager outputManager;
+    private static ShareManager shareManager;
 
-    public ShareCommand(ShareManager s, OutputManager m) {
-        shareManager = s;
-        outputManager = m;
+    public ShareCommand(OutputManager outputManager) {
+        ShareCommand.outputManager = outputManager;
+        shareManager = ShareManager.getInstance();
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
-        if (args.length == 1 && ShareManager.isEnabled()) {
+        if (args.length == 1 && shareManager.isEnabled()) {
             int shareCode;
             try {
                 shareCode = Integer.parseInt(args[0]);
