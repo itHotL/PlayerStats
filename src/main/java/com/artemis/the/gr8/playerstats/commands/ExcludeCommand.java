@@ -47,8 +47,7 @@ public final class ExcludeCommand implements CommandExecutor {
                     }
                 }
                 case "info" -> {
-                    boolean isExcluded = offlinePlayerHandler.isExcludedPlayer(playerName);
-                    sender.sendMessage(playerName+ " is excluded: " + isExcluded);
+                    outputManager.sendExcludeInfo(sender);
                     return true;
                 }
             }

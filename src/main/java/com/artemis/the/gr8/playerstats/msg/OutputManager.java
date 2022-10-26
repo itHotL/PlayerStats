@@ -11,7 +11,6 @@ import com.artemis.the.gr8.playerstats.statistic.StatRequest;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -100,17 +99,12 @@ public final class OutputManager {
         }
     }
 
-    public void sendFeedbackMsgWaitAMoment(@NotNull CommandSender sender, boolean longWait) {
-        adventure.sender(sender).sendMessage(getMessageBuilder(sender)
-                .waitAMoment(longWait));
-    }
-
-    public void sendFeedbackMsgMissingSubStat(@NotNull CommandSender sender, Statistic.Type statType) {
+    public void sendFeedbackMsgMissingSubStat(@NotNull CommandSender sender, String statType) {
         adventure.sender(sender).sendMessage(getMessageBuilder(sender)
                 .missingSubStatName(statType));
     }
 
-    public void sendFeedbackMsgWrongSubStat(@NotNull CommandSender sender, Statistic.Type statType, @Nullable String subStatName) {
+    public void sendFeedbackMsgWrongSubStat(@NotNull CommandSender sender, String statType, @Nullable String subStatName) {
         if (subStatName == null) {
             sendFeedbackMsgMissingSubStat(sender, statType);
         } else {
@@ -127,6 +121,11 @@ public final class OutputManager {
     public void sendHelp(@NotNull CommandSender sender) {
         adventure.sender(sender).sendMessage(getMessageBuilder(sender)
                 .helpMsg());
+    }
+
+    public void sendExcludeInfo(@NotNull CommandSender sender) {
+        adventure.sender(sender).sendMessage(getMessageBuilder(sender)
+                .excludeInfoMsg());
     }
 
     public void sendToAllPlayers(@NotNull TextComponent component) {
@@ -176,14 +175,16 @@ public final class OutputManager {
     private void prepareFunctions() {
         standardMessages = new EnumMap<>(StandardMessage.class);
 
-        standardMessages.put(RELOADED_CONFIG, (MessageBuilder::reloadedConfig));
-        standardMessages.put(STILL_RELOADING, (MessageBuilder::stillReloading));
-        standardMessages.put(MISSING_STAT_NAME, (MessageBuilder::missingStatName));
-        standardMessages.put(MISSING_PLAYER_NAME, (MessageBuilder::missingPlayerName));
-        standardMessages.put(REQUEST_ALREADY_RUNNING, (MessageBuilder::requestAlreadyRunning));
-        standardMessages.put(STILL_ON_SHARE_COOLDOWN, (MessageBuilder::stillOnShareCoolDown));
-        standardMessages.put(RESULTS_ALREADY_SHARED, (MessageBuilder::resultsAlreadyShared));
-        standardMessages.put(STAT_RESULTS_TOO_OLD, (MessageBuilder::statResultsTooOld));
-        standardMessages.put(UNKNOWN_ERROR, (MessageBuilder::unknownError));
+        standardMessages.put(RELOADED_CONFIG, MessageBuilder::reloadedConfig);
+        standardMessages.put(STILL_RELOADING, MessageBuilder::stillReloading);
+        standardMessages.put(MISSING_STAT_NAME, MessageBuilder::missingStatName);
+        standardMessages.put(MISSING_PLAYER_NAME, MessageBuilder::missingPlayerName);
+        standardMessages.put(WAIT_A_MOMENT, MessageBuilder::waitAMoment);
+        standardMessages.put(WAIT_A_MINUTE, MessageBuilder::waitAMinute);
+        standardMessages.put(REQUEST_ALREADY_RUNNING, MessageBuilder::requestAlreadyRunning);
+        standardMessages.put(STILL_ON_SHARE_COOLDOWN, MessageBuilder::stillOnShareCoolDown);
+        standardMessages.put(RESULTS_ALREADY_SHARED, MessageBuilder::resultsAlreadyShared);
+        standardMessages.put(STAT_RESULTS_TOO_OLD, MessageBuilder::statResultsTooOld);
+        standardMessages.put(UNKNOWN_ERROR, MessageBuilder::unknownError);
     }
 }

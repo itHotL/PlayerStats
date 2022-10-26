@@ -107,9 +107,17 @@ public class ComponentFactory {
 
     /**
      * Returns a TextComponent with the input String as content,
-     * with color Gray and decoration Italic.
+     * with color Gray.
      */
     public TextComponent subTitle(String content) {
+        return text(content).color(BRACKETS);
+    }
+
+    /**
+     * Returns a TextComponent with the input String as content,
+     * with color Gray and decoration Italic.
+     */
+    public TextComponent italicSubTitle(String content) {
         return text(content).color(BRACKETS).decorate(TextDecoration.ITALIC);
     }
 

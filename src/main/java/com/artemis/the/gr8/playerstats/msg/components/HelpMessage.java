@@ -93,7 +93,7 @@ public final class HelpMessage implements TextComponent {
         return Component.newline()
                 .append(factory.pluginPrefixAsTitle())
                 .append(newline())
-                .append(factory.subTitle("Hover over the arguments for more information!"))
+                .append(factory.italicSubTitle("Hover over the arguments for more information!"))
                 .append(newline())
                 .append(text("Usage:").color(factory.MSG_MAIN_2)).append(space())
                 .append(text("/statistic").color(factory.MSG_HOVER_ACCENT))

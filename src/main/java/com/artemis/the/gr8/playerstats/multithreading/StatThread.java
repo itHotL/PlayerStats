@@ -48,8 +48,10 @@ final class StatThread extends Thread {
         }
 
         long lastCalc = ThreadManager.getLastRecordedCalcTime();
-        if (lastCalc > 2000) {
-            outputManager.sendFeedbackMsgWaitAMoment(statRequester, lastCalc > 20000);
+        if (lastCalc > 6000) {
+            outputManager.sendFeedbackMsg(statRequester, StandardMessage.WAIT_A_MINUTE);
+        } else if (lastCalc > 2000) {
+            outputManager.sendFeedbackMsg(statRequester, StandardMessage.WAIT_A_MOMENT);
         }
 
         try {

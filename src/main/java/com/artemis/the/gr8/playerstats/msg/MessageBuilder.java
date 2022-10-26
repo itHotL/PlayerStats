@@ -113,65 +113,44 @@ public final class MessageBuilder implements StatFormatter {
     }
 
     public @NotNull TextComponent reloadedConfig() {
-        return componentFactory.pluginPrefix()
-                .append(space())
-                .append(componentFactory.message().content("Config reloaded!"));
+        return composePluginMessage("Config reloaded!");
     }
 
     public @NotNull TextComponent stillReloading() {
-        return componentFactory.pluginPrefix()
-                .append(space())
-                .append(componentFactory.message().content(
-                "The plugin is (re)loading, your request will be processed when it is done!"));
+        return composePluginMessage("The plugin is (re)loading, your request will be processed when it is done!");
     }
 
-    public @NotNull TextComponent waitAMoment(boolean longWait) {
-        String msg = longWait ? "Calculating statistics, this may take a minute..." :
-                "Calculating statistics, this may take a few moments...";
-        return componentFactory.pluginPrefix()
-                .append(space())
-                .append(componentFactory.message().content(msg));
+    public @NotNull TextComponent waitAMinute() {
+        return composePluginMessage("Calculating statistics, this may take a minute...");
+    }
+
+    public @NotNull TextComponent waitAMoment() {
+        return composePluginMessage("Calculating statistics, this may take a few moments...");
     }
 
     public @NotNull TextComponent missingStatName() {
-        return componentFactory.pluginPrefix()
-                .append(space())
-                .append(componentFactory.message().content(
-                "Please provide a valid statistic name!"));
+        return composePluginMessage("Please provide a valid statistic name!");
     }
 
-    public @NotNull TextComponent missingSubStatName(Statistic.Type statType) {
-        return componentFactory.pluginPrefix()
-                .append(space())
-                .append(componentFactory.message().content(
-                "Please add a valid " +
-                        EnumHandler.getInstance().getSubStatTypeName(statType) +
-                        " to look up this statistic!"));
+    public @NotNull TextComponent missingSubStatName(String statType) {
+        return composePluginMessage("Please add a valid " + statType + " to look up this statistic!");
     }
 
     public @NotNull TextComponent missingPlayerName() {
-        return componentFactory.pluginPrefix()
-                .append(space())
-                .append(componentFactory.message().content(
-                "Please specify a valid player-name!"));
+        return composePluginMessage("Please specify a valid player-name!");
     }
 
-    public @NotNull TextComponent wrongSubStatType(Statistic.Type statType, String subStatName) {
+    public @NotNull TextComponent wrongSubStatType(String statType, String subStatName) {
         return componentFactory.pluginPrefix()
                 .append(space())
                 .append(componentFactory.messageAccent().content("\"" + subStatName + "\""))
                 .append(space())
                 .append(componentFactory.message().content(
-                "is not a valid " +
-                        EnumHandler.getInstance().getSubStatTypeName(statType) +
-                        "!"));
+                "is not a valid " + statType + "!"));
     }
 
     public @NotNull TextComponent requestAlreadyRunning() {
-        return componentFactory.pluginPrefix()
-                .append(space())
-                .append(componentFactory.message().content(
-                        "Please wait for your previous lookup to finish!"));
+        return composePluginMessage("Please wait for your previous lookup to finish!");
     }
 
     public @NotNull TextComponent stillOnShareCoolDown() {
@@ -189,24 +168,23 @@ public final class MessageBuilder implements StatFormatter {
     }
 
     public @NotNull TextComponent resultsAlreadyShared() {
-        return componentFactory.pluginPrefix()
-                .append(space())
-                .append(componentFactory.message().content("You already shared these results!"));
+        return composePluginMessage("You already shared these results!");
     }
 
     public @NotNull TextComponent statResultsTooOld() {
-        return componentFactory.pluginPrefix()
-                .append(space())
-                .append(componentFactory.message().content(
-                        "It has been too long since you looked up this statistic, please repeat the original command!"));
+        return composePluginMessage("It has been too long since you looked up " +
+                "this statistic, please repeat the original command!");
     }
 
     public @NotNull TextComponent unknownError() {
-        return componentFactory.pluginPrefix()
+        return composePluginMessage("Something went wrong with your request, " +
+                "please try again or see /statistic for a usage explanation!");
+    }
+
+    private @NotNull TextComponent composePluginMessage(String content) {
+        return getPluginPrefix()
                 .append(space())
-                .append(componentFactory.message().content(
-                "Something went wrong with your request, " +
-                        "please try again or see /statistic for a usage explanation!"));
+                .append(componentFactory.message().content(content));
     }
 
     @Contract(" -> new")
@@ -221,6 +199,16 @@ public final class MessageBuilder implements StatFormatter {
         } else {
             return HelpMessage.constructPlainMsg(componentFactory, listSize);
         }
+    }
+
+    public @NotNull TextComponent excludeInfoMsg() {
+        return getPluginPrefixAsTitle()
+                .append(newline())
+                .append(componentFactory.subTitle("The /statexclude command " +
+                        "can be used to exclude individual players from /statistic lookups.")
+                        .append(newline())
+                        .append(text("This means their results won't show up in top-10 results, " +
+                                "and they won't be counted for the server total.")));
     }
 
     @Override

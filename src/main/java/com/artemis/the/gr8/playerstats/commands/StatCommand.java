@@ -91,10 +91,12 @@ public final class StatCommand implements CommandExecutor {
         }
         else {
             Statistic.Type type = processor.statistic.getType();
+            String statType = enumHandler.getSubStatTypeName(type);
+
             if (type != Statistic.Type.UNTYPED && processor.subStatName == null) {
-                outputManager.sendFeedbackMsgMissingSubStat(sender, type);
+                outputManager.sendFeedbackMsgMissingSubStat(sender, statType);
             } else {
-                outputManager.sendFeedbackMsgWrongSubStat(sender, type, processor.subStatName);
+                outputManager.sendFeedbackMsgWrongSubStat(sender, statType, processor.subStatName);
             }
         }
     }
