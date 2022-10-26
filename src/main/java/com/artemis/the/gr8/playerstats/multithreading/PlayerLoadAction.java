@@ -73,7 +73,7 @@ final class PlayerLoadAction extends RecursiveAction {
             String playerName = player.getName();
             MyLogger.actionRunning(Thread.currentThread().getName());
             if (playerName != null &&
-                    !offlinePlayerHandler.isExcluded(player.getUniqueId()) &&
+                    !offlinePlayerHandler.isExcludedPlayer(player.getUniqueId()) &&
                     UnixTimeHandler.hasPlayedSince(lastPlayedLimit, player.getLastPlayed())) {
                 offlinePlayerUUIDs.put(playerName, player.getUniqueId());
             }

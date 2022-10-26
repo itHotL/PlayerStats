@@ -6,6 +6,8 @@ import com.artemis.the.gr8.playerstats.enums.PluginColor;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
@@ -85,7 +87,8 @@ public class PrideComponentFactory extends ComponentFactory {
                 .build();
     }
 
-    private TextComponent backwardsPluginPrefixComponent() {
+    @Contract(" -> new")
+    private @NotNull TextComponent backwardsPluginPrefixComponent() {
         return text()
                 .append(MiniMessage.miniMessage()
                         .deserialize("<#631ae6>[</#631ae6>" +

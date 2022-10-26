@@ -127,7 +127,7 @@ public final class Main extends JavaPlugin implements PlayerStats {
         }
         PluginCommand excludecmd = this.getCommand("statisticexclude");
         if (excludecmd != null) {
-            excludecmd.setExecutor(new ExcludeCommand());
+            excludecmd.setExecutor(new ExcludeCommand(outputManager));
             excludecmd.setTabCompleter(tabCompleter);
         }
 

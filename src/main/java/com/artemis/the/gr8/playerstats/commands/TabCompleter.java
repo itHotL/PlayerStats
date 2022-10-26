@@ -7,7 +7,6 @@ import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,14 +28,9 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
     public TabCompleter() {
         offlinePlayerHandler = OfflinePlayerHandler.getInstance();
         enumHandler = EnumHandler.getInstance();
-
         prepareLists();
     }
 
-    //args[0] = statistic                                                        (length = 1)
-    //args[1] = target (player/server/top)    OR sub-stat (block/item/entity)    (length = 2)
-    //args[2] = playerName                    OR target (player/server/top)      (length = 3)
-    //args[3] =                                  playerName                      (length = 4)
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (command.getName().equalsIgnoreCase("statistic")) {
@@ -59,8 +53,13 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
         }
         else if (args.length == 2) {
             tabSuggestions = switch (args[0]) {
-                case "add" -> offlinePlayerHandler.getOfflinePlayerNames();
-                case "remove" -> removablePlayerNames();
+                case "add" -> offlinePlayerHandler.getLoadedOfflinePlayerNames();
+                case "remove" -> offlinePlayerHandler.getExcludedPlayerNames();
+                case "info" -> {
+                    ArrayList<String> loadedPlayers = offlinePlayerHandler.getLoadedOfflinePlayerNames();
+                    loadedPlayers.addAll(offlinePlayerHandler.getExcludedPlayerNames());
+                    yield loadedPlayers;
+                }
                 default -> tabSuggestions;
             };
         }
@@ -91,7 +90,7 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
                     tabSuggestions = statCommandTargets;  //if arg before "player" was entity-sub-stat, suggest targets
                 }
                 else {  //otherwise "player" is the target: suggest playerNames
-                    tabSuggestions = offlinePlayerHandler.getOfflinePlayerNames();
+                    tabSuggestions = offlinePlayerHandler.getLoadedOfflinePlayerNames();
                 }
             }
 
@@ -117,6 +116,7 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
     private @NotNull List<String> firstStatCommandArgSuggestions() {
         List<String> suggestions = enumHandler.getAllStatNames();
         suggestions.add("examples");
+        suggestions.add("info");
         suggestions.add("help");
         return suggestions;
     }
@@ -142,11 +142,6 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
         }
     }
 
-    @Contract(pure = true)
-    private @Nullable List<String> removablePlayerNames() {
-        return statCommandTargets;
-    }
-
     private void prepareLists() {
         statCommandTargets = new ArrayList<>();
         statCommandTargets.add("top");
@@ -158,6 +153,7 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
         excludeCommandOptions.add("add");
         excludeCommandOptions.add("list");
         excludeCommandOptions.add("remove");
+        excludeCommandOptions.add("info");
 
         //breaking an item means running its durability negative
         itemsThatCanBreak = Arrays.stream(Material.values())

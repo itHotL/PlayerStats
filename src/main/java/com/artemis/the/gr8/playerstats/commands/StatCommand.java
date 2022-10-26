@@ -45,11 +45,13 @@ public final class StatCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (args.length == 0 || args[0].equalsIgnoreCase("help")) {  //in case of less than 1 argument or "help", display the help message
+        if (args.length == 0 ||
+                args[0].equalsIgnoreCase("help") ||
+                args[0].equalsIgnoreCase("info")) {
             outputManager.sendHelp(sender);
         }
         else if (args[0].equalsIgnoreCase("examples") ||
-                args[0].equalsIgnoreCase("example")) {  //in case of "statistic examples", show examples
+                args[0].equalsIgnoreCase("example")) {
             outputManager.sendExamples(sender);
         }
         else {

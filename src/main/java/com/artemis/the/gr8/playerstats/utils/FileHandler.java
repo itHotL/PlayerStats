@@ -25,7 +25,7 @@ public abstract class FileHandler {
         loadFile();
     }
 
-    public void loadFile() {
+    private void loadFile() {
         JavaPlugin plugin = Main.getPluginInstance();
 
         file = new File(plugin.getDataFolder(), fileName);
@@ -48,7 +48,7 @@ public abstract class FileHandler {
         return fileConfiguration;
     }
 
-    public void addValuesToFile(@NotNull Map<String, Object> keyValuePairs) {
+    public void addValues(@NotNull Map<String, Object> keyValuePairs) {
         keyValuePairs.forEach(this::setValue);
         save();
         updateFile();
@@ -59,7 +59,7 @@ public abstract class FileHandler {
      *            (or expanded if it already exists)
      * @param value the value(s) to expand the List with
      */
-    public void addEntryToListInFile(@NotNull String key, @NotNull String value) {
+    public void writeEntryToList(@NotNull String key, @NotNull String value) {
         List<String> existingList = fileConfiguration.getStringList(key);
 
         List<String> updatedList = existingList.stream()
@@ -72,7 +72,7 @@ public abstract class FileHandler {
         updateFile();
     }
 
-    public void removeEntryFromListInFile(@NotNull String key, @NotNull String value) {
+    public void removeEntryFromList(@NotNull String key, @NotNull String value) {
         List<String> currentValues = fileConfiguration.getStringList(key);
 
         if (currentValues.remove(value)) {

@@ -4,7 +4,6 @@ import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.multithreading.ThreadManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * A utility class that deals with OfflinePlayers. It stores a list
@@ -25,14 +23,13 @@ public final class OfflinePlayerHandler extends FileHandler {
 
     private static volatile OfflinePlayerHandler instance;
     private final ConfigHandler config;
-    private static FileConfiguration excludedPlayers;
-    private static ConcurrentHashMap<String, UUID> offlinePlayerUUIDs;
+    private static ConcurrentHashMap<String, UUID> includedPlayerUUIDs;
+    private static ConcurrentHashMap<String, UUID> excludedPlayerUUIDs;
 
     private OfflinePlayerHandler() {
         super("excluded_players.yml");
         config = ConfigHandler.getInstance();
 
-        excludedPlayers = super.getFileConfiguration();
         loadOfflinePlayers();
     }
 
@@ -53,8 +50,6 @@ public final class OfflinePlayerHandler extends FileHandler {
     @Override
     public void reload() {
         super.reload();
-        excludedPlayers = super.getFileConfiguration();
-
         loadOfflinePlayers();
     }
 
@@ -66,43 +61,40 @@ public final class OfflinePlayerHandler extends FileHandler {
      * @return true if this player is included
      */
     public boolean isLoadedPlayer(String playerName) {
-        return offlinePlayerUUIDs.containsKey(playerName);
+        return includedPlayerUUIDs.containsKey(playerName);
     }
 
-    public void addPlayerToExcludeList(UUID uniqueID) {
-        super.addEntryToListInFile("excluded", uniqueID.toString());
+    public boolean isExcludedPlayer(String playerName) {
+        return excludedPlayerUUIDs.containsKey(playerName);
     }
 
-    public void removePlayerFromExcludeList(UUID uniqueID) {
-        super.removeEntryFromListInFile("excluded", uniqueID.toString());
+    public boolean isExcludedPlayer(UUID uniqueID) {
+        return excludedPlayerUUIDs.containsValue(uniqueID);
     }
 
-    public List<String> getListOfExcludedPlayerNames() {
-        List<String> excludedUUIDs = excludedPlayers.getStringList("excluded");
-        return excludedUUIDs.stream()
-                .map(UUID::fromString)
-                .map(Bukkit::getOfflinePlayer)
-                .map(OfflinePlayer::getName)
-                .collect(Collectors.toList());
+    public void addLoadedPlayerToExcludeList(String playerName) throws IllegalArgumentException {
+        UUID uuid = includedPlayerUUIDs.get(playerName);
+        if (uuid == null) {
+            throw new IllegalArgumentException("This player is not loaded, and therefore cannot be excluded!");
+        }
+        super.writeEntryToList("excluded", uuid.toString());
+        includedPlayerUUIDs.remove(playerName);
+        excludedPlayerUUIDs.put(playerName, uuid);
     }
 
-    public boolean isExcluded(UUID uniqueID) {
-        List<String> excluded = excludedPlayers.getStringList("excluded");
-
-        return excluded.stream()
-                .filter(Objects::nonNull)
-                .map(UUID::fromString)
-                .anyMatch(uuid -> uuid.equals(uniqueID));
+    public void addExcludedPlayerToLoadedList(String playerName) {
+        UUID uuid = excludedPlayerUUIDs.get(playerName);
+        if (uuid == null) {
+            throw new IllegalArgumentException("This player is not excluded, and therefore cannot be un-excluded!");
+        }
+        super.removeEntryFromList("excluded", uuid.toString());
+        excludedPlayerUUIDs.remove(playerName);
+        includedPlayerUUIDs.put(playerName, uuid);
     }
 
-    /**
-     * Gets the number of OfflinePlayers that are
-     * currently included in statistic calculations.
-     *
-     * @return the number of included OfflinePlayers
-     */
-    public int getOfflinePlayerCount() {
-        return offlinePlayerUUIDs.size();
+    @Contract(" -> new")
+    public @NotNull ArrayList<String> getExcludedPlayerNames() {
+        return Collections.list(excludedPlayerUUIDs.keys());
     }
 
     /**
@@ -112,8 +104,18 @@ public final class OfflinePlayerHandler extends FileHandler {
      * @return the ArrayList
      */
     @Contract(" -> new")
-    public @NotNull ArrayList<String> getOfflinePlayerNames() {
-        return Collections.list(offlinePlayerUUIDs.keys());
+    public @NotNull ArrayList<String> getLoadedOfflinePlayerNames() {
+        return Collections.list(includedPlayerUUIDs.keys());
+    }
+
+    /**
+     * Gets the number of OfflinePlayers that are
+     * currently included in statistic calculations.
+     *
+     * @return the number of included OfflinePlayers
+     */
+    public int getOfflinePlayerCount() {
+        return includedPlayerUUIDs.size();
     }
 
     /**
@@ -126,8 +128,8 @@ public final class OfflinePlayerHandler extends FileHandler {
      * of players that should be included in statistic calculations
      */
     public @NotNull OfflinePlayer getOfflinePlayer(String playerName) throws IllegalArgumentException {
-        if (offlinePlayerUUIDs.get(playerName) != null) {
-            return Bukkit.getOfflinePlayer(offlinePlayerUUIDs.get(playerName));
+        if (includedPlayerUUIDs.get(playerName) != null) {
+            return Bukkit.getOfflinePlayer(includedPlayerUUIDs.get(playerName));
         }
         else {
             MyLogger.logWarning("Cannot calculate statistics for player-name: " + playerName +
@@ -139,27 +141,49 @@ public final class OfflinePlayerHandler extends FileHandler {
 
     private void loadOfflinePlayers() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            long time = System.currentTimeMillis();
-
-            OfflinePlayer[] offlinePlayers;
-            if (config.whitelistOnly()) {
-                offlinePlayers = getWhitelistedPlayers();
-            }
-            else if (config.excludeBanned()) {
-                offlinePlayers = getNonBannedPlayers();
-            }
-            else {
-                offlinePlayers = Bukkit.getOfflinePlayers();
-            }
-
-            int size = offlinePlayerUUIDs != null ? offlinePlayerUUIDs.size() : 16;
-            offlinePlayerUUIDs = new ConcurrentHashMap<>(size);
-
-            ForkJoinPool.commonPool().invoke(ThreadManager.getPlayerLoadAction(offlinePlayers, offlinePlayerUUIDs));
-
-            MyLogger.actionFinished();
-            MyLogger.logLowLevelTask(("Loaded " + offlinePlayerUUIDs.size() + " offline players"), time);
+            loadExcludedPlayerNames();
+            loadIncludedOfflinePlayers();
         });
+    }
+
+    private void loadIncludedOfflinePlayers() {
+        long time = System.currentTimeMillis();
+
+        OfflinePlayer[] offlinePlayers;
+        if (config.whitelistOnly()) {
+            offlinePlayers = getWhitelistedPlayers();
+        } else if (config.excludeBanned()) {
+            offlinePlayers = getNonBannedPlayers();
+        } else {
+            offlinePlayers = Bukkit.getOfflinePlayers();
+        }
+
+        int size = includedPlayerUUIDs != null ? includedPlayerUUIDs.size() : 16;
+        includedPlayerUUIDs = new ConcurrentHashMap<>(size);
+
+        ForkJoinPool.commonPool().invoke(ThreadManager.getPlayerLoadAction(offlinePlayers, includedPlayerUUIDs));
+
+        MyLogger.actionFinished();
+        MyLogger.logLowLevelTask(("Loaded " + includedPlayerUUIDs.size() + " offline players"), time);
+    }
+
+    private void loadExcludedPlayerNames() {
+        long time = System.currentTimeMillis();
+
+        excludedPlayerUUIDs = new ConcurrentHashMap<>();
+        List<String> excluded = super.getFileConfiguration().getStringList("excluded");
+        excluded.stream()
+                .filter(Objects::nonNull)
+                .map(UUID::fromString)
+                        .forEach(uuid -> {
+                            OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
+                            String playerName = player.getName();
+                            if (playerName != null) {
+                                excludedPlayerUUIDs.put(playerName, uuid);
+                            }
+                        });
+
+        MyLogger.logLowLevelTask("Loaded " + excludedPlayerUUIDs.size() + " excluded players from file", time);
     }
 
     private OfflinePlayer[] getWhitelistedPlayers() {

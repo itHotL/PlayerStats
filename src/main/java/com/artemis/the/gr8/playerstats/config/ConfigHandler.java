@@ -63,7 +63,7 @@ public final class ConfigHandler extends FileHandler {
             Map<String, Object> defaultValues = defaultValueGetter.getValuesToAdjust();
             defaultValues.put("config-version", configVersion);
 
-            super.addValuesToFile(defaultValues);
+            super.addValues(defaultValues);
             reload();
 
             MyLogger.logLowLevelMsg("Your config has been updated to version " + configVersion +
