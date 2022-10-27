@@ -40,16 +40,16 @@ public class ComponentFactory {
     protected TextColor UNDERSCORE;  //dark_purple
     protected TextColor HEARTS; //red
 
-    protected TextColor MSG_MAIN;  //medium_blue
-    protected TextColor MSG_ACCENT; //blue
+    protected TextColor FEEDBACK_MSG;  //lightest_blue
+    protected TextColor FEEDBACK_MSG_ACCENT; //light_blue
 
-    protected TextColor MSG_MAIN_2;  //gold
-    protected TextColor MSG_ACCENT_2A;  //medium_gold
-    protected TextColor MSG_ACCENT_2B;  //light_yellow
+    protected TextColor INFO_MSG;  //gold
+    protected TextColor INFO_MSG_ACCENT_1;  //medium_gold
+    protected TextColor INFO_MSG_ACCENT_2;  //light_yellow
 
-    protected TextColor MSG_HOVER;  //light_blue
-    protected TextColor MSG_CLICKED;  //light_purple
+    protected TextColor MSG_HOVER;  //lightest_blue
     protected TextColor MSG_HOVER_ACCENT;  //light_gold
+    protected TextColor MSG_CLICKED;  //light_purple
 
 
     public ComponentFactory(ConfigHandler c) {
@@ -63,20 +63,20 @@ public class ComponentFactory {
         UNDERSCORE = PluginColor.DARK_PURPLE.getColor();
         HEARTS = PluginColor.RED.getColor();
 
-        MSG_MAIN = PluginColor.MEDIUM_BLUE.getColor();
-        MSG_ACCENT = PluginColor.BLUE.getColor();
+        FEEDBACK_MSG = PluginColor.LIGHTEST_BLUE.getColor();
+        FEEDBACK_MSG_ACCENT = PluginColor.LIGHT_BLUE.getColor();
 
-        MSG_MAIN_2 = PluginColor.GOLD.getColor();
-        MSG_ACCENT_2A = PluginColor.MEDIUM_GOLD.getColor();
-        MSG_ACCENT_2B = PluginColor.LIGHT_YELLOW.getColor();
+        INFO_MSG = PluginColor.GOLD.getColor();
+        INFO_MSG_ACCENT_1 = PluginColor.MEDIUM_GOLD.getColor();
+        INFO_MSG_ACCENT_2 = PluginColor.LIGHT_YELLOW.getColor();
 
-        MSG_HOVER = PluginColor.LIGHT_BLUE.getColor();
+        MSG_HOVER = PluginColor.LIGHTEST_BLUE.getColor();
         MSG_HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
         MSG_CLICKED = PluginColor.LIGHT_PURPLE.getColor();
     }
 
-    public TextColor getExampleNameColor() {
-        return MSG_ACCENT_2B;
+    public TextComponent getExampleName() {
+        return text("Artemis_the_gr8").color(INFO_MSG_ACCENT_2);
     }
 
     public TextColor getSharerNameColor() {
@@ -107,17 +107,9 @@ public class ComponentFactory {
 
     /**
      * Returns a TextComponent with the input String as content,
-     * with color Gray.
-     */
-    public TextComponent subTitle(String content) {
-        return text(content).color(BRACKETS);
-    }
-
-    /**
-     * Returns a TextComponent with the input String as content,
      * with color Gray and decoration Italic.
      */
-    public TextComponent italicSubTitle(String content) {
+    public TextComponent subTitle(String content) {
         return text(content).color(BRACKETS).decorate(TextDecoration.ITALIC);
     }
 
@@ -126,11 +118,11 @@ public class ComponentFactory {
      * with color Medium_Blue.
      */
     public TextComponent message() {
-        return text().color(MSG_MAIN).build();
+        return text().color(FEEDBACK_MSG).build();
     }
 
     public TextComponent messageAccent() {
-        return text().color(MSG_ACCENT).build();
+        return text().color(FEEDBACK_MSG_ACCENT).build();
     }
 
     public TextComponent title(String content, Target target) {
@@ -173,14 +165,14 @@ public class ComponentFactory {
 
     public TextComponent sharerName(String sharerName) {
         return getComponent(sharerName,
-                getSharerNameColor(),
+                getColorFromString(config.getSharerNameDecoration(false)),
                 getStyleFromString(config.getSharerNameDecoration(true)));
     }
 
     public TextComponent shareButton(int shareCode) {
         return surroundWithBrackets(
                 text("Share")
-                        .color(MSG_HOVER)
+                        .color(FEEDBACK_MSG_ACCENT)
                         .clickEvent(ClickEvent.runCommand("/statshare " + shareCode))
                         .hoverEvent(HoverEvent.showText(text("Click here to share this statistic in chat!")
                                 .color(MSG_HOVER_ACCENT))));

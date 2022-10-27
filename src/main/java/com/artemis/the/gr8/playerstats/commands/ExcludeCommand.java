@@ -22,14 +22,20 @@ public final class ExcludeCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (args.length == 1 && args[0].equalsIgnoreCase("list")) {
-            ArrayList<String> excludedPlayers = offlinePlayerHandler.getExcludedPlayerNames();
-            sender.sendMessage(String.valueOf(excludedPlayers));
-            return true;
+        if (args.length == 1) {
+            switch (args[0]) {
+                case "list" -> {
+                    ArrayList<String> excludedPlayers = offlinePlayerHandler.getExcludedPlayerNames();
+                    sender.sendMessage(String.valueOf(excludedPlayers));
+                    return true;
+                }
+                case "info" -> {
+                    outputManager.sendExcludeInfo(sender);
+                    return true;
+                }
+            }
         }
-        //this is going to return false for all UUIDs in file at boot-up - that's an issue
         else if (args.length >= 2) {
-
             String playerName = args[1];
             switch (args[0]) {
                 case "add" -> {
@@ -45,10 +51,6 @@ public final class ExcludeCommand implements CommandExecutor {
                         sender.sendMessage("Removed " + playerName + " from the exclude list again!");
                         return true;
                     }
-                }
-                case "info" -> {
-                    outputManager.sendExcludeInfo(sender);
-                    return true;
                 }
             }
         }

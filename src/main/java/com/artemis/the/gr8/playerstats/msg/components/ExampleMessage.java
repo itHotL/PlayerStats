@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.Style;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
 
@@ -22,34 +23,35 @@ public final class ExampleMessage implements TextComponent {
         exampleMessage = buildMessage(factory);
     }
 
-    public static ExampleMessage construct(ComponentFactory factory) {
+    @Contract("_ -> new")
+    public static @NotNull ExampleMessage construct(ComponentFactory factory) {
         return new ExampleMessage(factory);
     }
 
-    private TextComponent buildMessage(ComponentFactory factory) {
-        String arrow = factory instanceof BukkitConsoleComponentFactory ? "    -> " : "    → ";  //4 spaces, alt + 26, 1 space
+    private @NotNull TextComponent buildMessage(@NotNull ComponentFactory factory) {
+        String arrowString = factory instanceof BukkitConsoleComponentFactory ? "    -> " : "    → ";  //4 spaces, alt + 26, 1 space
+        TextComponent arrow = text(arrowString).color(factory.INFO_MSG);
 
         return Component.newline()
                 .append(factory.pluginPrefixAsTitle())
                 .append(Component.newline())
-                .append(text("Examples: ").color(factory.MSG_MAIN_2))
+                .append(factory.subTitle("Examples: "))
                 .append(Component.newline())
-                .append(text(arrow).color(factory.MSG_MAIN_2)
-                        .append(text("/statistic ")
-                                .append(text("animals_bred ").color(factory.MSG_ACCENT_2A)
-                                        .append(text("top").color(factory.MSG_ACCENT_2B)))))
+                .append(arrow)
+                .append(text("/stat ").color(factory.INFO_MSG)
+                        .append(text("animals_bred ").color(factory.INFO_MSG_ACCENT_1)
+                                .append(text("top").color(factory.INFO_MSG_ACCENT_2))))
                 .append(Component.newline())
-                .append(text(arrow).color(factory.MSG_MAIN_2)
-                        .append(text("/statistic ")
-                                .append(text("mine_block diorite ").color(factory.MSG_ACCENT_2A)
-                                        .append(text("me").color(factory.MSG_ACCENT_2B)))))
+                .append(arrow)
+                .append(text("/stat ").color(factory.INFO_MSG)
+                        .append(text("mine_block diorite ").color(factory.INFO_MSG_ACCENT_1)
+                                .append(text("me").color(factory.INFO_MSG_ACCENT_2))))
                 .append(Component.newline())
-                .append(text(arrow).color(factory.MSG_MAIN_2)
-                        .append(text("/statistic ")
-                                .append(text("deaths ").color(factory.MSG_ACCENT_2A)
-                                        .append(text("player ").color(factory.MSG_ACCENT_2B)
-                                                .append(text("Artemis_the_gr8")
-                                                        .color(factory.getExampleNameColor()))))));
+                .append(arrow)
+                .append(text("/stat ").color(factory.INFO_MSG)
+                        .append(text("deaths ").color(factory.INFO_MSG_ACCENT_1)
+                                .append(text("player ").color(factory.INFO_MSG_ACCENT_2)
+                                        .append(factory.getExampleName()))));
     }
 
     @Override

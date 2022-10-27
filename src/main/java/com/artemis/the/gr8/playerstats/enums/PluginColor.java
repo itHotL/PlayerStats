@@ -29,19 +29,14 @@ public enum PluginColor {
     LIGHT_PURPLE (TextColor.fromHexString("#845EC2")),
 
     /**
-     * ChatColor Blue (#5555FF)
-     */
-    BLUE (NamedTextColor.BLUE),
-
-    /**
-     * A Medium Blue that is used for default feedback and error messages (#55AAFF).
-     */
-    MEDIUM_BLUE (TextColor.fromHexString("#55AAFF")),
-
-    /**
-     * A Light Blue that is used for hover-messages and the share-button (#55C6FF).
+     * A Light Blue that is used for the share-button and feedback message accents (#55C6FF).
      */
     LIGHT_BLUE (TextColor.fromHexString("#55C6FF")),
+
+    /**
+     * A very light blue that is used for feedback messages and hover-text (#ADE7FF)
+     */
+    LIGHTEST_BLUE(TextColor.fromHexString("#ADE7FF")),
 
     /**
      * ChatColor Gold (#FFAA00)

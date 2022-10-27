@@ -29,14 +29,14 @@ public class BukkitConsoleComponentFactory extends ComponentFactory {
         UNDERSCORE = PluginColor.DARK_PURPLE.getConsoleColor();
         HEARTS = PluginColor.RED.getConsoleColor();
 
-        MSG_MAIN = PluginColor.MEDIUM_BLUE.getConsoleColor();
-        MSG_ACCENT = PluginColor.BLUE.getConsoleColor();
+        FEEDBACK_MSG = PluginColor.LIGHTEST_BLUE.getConsoleColor();
+        FEEDBACK_MSG_ACCENT = PluginColor.LIGHT_BLUE.getConsoleColor();
 
-        MSG_MAIN_2 = PluginColor.GOLD.getConsoleColor();
-        MSG_ACCENT_2A = PluginColor.MEDIUM_GOLD.getConsoleColor();
-        MSG_ACCENT_2B = PluginColor.LIGHT_YELLOW.getConsoleColor();
+        INFO_MSG = PluginColor.GOLD.getConsoleColor();
+        INFO_MSG_ACCENT_1 = PluginColor.MEDIUM_GOLD.getConsoleColor();
+        INFO_MSG_ACCENT_2 = PluginColor.LIGHT_YELLOW.getConsoleColor();
 
-        MSG_HOVER = PluginColor.LIGHT_BLUE.getConsoleColor();
+        MSG_HOVER = PluginColor.LIGHTEST_BLUE.getConsoleColor();
         MSG_CLICKED = PluginColor.LIGHT_PURPLE.getConsoleColor();
         MSG_HOVER_ACCENT = PluginColor.LIGHT_GOLD.getConsoleColor();
     }

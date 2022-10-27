@@ -2,9 +2,8 @@ package com.artemis.the.gr8.playerstats.msg.components;
 
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 
-import com.artemis.the.gr8.playerstats.enums.PluginColor;
+import com.artemis.the.gr8.playerstats.msg.msgutils.EasterEggProvider;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -18,37 +17,22 @@ import static net.kyori.adventure.text.Component.*;
  */
 public class PrideComponentFactory extends ComponentFactory {
 
-    public PrideComponentFactory(ConfigHandler c) {
-        super(c);
+    public PrideComponentFactory(ConfigHandler config) {
+        super(config);
     }
 
     @Override
-    protected void prepareColors() {
-        PREFIX = PluginColor.GOLD.getColor();
-        BRACKETS = PluginColor.GRAY.getColor();
-        UNDERSCORE = PluginColor.DARK_PURPLE.getColor();
-        HEARTS = PluginColor.RED.getColor();
-
-        MSG_MAIN = PluginColor.GRAY.getColor();  //difference 1
-        MSG_ACCENT = PluginColor.LIGHT_GOLD.getColor();  //difference 2
-
-        MSG_MAIN_2 = PluginColor.GOLD.getColor();
-        MSG_ACCENT_2A = PluginColor.MEDIUM_GOLD.getColor();
-        MSG_ACCENT_2B = PluginColor.LIGHT_YELLOW.getColor();
-
-        MSG_HOVER = PluginColor.LIGHT_BLUE.getColor();
-        MSG_CLICKED = PluginColor.LIGHT_PURPLE.getColor();
-        MSG_HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
+    public TextComponent getExampleName() {
+        return text()
+                .append(EasterEggProvider.getFestiveName("Artemis_the_gr8"))
+                .build();
     }
 
     @Override
-    public TextColor getExampleNameColor() {
-        return getSharerNameColor();
-    }
-
-    @Override
-    public TextColor getSharerNameColor() {
-        return PluginColor.getRandomNameColor();
+    public TextComponent sharerName(String sharerName) {
+        return text()
+                .append(EasterEggProvider.getFestiveName(sharerName))
+                .build();
     }
 
     @Override

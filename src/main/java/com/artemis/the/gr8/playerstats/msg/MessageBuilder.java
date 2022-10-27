@@ -1,11 +1,7 @@
 package com.artemis.the.gr8.playerstats.msg;
 
 import com.artemis.the.gr8.playerstats.api.StatFormatter;
-import com.artemis.the.gr8.playerstats.msg.components.ComponentFactory;
-import com.artemis.the.gr8.playerstats.msg.components.ExampleMessage;
-import com.artemis.the.gr8.playerstats.msg.components.HelpMessage;
-import com.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
-import com.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
+import com.artemis.the.gr8.playerstats.msg.components.*;
 import com.artemis.the.gr8.playerstats.msg.msgutils.*;
 import com.artemis.the.gr8.playerstats.statistic.StatRequest;
 import com.artemis.the.gr8.playerstats.utils.EnumHandler;
@@ -202,13 +198,7 @@ public final class MessageBuilder implements StatFormatter {
     }
 
     public @NotNull TextComponent excludeInfoMsg() {
-        return getPluginPrefixAsTitle()
-                .append(newline())
-                .append(componentFactory.subTitle("The /statexclude command " +
-                        "can be used to exclude individual players from /statistic lookups.")
-                        .append(newline())
-                        .append(text("This means their results won't show up in top-10 results, " +
-                                "and they won't be counted for the server total.")));
+        return ExcludeInfoMessage.construct(componentFactory);
     }
 
     @Override
