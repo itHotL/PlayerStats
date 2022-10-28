@@ -27,10 +27,6 @@ public final class EasterEggProvider {
         random = new Random();
     }
 
-    public static @NotNull Component getFestiveName(String playerName) {
-        return MiniMessage.miniMessage().deserialize(decorateWithRandomGradient(playerName));
-    }
-
     public static @Nullable Component getPlayerName(@NotNull Player player) {
         int sillyNumber = getSillyNumber();
         String playerName = null;
@@ -100,29 +96,6 @@ public final class EasterEggProvider {
         } else {
             return MiniMessage.miniMessage().deserialize(playerName, papiTag(player));
         }
-    }
-
-    private static @NotNull String decorateWithRandomGradient(String input) {
-        String colorString = switch (random.nextInt(9)) {
-            case 0 -> {
-                if (input.equalsIgnoreCase("Artemis_the_gr8")) {
-                yield "<gradient:#f74040:gold:#FF6600:#f74040>";
-                }
-                else {
-                    yield "<gradient:#F7F438:#309de6>";
-                }
-            }
-            case 1 -> "<gradient:#03b6fc:#f73bdb>";
-            case 2 -> "<gradient:#14f7a0:#4287f5>";
-            case 3 -> "<gradient:#a834eb:#f511da:#ad09ed>";
-            case 4 -> "<gradient:#FF6600:#fcad23:#F7F438>";
-            case 5 -> "<gradient:#309de6:#a834eb>";
-            case 6 -> "<gradient:#F7F438:#fcad23:#FF6600>";
-            case 7 -> "<gradient:#309de6:#F7F438>";
-            case 8 -> "<gradient:#F79438:#F7389B>";
-            default -> "<gradient:#F7F438:#309de6>";
-        };
-        return colorString + input + "</gradient>";
     }
 
     private static int getSillyNumber() {

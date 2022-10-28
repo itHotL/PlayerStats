@@ -2,7 +2,6 @@ package com.artemis.the.gr8.playerstats.msg.components;
 
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 
-import com.artemis.the.gr8.playerstats.msg.msgutils.EasterEggProvider;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.Contract;
@@ -17,45 +16,39 @@ import static net.kyori.adventure.text.Component.*;
  */
 public class PrideComponentFactory extends ComponentFactory {
 
+    private final Random random;
+
     public PrideComponentFactory(ConfigHandler config) {
         super(config);
+        random = new Random();
     }
 
     @Override
     public TextComponent getExampleName() {
-        return text()
-                .append(EasterEggProvider.getFestiveName("Artemis_the_gr8"))
-                .build();
+        return deserialize("<gradient:#f74040:gold:#FF6600:#f74040>Artemis_the_gr8</gradient>");
     }
 
     @Override
     public TextComponent sharerName(String sharerName) {
-        return text()
-                .append(EasterEggProvider.getFestiveName(sharerName))
-                .build();
+        return deserialize(decorateWithRandomGradient(sharerName));
     }
 
     @Override
+    //12 underscores
     public TextComponent pluginPrefixAsTitle() {
-        String title = "<rainbow:16>____________    [PlayerStats]    ____________</rainbow>"; //12 underscores
-        return text()
-                .append(MiniMessage.miniMessage().deserialize(title))
-                .build();
+        return deserialize("<rainbow:16>____________    [PlayerStats]    ____________</rainbow>");
     }
 
     @Override
     public TextComponent pluginPrefix() {
-        Random randomizer = new Random();
-        if (randomizer.nextBoolean()) {
+        if (random.nextBoolean()) {
             return backwardsPluginPrefixComponent();
         }
         return rainbowPrefix();
     }
 
     public TextComponent rainbowPrefix() {
-        return text()
-                .append(MiniMessage.miniMessage()
-                        .deserialize("<#f74040>[</#f74040>" +
+        return deserialize("<#f74040>[</#f74040>" +
                                 "<#F54D39>P</#F54D39>" +
                                 "<#F16E28>l</#F16E28>" +
                                 "<#ee8a19>a</#ee8a19>" +
@@ -67,15 +60,12 @@ public class PrideComponentFactory extends ComponentFactory {
                                 "<#01c1a7>a</#01c1a7>" +
                                 "<#1F8BEB>t</#1F8BEB>" +
                                 "<#3341E6>s</#3341E6>" +
-                                "<#631ae6>]</#631ae6>"))
-                .build();
+                                "<#631ae6>]</#631ae6>");
     }
 
     @Contract(" -> new")
     private @NotNull TextComponent backwardsPluginPrefixComponent() {
-        return text()
-                .append(MiniMessage.miniMessage()
-                        .deserialize("<#631ae6>[</#631ae6>" +
+        return deserialize("<#631ae6>[</#631ae6>" +
                                 "<#3341E6>P</#3341E6>" +
                                 "<#1F8BEB>l</#1F8BEB>" +
                                 "<#01c1a7>a</#01c1a7>" +
@@ -87,7 +77,28 @@ public class PrideComponentFactory extends ComponentFactory {
                                 "<#ee8a19>a</#ee8a19>" +
                                 "<#f67824>t</#f67824>" +
                                 "<#f76540>s</#f76540>" +
-                                "<#f74040>]</#f74040>"))
+                                "<#f74040>]</#f74040>");
+    }
+
+    private @NotNull String decorateWithRandomGradient(@NotNull String input) {
+        String colorString = switch (random.nextInt(9)) {
+            case 0 -> "<gradient:#03b6fc:#f73bdb>";
+            case 1 -> "<gradient:#14f7a0:#4287f5>";
+            case 2 -> "<gradient:#a834eb:#f511da:#ad09ed>";
+            case 3 -> "<gradient:#FF6600:#f73bdb:#F7F438>";
+            case 4 -> "<gradient:#309de6:#a834eb>";
+            case 5 -> "<gradient:#F7F438:#fcad23:#FF6600>";
+            case 6 -> "<gradient:#309de6:#F7F438>";
+            case 7 -> "<gradient:#F79438:#F7389B>";
+            default -> "<gradient:#F7F438:#309de6>";
+        };
+        return colorString + input + "</gradient>";
+    }
+
+    @Contract("_ -> new")
+    private @NotNull TextComponent deserialize(String input) {
+        return text()
+                .append(MiniMessage.miniMessage().deserialize(input))
                 .build();
     }
 }
