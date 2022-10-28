@@ -2,8 +2,7 @@ package com.artemis.the.gr8.playerstats.enums;
 
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-
-import java.util.Random;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This enum represents the colorscheme PlayerStats uses in its output messages.
@@ -61,42 +60,7 @@ public enum PluginColor {
     /**
      * The color of vanilla Minecraft hearts (#FF1313).
      */
-    RED (TextColor.fromHexString("#FF1313")),
-
-    /**
-     * ChatColor Blue (#5555FF)
-     */
-    NAME_1 (NamedTextColor.BLUE), //#5555FF - blue
-
-    /**
-     * A shade of blue between Blue and Medium Blue (#4287F5)
-     */
-    NAME_2 (TextColor.fromHexString("#4287F5")),
-
-    /**
-     * Medium Blue (#55AAFF)
-     */
-    NAME_3 (TextColor.fromHexString("#55AAFF")),
-
-    /**
-     * A shade of magenta/purple (#D65DB1)
-     */
-    NAME_4 (TextColor.fromHexString("#D65DB1")),
-
-    /**
-     * A dark shade of orange (#EE8A19)
-     */
-    NAME_5 (TextColor.fromHexString("#EE8A19")),
-
-    /**
-     * A shade of green/aqua/cyan-ish (#01C1A7)
-     */
-    NAME_6 (TextColor.fromHexString("#01C1A7")),
-
-    /**
-     * A light shade of green (#46D858)
-     */
-    NAME_7 (TextColor.fromHexString("#46D858"));
+    RED (TextColor.fromHexString("#FF1313"));
 
 
     private final TextColor color;
@@ -115,36 +79,7 @@ public enum PluginColor {
     /**
      * Gets the nearest NamedTextColor for the corresponding enum constant.
      */
-    public TextColor getConsoleColor() {
+    public @NotNull TextColor getConsoleColor() {
         return NamedTextColor.nearestTo(color);
-    }
-
-    /**
-     * Randomly selects one of the 7 different NAME-colors.
-     */
-    public static TextColor getRandomNameColor() {
-        return getRandomNameColor(false);
-    }
-
-    /**
-     * Randomly selects one of the 7 different NAME-colors, and if isConsole is true,
-     * returns the closest NamedTextColor
-     */
-    public static TextColor getRandomNameColor(boolean isConsole) {
-        Random randomizer = new Random();
-        PluginColor color = switch (randomizer.nextInt(7)) {
-            case 0 -> NAME_1;
-            case 2 -> NAME_3;
-            case 3 -> NAME_4;
-            case 4 -> NAME_5;
-            case 5 -> NAME_6;
-            case 6 -> NAME_7;
-            default -> NAME_2;
-        };
-        return getCorrespondingColor(color, isConsole);
-    }
-
-    private static TextColor getCorrespondingColor(PluginColor nameColor, boolean isConsole) {
-        return isConsole ? nameColor.getConsoleColor() : nameColor.getColor();
     }
 }

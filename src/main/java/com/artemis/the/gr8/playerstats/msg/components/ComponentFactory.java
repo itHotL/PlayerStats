@@ -79,10 +79,6 @@ public class ComponentFactory {
         return text("Artemis_the_gr8").color(INFO_MSG_ACCENT_2);
     }
 
-    public TextColor getSharerNameColor() {
-        return getColorFromString(config.getSharerNameDecoration(false));
-    }
-
     /**
      * Returns [PlayerStats].
      */
