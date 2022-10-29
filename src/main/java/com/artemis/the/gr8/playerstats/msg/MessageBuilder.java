@@ -36,7 +36,7 @@ import static net.kyori.adventure.text.Component.*;
  */
 public final class MessageBuilder implements StatFormatter {
 
-    private static ConfigHandler config;
+    private final ConfigHandler config;
     private boolean useHoverText;
     private boolean isConsoleBuilder;
 
@@ -45,28 +45,24 @@ public final class MessageBuilder implements StatFormatter {
     private final NumberFormatter formatter;
     private final ComponentSerializer serializer;
 
-    private MessageBuilder(ConfigHandler config, LanguageKeyHandler language) {
-        this (config, language, new ComponentFactory(config));
-    }
-
-    private MessageBuilder(ConfigHandler configHandler, LanguageKeyHandler language, ComponentFactory factory) {
-        config = configHandler;
-        useHoverText = config.useHoverText();
+    private MessageBuilder(ComponentFactory factory) {
+        config = ConfigHandler.getInstance();
+        languageKeyHandler = LanguageKeyHandler.getInstance();
         componentFactory = factory;
 
-        languageKeyHandler = language;
+        useHoverText = config.useHoverText();
         formatter = new NumberFormatter();
-        serializer = new ComponentSerializer(languageKeyHandler);
+        serializer = new ComponentSerializer();
     }
 
-    @Contract("_, _ -> new")
-    public static @NotNull MessageBuilder defaultBuilder(ConfigHandler config, LanguageKeyHandler language) {
-        return new MessageBuilder(config, language);
+    @Contract(" -> new")
+    public static @NotNull MessageBuilder defaultBuilder() {
+        return new MessageBuilder(new ComponentFactory());
     }
 
-    @Contract("_, _, _ -> new")
-    public static @NotNull MessageBuilder fromComponentFactory(ConfigHandler config, LanguageKeyHandler language, ComponentFactory factory) {
-        return new MessageBuilder(config, language, factory);
+    @Contract("_ -> new")
+    public static @NotNull MessageBuilder fromComponentFactory(ComponentFactory factory) {
+        return new MessageBuilder(factory);
     }
 
     /**
@@ -93,7 +89,7 @@ public final class MessageBuilder implements StatFormatter {
 
     @Override
     public TextComponent getRainbowPluginPrefix() {
-        PrideComponentFactory pride = new PrideComponentFactory(config);
+        PrideComponentFactory pride = new PrideComponentFactory();
         return pride.rainbowPrefix();
     }
 
@@ -104,7 +100,7 @@ public final class MessageBuilder implements StatFormatter {
 
     @Override
     public TextComponent getRainbowPluginPrefixAsTitle() {
-        PrideComponentFactory pride = new PrideComponentFactory(config);
+        PrideComponentFactory pride = new PrideComponentFactory();
         return pride.pluginPrefixAsTitle();
     }
 

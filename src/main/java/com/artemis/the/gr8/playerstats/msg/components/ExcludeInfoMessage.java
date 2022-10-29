@@ -12,7 +12,7 @@ import java.util.List;
 
 import static net.kyori.adventure.text.Component.text;
 
-public class ExcludeInfoMessage implements TextComponent {
+public final class ExcludeInfoMessage implements TextComponent {
 
     private final TextComponent excludeInfo;
 

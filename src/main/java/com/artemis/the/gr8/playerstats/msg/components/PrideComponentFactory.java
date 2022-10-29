@@ -1,15 +1,10 @@
 package com.artemis.the.gr8.playerstats.msg.components;
 
-import com.artemis.the.gr8.playerstats.config.ConfigHandler;
-
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
-
-import static net.kyori.adventure.text.Component.*;
 
 /**
  * A festive version of the {@link ComponentFactory}
@@ -18,25 +13,25 @@ public class PrideComponentFactory extends ComponentFactory {
 
     private final Random random;
 
-    public PrideComponentFactory(ConfigHandler config) {
-        super(config);
+    public PrideComponentFactory() {
+        super();
         random = new Random();
     }
 
     @Override
     public TextComponent getExampleName() {
-        return deserialize("<gradient:#f74040:gold:#FF6600:#f74040>Artemis_the_gr8</gradient>");
+        return miniMessageToComponent("<gradient:#f74040:gold:#FF6600:#f74040>Artemis_the_gr8</gradient>");
     }
 
     @Override
     public TextComponent sharerName(String sharerName) {
-        return deserialize(decorateWithRandomGradient(sharerName));
+        return miniMessageToComponent(decorateWithRandomGradient(sharerName));
     }
 
     @Override
     //12 underscores
     public TextComponent pluginPrefixAsTitle() {
-        return deserialize("<rainbow:16>____________    [PlayerStats]    ____________</rainbow>");
+        return miniMessageToComponent("<rainbow:16>____________    [PlayerStats]    ____________</rainbow>");
     }
 
     @Override
@@ -48,7 +43,7 @@ public class PrideComponentFactory extends ComponentFactory {
     }
 
     public TextComponent rainbowPrefix() {
-        return deserialize("<#f74040>[</#f74040>" +
+        return miniMessageToComponent("<#f74040>[</#f74040>" +
                                 "<#F54D39>P</#F54D39>" +
                                 "<#F16E28>l</#F16E28>" +
                                 "<#ee8a19>a</#ee8a19>" +
@@ -65,7 +60,7 @@ public class PrideComponentFactory extends ComponentFactory {
 
     @Contract(" -> new")
     private @NotNull TextComponent backwardsPluginPrefixComponent() {
-        return deserialize("<#631ae6>[</#631ae6>" +
+        return miniMessageToComponent("<#631ae6>[</#631ae6>" +
                                 "<#3341E6>P</#3341E6>" +
                                 "<#1F8BEB>l</#1F8BEB>" +
                                 "<#01c1a7>a</#01c1a7>" +
@@ -93,12 +88,5 @@ public class PrideComponentFactory extends ComponentFactory {
             default -> "<gradient:#F7F438:#309de6>";
         };
         return colorString + input + "</gradient>";
-    }
-
-    @Contract("_ -> new")
-    private @NotNull TextComponent deserialize(String input) {
-        return text()
-                .append(MiniMessage.miniMessage().deserialize(input))
-                .build();
     }
 }

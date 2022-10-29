@@ -13,8 +13,8 @@ public final class ComponentSerializer {
 
     private final LanguageKeyHandler languageKeyHandler;
 
-    public ComponentSerializer(LanguageKeyHandler languageKeyHandler) {
-        this.languageKeyHandler = languageKeyHandler;
+    public ComponentSerializer() {
+        languageKeyHandler = LanguageKeyHandler.getInstance();
     }
 
     /**

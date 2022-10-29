@@ -1,7 +1,6 @@
 package com.artemis.the.gr8.playerstats.msg.components;
 
 import com.artemis.the.gr8.playerstats.enums.PluginColor;
-import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -18,8 +17,8 @@ import static net.kyori.adventure.text.Component.text;
  */
 public class BukkitConsoleComponentFactory extends ComponentFactory {
 
-    public BukkitConsoleComponentFactory(ConfigHandler config) {
-        super(config);
+    public BukkitConsoleComponentFactory() {
+        super();
     }
 
     @Override

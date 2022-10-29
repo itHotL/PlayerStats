@@ -4,12 +4,14 @@ import com.artemis.the.gr8.playerstats.api.StatFormatter;
 import com.artemis.the.gr8.playerstats.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.msg.components.BukkitConsoleComponentFactory;
+import com.artemis.the.gr8.playerstats.msg.components.HalloweenComponentFactory;
 import com.artemis.the.gr8.playerstats.msg.components.PrideComponentFactory;
 import com.artemis.the.gr8.playerstats.msg.msgutils.FormattingFunction;
-import com.artemis.the.gr8.playerstats.msg.msgutils.LanguageKeyHandler;
 import com.artemis.the.gr8.playerstats.statistic.StatRequest;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -37,13 +39,11 @@ public final class OutputManager {
     private static EnumMap<StandardMessage, Function<MessageBuilder, TextComponent>> standardMessages;
 
     private final ConfigHandler config;
-    private final LanguageKeyHandler languageKeyHandler;
     private MessageBuilder messageBuilder;
     private MessageBuilder consoleMessageBuilder;
 
     public OutputManager(BukkitAudiences adventure) {
         OutputManager.adventure = adventure;
-        languageKeyHandler = LanguageKeyHandler.getInstance();
         config = ConfigHandler.getInstance();
 
         getMessageBuilders();
@@ -128,6 +128,16 @@ public final class OutputManager {
                 .excludeInfoMsg());
     }
 
+    public void sendTest(@NotNull CommandSender sender, String[] args) {
+        StringBuilder msg = new StringBuilder();
+        for (String arg : args) {
+            char text = (char) Integer.parseInt(arg, 16);
+            msg.append(text);
+        }
+        Component test = MiniMessage.miniMessage().deserialize(msg.toString());
+        adventure.sender(sender).sendMessage(test);
+    }
+
     public void sendToAllPlayers(@NotNull TextComponent component) {
         adventure.players().sendMessage(component);
     }
@@ -147,15 +157,17 @@ public final class OutputManager {
 
     private MessageBuilder getClientMessageBuilder() {
         if (useRainbowStyle()) {
-            return MessageBuilder.fromComponentFactory(config, languageKeyHandler, new PrideComponentFactory(config));
+            return MessageBuilder.fromComponentFactory(new PrideComponentFactory());
+        } else if (useHalloweenStyle()) {
+            return MessageBuilder.fromComponentFactory(new HalloweenComponentFactory());
         }
-        return MessageBuilder.defaultBuilder(config, languageKeyHandler);
+        return MessageBuilder.defaultBuilder();
     }
 
     private @NotNull MessageBuilder getConsoleMessageBuilder() {
         MessageBuilder consoleBuilder;
         if (isBukkit()) {
-            consoleBuilder = MessageBuilder.fromComponentFactory(config,languageKeyHandler, new BukkitConsoleComponentFactory(config));
+            consoleBuilder = MessageBuilder.fromComponentFactory(new BukkitConsoleComponentFactory());
         } else {
             consoleBuilder = getClientMessageBuilder();
         }
@@ -166,6 +178,10 @@ public final class OutputManager {
 
     private boolean useRainbowStyle() {
         return config.useRainbowMode() || (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE));
+    }
+
+    private boolean useHalloweenStyle() {
+        return config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.OCTOBER);
     }
 
     private boolean isBukkit() {

@@ -14,6 +14,7 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.util.HSVLike;
 import net.kyori.adventure.util.Index;
 import org.bukkit.Bukkit;
@@ -52,8 +53,8 @@ public class ComponentFactory {
     protected TextColor MSG_CLICKED;  //light_purple
 
 
-    public ComponentFactory(ConfigHandler c) {
-        config = c;
+    public ComponentFactory() {
+        config = ConfigHandler.getInstance();
         prepareColors();
     }
 
@@ -73,6 +74,13 @@ public class ComponentFactory {
         MSG_HOVER = PluginColor.LIGHTEST_BLUE.getColor();
         MSG_HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
         MSG_CLICKED = PluginColor.LIGHT_PURPLE.getColor();
+    }
+
+    @Contract("_ -> new")
+    protected @NotNull TextComponent miniMessageToComponent(String input) {
+        return text()
+                .append(MiniMessage.miniMessage().deserialize(input))
+                .build();
     }
 
     public TextComponent getExampleName() {
