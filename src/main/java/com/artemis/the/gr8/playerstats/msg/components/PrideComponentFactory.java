@@ -76,16 +76,16 @@ public class PrideComponentFactory extends ComponentFactory {
     }
 
     private @NotNull String decorateWithRandomGradient(@NotNull String input) {
-        String colorString = switch (random.nextInt(9)) {
-            case 0 -> "<gradient:#03b6fc:#f73bdb>";
+        String colorString = switch (random.nextInt(8)) {
+            case 0 -> "<gradient:#03b6fc:#f854df>";
             case 1 -> "<gradient:#14f7a0:#4287f5>";
-            case 2 -> "<gradient:#a834eb:#f511da:#ad09ed>";
-            case 3 -> "<gradient:#FF6600:#f73bdb:#F7F438>";
-            case 4 -> "<gradient:#309de6:#a834eb>";
-            case 5 -> "<gradient:#F7F438:#fcad23:#FF6600>";
-            case 6 -> "<gradient:#309de6:#F7F438>";
-            case 7 -> "<gradient:#F79438:#F7389B>";
-            default -> "<gradient:#F7F438:#309de6>";
+            case 2 -> "<gradient:#f971ae:#fcad23>";
+            case 3 -> "<gradient:#309de6:#af45ed>";
+            case 4 -> "<gradient:#f971ae:#af45ed:#4287f5>";
+            case 5 -> "<gradient:#FFEA40:#fcad23:#F79438>";
+            case 6 -> "<gradient:#309de6:#01c1a7:#F7F438>";
+            case 7 -> "<gradient:#F79438:#f967b2>";
+            default -> "<gradient:#F7F438:#01c1a7>";
         };
         return colorString + input + "</gradient>";
     }
