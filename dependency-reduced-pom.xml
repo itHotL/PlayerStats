@@ -49,7 +49,7 @@
         <configuration>
           <transformers>
             <transformer>
-              <mainClass>com.artemis.the.gr8.playerstats.Main</mainClass>
+              <mainClass>com.artemis.the.gr8.playerstats.core.Main</mainClass>
             </transformer>
           </transformers>
           <artifactSet>

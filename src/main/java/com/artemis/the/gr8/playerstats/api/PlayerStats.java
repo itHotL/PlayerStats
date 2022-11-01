@@ -1,7 +1,6 @@
 package com.artemis.the.gr8.playerstats.api;
 
-import com.artemis.the.gr8.playerstats.Main;
-import com.artemis.the.gr8.playerstats.statistic.RequestManager;
+import com.artemis.the.gr8.playerstats.core.Main;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,8 +11,9 @@ import org.jetbrains.annotations.NotNull;
  * and get an instance of PlayerStats. You can then use this object to
  * access any of the further methods.
  *
- * @see RequestManager
- * @see StatFormatter
+ * @see StatManager
+ * @see StatTextFormatter
+ * @see StatNumberFormatter
 */
 public interface PlayerStats {
 
@@ -41,5 +41,7 @@ public interface PlayerStats {
 
     StatManager getStatManager();
 
-    StatFormatter getFormatter();
+    StatTextFormatter getStatTextFormatter();
+
+    StatNumberFormatter getStatNumberFormatter();
 }

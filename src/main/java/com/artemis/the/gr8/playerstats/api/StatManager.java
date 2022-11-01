@@ -1,8 +1,5 @@
 package com.artemis.the.gr8.playerstats.api;
 
-import com.artemis.the.gr8.playerstats.statistic.StatRequest;
-import com.artemis.the.gr8.playerstats.statistic.StatResult;
-
 import java.util.LinkedHashMap;
 
 public interface StatManager {

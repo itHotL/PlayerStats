@@ -1,7 +1,5 @@
 package com.artemis.the.gr8.playerstats.api;
 
-import com.artemis.the.gr8.playerstats.statistic.RequestManager;
-import com.artemis.the.gr8.playerstats.statistic.StatRequest;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
