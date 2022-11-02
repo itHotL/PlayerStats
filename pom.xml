@@ -200,7 +200,7 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <phase>deploy</phase>
+                        <phase>deploy</phase>  <!-- change to verify when deploying -->
                         <goals>
                             <goal>jar-no-fork</goal>
                         </goals>
@@ -214,7 +214,7 @@
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
-                        <phase>deploy</phase>
+                        <phase>deploy</phase>  <!-- change to verify when deploying -->
                         <goals>
                             <goal>sign</goal>
                         </goals>
@@ -228,7 +228,7 @@
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
-                        <phase>deploy</phase>
+                        <phase>deploy</phase>  <!-- change to verify when deploying -->
                         <goals>
                             <goal>jar</goal>
                         </goals>

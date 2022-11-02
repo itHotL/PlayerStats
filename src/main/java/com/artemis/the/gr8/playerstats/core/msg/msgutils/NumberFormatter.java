@@ -25,7 +25,8 @@ public final class NumberFormatter implements StatNumberFormatter {
     /**
      * Adds commas in groups of 3.
      */
-    public @NotNull String formatNumber(long number) {
+    @Override
+    public @NotNull String formatDefaultNumber(long number) {
         return format.format(number);
     }
 

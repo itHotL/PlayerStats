@@ -564,7 +564,7 @@ public final class MessageBuilder implements StatTextFormatter {
         ArrayList<Unit> unitRange = getTimeUnitRange(statNumber);
         if (unitRange.size() <= 1 || (useHoverText && unitRange.size() <= 3)) {
             MyLogger.logWarning("There is something wrong with the time-units you specified, please check your config!");
-            return componentFactory.timeNumber(formatter.formatNumber(statNumber), target);
+            return componentFactory.timeNumber(formatter.formatDefaultNumber(statNumber), target);
         }
         else {
             String mainNumber = formatter.formatTimeNumber(statNumber, unitRange.get(0), unitRange.get(1));
@@ -586,7 +586,7 @@ public final class MessageBuilder implements StatTextFormatter {
     }
 
     private TextComponent getDefaultNumberComponent(long statNumber, Target target) {
-        return componentFactory.statNumber(formatter.formatNumber(statNumber), target);
+        return componentFactory.statNumber(formatter.formatDefaultNumber(statNumber), target);
     }
 
     /**

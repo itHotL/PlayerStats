@@ -4,6 +4,8 @@ import com.artemis.the.gr8.playerstats.api.enums.Unit;
 
 public interface StatNumberFormatter {
 
+    String formatDefaultNumber(long number);
+
     String formatDamageNumber(long number, Unit statUnit);
 
     String formatDistanceNumber(long number, Unit statUnit);
