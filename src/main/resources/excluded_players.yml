@@ -7,7 +7,7 @@
 # For more general filtering settings, see the config.yml (section 'General')
 
 # Format:
-#  - playerUUID-1
-#  - playerUUID-2
+#  - player1UUID
+#  - player2UUID
 excluded:
   -

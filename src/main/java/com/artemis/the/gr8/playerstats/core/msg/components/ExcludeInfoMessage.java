@@ -3,7 +3,9 @@ package com.artemis.the.gr8.playerstats.core.msg.components;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Unmodifiable;
@@ -31,9 +33,7 @@ public final class ExcludeInfoMessage implements TextComponent {
         return Component.newline()
                 .append(factory.pluginPrefixAsTitle())
                 .append(Component.newline())
-                .append(factory.subTitle("The /statexclude command is used to hide"))
-                .append(Component.newline())
-                .append(factory.subTitle("specific players' results from /stat lookups"))
+                .append(factory.subTitle("Hide a player's statistics from /stat results"))
                 .append(Component.newline())
                 .append(text("Excluded players are:")
                         .color(factory.INFO_MSG))
@@ -41,12 +41,41 @@ public final class ExcludeInfoMessage implements TextComponent {
                 .append(spaces).append(
                         factory.arrow()).append(Component.space())
                         .append(text("not visible in the top 10")
-                                .color(factory.INFO_MSG_ACCENT_1))
+                                .color(factory.INFO_MSG_ACCENT_MEDIUM))
                 .append(Component.newline())
                 .append(spaces).append(
                         factory.arrow()).append(Component.space())
                         .append(text("not counted for the server total")
-                                .color(factory.INFO_MSG_ACCENT_1));
+                                .color(factory.INFO_MSG_ACCENT_MEDIUM))
+                .append(Component.newline())
+                .append(spaces).append(
+                        factory.arrow()).append(Component.space())
+                        .append(text("hidden")
+                                .decorate(TextDecoration.BOLD)
+                                .color(factory.INFO_MSG_ACCENT_MEDIUM)
+                                .hoverEvent(HoverEvent.showText(text("All data is still stored by the server,")
+                                        .append(Component.newline())
+                                        .append(text("and excluded players can still look up"))
+                                        .append(Component.newline())
+                                        .append(text("their own statistics in the in-game menu"))
+                                        .color(factory.FEEDBACK_MSG))))
+                .append(text(", not removed")
+                        .decorations(TextDecoration.NAMES.values(), false)
+                        .color(factory.INFO_MSG_ACCENT_MEDIUM))
+                .append(Component.newline())
+                .append(Component.newline())
+                .append(text("Usage: ").color(factory.INFO_MSG)
+                        .append(text("/statexclude").color(factory.INFO_MSG_ACCENT_MEDIUM)))
+                .append(Component.newline())
+                .append(spaces).append(spaces).append(
+                        factory.bulletPoint()).append(Component.space())
+                        .append(text("add ").color(factory.INFO_MSG_ACCENT_DARKEST))
+                        .append(text("player-name").color(factory.INFO_MSG_ACCENT_MEDIUM))
+                .append(Component.newline())
+                .append(spaces).append(spaces).append(
+                        factory.bulletPoint()).append(Component.space())
+                        .append(text("remove ").color(factory.INFO_MSG_ACCENT_DARKEST))
+                        .append(text("player-name").color(factory.INFO_MSG_ACCENT_MEDIUM));
     }
 
     @Override

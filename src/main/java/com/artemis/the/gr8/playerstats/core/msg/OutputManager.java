@@ -3,16 +3,11 @@ package com.artemis.the.gr8.playerstats.core.msg;
 import com.artemis.the.gr8.playerstats.api.StatTextFormatter;
 import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.core.enums.StandardMessage;
-import com.artemis.the.gr8.playerstats.core.msg.components.ConsoleComponentFactory;
-import com.artemis.the.gr8.playerstats.core.msg.components.PrideComponentFactory;
-import com.artemis.the.gr8.playerstats.core.msg.components.BukkitConsoleComponentFactory;
-import com.artemis.the.gr8.playerstats.core.msg.components.HalloweenComponentFactory;
+import com.artemis.the.gr8.playerstats.core.msg.components.*;
 import com.artemis.the.gr8.playerstats.core.msg.msgutils.FormattingFunction;
 import com.artemis.the.gr8.playerstats.api.StatRequest;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -20,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.function.Function;
@@ -129,14 +123,50 @@ public final class OutputManager {
                 .excludeInfoMsg());
     }
 
-    public void sendTest(@NotNull CommandSender sender, String[] args) {
-        StringBuilder msg = new StringBuilder();
-        for (String arg : args) {
-            char text = (char) Integer.parseInt(arg, 16);
-            msg.append(text);
+    public void  sendPrefixTest(@NotNull CommandSender sender, String arg) {
+        adventure.sender(sender).sendMessage(getTestBuilder(arg)
+                .getPluginPrefix());
+    }
+
+    public void sendPrefixTitleTest(@NotNull CommandSender sender, String arg) {
+        adventure.sender(sender).sendMessage(getTestBuilder(arg)
+                .getPluginPrefixAsTitle());
+    }
+
+    public void sendHelpTest(@NotNull CommandSender sender, String arg) {
+        adventure.sender(sender).sendMessage(getTestBuilder(arg)
+                .helpMsg());
+    }
+
+    public void sendExcludeTest(@NotNull CommandSender sender, String arg) {
+        adventure.sender(sender).sendMessage(getTestBuilder(arg)
+                .excludeInfoMsg());
+    }
+
+    public void sendExampleTest(@NotNull CommandSender sender, String arg) {
+        adventure.sender(sender).sendMessage(getTestBuilder(arg)
+                .usageExamples());
+    }
+
+    public void sendNameTest(@NotNull CommandSender sender, String arg, String playerName) {
+        adventure.sender(sender).sendMessage(getTestBuilder(arg)
+                .getSharerName(playerName));
+    }
+
+    private MessageBuilder getTestBuilder(String arg) {
+        if (arg == null) {
+            return MessageBuilder.defaultBuilder();
+        } else {
+            ComponentFactory factory = switch (arg) {
+                case "halloween" -> new HalloweenComponentFactory();
+                case "pride" -> new PrideComponentFactory();
+                case "bukkit" -> new BukkitConsoleComponentFactory();
+                case "console" -> new ConsoleComponentFactory();
+                case "winter" -> new WinterComponentFactory();
+                default -> new ComponentFactory();
+            };
+            return MessageBuilder.fromComponentFactory(factory);
         }
-        Component test = MiniMessage.miniMessage().deserialize(msg.toString());
-        adventure.sender(sender).sendMessage(test);
     }
 
     public void sendToAllPlayers(@NotNull TextComponent component) {
@@ -157,12 +187,11 @@ public final class OutputManager {
     }
 
     private MessageBuilder getClientMessageBuilder() {
-        if (useRainbowStyle()) {
-            return MessageBuilder.fromComponentFactory(new PrideComponentFactory());
-        } else if (useHalloweenStyle()) {
-            return MessageBuilder.fromComponentFactory(new HalloweenComponentFactory());
+        ComponentFactory festiveFactory = getFestiveFactory();
+        if (festiveFactory == null) {
+            return MessageBuilder.defaultBuilder();
         }
-        return MessageBuilder.defaultBuilder();
+        return MessageBuilder.fromComponentFactory(festiveFactory);
     }
 
     private @NotNull MessageBuilder getConsoleMessageBuilder() {
@@ -175,12 +204,25 @@ public final class OutputManager {
         return consoleBuilder;
     }
 
-    private boolean useRainbowStyle() {
-        return config.useRainbowMode() || (config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.JUNE));
-    }
-
-    private boolean useHalloweenStyle() {
-        return config.useFestiveFormatting() && LocalDate.now().getMonth().equals(Month.OCTOBER);
+    private @Nullable ComponentFactory getFestiveFactory() {
+        if (config.useRainbowMode()) {
+            return new PrideComponentFactory();
+        }
+        else if (config.useFestiveFormatting()) {
+            return switch (LocalDate.now().getMonth()) {
+                case JUNE -> new PrideComponentFactory();
+                case OCTOBER -> new HalloweenComponentFactory();
+                case SEPTEMBER -> {
+                    if (LocalDate.now().getDayOfMonth() == 12) {
+                        yield new BirthdayComponentFactory();
+                    }
+                    yield null;
+                }
+                case DECEMBER -> new WinterComponentFactory();
+                default -> null;
+            };
+        }
+        return null;
     }
 
     private boolean isBukkit() {

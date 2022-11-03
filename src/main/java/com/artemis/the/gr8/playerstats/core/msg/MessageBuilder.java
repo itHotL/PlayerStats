@@ -81,7 +81,7 @@ public final class MessageBuilder implements StatTextFormatter {
     @Override
     public TextComponent getRainbowPluginPrefix() {
         PrideComponentFactory pride = new PrideComponentFactory();
-        return pride.rainbowPrefix();
+        return pride.pluginPrefix();
     }
 
     @Override
@@ -93,6 +93,10 @@ public final class MessageBuilder implements StatTextFormatter {
     public TextComponent getRainbowPluginPrefixAsTitle() {
         PrideComponentFactory pride = new PrideComponentFactory();
         return pride.pluginPrefixAsTitle();
+    }
+
+    public TextComponent getSharerName(String name) {
+        return componentFactory.sharerName(name);
     }
 
     public @NotNull TextComponent reloadedConfig() {

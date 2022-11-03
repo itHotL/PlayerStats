@@ -45,11 +45,11 @@ public class ComponentFactory {
     protected TextColor FEEDBACK_MSG_ACCENT; //light_blue
 
     protected TextColor INFO_MSG;  //gold
-    protected TextColor INFO_MSG_ACCENT_1;  //medium_gold
-    protected TextColor INFO_MSG_ACCENT_2;  //light_yellow
+    protected TextColor INFO_MSG_ACCENT_DARKEST;  //medium_gold
+    protected TextColor INFO_MSG_ACCENT_MEDIUM;  //light_gold
+    protected TextColor INFO_MSG_ACCENT_LIGHTEST;  //light_yellow
 
     protected TextColor MSG_HOVER;  //lightest_blue
-    protected TextColor MSG_HOVER_ACCENT;  //light_gold
     protected TextColor MSG_CLICKED;  //light_purple
 
 
@@ -68,11 +68,11 @@ public class ComponentFactory {
         FEEDBACK_MSG_ACCENT = PluginColor.LIGHT_BLUE.getColor();
 
         INFO_MSG = PluginColor.GOLD.getColor();
-        INFO_MSG_ACCENT_1 = PluginColor.MEDIUM_GOLD.getColor();
-        INFO_MSG_ACCENT_2 = PluginColor.LIGHT_YELLOW.getColor();
+        INFO_MSG_ACCENT_DARKEST = PluginColor.MEDIUM_GOLD.getColor();
+        INFO_MSG_ACCENT_MEDIUM = PluginColor.LIGHT_GOLD.getColor();
+        INFO_MSG_ACCENT_LIGHTEST = PluginColor.LIGHT_YELLOW.getColor();
 
         MSG_HOVER = PluginColor.LIGHTEST_BLUE.getColor();
-        MSG_HOVER_ACCENT = PluginColor.LIGHT_GOLD.getColor();
         MSG_CLICKED = PluginColor.LIGHT_PURPLE.getColor();
     }
 
@@ -88,7 +88,7 @@ public class ComponentFactory {
     }
 
     public TextComponent getExampleName() {
-        return text("Artemis_the_gr8").color(INFO_MSG_ACCENT_2);
+        return text("Artemis_the_gr8").color(INFO_MSG_ACCENT_LIGHTEST);
     }
 
     /**
@@ -105,11 +105,10 @@ public class ComponentFactory {
      * Returns [PlayerStats] surrounded by underscores on both sides.
      */
     public TextComponent pluginPrefixAsTitle() {
-        //12 underscores for both console and in-game
-        return text("____________").color(UNDERSCORE)
+        return text("____________").color(UNDERSCORE)  //12 underscores
                 .append(text("    "))  //4 spaces
                 .append(pluginPrefix())
-                .append(text("    "))  //4 spaces
+                .append(text("    "))
                 .append(text("____________"));
     }
 
@@ -183,7 +182,7 @@ public class ComponentFactory {
                         .color(FEEDBACK_MSG_ACCENT)
                         .clickEvent(ClickEvent.runCommand("/statshare " + shareCode))
                         .hoverEvent(HoverEvent.showText(text("Click here to share this statistic in chat!")
-                                .color(MSG_HOVER_ACCENT))));
+                                .color(INFO_MSG_ACCENT_MEDIUM))));
     }
 
     public TextComponent sharedByMessage(Component playerName) {
@@ -324,7 +323,7 @@ public class ComponentFactory {
                 .toBuilder()
                 .hoverEvent(HoverEvent.showText(
                         text(Unit.HEART.getLabel())
-                                .color(MSG_HOVER_ACCENT)))
+                                .color(INFO_MSG_ACCENT_MEDIUM)))
                 .build();
         return surroundWithBrackets(heart);
     }
