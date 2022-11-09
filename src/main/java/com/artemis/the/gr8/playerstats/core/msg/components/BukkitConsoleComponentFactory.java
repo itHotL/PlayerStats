@@ -15,7 +15,7 @@ import static net.kyori.adventure.text.Component.text;
  * a Bukkit Console. Bukkit consoles don't support hex colors,
  * unlike Paper consoles.
  */
-public class BukkitConsoleComponentFactory extends ComponentFactory {
+public final class BukkitConsoleComponentFactory extends ComponentFactory {
 
     public BukkitConsoleComponentFactory() {
         super();

@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
-public class HalloweenComponentFactory extends ComponentFactory {
+public final class HalloweenComponentFactory extends ComponentFactory {
 
 
     public HalloweenComponentFactory() {
@@ -15,7 +15,7 @@ public class HalloweenComponentFactory extends ComponentFactory {
     @Override
     public TextComponent pluginPrefixAsTitle() {
         return miniMessageToComponent(
-                "<gradient:#f74040:gold:#FF6600:#f74040>" +
+                "<gradient:#ff9300:#f74040:#f73b3b:#ff9300:#f74040:#ff9300>" +
                 "<white>\u2620</white> __________    [PlayerStats]    __________ " +
                 "<white>\u2620</white></gradient>");
     }

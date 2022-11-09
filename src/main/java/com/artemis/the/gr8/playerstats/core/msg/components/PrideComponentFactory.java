@@ -8,7 +8,7 @@ import java.util.Random;
 /**
  * A festive version of the {@link ComponentFactory}
  */
-public class PrideComponentFactory extends ComponentFactory {
+public final class PrideComponentFactory extends ComponentFactory {
 
     public PrideComponentFactory() {
         super();

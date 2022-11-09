@@ -88,7 +88,7 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
 
     @Contract(pure = true)
     private @Unmodifiable List<String> getSecondTestSuggestions() {
-        return List.of("halloween", "pride", "bukkit", "console", "default", "winter");
+        return List.of("halloween", "pride", "bukkit", "console", "default", "winter", "birthday");
     }
 
     private @Nullable List<String> getStatCommandSuggestions(@NotNull String[] args) {

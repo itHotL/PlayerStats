@@ -163,6 +163,7 @@ public final class OutputManager {
                 case "bukkit" -> new BukkitConsoleComponentFactory();
                 case "console" -> new ConsoleComponentFactory();
                 case "winter" -> new WinterComponentFactory();
+                case "birthday" -> new BirthdayComponentFactory();
                 default -> new ComponentFactory();
             };
             return MessageBuilder.fromComponentFactory(factory);

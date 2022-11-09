@@ -3,7 +3,7 @@ package com.artemis.the.gr8.playerstats.core.msg.components;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 
-public class ConsoleComponentFactory extends ComponentFactory {
+public final class ConsoleComponentFactory extends ComponentFactory {
 
     public ConsoleComponentFactory() {
         super();
