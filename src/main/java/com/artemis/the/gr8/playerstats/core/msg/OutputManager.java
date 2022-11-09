@@ -123,53 +123,6 @@ public final class OutputManager {
                 .excludeInfoMsg());
     }
 
-    public void  sendPrefixTest(@NotNull CommandSender sender, String arg) {
-        adventure.sender(sender).sendMessage(getTestBuilder(arg)
-                .getPluginPrefix());
-    }
-
-    public void sendPrefixTitleTest(@NotNull CommandSender sender, String arg) {
-        adventure.sender(sender).sendMessage(getTestBuilder(arg)
-                .getPluginPrefixAsTitle());
-    }
-
-    public void sendHelpTest(@NotNull CommandSender sender, String arg) {
-        adventure.sender(sender).sendMessage(getTestBuilder(arg)
-                .helpMsg());
-    }
-
-    public void sendExcludeTest(@NotNull CommandSender sender, String arg) {
-        adventure.sender(sender).sendMessage(getTestBuilder(arg)
-                .excludeInfoMsg());
-    }
-
-    public void sendExampleTest(@NotNull CommandSender sender, String arg) {
-        adventure.sender(sender).sendMessage(getTestBuilder(arg)
-                .usageExamples());
-    }
-
-    public void sendNameTest(@NotNull CommandSender sender, String arg, String playerName) {
-        adventure.sender(sender).sendMessage(getTestBuilder(arg)
-                .getSharerName(playerName));
-    }
-
-    private MessageBuilder getTestBuilder(String arg) {
-        if (arg == null) {
-            return MessageBuilder.defaultBuilder();
-        } else {
-            ComponentFactory factory = switch (arg) {
-                case "halloween" -> new HalloweenComponentFactory();
-                case "pride" -> new PrideComponentFactory();
-                case "bukkit" -> new BukkitConsoleComponentFactory();
-                case "console" -> new ConsoleComponentFactory();
-                case "winter" -> new WinterComponentFactory();
-                case "birthday" -> new BirthdayComponentFactory();
-                default -> new ComponentFactory();
-            };
-            return MessageBuilder.fromComponentFactory(factory);
-        }
-    }
-
     public void sendToAllPlayers(@NotNull TextComponent component) {
         adventure.players().sendMessage(component);
     }

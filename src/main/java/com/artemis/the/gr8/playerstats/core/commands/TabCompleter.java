@@ -7,16 +7,12 @@ import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public final class TabCompleter implements org.bukkit.command.TabCompleter {
@@ -59,36 +55,10 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
             tabSuggestions = switch (args[0]) {
                 case "add" -> offlinePlayerHandler.getLoadedOfflinePlayerNames();
                 case "remove" -> offlinePlayerHandler.getExcludedPlayerNames();
-                case "info" -> {
-                    ArrayList<String> loadedPlayers = offlinePlayerHandler.getLoadedOfflinePlayerNames();
-                    loadedPlayers.addAll(offlinePlayerHandler.getExcludedPlayerNames());
-                    yield loadedPlayers;
-                }
-                case "test" -> getTestSuggestions();
                 default -> tabSuggestions;
             };
         }
-        else if (args.length == 3) {
-            Pattern testPattern = Pattern.compile("help|examples|exclude|prefix|title|name");
-            Matcher matcher = testPattern.matcher(args[1]);
-            if (matcher.find()) {
-                tabSuggestions = getSecondTestSuggestions();
-            }
-        }
-        else if (args.length == 4 && args[1].equalsIgnoreCase("name")) {
-            tabSuggestions = offlinePlayerHandler.getLoadedOfflinePlayerNames();
-        }
         return getDynamicTabSuggestions(tabSuggestions, args[args.length-1]);
-    }
-
-    @Contract(pure = true)
-    private @Unmodifiable List<String> getTestSuggestions() {
-        return List.of("help", "examples", "exclude", "prefix", "title", "name");
-    }
-
-    @Contract(pure = true)
-    private @Unmodifiable List<String> getSecondTestSuggestions() {
-        return List.of("halloween", "pride", "bukkit", "console", "default", "winter", "birthday");
     }
 
     private @Nullable List<String> getStatCommandSuggestions(@NotNull String[] args) {

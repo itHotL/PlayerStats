@@ -32,23 +32,6 @@ public final class ExcludeCommand implements CommandExecutor {
                     outputManager.sendExcludeInfo(sender);
                     return true;
                 }
-                case "test" -> {
-                    if (args.length >= 3) {
-                        switch (args[1]) {
-                            case "help" -> outputManager.sendHelpTest(sender, args[2]);
-                            case "examples" -> outputManager.sendExampleTest(sender, args[2]);
-                            case "exclude" -> outputManager.sendExcludeTest(sender, args[2]);
-                            case "prefix" -> outputManager.sendPrefixTest(sender, args[2]);
-                            case "title" -> outputManager.sendPrefixTitleTest(sender, args[2]);
-                            case "name" -> {
-                                if (args.length >= 4) {
-                                    outputManager.sendNameTest(sender, args[2], args[3]);
-                                }
-                            }
-                        }
-                    }
-                    return true;
-                }
                 case "add" -> {
                     if (args.length >= 2 &&
                         offlinePlayerHandler.isLoadedPlayer(args[1])) {
