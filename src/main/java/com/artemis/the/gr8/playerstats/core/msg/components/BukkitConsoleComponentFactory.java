@@ -55,12 +55,17 @@ public final class BukkitConsoleComponentFactory extends ComponentFactory {
 
     @Override
     public TextComponent arrow() {
-        return text("->").color(INFO_MSG);
+        return text("    ->").color(INFO_MSG);
     }
 
     @Override
     public TextComponent bulletPoint() {
-        return text("*").color(INFO_MSG);
+        return text("    *").color(INFO_MSG);
+    }
+
+    @Override
+    public TextComponent bulletPointIndented() {
+        return text("        *").color(INFO_MSG);
     }
 
     @Override

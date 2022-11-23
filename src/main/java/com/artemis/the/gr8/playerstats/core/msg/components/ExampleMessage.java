@@ -29,27 +29,22 @@ public final class ExampleMessage implements TextComponent {
     }
 
     private @NotNull TextComponent buildMessage(@NotNull ComponentFactory factory) {
-        TextComponent spaces = text("    ");  //4 spaces
-
         return Component.newline()
                 .append(factory.pluginPrefixAsTitle())
                 .append(Component.newline())
                 .append(factory.subTitle("Examples: "))
                 .append(Component.newline())
-                .append(spaces).append(
-                        factory.arrow()).append(Component.space())
+                .append(factory.arrow()).append(Component.space())
                 .append(text("/stat ").color(factory.INFO_MSG)
                         .append(text("animals_bred ").color(factory.INFO_MSG_ACCENT_MEDIUM)
                                 .append(text("top").color(factory.INFO_MSG_ACCENT_LIGHTEST))))
                 .append(Component.newline())
-                .append(spaces).append(
-                        factory.arrow()).append(Component.space())
+                .append(factory.arrow()).append(Component.space())
                 .append(text("/stat ").color(factory.INFO_MSG)
                         .append(text("mine_block diorite ").color(factory.INFO_MSG_ACCENT_MEDIUM)
                                 .append(text("me").color(factory.INFO_MSG_ACCENT_LIGHTEST))))
                 .append(Component.newline())
-                .append(spaces).append(
-                        factory.arrow()).append(Component.space())
+                .append(factory.arrow()).append(Component.space())
                 .append(text("/stat ").color(factory.INFO_MSG)
                         .append(text("deaths ").color(factory.INFO_MSG_ACCENT_MEDIUM)
                                 .append(text("player ").color(factory.INFO_MSG_ACCENT_LIGHTEST)

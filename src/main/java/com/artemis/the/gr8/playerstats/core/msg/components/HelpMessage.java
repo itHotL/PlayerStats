@@ -40,8 +40,6 @@ public final class HelpMessage implements TextComponent {
     }
 
     private @NotNull TextComponent buildPlainMsg(ComponentFactory factory, int listSize) {
-        TextComponent spaces = text("    "); //4 spaces
-
         return Component.newline()
                 .append(factory.pluginPrefixAsTitle())
                 .append(newline())
@@ -50,47 +48,37 @@ public final class HelpMessage implements TextComponent {
                 .append(text("Usage:").color(factory.INFO_MSG)).append(space())
                 .append(text("/statistic").color(factory.INFO_MSG_ACCENT_MEDIUM))
                 .append(newline())
-                .append(spaces).append(
-                        factory.arrow()).append(space())
+                .append(factory.arrow()).append(space())
                 .append(text("name").color(factory.INFO_MSG_ACCENT_MEDIUM))
                 .append(newline())
-                .append(spaces).append(
-                        factory.arrow()).append(space())
+                .append(factory.arrow()).append(space())
                 .append(text("{sub-statistic}").color(factory.INFO_MSG_ACCENT_MEDIUM)).append(space())
                 .append(text("(a block, item or entity)").color(factory.BRACKETS))
                 .append(newline())
-                .append(spaces).append(
-                        factory.arrow()).append(space())
+                .append(factory.arrow()).append(space())
                 .append(text("me | player | server | top").color(factory.INFO_MSG_ACCENT_MEDIUM))
                 .append(newline())
-                .append(spaces).append(spaces).append(
-                                factory.bulletPoint()).append(space())
+                .append(factory.bulletPointIndented()).append(space())
                 .append(text("me:").color(factory.INFO_MSG_ACCENT_DARKEST)).append(space())
                 .append(text("your own statistic").color(factory.BRACKETS))
                 .append(newline())
-                .append(spaces).append(spaces).append(
-                                factory.bulletPoint()).append(space())
+                .append(factory.bulletPointIndented()).append(space())
                 .append(text("player:").color(factory.INFO_MSG_ACCENT_DARKEST)).append(space())
                 .append(text("choose a player").color(factory.BRACKETS))
                 .append(newline())
-                .append(spaces).append(spaces).append(
-                                factory.bulletPoint()).append(space())
+                .append(factory.bulletPointIndented()).append(space())
                 .append(text("server:").color(factory.INFO_MSG_ACCENT_DARKEST)).append(space())
                 .append(text("everyone on the server combined").color(factory.BRACKETS))
                 .append(newline())
-                .append(spaces).append(spaces).append(
-                                factory.bulletPoint()).append(space())
+                .append(factory.bulletPointIndented()).append(space())
                 .append(text("top:").color(factory.INFO_MSG_ACCENT_DARKEST)).append(space())
                 .append(text("the top").color(factory.BRACKETS).append(space()).append(text(listSize)))
                 .append(newline())
-                .append(spaces).append(
-                        factory.arrow()).append(space())
+                .append(factory.arrow()).append(space())
                 .append(text("{player-name}").color(factory.INFO_MSG_ACCENT_MEDIUM));
     }
 
     private @NotNull TextComponent buildHoverMsg(@NotNull ComponentFactory factory, int listSize) {
-        TextComponent spaces = text("    ");
-
         return Component.newline()
                 .append(factory.pluginPrefixAsTitle())
                 .append(newline())
@@ -99,14 +87,14 @@ public final class HelpMessage implements TextComponent {
                 .append(text("Usage:").color(factory.INFO_MSG)).append(space())
                 .append(text("/statistic").color(factory.INFO_MSG_ACCENT_MEDIUM))
                 .append(newline())
-                .append(spaces).append(factory.arrow()).append(space())
+                .append(factory.arrow()).append(space())
                 .append(text("name").color(factory.INFO_MSG_ACCENT_MEDIUM)
                         .hoverEvent(HoverEvent.showText(text("The name that describes the statistic").color(factory.MSG_HOVER)
                                 .append(newline())
                                 .append(text("Example: ").color(factory.INFO_MSG))
                                 .append(text("\"animals_bred\"").color(factory.INFO_MSG_ACCENT_MEDIUM)))))
                 .append(newline())
-                .append(spaces).append(factory.arrow()).append(space())
+                .append(factory.arrow()).append(space())
                 .append(text("sub-statistic").color(factory.INFO_MSG_ACCENT_MEDIUM)
                         .hoverEvent(HoverEvent.showText(
                                 text("Some statistics need an item, block or entity as extra input").color(factory.MSG_HOVER)
@@ -114,7 +102,7 @@ public final class HelpMessage implements TextComponent {
                                         .append(text("Example: ").color(factory.INFO_MSG)
                                                 .append(text("\"mine_block diorite\"").color(factory.INFO_MSG_ACCENT_MEDIUM))))))
                 .append(newline())
-                .append(spaces).append(factory.arrow()
+                .append(factory.arrow()
                         .hoverEvent(HoverEvent.showText(
                                 text("Choose one").color(factory.MSG_CLICKED))))
                 .append(space())
@@ -135,7 +123,7 @@ public final class HelpMessage implements TextComponent {
                                 text("See the top").color(factory.MSG_HOVER).append(space())
                                         .append(text(listSize)))))
                 .append(newline())
-                .append(spaces).append(factory.arrow()).append(space())
+                .append(factory.arrow()).append(space())
                 .append(text("player-name").color(factory.INFO_MSG_ACCENT_MEDIUM)
                         .hoverEvent(HoverEvent.showText(
                                 text("In case you typed").color(factory.MSG_HOVER).append(space())

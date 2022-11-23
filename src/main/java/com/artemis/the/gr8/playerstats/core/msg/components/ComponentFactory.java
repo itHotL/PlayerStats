@@ -132,6 +132,10 @@ public class ComponentFactory {
         return text().color(FEEDBACK_MSG_ACCENT).build();
     }
 
+    public TextComponent infoMessageAccent() {
+        return text().color(INFO_MSG_ACCENT_MEDIUM).build();
+    }
+
     public TextComponent title(String content, Target target) {
         return getComponent(content,
                 getColorFromString(config.getTitleDecoration(target, false)),
@@ -329,11 +333,15 @@ public class ComponentFactory {
     }
 
     public TextComponent arrow() {
-        return text("→").color(INFO_MSG);  //alt + 26
+        return text("    →").color(INFO_MSG);  //4 spaces, alt + 26
     }
 
     public TextComponent bulletPoint() {
-        return text("•").color(INFO_MSG); //alt + 7
+        return text("    •").color(INFO_MSG); //4 spaces, alt + 7
+    }
+
+    public TextComponent bulletPointIndented() {
+        return text("        •").color(INFO_MSG); //8 spaces, alt + 7
     }
 
     /**

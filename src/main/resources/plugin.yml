@@ -12,27 +12,29 @@ commands:
       - stat
       - stats
     description: show player statistics in private chat
+    usage: "§6/stat info"
     permission: playerstats.stat
   statisticshare:
     aliases:
       - statshare
       - statsshare
     description: share last stat lookup in chat
-    usage: "§b/statshare"
+    usage: "§6/This command can only be executed by clicking the \"share\" button in /stat results. 
+    If you don't see this button, you don't have share-permission, or sharing is turned off."
     permission: playerstats.share
   statisticreload:
     aliases:
       - statreload
       - statsreload
     description: reloads the config
-    usage: "§a/statreload"
+    usage: "§6/statreload"
     permission: playerstats.reload
   statisticexclude:
     aliases:
       - statexclude
       - statsexclude
     description: hide this player's statistics from /stat results
-    usage: "§c/statexclude"
+    usage: "§6/statexclude info"
     permission: playerstats.exclude
 permissions:
   playerstats.stat:

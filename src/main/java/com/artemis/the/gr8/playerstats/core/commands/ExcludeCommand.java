@@ -1,5 +1,6 @@
 package com.artemis.the.gr8.playerstats.core.commands;
 
+import com.artemis.the.gr8.playerstats.core.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.core.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
 import org.bukkit.command.Command;
@@ -21,35 +22,36 @@ public final class ExcludeCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if (args.length >= 1) {
+        if (args.length == 0) {
+            outputManager.sendExcludeInfo(sender);
+        }
+        else if (args.length == 1) {
             switch (args[0]) {
+                case "info" -> outputManager.sendExcludeInfo(sender);
                 case "list" -> {
                     ArrayList<String> excludedPlayers = offlinePlayerHandler.getExcludedPlayerNames();
-                    sender.sendMessage(String.valueOf(excludedPlayers));
-                    return true;
+                    outputManager.sendExcludedList(sender, excludedPlayers);
                 }
-                case "info" -> {
-                    outputManager.sendExcludeInfo(sender);
-                    return true;
-                }
+            }
+        }
+        else {
+            switch (args[0]) {
                 case "add" -> {
-                    if (args.length >= 2 &&
-                        offlinePlayerHandler.isLoadedPlayer(args[1])) {
-                        offlinePlayerHandler.addLoadedPlayerToExcludeList(args[1]);
-                        sender.sendMessage("Excluded " + args[1] + "!");
-                        return true;
+                    if (offlinePlayerHandler.addLoadedPlayerToExcludeList(args[1])) {
+                        outputManager.sendFeedbackMsgPlayerExcluded(sender, args[1]);
+                    } else {
+                        outputManager.sendFeedbackMsg(sender, StandardMessage.EXCLUDE_FAILED);
                     }
                 }
                 case "remove" -> {
-                    if (args.length >= 2 &&
-                        offlinePlayerHandler.isExcludedPlayer(args[1])) {
-                        offlinePlayerHandler.addExcludedPlayerToLoadedList(args[1]);
-                        sender.sendMessage("Removed " + args[1] + " from the exclude list again!");
-                        return true;
+                    if (offlinePlayerHandler.addExcludedPlayerToLoadedList(args[1])) {
+                        outputManager.sendFeedbackMsgPlayerIncluded(sender, args[1]);
+                    } else {
+                        outputManager.sendFeedbackMsg(sender, StandardMessage.INCLUDE_FAILED);
                     }
                 }
             }
         }
-        return false;
+        return true;
     }
 }

@@ -79,7 +79,7 @@ public final class MessageBuilder implements StatTextFormatter {
     }
 
     @Override
-    public TextComponent getRainbowPluginPrefix() {
+    public @NotNull TextComponent getRainbowPluginPrefix() {
         PrideComponentFactory pride = new PrideComponentFactory();
         return pride.pluginPrefix();
     }
@@ -90,13 +90,9 @@ public final class MessageBuilder implements StatTextFormatter {
     }
 
     @Override
-    public TextComponent getRainbowPluginPrefixAsTitle() {
+    public @NotNull TextComponent getRainbowPluginPrefixAsTitle() {
         PrideComponentFactory pride = new PrideComponentFactory();
         return pride.pluginPrefixAsTitle();
-    }
-
-    public TextComponent getSharerName(String name) {
-        return componentFactory.sharerName(name);
     }
 
     public @NotNull TextComponent reloadedConfig() {
@@ -105,6 +101,30 @@ public final class MessageBuilder implements StatTextFormatter {
 
     public @NotNull TextComponent stillReloading() {
         return composePluginMessage("The plugin is (re)loading, your request will be processed when it is done!");
+    }
+
+    public @NotNull TextComponent excludeSuccess(String playerName) {
+        return componentFactory.pluginPrefix()
+                .append(space())
+                .append(componentFactory.message().content("Excluded ")
+                        .append(componentFactory.messageAccent().content(playerName))
+                        .append(text("!")));
+    }
+
+    public @NotNull TextComponent excludeFailed() {
+        return composePluginMessage("This player is already hidden from /stat results!");
+    }
+
+    public @NotNull TextComponent includeSuccess(String playerName) {
+        return componentFactory.pluginPrefix()
+                .append(space())
+                .append(componentFactory.message().content("Removed ")
+                        .append(componentFactory.messageAccent().content(playerName))
+                        .append(text(" from the exclude-list!")));
+    }
+
+    public @NotNull TextComponent includeFailed() {
+        return composePluginMessage("This is not a player that has been excluded with the /statexclude command!");
     }
 
     public @NotNull TextComponent waitAMinute() {
@@ -190,6 +210,22 @@ public final class MessageBuilder implements StatTextFormatter {
 
     public @NotNull TextComponent excludeInfoMsg() {
         return ExcludeInfoMessage.construct(componentFactory);
+    }
+
+    public @NotNull TextComponent excludedList(@NotNull ArrayList<String> excludedPlayerNames) {
+        TextComponent.Builder excludedList = text()
+                .append(newline())
+                .append(getPluginPrefixAsTitle()
+                .append(newline())
+                .append(componentFactory.subTitle("All players that are currently excluded: ")));
+
+        excludedPlayerNames.forEach(playerName -> excludedList
+                .append(newline())
+                .append(componentFactory.arrow()
+                        .append(space())
+                        .append(componentFactory.infoMessageAccent().content(playerName))));
+
+        return excludedList.build();
     }
 
     @Override

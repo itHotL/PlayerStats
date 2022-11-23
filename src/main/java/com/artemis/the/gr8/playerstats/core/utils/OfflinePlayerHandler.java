@@ -72,24 +72,29 @@ public final class OfflinePlayerHandler extends FileHandler {
         return excludedPlayerUUIDs.containsValue(uniqueID);
     }
 
-    public void addLoadedPlayerToExcludeList(String playerName) throws IllegalArgumentException {
-        UUID uuid = includedPlayerUUIDs.get(playerName);
-        if (uuid == null) {
-            throw new IllegalArgumentException("This player is not loaded, and therefore cannot be excluded!");
+    public boolean addLoadedPlayerToExcludeList(String playerName) {
+        if (isLoadedPlayer(playerName)) {
+            UUID uuid = includedPlayerUUIDs.get(playerName);
+
+            super.writeEntryToList("excluded", uuid.toString());
+            includedPlayerUUIDs.remove(playerName);
+            excludedPlayerUUIDs.put(playerName, uuid);
+            return true;
         }
-        super.writeEntryToList("excluded", uuid.toString());
-        includedPlayerUUIDs.remove(playerName);
-        excludedPlayerUUIDs.put(playerName, uuid);
+        return false;
     }
 
-    public void addExcludedPlayerToLoadedList(String playerName) {
-        UUID uuid = excludedPlayerUUIDs.get(playerName);
-        if (uuid == null) {
-            throw new IllegalArgumentException("This player is not excluded, and therefore cannot be un-excluded!");
+    public boolean addExcludedPlayerToLoadedList(String playerName) {
+        //this only includes explicitly excluded players
+        if (isExcludedPlayer(playerName)) {
+            UUID uuid = excludedPlayerUUIDs.get(playerName);
+
+            super.removeEntryFromList("excluded", uuid.toString());
+            excludedPlayerUUIDs.remove(playerName);
+            includedPlayerUUIDs.put(playerName, uuid);
+            return true;
         }
-        super.removeEntryFromList("excluded", uuid.toString());
-        excludedPlayerUUIDs.remove(playerName);
-        includedPlayerUUIDs.put(playerName, uuid);
+        return false;
     }
 
     @Contract(" -> new")

@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.function.Function;
@@ -94,6 +95,16 @@ public final class OutputManager {
         }
     }
 
+    public void sendFeedbackMsgPlayerExcluded(@NotNull CommandSender sender, String playerName) {
+        adventure.sender(sender).sendMessage(getMessageBuilder(sender)
+                .excludeSuccess(playerName));
+    }
+
+    public void sendFeedbackMsgPlayerIncluded(@NotNull CommandSender sender, String playerName) {
+        adventure.sender(sender).sendMessage(getMessageBuilder(sender)
+                .includeSuccess(playerName));
+    }
+
     public void sendFeedbackMsgMissingSubStat(@NotNull CommandSender sender, String statType) {
         adventure.sender(sender).sendMessage(getMessageBuilder(sender)
                 .missingSubStatName(statType));
@@ -121,6 +132,11 @@ public final class OutputManager {
     public void sendExcludeInfo(@NotNull CommandSender sender) {
         adventure.sender(sender).sendMessage(getMessageBuilder(sender)
                 .excludeInfoMsg());
+    }
+
+    public void sendExcludedList(@NotNull CommandSender sender, ArrayList<String> excludedPlayerNames) {
+        adventure.sender(sender).sendMessage(getMessageBuilder(sender)
+                .excludedList(excludedPlayerNames));
     }
 
     public void sendToAllPlayers(@NotNull TextComponent component) {
@@ -188,6 +204,8 @@ public final class OutputManager {
 
         standardMessages.put(RELOADED_CONFIG, MessageBuilder::reloadedConfig);
         standardMessages.put(STILL_RELOADING, MessageBuilder::stillReloading);
+        standardMessages.put(EXCLUDE_FAILED, MessageBuilder::excludeFailed);
+        standardMessages.put(INCLUDE_FAILED, MessageBuilder::includeFailed);
         standardMessages.put(MISSING_STAT_NAME, MessageBuilder::missingStatName);
         standardMessages.put(MISSING_PLAYER_NAME, MessageBuilder::missingPlayerName);
         standardMessages.put(WAIT_A_MOMENT, MessageBuilder::waitAMoment);

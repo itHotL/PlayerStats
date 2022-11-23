@@ -8,6 +8,8 @@ package com.artemis.the.gr8.playerstats.core.enums;
 public enum StandardMessage {
     RELOADED_CONFIG,
     STILL_RELOADING,
+    EXCLUDE_FAILED,
+    INCLUDE_FAILED,
     MISSING_STAT_NAME,
     MISSING_PLAYER_NAME,
     WAIT_A_MOMENT,
