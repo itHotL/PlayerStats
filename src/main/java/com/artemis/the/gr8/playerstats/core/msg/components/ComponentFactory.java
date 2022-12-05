@@ -47,7 +47,7 @@ public class ComponentFactory {
     protected TextColor INFO_MSG;  //gold
     protected TextColor INFO_MSG_ACCENT_DARKEST;  //medium_gold
     protected TextColor INFO_MSG_ACCENT_MEDIUM;  //light_gold
-    protected TextColor INFO_MSG_ACCENT_LIGHTEST;  //light_yellow
+    protected TextColor INFO_MSG_ACCENT_LIGHTEST;  //lightest_blue
 
     protected TextColor MSG_HOVER;  //lightest_blue
     protected TextColor MSG_CLICKED;  //light_purple
@@ -70,7 +70,7 @@ public class ComponentFactory {
         INFO_MSG = PluginColor.GOLD.getColor();
         INFO_MSG_ACCENT_DARKEST = PluginColor.MEDIUM_GOLD.getColor();
         INFO_MSG_ACCENT_MEDIUM = PluginColor.LIGHT_GOLD.getColor();
-        INFO_MSG_ACCENT_LIGHTEST = PluginColor.LIGHT_YELLOW.getColor();
+        INFO_MSG_ACCENT_LIGHTEST = PluginColor.LIGHTEST_BLUE.getColor();
 
         MSG_HOVER = PluginColor.LIGHTEST_BLUE.getColor();
         MSG_CLICKED = PluginColor.LIGHT_PURPLE.getColor();
@@ -88,7 +88,7 @@ public class ComponentFactory {
     }
 
     public TextComponent getExampleName() {
-        return text("Artemis_the_gr8").color(INFO_MSG_ACCENT_LIGHTEST);
+        return text("Artemis_the_gr8").color(FEEDBACK_MSG);
     }
 
     /**

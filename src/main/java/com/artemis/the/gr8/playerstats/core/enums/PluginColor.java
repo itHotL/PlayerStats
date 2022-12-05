@@ -53,11 +53,6 @@ public enum PluginColor {
     LIGHT_GOLD (TextColor.fromHexString("#FFEA40")),
 
     /**
-     * A Light Yellow that is used for final accents in the example message (#FFFF8E).
-     */
-    LIGHT_YELLOW (TextColor.fromHexString("#FFFF8E")),
-
-    /**
      * The color of vanilla Minecraft hearts (#FF1313).
      */
     RED (TextColor.fromHexString("#FF1313"));

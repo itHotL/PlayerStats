@@ -39,18 +39,18 @@ public final class ExcludeInfoMessage implements TextComponent {
                 .append(text("add ").color(factory.INFO_MSG_ACCENT_DARKEST)
                         .append(text("{player-name}").color(factory.INFO_MSG_ACCENT_MEDIUM))
                         .hoverEvent(HoverEvent.showText(
-                                text("Excludes this player from /stat results").color(factory.FEEDBACK_MSG))))
+                                text("Excludes this player from /stat results").color(factory.INFO_MSG_ACCENT_LIGHTEST))))
                 .append(Component.newline())
                 .append(factory.bulletPoint()).append(Component.space())
                 .append(text("remove ").color(factory.INFO_MSG_ACCENT_DARKEST)
                         .append(text("{player-name}").color(factory.INFO_MSG_ACCENT_MEDIUM))
                         .hoverEvent(HoverEvent.showText(
-                                text("Includes this player in /stat results again").color(factory.FEEDBACK_MSG))))
+                                text("Includes this player in /stat results again").color(factory.INFO_MSG_ACCENT_LIGHTEST))))
                 .append(Component.newline())
                 .append(factory.bulletPoint()).append(Component.space())
                 .append(text("list").color(factory.INFO_MSG_ACCENT_DARKEST)
                         .hoverEvent(HoverEvent.showText(
-                                text("See a list of all currently excluded players").color(factory.FEEDBACK_MSG))))
+                                text("See a list of all currently excluded players").color(factory.INFO_MSG_ACCENT_LIGHTEST))))
                 .append(Component.newline())
                 .append(Component.newline())
                 .append(text("Excluded players are:")
@@ -63,12 +63,12 @@ public final class ExcludeInfoMessage implements TextComponent {
                 .append(text("not counted for the server total").color(factory.INFO_MSG_ACCENT_MEDIUM))
                 .append(Component.newline())
                 .append(factory.arrow()).append(Component.space())
-                .append(text("hidden").color(factory.INFO_MSG_ACCENT_MEDIUM)
-                        .hoverEvent(HoverEvent.showText(text("All statistics are still stored and tracked by the server, ")
+                .append(text("hidden").color(factory.INFO_MSG_ACCENT_LIGHTEST)
+                        .hoverEvent(HoverEvent.showText(text("All statistics are still stored and tracked by the")
                                 .append(Component.newline())
-                                .append(text("this command does not delete anything"))
-                                .color(factory.FEEDBACK_MSG))))
-                .append(text(", not removed")
+                                .append(text("server, this command does not delete anything!"))
+                                .color(factory.INFO_MSG_ACCENT_LIGHTEST))))
+                .append(text(" - not removed")
                         .color(factory.INFO_MSG_ACCENT_MEDIUM));
     }
 
