@@ -4,6 +4,7 @@ import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.artemis.the.gr8.playerstats.api.StatManager;
 import com.artemis.the.gr8.playerstats.api.StatRequest;
 import com.artemis.the.gr8.playerstats.api.StatResult;
+import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.core.msg.msgutils.FormattingFunction;
 import com.artemis.the.gr8.playerstats.core.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.core.multithreading.ThreadManager;
@@ -85,10 +86,12 @@ public final class RequestManager implements StatManager {
 
     private final class RequestProcessor {
 
+        private static ConfigHandler config;
         private static OutputManager outputManager;
         private static ShareManager shareManager;
 
         public RequestProcessor(OutputManager outputManager) {
+            RequestProcessor.config = ConfigHandler.getInstance();
             RequestProcessor.outputManager = outputManager;
             RequestProcessor.shareManager = ShareManager.getInstance();
         }
@@ -121,7 +124,13 @@ public final class RequestManager implements StatManager {
         }
 
         private int getPlayerStat(@NotNull StatRequest.Settings requestSettings) {
-            OfflinePlayer player = offlinePlayerHandler.getOfflinePlayer(requestSettings.getPlayerName());
+            OfflinePlayer player;
+            if (offlinePlayerHandler.isExcludedPlayer(requestSettings.getPlayerName()) &&
+                    config.allowPlayerLookupsForExcludedPlayers()) {
+                player = offlinePlayerHandler.getExcludedOfflinePlayer(requestSettings.getPlayerName());
+            } else {
+                player = offlinePlayerHandler.getLoadedOfflinePlayer(requestSettings.getPlayerName());
+            }
             return switch (requestSettings.getStatistic().getType()) {
                 case UNTYPED -> player.getStatistic(requestSettings.getStatistic());
                 case ENTITY -> player.getStatistic(requestSettings.getStatistic(), requestSettings.getEntity());

@@ -170,6 +170,7 @@ public final class StatCommand implements CommandExecutor {
                     switch (targetArg) {
                         case "me" -> {
                             if (sender instanceof Player) {
+                                //TODO this is where an excluded player can sneak in
                                 target = Target.PLAYER;
                                 playerName = sender.getName();
                             } else {

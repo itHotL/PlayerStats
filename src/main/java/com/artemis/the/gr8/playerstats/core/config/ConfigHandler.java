@@ -21,7 +21,7 @@ public final class ConfigHandler extends FileHandler {
         super("config.yml");
         config = super.getFileConfiguration();
 
-        configVersion = 6;
+        configVersion = 7;
         checkAndUpdateConfigVersion();
         MyLogger.setDebugLevel(getDebugLevel());
     }
@@ -130,6 +130,14 @@ public final class ConfigHandler extends FileHandler {
      */
     public int getLastPlayedLimit() {
         return config.getInt("number-of-days-since-last-joined", 0);
+    }
+
+    /**
+     * Whether to allow the /stat player command for excluded players.
+     * @return the config setting (default: true)
+     */
+    public boolean allowPlayerLookupsForExcludedPlayers() {
+        return config.getBoolean("allow-player-lookups-for-excluded-players", true);
     }
 
     /**

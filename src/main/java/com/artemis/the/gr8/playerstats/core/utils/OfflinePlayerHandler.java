@@ -132,7 +132,7 @@ public final class OfflinePlayerHandler extends FileHandler {
      * @throws IllegalArgumentException if this player is not on the list
      * of players that should be included in statistic calculations
      */
-    public @NotNull OfflinePlayer getOfflinePlayer(String playerName) throws IllegalArgumentException {
+    public @NotNull OfflinePlayer getLoadedOfflinePlayer(String playerName) throws IllegalArgumentException {
         if (includedPlayerUUIDs.get(playerName) != null) {
             return Bukkit.getOfflinePlayer(includedPlayerUUIDs.get(playerName));
         }
@@ -140,8 +140,15 @@ public final class OfflinePlayerHandler extends FileHandler {
             MyLogger.logWarning("Cannot calculate statistics for player-name: " + playerName +
                     "! Double-check if the name is spelled correctly (including capital letters), " +
                     "or if any of your config settings exclude them");
-            throw new IllegalArgumentException("Cannot convert this player-name into a valid Player to calculate statistics for");
+            throw new IllegalArgumentException("PlayerStats does not know a player by this name");
         }
+    }
+
+    public @NotNull OfflinePlayer getExcludedOfflinePlayer(String playerName) throws IllegalArgumentException {
+        if (excludedPlayerUUIDs.get(playerName) != null) {
+            return Bukkit.getOfflinePlayer(excludedPlayerUUIDs.get(playerName));
+        }
+        throw new IllegalArgumentException("There is no player on the exclude-list with this name");
     }
 
     private void loadOfflinePlayers() {
