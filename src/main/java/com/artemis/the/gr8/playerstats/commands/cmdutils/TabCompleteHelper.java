@@ -6,6 +6,7 @@ import org.bukkit.entity.EntityType;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public final class TabCompleteHelper {
@@ -43,7 +44,7 @@ public final class TabCompleteHelper {
                 .filter(Material::isItem)
                 .filter(item -> item.getMaxDurability() != 0)
                 .map(Material::toString)
-                .map(String::toLowerCase)
+                .map(string -> string.toLowerCase(Locale.ENGLISH))
                 .collect(Collectors.toList());
 
         //the only statistics dealing with entities are killed_entity and entity_killed_by
@@ -51,7 +52,7 @@ public final class TabCompleteHelper {
                 .parallel()
                 .filter(EntityType::isAlive)
                 .map(EntityType::toString)
-                .map(String::toLowerCase)
+                .map(string -> string.toLowerCase(Locale.ENGLISH))
                 .collect(Collectors.toList());
     }
 }

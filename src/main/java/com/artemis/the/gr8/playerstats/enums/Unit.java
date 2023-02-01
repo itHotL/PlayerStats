@@ -3,6 +3,8 @@ package com.artemis.the.gr8.playerstats.enums;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+
 /**
  * All the units PlayerStats can display statistics in, separated
  * by {@link Unit.Type}.
@@ -131,15 +133,6 @@ public enum Unit {
         };
     }
 
-    /**
-     * Gets the Unit corresponding to the given String. This String
-     * does not need to match exactly (it can be "day" or "days",
-     * for example), and is case-insensitive.
-     *
-     * @param unitName the name belonging to the desired Unit,
-     *                 case-insensitive
-     * @return the Unit
-     */
     /** Converts the current Unit into a short label (and returns a '?' if the current Unit is not of Type TIME)*/
     public char getShortLabel(){
         return switch (this) {
@@ -155,7 +148,7 @@ public enum Unit {
      match exactly (it can be "day" or "days", for example), and is case-insensitive.
      @param unitName an approximation of the name belonging to the desired Unit, case-insensitive */
     public static @NotNull Unit fromString(@NotNull String unitName) {
-        return switch (unitName.toLowerCase()) {
+        return switch (unitName.toLowerCase(Locale.ENGLISH)) {
             case "cm" -> Unit.CM;
             case "m", "block", "blocks" -> Unit.BLOCK;
             case "mile", "miles" -> Unit.MILE;
@@ -179,7 +172,7 @@ public enum Unit {
      * @return the Type of this Unit
      */
     public static @NotNull Type getTypeFromStatistic(Statistic statistic) {
-        String name = statistic.toString().toLowerCase();
+        String name = statistic.toString().toLowerCase(Locale.ENGLISH);
         if (name.contains("one_cm")) {
             return Type.DISTANCE;
         } else if (name.contains("damage")) {
