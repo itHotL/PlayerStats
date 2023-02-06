@@ -13,6 +13,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public final class TabCompleter implements org.bukkit.command.TabCompleter {
@@ -104,7 +105,7 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
      */
     private List<String> getDynamicTabSuggestions(@NotNull List<String> completeList, String currentArg) {
         return completeList.stream()
-                .filter(item -> item.toLowerCase().contains(currentArg.toLowerCase()))
+                .filter(item -> item.toLowerCase(Locale.ENGLISH).contains(currentArg.toLowerCase(Locale.ENGLISH)))
                 .collect(Collectors.toList());
     }
 
@@ -147,7 +148,7 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
                 .filter(Material::isItem)
                 .filter(item -> item.getMaxDurability() != 0)
                 .map(Material::toString)
-                .map(String::toLowerCase)
+                .map(string -> string.toLowerCase(Locale.ENGLISH))
                 .collect(Collectors.toList());
 
         //the only statistics dealing with entities are killed_entity and entity_killed_by
@@ -155,7 +156,7 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
                 .parallel()
                 .filter(EntityType::isAlive)
                 .map(EntityType::toString)
-                .map(String::toLowerCase)
+                .map(string -> string.toLowerCase(Locale.ENGLISH))
                 .collect(Collectors.toList());
     }
 }

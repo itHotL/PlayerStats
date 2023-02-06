@@ -2,6 +2,7 @@ package com.artemis.the.gr8.playerstats.core.msg.msgutils;
 
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +30,7 @@ public final class StringUtils {
         if (input == null) return null;
         MyLogger.logHighLevelMsg("Prettifying [" + input + "]");
 
-        StringBuilder capitals = new StringBuilder(input.toLowerCase());
+        StringBuilder capitals = new StringBuilder(input.toLowerCase(Locale.ENGLISH));
         capitals.setCharAt(0, Character.toUpperCase(capitals.charAt(0)));
 
         while (capitals.indexOf("_") != -1) {
