@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public final class TabCompleter implements org.bukkit.command.TabCompleter {
@@ -88,7 +89,7 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
 
     private List<String> getTabSuggestions(List<String> completeList, String currentArg) {
         return completeList.stream()
-                .filter(item -> item.toLowerCase().contains(currentArg.toLowerCase()))
+                .filter(item -> item.toLowerCase(Locale.ENGLISH).contains(currentArg.toLowerCase(Locale.ENGLISH)))
                 .collect(Collectors.toList());
     }
 

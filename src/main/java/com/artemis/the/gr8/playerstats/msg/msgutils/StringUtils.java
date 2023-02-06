@@ -2,6 +2,8 @@ package com.artemis.the.gr8.playerstats.msg.msgutils;
 
 import com.artemis.the.gr8.playerstats.utils.MyLogger;
 
+import java.util.Locale;
+
 /**
  * A small utility class that helps make enum constant
  * names prettier for output in stat-messages.
@@ -18,7 +20,7 @@ public final class StringUtils {
      */
     public static String prettify(String input) {
         if (input == null) return null;
-        StringBuilder capitals = new StringBuilder(input.toLowerCase());
+        StringBuilder capitals = new StringBuilder(input.toLowerCase(Locale.ENGLISH));
         capitals.setCharAt(0, Character.toUpperCase(capitals.charAt(0)));
         while (capitals.indexOf("_") != -1) {
             MyLogger.logHighLevelMsg("Replacing underscores and capitalizing names...");

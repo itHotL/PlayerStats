@@ -16,6 +16,7 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 
 /**
  *
@@ -239,8 +240,8 @@ public final class LanguageKeyHandler {
      */
     public @Nullable String getBlockKey(Material block) {
         if (block == null) return null;
-        else if (block.toString().toLowerCase().contains("wall_banner")) {  //replace wall_banner with regular banner, since there is no key for wall banners
-            String blockName = block.toString().toLowerCase().replace("wall_", "");
+        else if (block.toString().toLowerCase(Locale.ENGLISH).contains("wall_banner")) {  //replace wall_banner with regular banner, since there is no key for wall banners
+            String blockName = block.toString().toLowerCase(Locale.ENGLISH).replace("wall_", "");
             Material newBlock = EnumHandler.getBlockEnum(blockName);
             return (newBlock != null) ? "block.minecraft." + newBlock.getKey().getKey() : null;
         }
@@ -264,7 +265,7 @@ public final class LanguageKeyHandler {
     private @NotNull HashMap<Statistic, String> generateStatNameKeys() {
         //get the enum names for all statistics first
         HashMap<Statistic, String> statNames = new HashMap<>(Statistic.values().length);
-        Arrays.stream(Statistic.values()).forEach(statistic -> statNames.put(statistic, statistic.toString().toLowerCase()));
+        Arrays.stream(Statistic.values()).forEach(statistic -> statNames.put(statistic, statistic.toString().toLowerCase(Locale.ENGLISH)));
 
         //replace the ones for which the language key is different from the enum name
         statNames.put(Statistic.ARMOR_CLEANED, "clean_armor");
