@@ -37,6 +37,7 @@ public final class StatCommand implements CommandExecutor {
     private static OutputManager outputManager;
     private final ConfigHandler config;
     private final EnumHandler enumHandler;
+    private final OfflinePlayerHandler offlinePlayerHandler;
 
     public StatCommand(OutputManager outputManager, ThreadManager threadManager) {
         StatCommand.threadManager = threadManager;
@@ -44,6 +45,7 @@ public final class StatCommand implements CommandExecutor {
 
         config = ConfigHandler.getInstance();
         enumHandler = EnumHandler.getInstance();
+        offlinePlayerHandler = OfflinePlayerHandler.getInstance();
     }
 
     @Override
@@ -59,11 +61,10 @@ public final class StatCommand implements CommandExecutor {
         }
         else {
             ArgProcessor processor = new ArgProcessor(sender, args);
-            if (processor.request != null) {
+            if (processor.request != null && processor.request.isValid()) {
                 threadManager.startStatThread(processor.request);
             } else {
                 sendFeedback(sender, processor);
-                return false;
             }
         }
         return true;
@@ -89,8 +90,13 @@ public final class StatCommand implements CommandExecutor {
         if (processor.statistic == null) {
             outputManager.sendFeedbackMsg(sender, StandardMessage.MISSING_STAT_NAME);
         }
-        else if (processor.target == Target.PLAYER && processor.playerName == null) {
-            outputManager.sendFeedbackMsg(sender, StandardMessage.MISSING_PLAYER_NAME);
+        else if (processor.target == Target.PLAYER) {
+            if (processor.playerName == null) {
+                outputManager.sendFeedbackMsg(sender, StandardMessage.MISSING_PLAYER_NAME);
+            } else if (offlinePlayerHandler.isExcludedPlayer(processor.playerName) &&
+                    !config.allowPlayerLookupsForExcludedPlayers()) {
+                outputManager.sendFeedbackMsg(sender, StandardMessage.PLAYER_IS_EXCLUDED);
+            }
         }
         else {
             Statistic.Type type = processor.statistic.getType();
@@ -170,7 +176,6 @@ public final class StatCommand implements CommandExecutor {
                     switch (targetArg) {
                         case "me" -> {
                             if (sender instanceof Player) {
-                                //TODO this is where an excluded player can sneak in
                                 target = Target.PLAYER;
                                 playerName = sender.getName();
                             } else {
@@ -248,10 +253,8 @@ public final class StatCommand implements CommandExecutor {
 
         @Contract(pure = true)
         private @Nullable String tryToFindPlayerName(@NotNull String[] args) {
-            OfflinePlayerHandler offlinePlayerHandler = OfflinePlayerHandler.getInstance();
-
             for (String arg : args) {
-                if (offlinePlayerHandler.isLoadedPlayer(arg)) {
+                if (offlinePlayerHandler.isIncludedPlayer(arg) || offlinePlayerHandler.isExcludedPlayer(arg)) {
                     return arg;
                 }
             }

@@ -58,7 +58,7 @@ public final class ThreadManager {
     public static @NotNull StatAction getStatAction(StatRequest.Settings requestSettings) {
         OfflinePlayerHandler offlinePlayerHandler = OfflinePlayerHandler.getInstance();
 
-        ImmutableList<String> relevantPlayerNames = ImmutableList.copyOf(offlinePlayerHandler.getLoadedOfflinePlayerNames());
+        ImmutableList<String> relevantPlayerNames = ImmutableList.copyOf(offlinePlayerHandler.getIncludedOfflinePlayerNames());
         ConcurrentHashMap<String, Integer> resultingStatNumbers = new ConcurrentHashMap<>(relevantPlayerNames.size());
         StatAction task = new StatAction(relevantPlayerNames, requestSettings, resultingStatNumbers);
 

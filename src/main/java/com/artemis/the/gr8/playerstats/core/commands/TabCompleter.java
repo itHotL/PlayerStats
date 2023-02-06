@@ -54,7 +54,7 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
         }
         else if (args.length == 2) {
             tabSuggestions = switch (args[0]) {
-                case "add" -> offlinePlayerHandler.getLoadedOfflinePlayerNames();
+                case "add" -> offlinePlayerHandler.getIncludedOfflinePlayerNames();
                 case "remove" -> offlinePlayerHandler.getExcludedPlayerNames();
                 default -> tabSuggestions;
             };
@@ -86,7 +86,7 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
                     tabSuggestions = statCommandTargets;  //if arg before "player" was entity-sub-stat, suggest targets
                 }
                 else {  //otherwise "player" is the target: suggest playerNames
-                    tabSuggestions = offlinePlayerHandler.getLoadedOfflinePlayerNames();
+                    tabSuggestions = offlinePlayerHandler.getIncludedOfflinePlayerNames();
                 }
             }
 

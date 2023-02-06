@@ -60,7 +60,7 @@ public final class OfflinePlayerHandler extends FileHandler {
      * @param playerName String (case-sensitive)
      * @return true if this player is included
      */
-    public boolean isLoadedPlayer(String playerName) {
+    public boolean isIncludedPlayer(String playerName) {
         return includedPlayerUUIDs.containsKey(playerName);
     }
 
@@ -72,8 +72,8 @@ public final class OfflinePlayerHandler extends FileHandler {
         return excludedPlayerUUIDs.containsValue(uniqueID);
     }
 
-    public boolean addLoadedPlayerToExcludeList(String playerName) {
-        if (isLoadedPlayer(playerName)) {
+    public boolean addPlayerToExcludeList(String playerName) {
+        if (isIncludedPlayer(playerName)) {
             UUID uuid = includedPlayerUUIDs.get(playerName);
 
             super.writeEntryToList("excluded", uuid.toString());
@@ -84,8 +84,7 @@ public final class OfflinePlayerHandler extends FileHandler {
         return false;
     }
 
-    public boolean addExcludedPlayerToLoadedList(String playerName) {
-        //this only includes explicitly excluded players
+    public boolean removePlayerFromExcludeList(String playerName) {
         if (isExcludedPlayer(playerName)) {
             UUID uuid = excludedPlayerUUIDs.get(playerName);
 
@@ -109,7 +108,7 @@ public final class OfflinePlayerHandler extends FileHandler {
      * @return the ArrayList
      */
     @Contract(" -> new")
-    public @NotNull ArrayList<String> getLoadedOfflinePlayerNames() {
+    public @NotNull ArrayList<String> getIncludedOfflinePlayerNames() {
         return Collections.list(includedPlayerUUIDs.keys());
     }
 
@@ -119,7 +118,7 @@ public final class OfflinePlayerHandler extends FileHandler {
      *
      * @return the number of included OfflinePlayers
      */
-    public int getOfflinePlayerCount() {
+    public int getIncludedPlayerCount() {
         return includedPlayerUUIDs.size();
     }
 
@@ -132,7 +131,7 @@ public final class OfflinePlayerHandler extends FileHandler {
      * @throws IllegalArgumentException if this player is not on the list
      * of players that should be included in statistic calculations
      */
-    public @NotNull OfflinePlayer getLoadedOfflinePlayer(String playerName) throws IllegalArgumentException {
+    public @NotNull OfflinePlayer getIncludedOfflinePlayer(String playerName) throws IllegalArgumentException {
         if (includedPlayerUUIDs.get(playerName) != null) {
             return Bukkit.getOfflinePlayer(includedPlayerUUIDs.get(playerName));
         }

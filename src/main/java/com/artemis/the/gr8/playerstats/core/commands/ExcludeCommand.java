@@ -37,14 +37,14 @@ public final class ExcludeCommand implements CommandExecutor {
         else {
             switch (args[0]) {
                 case "add" -> {
-                    if (offlinePlayerHandler.addLoadedPlayerToExcludeList(args[1])) {
+                    if (offlinePlayerHandler.addPlayerToExcludeList(args[1])) {
                         outputManager.sendFeedbackMsgPlayerExcluded(sender, args[1]);
                     } else {
                         outputManager.sendFeedbackMsg(sender, StandardMessage.EXCLUDE_FAILED);
                     }
                 }
                 case "remove" -> {
-                    if (offlinePlayerHandler.addExcludedPlayerToLoadedList(args[1])) {
+                    if (offlinePlayerHandler.removePlayerFromExcludeList(args[1])) {
                         outputManager.sendFeedbackMsgPlayerIncluded(sender, args[1]);
                     } else {
                         outputManager.sendFeedbackMsg(sender, StandardMessage.INCLUDE_FAILED);

@@ -147,6 +147,10 @@ public final class MessageBuilder implements StatTextFormatter {
         return composePluginMessage("Please specify a valid player-name!");
     }
 
+    public @NotNull TextComponent playerIsExcluded() {
+        return composePluginMessage("This player is excluded from /stat results!");
+    }
+
     public @NotNull TextComponent wrongSubStatType(String statType, String subStatName) {
         return componentFactory.pluginPrefix()
                 .append(space())

@@ -208,6 +208,7 @@ public final class OutputManager {
         standardMessages.put(INCLUDE_FAILED, MessageBuilder::includeFailed);
         standardMessages.put(MISSING_STAT_NAME, MessageBuilder::missingStatName);
         standardMessages.put(MISSING_PLAYER_NAME, MessageBuilder::missingPlayerName);
+        standardMessages.put(PLAYER_IS_EXCLUDED, MessageBuilder::playerIsExcluded);
         standardMessages.put(WAIT_A_MOMENT, MessageBuilder::waitAMoment);
         standardMessages.put(WAIT_A_MINUTE, MessageBuilder::waitAMinute);
         standardMessages.put(REQUEST_ALREADY_RUNNING, MessageBuilder::requestAlreadyRunning);

@@ -1,6 +1,8 @@
 package com.artemis.the.gr8.playerstats.api;
 
 import com.artemis.the.gr8.playerstats.api.enums.Target;
+import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
+import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
@@ -33,14 +35,10 @@ public abstract class StatRequest<T> {
   public boolean isValid() {
     if (settings.statistic == null) {
       return false;
-    } else if (settings.target == Target.PLAYER && settings.playerName == null) {
+    } else if (!hasValidTarget()) {
       return false;
-    } else if (settings.statistic.getType() != Statistic.Type.UNTYPED &&
-            settings.subStatEntryName == null) {
-      return false;
-    } else {
-      return hasMatchingSubStat();
     }
+    return hasMatchingSubStat();
   }
 
   protected void configureForPlayer(String playerName) {
@@ -86,6 +84,24 @@ public abstract class StatRequest<T> {
     this.settings.statistic = statistic;
     this.settings.entity = entityType;
     this.settings.subStatEntryName = entityType.toString();
+  }
+
+  private boolean hasValidTarget() {
+    if (settings.target == null) {
+      return false;
+    }
+    else if (settings.target == Target.PLAYER) {
+      OfflinePlayerHandler offlinePlayerHandler = OfflinePlayerHandler.getInstance();
+
+      if (settings.playerName == null) {
+        return false;
+      } else if (offlinePlayerHandler.isExcludedPlayer(settings.playerName)) {
+        return ConfigHandler.getInstance().allowPlayerLookupsForExcludedPlayers();
+      } else {
+        return (offlinePlayerHandler.isIncludedPlayer(settings.playerName));
+      }
+    }
+    return true;
   }
 
   private boolean hasMatchingSubStat() {

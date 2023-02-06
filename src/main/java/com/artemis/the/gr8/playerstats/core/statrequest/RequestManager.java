@@ -75,7 +75,7 @@ public final class RequestManager implements StatManager {
 
     @Override
     public @NotNull RequestGenerator<LinkedHashMap<String, Integer>> createTotalTopStatRequest() {
-        int playerCount = offlinePlayerHandler.getOfflinePlayerCount();
+        int playerCount = offlinePlayerHandler.getIncludedPlayerCount();
         return createTopStatRequest(playerCount);
     }
 
@@ -129,7 +129,7 @@ public final class RequestManager implements StatManager {
                     config.allowPlayerLookupsForExcludedPlayers()) {
                 player = offlinePlayerHandler.getExcludedOfflinePlayer(requestSettings.getPlayerName());
             } else {
-                player = offlinePlayerHandler.getLoadedOfflinePlayer(requestSettings.getPlayerName());
+                player = offlinePlayerHandler.getIncludedOfflinePlayer(requestSettings.getPlayerName());
             }
             return switch (requestSettings.getStatistic().getType()) {
                 case UNTYPED -> player.getStatistic(requestSettings.getStatistic());
