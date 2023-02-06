@@ -12,9 +12,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Locale;
 
 /**
  *
@@ -45,7 +45,6 @@ public final class LanguageKeyHandler extends FileHandler {
             }
             return instance;
         }
-        languageKeys = YamlConfiguration.loadConfiguration(languageKeyFile);
     }
 
     @Contract(pure = true)
@@ -239,7 +238,7 @@ public final class LanguageKeyHandler extends FileHandler {
         if (block == null) return null;
         else if (block.toString().toLowerCase(Locale.ENGLISH).contains("wall_banner")) {  //replace wall_banner with regular banner, since there is no key for wall banners
             String blockName = block.toString().toLowerCase(Locale.ENGLISH).replace("wall_", "");
-            Material newBlock = EnumHandler.getBlockEnum(blockName);
+            Material newBlock = EnumHandler.getInstance().getBlockEnum(blockName);
             return (newBlock != null) ? "block.minecraft." + newBlock.getKey().getKey() : null;
         }
         else {
