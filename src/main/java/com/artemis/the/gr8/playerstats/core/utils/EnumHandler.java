@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -95,7 +96,7 @@ public final class EnumHandler {
      */
     public @Nullable EntityType getEntityEnum(String entityName) {
         try {
-            return EntityType.valueOf(entityName.toUpperCase());
+            return EntityType.valueOf(entityName.toUpperCase(Locale.ENGLISH));
         }
         catch (IllegalArgumentException | NullPointerException e) {
             return null;
@@ -124,7 +125,7 @@ public final class EnumHandler {
      */
     public @Nullable Statistic getStatEnum(@NotNull String statName)  {
         try {
-            return Statistic.valueOf(statName.toUpperCase());
+            return Statistic.valueOf(statName.toUpperCase(Locale.ENGLISH));
         }
         catch (IllegalArgumentException e) {
             return null;
@@ -138,7 +139,7 @@ public final class EnumHandler {
      * @return true if this String is a valid Statistic
      */
     public boolean isStatistic(@NotNull String statName) {
-        return statNames.contains(statName.toLowerCase());
+        return statNames.contains(statName.toLowerCase(Locale.ENGLISH));
     }
 
     /**
@@ -162,7 +163,7 @@ public final class EnumHandler {
      * of Type.Untyped
      */
     public boolean isSubStatEntry(@NotNull String statName) {
-        return subStatNames.contains(statName.toLowerCase());
+        return subStatNames.contains(statName.toLowerCase(Locale.ENGLISH));
     }
 
     /**
@@ -186,20 +187,20 @@ public final class EnumHandler {
     private void prepareLists() {
         List<String> entityNames = Arrays.stream(EntityType.values())
                 .map(EntityType::toString)
-                .map(String::toLowerCase)
+                .map(string -> string.toLowerCase(Locale.ENGLISH))
                 .filter(entityName -> !entityName.equalsIgnoreCase("unknown"))
                 .collect(Collectors.toList());
 
         blockNames = Arrays.stream(Material.values())
                 .filter(Material::isBlock)
                 .map(Material::toString)
-                .map(String::toLowerCase)
+                .map(string -> string.toLowerCase(Locale.ENGLISH))
                 .collect(Collectors.toList());
 
         itemNames = Arrays.stream(Material.values())
                 .filter(Material::isItem)
                 .map(Material::toString)
-                .map(String::toLowerCase)
+                .map(string -> string.toLowerCase(Locale.ENGLISH))
                 .collect(Collectors.toList());
 
         subStatNames = Stream.of(blockNames, entityNames, itemNames)
@@ -209,7 +210,7 @@ public final class EnumHandler {
 
         statNames = Arrays.stream(Statistic.values())
                 .map(Statistic::toString)
-                .map(String::toLowerCase)
+                .map(string -> string.toLowerCase(Locale.ENGLISH))
                 .collect(Collectors.toList());
     }
 }
