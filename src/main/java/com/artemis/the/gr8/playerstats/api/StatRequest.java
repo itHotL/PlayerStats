@@ -1,8 +1,6 @@
 package com.artemis.the.gr8.playerstats.api;
 
 import com.artemis.the.gr8.playerstats.api.enums.Target;
-import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
-import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.CommandSender;
@@ -24,21 +22,14 @@ public abstract class StatRequest<T> {
     settings = new Settings(requester);
   }
 
+  public abstract boolean isValid();
+
   /**
    * Use this method to view the settings that have
    * been configured for this StatRequest.
    */
   public Settings getSettings() {
     return settings;
-  }
-
-  public boolean isValid() {
-    if (settings.statistic == null) {
-      return false;
-    } else if (!hasValidTarget()) {
-      return false;
-    }
-    return hasMatchingSubStat();
   }
 
   protected void configureForPlayer(String playerName) {
@@ -86,25 +77,11 @@ public abstract class StatRequest<T> {
     this.settings.subStatEntryName = entityType.toString();
   }
 
-  private boolean hasValidTarget() {
-    if (settings.target == null) {
+  protected boolean hasMatchingSubStat() {
+    if (settings.statistic == null) {
       return false;
     }
-    else if (settings.target == Target.PLAYER) {
-      OfflinePlayerHandler offlinePlayerHandler = OfflinePlayerHandler.getInstance();
 
-      if (settings.playerName == null) {
-        return false;
-      } else if (offlinePlayerHandler.isExcludedPlayer(settings.playerName)) {
-        return ConfigHandler.getInstance().allowPlayerLookupsForExcludedPlayers();
-      } else {
-        return (offlinePlayerHandler.isIncludedPlayer(settings.playerName));
-      }
-    }
-    return true;
-  }
-
-  private boolean hasMatchingSubStat() {
     switch (settings.statistic.getType()) {
       case BLOCK -> {
         return settings.block != null;
@@ -140,7 +117,6 @@ public abstract class StatRequest<T> {
     private Settings(@NotNull CommandSender sender) {
         this.sender = sender;
     }
-
 
     public @NotNull CommandSender getCommandSender() {
       return sender;

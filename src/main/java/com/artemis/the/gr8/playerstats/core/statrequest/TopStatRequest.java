@@ -23,6 +23,11 @@ public final class TopStatRequest extends StatRequest<LinkedHashMap<String, Inte
     }
 
     @Override
+    public boolean isValid() {
+        return super.hasMatchingSubStat();
+    }
+
+    @Override
     public StatRequest<LinkedHashMap<String, Integer>> untyped(@NotNull Statistic statistic) {
         super.configureUntyped(statistic);
         return this;

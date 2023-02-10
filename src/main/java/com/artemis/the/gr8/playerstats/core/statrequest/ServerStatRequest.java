@@ -22,6 +22,11 @@ public final class ServerStatRequest extends StatRequest<Long> implements Reques
     }
 
     @Override
+    public boolean isValid() {
+        return super.hasMatchingSubStat();
+    }
+
+    @Override
     public StatRequest<Long> untyped(@NotNull Statistic statistic) {
         super.configureUntyped(statistic);
         return this;
