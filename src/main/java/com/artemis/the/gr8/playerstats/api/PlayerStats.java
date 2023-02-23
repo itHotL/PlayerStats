@@ -29,13 +29,13 @@ public interface PlayerStats {
     }
 
     /**
-     * Gets the current version of PlayerStatsAPI.
-     * Use this method to ensure the correct version of
-     * PlayerStats is running on the server before
-     * accessing further API methods, to prevent
-     * <code>ClassDefNotFoundExceptions</code>.
+     * Gets the version number of the PlayerStats API
+     * that's present for this instance of PlayerStats.
+     * This number equals the major version number
+     * of PlayerStats. For v1.7.2, for example,
+     * the API version will be 1.
      *
-     * @return the version of PlayerStatsAPI present on the server
+     * @return the API version number
      */
     String getVersion();
 

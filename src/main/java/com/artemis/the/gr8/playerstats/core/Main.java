@@ -166,10 +166,9 @@ public final class Main extends JavaPlugin implements PlayerStats {
         }.runTaskLaterAsynchronously(this, 200);
     }
 
-    @Contract(pure = true)
     @Override
     public @NotNull String getVersion() {
-        return "1.8";
+        return String.valueOf(this.getDescription().getVersion().charAt(0));
     }
 
     @Override
