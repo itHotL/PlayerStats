@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 /**
  * Turns user input into a {@link StatRequest} that can be
- * used to get statistic data.
+ * executed to get statistic data.
  */
 public final class RequestManager implements StatManager {
 
@@ -43,6 +43,11 @@ public final class RequestManager implements StatManager {
             case SERVER -> processor.processServerRequest(request.getSettings());
             case TOP -> processor.processTopRequest(request.getSettings());
         };
+    }
+
+    @Override
+    public boolean isExcludedPlayer(String playerName) {
+        return offlinePlayerHandler.isExcludedPlayer(playerName);
     }
 
     @Contract("_ -> new")

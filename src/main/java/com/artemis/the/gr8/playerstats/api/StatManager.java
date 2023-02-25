@@ -4,6 +4,16 @@ import java.util.LinkedHashMap;
 
 public interface StatManager {
 
+    /** Checks if the player belonging to this name
+     * is on PlayerStats' exclude-list (meaning this
+     * player is not counted for the server total, and
+     * does not show in top results).
+     *
+     * @param playerName the name of the player to check
+     * @return true if this player is on the exclude-list
+     */
+    boolean isExcludedPlayer(String playerName);
+
     /** Gets a RequestGenerator that can be used to create a PlayerStatRequest.
      * This RequestGenerator will make sure all default settings
      * for a player-statistic-lookup are configured.
