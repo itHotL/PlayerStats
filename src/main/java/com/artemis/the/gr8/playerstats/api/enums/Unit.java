@@ -185,10 +185,12 @@ public enum Unit {
     }
 
     /**
-     * Gets the most suitable Unit for this number.
+     * Gets the largest Unit this number can be expressed in as a whole number.
+     * For example, for Type TIME a value of 80.000 would return Unit.HOUR
+     * (80.000 ticks equals 4.000 seconds, 67 minutes, or 1 hour)
      *
-     * @param type the Unit.Type of the statistic this number belongs to
-     * @param number the statistic number as returned by Player.getStatistic()
+     * @param type the Unit.Type of this statistic
+     * @param number the statistic value in ticks as returned by Player.getStatistic()
      * @return the Unit
      */
     public static Unit getMostSuitableUnit(Unit.Type type, long number) {
