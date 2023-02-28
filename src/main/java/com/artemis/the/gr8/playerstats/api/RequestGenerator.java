@@ -1,7 +1,5 @@
 package com.artemis.the.gr8.playerstats.api;
 
-import com.artemis.the.gr8.playerstats.statistic.StatCalculator;
-import com.artemis.the.gr8.playerstats.statistic.request.StatRequest;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
@@ -9,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Creates an executable {@link StatRequest}. This Request holds all
- * the information PlayerStats needs to work with, and is used by the {@link StatCalculator}
+ * the information PlayerStats needs to work with, and is used
  * to get the desired statistic data.
  */
 public interface RequestGenerator<T> {

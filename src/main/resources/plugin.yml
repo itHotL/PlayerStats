@@ -1,6 +1,6 @@
-main: com.artemis.the.gr8.playerstats.Main
+main: com.artemis.the.gr8.playerstats.core.Main
 name: PlayerStats
-version: 1.8
+version: 2.0
 api-version: 1.13
 description: adds commands to view player statistics in chat
 author: Artemis_the_gr8
@@ -11,22 +11,31 @@ commands:
     aliases:
       - stat
       - stats
-    description: general statistic command
+    description: show player statistics in private chat
+    usage: "§6/stat info"
     permission: playerstats.stat
   statisticshare:
     aliases:
       - statshare
       - statsshare
-    description: shares last stat lookup in chat
-    usage: "§b/statshare"
+    description: share last stat lookup in chat
+    usage: "§6/This command can only be executed by clicking the \"share\" button in /stat results. 
+    If you don't see this button, you don't have share-permission, or sharing is turned off."
     permission: playerstats.share
   statisticreload:
     aliases:
       - statreload
       - statsreload
     description: reloads the config
-    usage: "§a/statreload"
+    usage: "§6/statreload"
     permission: playerstats.reload
+  statisticexclude:
+    aliases:
+      - statexclude
+      - statsexclude
+    description: hide this player's statistics from /stat results
+    usage: "§6/statexclude info"
+    permission: playerstats.exclude
 permissions:
   playerstats.stat:
     description: allows usage of /statistic
@@ -34,6 +43,9 @@ permissions:
   playerstats.share:
     description: allows sharing stats in chat
     default: true
+  playerstats.exclude:
+    description: allows usage of /statexclude
+    default: op
   playerstats.reload:
     description: allows usage of /statreload
     default: op

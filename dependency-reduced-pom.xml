@@ -4,7 +4,7 @@
   <groupId>io.github.ithotl</groupId>
   <artifactId>PlayerStats</artifactId>
   <name>PlayerStats</name>
-  <version>1.8</version>
+  <version>2.0</version>
   <description>Statistics Plugin</description>
   <url>https://www.spigotmc.org/resources/playerstats.102347/</url>
   <developers>
@@ -49,7 +49,7 @@
         <configuration>
           <transformers>
             <transformer>
-              <mainClass>com.artemis.the.gr8.playerstats.Main</mainClass>
+              <mainClass>com.artemis.the.gr8.playerstats.core.Main</mainClass>
             </transformer>
           </transformers>
           <artifactSet>
@@ -60,15 +60,15 @@
           <relocations>
             <relocation>
               <pattern>net.kyori</pattern>
-              <shadedPattern>com.artemis.the.gr8.lib.kyori</shadedPattern>
+              <shadedPattern>com.artemis.the.gr8.playerstats.lib.kyori</shadedPattern>
             </relocation>
             <relocation>
               <pattern>com.tchristofferson</pattern>
-              <shadedPattern>com.artemis.the.gr8.util.tchristofferson</shadedPattern>
+              <shadedPattern>com.artemis.the.gr8.playerstats.lib.tchristofferson</shadedPattern>
             </relocation>
             <relocation>
               <pattern>org.bstats</pattern>
-              <shadedPattern>com.artemis.the.gr8.util.bstats</shadedPattern>
+              <shadedPattern>com.artemis.the.gr8.playerstats.lib.bstats</shadedPattern>
             </relocation>
           </relocations>
           <filters>
@@ -107,7 +107,7 @@
         <executions>
           <execution>
             <id>attach-sources</id>
-            <phase>deploy</phase>
+            <phase>verify</phase>
             <goals>
               <goal>jar-no-fork</goal>
             </goals>
@@ -120,7 +120,7 @@
         <executions>
           <execution>
             <id>sign-artifacts</id>
-            <phase>deploy</phase>
+            <phase>verify</phase>
             <goals>
               <goal>sign</goal>
             </goals>
@@ -133,7 +133,7 @@
         <executions>
           <execution>
             <id>attach-javadocs</id>
-            <phase>deploy</phase>
+            <phase>verify</phase>
             <goals>
               <goal>jar</goal>
             </goals>

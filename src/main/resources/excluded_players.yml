@@ -1,0 +1,14 @@
+# ------------------------------------------------------------------------------------------------------ #
+#                                    PlayerStats Excluded Players                                        #
+# ------------------------------------------------------------------------------------------------------ #
+
+# Players whose UUIDs are stored in this file, will be hidden from /statistic results.
+# This can be used to exclude alt accounts, for example.
+# To exclude groups of players (such as banned players), see the config.yml (section 'General')
+
+# UUIDs can be added directly to this file, or through the /statexclude command in game.
+# Format:
+#  - player1UUID
+#  - player2UUID
+excluded:
+  -

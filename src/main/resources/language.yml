@@ -2,6 +2,9 @@
 #                                     PlayerStats Language File                                          #
 # ------------------------------------------------------------------------------------------------------ #
 
+# If "translate-to-client-language" in the config.yml is set to false (section 'Format & Display'),
+# values from this file will be used instead
+
 stat_type.minecraft.mined: "Times Mined"
 stat_type.minecraft.crafted: "Times Crafted"
 stat_type.minecraft.used: "Times Used"

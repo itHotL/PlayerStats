@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------------------------------ #
 #                                     PlayerStats Configuration                                          #
 # ------------------------------------------------------------------------------------------------------ #
-config-version: 6
+config-version: 7
 
 
 #                                # ------------------------------- #                                     #
@@ -32,6 +32,11 @@ exclude-banned-players: false
 # To only show statistics from players that have been online in the last [x] days, set a number for x
 # Leave this on 0 to include all players
 number-of-days-since-last-joined: 0
+
+# Players that are excluded through the previous settings or the excluded-players-file will not
+# show up in top or server statistics. This setting controls whether you can still see their stats with
+# the /stat player command
+allow-player-lookups-for-excluded-players: true
 
 
 #                                # ------------------------------- #                                     #

@@ -6,7 +6,7 @@
 
     <groupId>io.github.ithotl</groupId>
     <artifactId>PlayerStats</artifactId>
-    <version>1.8</version>
+    <version>2.0</version>
 
     <name>PlayerStats</name>
     <description>Statistics Plugin</description>
@@ -141,7 +141,7 @@
                     <transformers>
                         <transformer
                                 implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>com.artemis.the.gr8.playerstats.Main</mainClass>
+                            <mainClass>com.artemis.the.gr8.playerstats.core.Main</mainClass>
                         </transformer>
                     </transformers>
                     <artifactSet>
@@ -152,15 +152,15 @@
                     <relocations>
                         <relocation>
                             <pattern>net.kyori</pattern>
-                            <shadedPattern>com.artemis.the.gr8.lib.kyori</shadedPattern>
+                            <shadedPattern>com.artemis.the.gr8.playerstats.lib.kyori</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>com.tchristofferson</pattern>
-                            <shadedPattern>com.artemis.the.gr8.util.tchristofferson</shadedPattern>
+                            <shadedPattern>com.artemis.the.gr8.playerstats.lib.tchristofferson</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>com.artemis.the.gr8.util.bstats</shadedPattern>
+                            <shadedPattern>com.artemis.the.gr8.playerstats.lib.bstats</shadedPattern>
                         </relocation>
                     </relocations>
                     <filters>
@@ -200,7 +200,7 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <phase>deploy</phase>
+                        <phase>verify</phase>  <!-- change to verify when deploying -->
                         <goals>
                             <goal>jar-no-fork</goal>
                         </goals>
@@ -214,7 +214,7 @@
                 <executions>
                     <execution>
                         <id>sign-artifacts</id>
-                        <phase>deploy</phase>
+                        <phase>verify</phase>  <!-- change to verify when deploying -->
                         <goals>
                             <goal>sign</goal>
                         </goals>
@@ -228,7 +228,7 @@
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
-                        <phase>deploy</phase>
+                        <phase>verify</phase>  <!-- change to verify when deploying -->
                         <goals>
                             <goal>jar</goal>
                         </goals>
