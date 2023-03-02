@@ -59,6 +59,7 @@ top-10 format or individually. Currently tested on all versions between **1.16.5
         ![Translated](src/main/resources/images/translated.png)   
       - Only show statistics for **whitelisted** players
       - Exclude statistics from **banned** players
+      - Exclude statistics from specific players with `/statexclude`
       - Limit who is allowed to **share statistics** in chat and how often players can share
       - Limit statistics based on when a player **last joined**.  
         This option can be particularly useful if you have had a lot of players join your server in the past
@@ -71,6 +72,7 @@ top-10 format or individually. Currently tested on all versions between **1.16.5
       - `playerstats.stat` for using the general command (true for everyone by default)
       - `playerstats.share` for sharing statistics in chat (true for everyone by default)
       - `playerstats.reload` for reloading the config (only for OP players by default)
+      - `playerstats.exclude` to exclude players from top- and server-statistics (only for OP players by default)
 
 &nbsp;
 
@@ -94,7 +96,7 @@ To import the PlayerStats API with Maven, add the following dependency and repos
     </dependency>
 </dependencies>
 ```
-You can download the sources and Javadocs through your code editor, or visit the Javadocs [here](https://s01.oss.sonatype.org/service/local/repositories/snapshots/archive/io/github/ithotl/PlayerStats/1.7.2-SNAPSHOT/PlayerStats-1.7.2-20220820.193831-3-javadoc.jar/!/com/artemis/the/gr8/playerstats/api/PlayerStats.html).  
+You can download the sources and Javadocs through your code editor, or visit the Javadocs [here](https://s01.oss.sonatype.org/service/local/repositories/snapshots/archive/io/github/ithotl/PlayerStats/2.0-SNAPSHOT/PlayerStats-2.0-20230228.110241-1-javadoc.jar/!/com/artemis/the/gr8/playerstats/api/PlayerStats.html).  
 To get an instance of the API, you can do the following:
 
 ```java
