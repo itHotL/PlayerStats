@@ -11,6 +11,8 @@ top-10 format or individually. Currently tested on all versions between **1.16.5
 - Paper
 - Purpur
 
+(It's possible PlayerStats works on other platforms too, but these are the ones I have explicitly tested.)
+
 &nbsp;
 
 ## Features 
