@@ -6,6 +6,8 @@ import com.artemis.the.gr8.playerstats.core.utils.FileHandler;
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -21,7 +23,7 @@ public final class ConfigHandler extends FileHandler {
         super("config.yml");
         config = super.getFileConfiguration();
 
-        configVersion = 7;
+        configVersion = 8;
         checkAndUpdateConfigVersion();
         MyLogger.setDebugLevel(getDebugLevel());
     }
@@ -81,6 +83,23 @@ public final class ConfigHandler extends FileHandler {
      */
     public int getDebugLevel() {
         return config.getInt("debug-level", 1);
+    }
+
+    /**
+     * @return whether PlayerStats should use a database (default: true)
+     */
+    public boolean useDatabase() {
+        return config.getBoolean("use-database", true);
+    }
+
+    /**
+     * @return an Array with the config values for the MySQL connection URL,
+     * username and password. Any of these might be null
+     */
+    public String[] getMySQLCredentials() {
+        return new String[]{config.getString("mySQL-connection-URL"),
+                            config.getString("mySQL-username"),
+                            config.getString("mySQL-password")};
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.artemis.the.gr8.playerstats.core.statrequest;
+package com.artemis.the.gr8.playerstats.core.statistic;
 
 import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.artemis.the.gr8.playerstats.api.StatRequest;

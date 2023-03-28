@@ -23,8 +23,12 @@ import java.util.stream.Stream;
 public final class EnumHandler {
 
     private static volatile EnumHandler instance;
+
     private static List<String> blockNames;
     private static List<String> itemNames;
+    private static List<String> itemsThatCanBreak;
+    private static List<String> entityNames;
+    private static List<String> entitiesThatCanDie;
     private static List<String> statNames;
     private static List<String> subStatNames;
 
@@ -47,21 +51,32 @@ public final class EnumHandler {
     }
 
     /**
-     * Returns all block-names in lowercase.
-     *
-     * @return the List
+     * @return a list with blockNames in lowercase
      */
     public List<String> getAllBlockNames() {
         return blockNames;
     }
 
     /**
-     * Returns all item-names in lowercase.
-     *
-     * @return the List
+     * @return a list with itemNames in lowercase
      */
     public List<String> getAllItemNames() {
         return itemNames;
+    }
+
+    public List<String> getAllItemsThatCanBreak() {
+        return itemsThatCanBreak;
+    }
+
+    /**
+     * @return a list with entityNames in lowercase
+     */
+    public List<String> getAllEntityNames() {
+        return entityNames;
+    }
+
+    public List<String> getAllEntitiesThatCanDie() {
+        return entitiesThatCanDie;
     }
 
     /**
@@ -185,12 +200,6 @@ public final class EnumHandler {
     }
 
     private void prepareLists() {
-        List<String> entityNames = Arrays.stream(EntityType.values())
-                .map(EntityType::toString)
-                .map(string -> string.toLowerCase(Locale.ENGLISH))
-                .filter(entityName -> !entityName.equalsIgnoreCase("unknown"))
-                .collect(Collectors.toList());
-
         blockNames = Arrays.stream(Material.values())
                 .filter(Material::isBlock)
                 .map(Material::toString)
@@ -200,6 +209,28 @@ public final class EnumHandler {
         itemNames = Arrays.stream(Material.values())
                 .filter(Material::isItem)
                 .map(Material::toString)
+                .map(string -> string.toLowerCase(Locale.ENGLISH))
+                .collect(Collectors.toList());
+
+        //breaking an item means running its durability negative
+        itemsThatCanBreak = Arrays.stream(Material.values())
+                .parallel()
+                .filter(Material::isItem)
+                .filter(item -> item.getMaxDurability() != 0)
+                .map(Material::toString)
+                .map(string -> string.toLowerCase(Locale.ENGLISH))
+                .collect(Collectors.toList());
+
+        entityNames = Arrays.stream(EntityType.values())
+                .map(EntityType::toString)
+                .map(string -> string.toLowerCase(Locale.ENGLISH))
+                .filter(entityName -> !entityName.equalsIgnoreCase("unknown"))
+                .collect(Collectors.toList());
+
+        entitiesThatCanDie = Arrays.stream(EntityType.values())
+                .parallel()
+                .filter(EntityType::isAlive)
+                .map(EntityType::toString)
                 .map(string -> string.toLowerCase(Locale.ENGLISH))
                 .collect(Collectors.toList());
 

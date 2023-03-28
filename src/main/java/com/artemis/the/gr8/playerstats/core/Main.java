@@ -7,12 +7,12 @@ import com.artemis.the.gr8.playerstats.api.StatManager;
 import com.artemis.the.gr8.playerstats.core.commands.*;
 import com.artemis.the.gr8.playerstats.core.msg.msgutils.NumberFormatter;
 import com.artemis.the.gr8.playerstats.core.multithreading.ThreadManager;
-import com.artemis.the.gr8.playerstats.core.statrequest.RequestManager;
 import com.artemis.the.gr8.playerstats.core.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.core.listeners.JoinListener;
 import com.artemis.the.gr8.playerstats.core.msg.msgutils.LanguageKeyHandler;
 import com.artemis.the.gr8.playerstats.core.sharing.ShareManager;
+import com.artemis.the.gr8.playerstats.core.statistic.StatRequestManager;
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
@@ -41,7 +41,7 @@ public final class Main extends JavaPlugin implements PlayerStats {
     private static LanguageKeyHandler languageKeyHandler;
     private static OfflinePlayerHandler offlinePlayerHandler;
 
-    private static RequestManager requestManager;
+    private static StatRequestManager statManager;
     private static OutputManager outputManager;
     private static ShareManager shareManager;
 
@@ -111,7 +111,7 @@ public final class Main extends JavaPlugin implements PlayerStats {
         shareManager = ShareManager.getInstance();
 
         outputManager = new OutputManager(adventure);
-        requestManager = new RequestManager(outputManager);
+        statManager = new StatRequestManager(outputManager);
         threadManager = new ThreadManager(this, outputManager);
     }
 
@@ -173,7 +173,7 @@ public final class Main extends JavaPlugin implements PlayerStats {
 
     @Override
     public StatManager getStatManager() {
-        return requestManager;
+        return statManager;
     }
 
     @Override
