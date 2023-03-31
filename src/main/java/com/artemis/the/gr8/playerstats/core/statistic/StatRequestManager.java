@@ -4,11 +4,12 @@ import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.artemis.the.gr8.playerstats.api.StatManager;
 import com.artemis.the.gr8.playerstats.api.StatRequest;
 import com.artemis.the.gr8.playerstats.api.StatResult;
+import com.artemis.the.gr8.playerstats.core.Main;
 import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.core.database.Database;
 import com.artemis.the.gr8.playerstats.core.msg.OutputManager;
-import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
+import com.artemis.the.gr8.playerstats.core.utils.Reloadable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,22 +19,36 @@ import java.util.*;
  * Turns user input into a {@link StatRequest} that can be
  * executed to get statistic data.
  */
-public final class StatRequestManager implements StatManager {
+public final class StatRequestManager implements StatManager, Reloadable {
 
     private static RequestProcessor processor;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
-    public StatRequestManager(OutputManager outputManager) {
+    public StatRequestManager() {
         offlinePlayerHandler = OfflinePlayerHandler.getInstance();
+        processor = getProcessor();
+        Main.registerReloadable(this);
+    }
 
+    @Override
+    public void reload() {
+        processor = getProcessor();
+    }
+
+    private @NotNull RequestProcessor getProcessor() {
+        OutputManager outputManager = OutputManager.getInstance();
         ConfigHandler config = ConfigHandler.getInstance();
         if (config.useDatabase()) {
-            String[] mySQLcredentials = config.getMySQLCredentials();
-            MyLogger.logLowLevelMsg(Arrays.toString(mySQLcredentials));
-            processor = new DatabaseProcessor(outputManager, new Database());
-        } else {
-            processor = new BukkitProcessor(outputManager);
+            Database database;
+            String[] credentials = config.getMySQLCredentials();
+            if (credentials.length == 3 & Arrays.stream(credentials).noneMatch(String::isEmpty)) {
+                database = Database.getMySQLDatabase(credentials[0], credentials[1], credentials[2]);
+            } else {
+                database = Database.getSQLiteDatabase(Main.getPluginInstance().getDataFolder());
+            }
+            return new DatabaseProcessor(outputManager, database);
         }
+        return new BukkitProcessor(outputManager);
     }
 
     public static StatResult<?> execute(@NotNull StatRequest<?> request) {

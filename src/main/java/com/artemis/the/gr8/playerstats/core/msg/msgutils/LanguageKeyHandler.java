@@ -1,5 +1,6 @@
 package com.artemis.the.gr8.playerstats.core.msg.msgutils;
 
+import com.artemis.the.gr8.playerstats.core.Main;
 import com.artemis.the.gr8.playerstats.core.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.core.utils.FileHandler;
 import com.artemis.the.gr8.playerstats.api.enums.Unit;
@@ -31,6 +32,7 @@ public final class LanguageKeyHandler extends FileHandler {
         super("language.yml");
         statisticKeys = generateStatisticKeys();
         subStatKey = Pattern.compile("(item|entity|block)\\.minecraft\\.");
+        Main.registerReloadable(this);
     }
 
     public static LanguageKeyHandler getInstance() {

@@ -1,5 +1,6 @@
 package com.artemis.the.gr8.playerstats.core.sharing;
 
+import com.artemis.the.gr8.playerstats.core.Main;
 import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.core.utils.Reloadable;
@@ -37,6 +38,7 @@ public final class ShareManager implements Reloadable {
 
     private ShareManager() {
        reload();
+       Main.registerReloadable(this);
     }
 
     public static ShareManager getInstance() {

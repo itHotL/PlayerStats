@@ -13,10 +13,11 @@ import com.artemis.the.gr8.playerstats.core.listeners.JoinListener;
 import com.artemis.the.gr8.playerstats.core.msg.msgutils.LanguageKeyHandler;
 import com.artemis.the.gr8.playerstats.core.sharing.ShareManager;
 import com.artemis.the.gr8.playerstats.core.statistic.StatRequestManager;
+import com.artemis.the.gr8.playerstats.core.utils.Closable;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
+import com.artemis.the.gr8.playerstats.core.utils.Reloadable;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
@@ -26,6 +27,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * PlayerStats' Main class
  */
@@ -33,20 +37,20 @@ public final class Main extends JavaPlugin implements PlayerStats {
 
     private static JavaPlugin pluginInstance;
     private static PlayerStats playerStatsAPI;
-    private static BukkitAudiences adventure;
-
     private static ConfigHandler config;
-    private static ThreadManager threadManager;
-    private static LanguageKeyHandler languageKeyHandler;
-    private static OfflinePlayerHandler offlinePlayerHandler;
 
+    private static ThreadManager threadManager;
     private static StatRequestManager statManager;
-    private static OutputManager outputManager;
-    private static ShareManager shareManager;
+
+    private static List<Reloadable> reloadables;
+    private static List<Closable> closables;
 
     @Override
     public void onEnable() {
-        initializeMainClasses();
+        reloadables = new ArrayList<>();
+        closables = new ArrayList<>();
+
+        initializeMainClassesInOrder();
         registerCommands();
         setupMetrics();
 
@@ -59,19 +63,22 @@ public final class Main extends JavaPlugin implements PlayerStats {
 
     @Override
     public void onDisable() {
-        if (adventure != null) {
-            adventure.close();
-            adventure = null;
-        }
+        closables.forEach(Closable::close);
         this.getLogger().info("Disabled PlayerStats!");
     }
 
     public void reloadPlugin() {
+        //config is not registered as reloadable to ensure it can be reloaded before everything else
         config.reload();
-        languageKeyHandler.reload();
-        offlinePlayerHandler.reload();
-        outputManager.reload();
-        shareManager.reload();
+        reloadables.forEach(Reloadable::reload);
+    }
+
+    public static void registerReloadable(Reloadable reloadable) {
+        reloadables.add(reloadable);
+    }
+
+    public static void registerClosable(Closable closable) {
+        closables.add(closable);
     }
 
     /**
@@ -98,19 +105,18 @@ public final class Main extends JavaPlugin implements PlayerStats {
      * and store references to classes that are
      * needed for the Command classes or the API.
      */
-    private void initializeMainClasses() {
+    private void initializeMainClassesInOrder() {
         pluginInstance = this;
         playerStatsAPI = this;
-        adventure = BukkitAudiences.create(this);
-
         config = ConfigHandler.getInstance();
-        languageKeyHandler = LanguageKeyHandler.getInstance();
-        offlinePlayerHandler = OfflinePlayerHandler.getInstance();
-        shareManager = ShareManager.getInstance();
 
-        outputManager = new OutputManager(adventure);
-        statManager = new StatRequestManager(outputManager);
-        threadManager = new ThreadManager(this, outputManager);
+        LanguageKeyHandler.getInstance();
+        OfflinePlayerHandler.getInstance();
+        OutputManager.getInstance();
+        ShareManager.getInstance();
+
+        statManager = new StatRequestManager();
+        threadManager = new ThreadManager(this);
     }
 
     /**
@@ -122,12 +128,12 @@ public final class Main extends JavaPlugin implements PlayerStats {
 
         PluginCommand statcmd = this.getCommand("statistic");
         if (statcmd != null) {
-            statcmd.setExecutor(new StatCommand(outputManager, threadManager));
+            statcmd.setExecutor(new StatCommand(threadManager));
             statcmd.setTabCompleter(tabCompleter);
         }
         PluginCommand excludecmd = this.getCommand("statisticexclude");
         if (excludecmd != null) {
-            excludecmd.setExecutor(new ExcludeCommand(outputManager));
+            excludecmd.setExecutor(new ExcludeCommand());
             excludecmd.setTabCompleter(tabCompleter);
         }
 
@@ -137,7 +143,7 @@ public final class Main extends JavaPlugin implements PlayerStats {
         }
         PluginCommand sharecmd = this.getCommand("statisticshare");
         if (sharecmd != null) {
-            sharecmd.setExecutor(new ShareCommand(outputManager));
+            sharecmd.setExecutor(new ShareCommand());
         }
     }
 
@@ -176,7 +182,7 @@ public final class Main extends JavaPlugin implements PlayerStats {
 
     @Override
     public StatTextFormatter getStatTextFormatter() {
-        return outputManager.getMainMessageBuilder();
+        return OutputManager.getInstance().getMainMessageBuilder();
     }
 
     @Contract(" -> new")

@@ -1,5 +1,6 @@
 package com.artemis.the.gr8.playerstats.core.utils;
 
+import com.artemis.the.gr8.playerstats.core.Main;
 import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.core.multithreading.ThreadManager;
 import org.bukkit.Bukkit;
@@ -31,6 +32,7 @@ public final class OfflinePlayerHandler extends FileHandler {
         config = ConfigHandler.getInstance();
 
         loadOfflinePlayers();
+        Main.registerReloadable(this);
     }
 
     public static OfflinePlayerHandler getInstance() {

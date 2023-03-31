@@ -40,10 +40,10 @@ public final class ThreadManager {
     private final HashMap<String, Thread> statThreads;
     private static long lastRecordedCalcTime;
 
-    public ThreadManager(Main main, OutputManager outputManager) {
+    public ThreadManager(Main main) {
         this.main = main;
         this.config = ConfigHandler.getInstance();
-        ThreadManager.outputManager = outputManager;
+        outputManager = OutputManager.getInstance();
 
         statThreads = new HashMap<>();
         statThreadID = 0;

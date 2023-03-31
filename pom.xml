@@ -89,7 +89,7 @@
 
         <dependency>
             <groupId>com.artemis.the.gr8</groupId>
-            <artifactId>Database</artifactId>
+            <artifactId>DatabaseManager</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
@@ -171,8 +171,8 @@
                             <shadedPattern>com.artemis.the.gr8.playerstats.lib.bstats</shadedPattern>
                         </relocation>
                         <relocation>
-                            <pattern>com.artemis.the.gr8.database</pattern>
-                            <shadedPattern>com.artemis.the.gr8.playerstats.lib.database</shadedPattern>
+                            <pattern>com.artemis.the.gr8.databasemanager</pattern>
+                            <shadedPattern>com.artemis.the.gr8.playerstats.lib.databasemanager</shadedPattern>
                         </relocation>
                     </relocations>
                     <filters>
@@ -203,7 +203,7 @@
                             </excludes>
                         </filter>
                         <filter>
-                            <artifact>com.artemis.the.gr8:Database:*</artifact>
+                            <artifact>com.artemis.the.gr8:DatabaseManager:*</artifact>
                             <excludes>
                                 <exclude>META-INF/**</exclude>
                             </excludes>

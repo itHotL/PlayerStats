@@ -1,9 +1,8 @@
 package com.artemis.the.gr8.playerstats.core.database;
 
-import com.artemis.the.gr8.database.DatabaseManager;
-import com.artemis.the.gr8.database.models.MyStatType;
-import com.artemis.the.gr8.database.models.MyStatistic;
-import com.artemis.the.gr8.playerstats.core.Main;
+import com.artemis.the.gr8.databasemanager.DatabaseManager;
+import com.artemis.the.gr8.databasemanager.models.MyStatType;
+import com.artemis.the.gr8.databasemanager.models.MyStatistic;
 import com.artemis.the.gr8.playerstats.core.utils.EnumHandler;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.Contract;
@@ -15,16 +14,25 @@ import java.util.List;
 
 public class Database {
 
-    private DatabaseManager databaseManager;
+    private static DatabaseManager databaseManager;
 
-    public Database() {
-        connect();
+    private Database() {
+        setUp();
     }
 
-    private void connect() {
-        File pluginFolder = Main.getPluginInstance().getDataFolder();
+    @Contract("_, _, _ -> new")
+    public static @NotNull Database getMySQLDatabase(String URL, String username, String password) {
+        databaseManager = DatabaseManager.getMySQLManager(URL, username, password);
+        return new Database();
+    }
+
+    @Contract("_ -> new")
+    public static @NotNull Database getSQLiteDatabase(File pluginFolder) {
         databaseManager = DatabaseManager.getSQLiteManager(pluginFolder);
-//        databaseManager = DatabaseManager.getMySQLManager("jdbc:mysql://localhost:3306/minecraftstatdb", "myuser", "myuser");
+        return new Database();
+    }
+
+    private void setUp() {
         databaseManager.setUp(getStats(), null);
     }
 
@@ -47,7 +55,7 @@ public class Database {
     }
 
     @Contract(pure = true)
-    private MyStatType getType(Statistic statistic) {
+    private MyStatType getType(@NotNull Statistic statistic) {
         return switch (statistic.getType()) {
             case UNTYPED -> MyStatType.CUSTOM;
             case BLOCK -> MyStatType.BLOCK;
