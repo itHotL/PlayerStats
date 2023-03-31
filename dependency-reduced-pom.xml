@@ -102,6 +102,12 @@
                 <exclude>META-INF/**</exclude>
               </excludes>
             </filter>
+            <filter>
+              <artifact>com.artemis.the.gr8:Database:*</artifact>
+              <excludes>
+                <exclude>META-INF/**</exclude>
+              </excludes>
+            </filter>
           </filters>
         </configuration>
       </plugin>

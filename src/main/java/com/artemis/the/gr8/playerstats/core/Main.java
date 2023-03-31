@@ -13,7 +13,6 @@ import com.artemis.the.gr8.playerstats.core.listeners.JoinListener;
 import com.artemis.the.gr8.playerstats.core.msg.msgutils.LanguageKeyHandler;
 import com.artemis.the.gr8.playerstats.core.sharing.ShareManager;
 import com.artemis.the.gr8.playerstats.core.statistic.StatRequestManager;
-import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -69,11 +68,10 @@ public final class Main extends JavaPlugin implements PlayerStats {
 
     public void reloadPlugin() {
         config.reload();
-        MyLogger.setDebugLevel(config.getDebugLevel());
         languageKeyHandler.reload();
         offlinePlayerHandler.reload();
-        outputManager.updateSettings();
-        shareManager.updateSettings();
+        outputManager.reload();
+        shareManager.reload();
     }
 
     /**

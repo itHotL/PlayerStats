@@ -6,6 +6,7 @@ import com.artemis.the.gr8.playerstats.core.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.core.msg.components.*;
 import com.artemis.the.gr8.playerstats.core.msg.msgutils.FormattingFunction;
 import com.artemis.the.gr8.playerstats.api.StatRequest;
+import com.artemis.the.gr8.playerstats.core.utils.Reloadable;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
@@ -29,7 +30,7 @@ import static com.artemis.the.gr8.playerstats.core.enums.StandardMessage.*;
  * for Players (mainly to deal with the lack of hover-text,
  * and for Bukkit consoles to make up for the lack of hex-colors).
  */
-public final class OutputManager {
+public final class OutputManager implements Reloadable {
 
     private static BukkitAudiences adventure;
     private static EnumMap<StandardMessage, Function<MessageBuilder, TextComponent>> standardMessages;
@@ -46,7 +47,7 @@ public final class OutputManager {
         prepareFunctions();
     }
 
-    public void updateSettings() {
+    public void reload() {
         getMessageBuilders();
     }
 

@@ -6,8 +6,6 @@ import com.artemis.the.gr8.playerstats.core.utils.FileHandler;
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
@@ -46,6 +44,7 @@ public final class ConfigHandler extends FileHandler {
     public void reload() {
         super.reload();
         config = super.getFileConfiguration();
+        MyLogger.setDebugLevel(getDebugLevel());
     }
 
     /**
