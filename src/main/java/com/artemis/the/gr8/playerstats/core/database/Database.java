@@ -1,8 +1,9 @@
 package com.artemis.the.gr8.playerstats.core.database;
 
 import com.artemis.the.gr8.databasemanager.DatabaseManager;
-import com.artemis.the.gr8.databasemanager.models.MyStatType;
-import com.artemis.the.gr8.databasemanager.models.MyStatistic;
+import com.artemis.the.gr8.databasemanager.datamodels.MyStatType;
+import com.artemis.the.gr8.databasemanager.datamodels.MyStatistic;
+import com.artemis.the.gr8.databasemanager.datamodels.MySubStatistic;
 import com.artemis.the.gr8.playerstats.core.utils.EnumHandler;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.Contract;
@@ -33,7 +34,7 @@ public class Database {
     }
 
     private void setUp() {
-        databaseManager.setUp(getStats(), null);
+        databaseManager.updateStatistics(getStats(), getSubStats());
     }
 
     public boolean isRunning() {
@@ -63,4 +64,19 @@ public class Database {
             case ENTITY -> MyStatType.ENTITY;
         };
     }
+
+    private @NotNull List<MySubStatistic> getSubStats() {
+        EnumHandler enumHandler = EnumHandler.getInstance();
+        List<MySubStatistic> subStats = new ArrayList<>();
+
+        enumHandler.getAllBlockNames().forEach(blockName ->
+                subStats.add(new MySubStatistic(blockName, MyStatType.BLOCK)));
+        enumHandler.getAllItemNames().forEach(itemName ->
+                subStats.add(new MySubStatistic(itemName, MyStatType.ITEM)));
+        enumHandler.getAllEntityNames().forEach(entityName ->
+                subStats.add(new MySubStatistic(entityName, MyStatType.ENTITY)));
+
+        return subStats;
+    }
+
 }
