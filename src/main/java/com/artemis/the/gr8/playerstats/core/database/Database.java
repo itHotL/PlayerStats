@@ -1,10 +1,11 @@
 package com.artemis.the.gr8.playerstats.core.database;
 
 import com.artemis.the.gr8.databasemanager.DatabaseManager;
-import com.artemis.the.gr8.databasemanager.datamodels.MyStatType;
-import com.artemis.the.gr8.databasemanager.datamodels.MyStatistic;
-import com.artemis.the.gr8.databasemanager.datamodels.MySubStatistic;
+import com.artemis.the.gr8.databasemanager.models.MyStatType;
+import com.artemis.the.gr8.databasemanager.models.MyStatistic;
+import com.artemis.the.gr8.databasemanager.models.MySubStatistic;
 import com.artemis.the.gr8.playerstats.core.utils.EnumHandler;
+import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -12,6 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class Database {
 
@@ -34,12 +36,11 @@ public class Database {
     }
 
     private void setUp() {
-        databaseManager.updateStatistics(getStats(), getSubStats());
-    }
-
-    public boolean isRunning() {
-        //TODO do something with databaseManager to see if it's active
-        return true;
+        //TODO detect if empty
+        long startTime = System.currentTimeMillis();
+        CompletableFuture
+                .runAsync(() -> databaseManager.updateStatistics(getStats(), getSubStats()))
+                .thenRun(() -> MyLogger.logLowLevelTask("Database setup finished", startTime));
     }
 
     private @NotNull List<MyStatistic> getStats() {

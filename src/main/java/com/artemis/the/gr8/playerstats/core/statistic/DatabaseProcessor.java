@@ -12,15 +12,10 @@ public class DatabaseProcessor extends RequestProcessor {
 
     private final OutputManager outputManager;
     private final Database database;
-    private boolean isActive;
 
     public DatabaseProcessor(OutputManager outputManager, Database database) {
         this.outputManager = outputManager;
         this.database = database;
-    }
-
-    public boolean isActive() {
-        return database.isRunning();
     }
 
     @Override

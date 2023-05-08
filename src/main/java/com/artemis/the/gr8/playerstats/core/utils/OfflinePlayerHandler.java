@@ -9,9 +9,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.*;
 import java.util.function.Predicate;
 
 /**
@@ -153,14 +151,16 @@ public final class OfflinePlayerHandler extends FileHandler {
     }
 
     private void loadOfflinePlayers() {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
             loadExcludedPlayerNames();
             loadIncludedOfflinePlayers();
         });
+        executor.shutdown();
     }
 
     private void loadIncludedOfflinePlayers() {
-        long time = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
         OfflinePlayer[] offlinePlayers;
         if (config.whitelistOnly()) {
@@ -177,7 +177,7 @@ public final class OfflinePlayerHandler extends FileHandler {
         ForkJoinPool.commonPool().invoke(ThreadManager.getPlayerLoadAction(offlinePlayers, includedPlayerUUIDs));
 
         MyLogger.actionFinished();
-        MyLogger.logLowLevelTask(("Loaded " + includedPlayerUUIDs.size() + " offline players"), time);
+        MyLogger.logLowLevelTask(("Loaded " + includedPlayerUUIDs.size() + " offline players"), startTime);
     }
 
     private void loadExcludedPlayerNames() {
