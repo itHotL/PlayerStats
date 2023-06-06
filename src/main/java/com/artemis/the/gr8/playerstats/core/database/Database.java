@@ -1,11 +1,13 @@
 package com.artemis.the.gr8.playerstats.core.database;
 
 import com.artemis.the.gr8.databasemanager.DatabaseManager;
+import com.artemis.the.gr8.databasemanager.models.MyPlayer;
 import com.artemis.the.gr8.databasemanager.models.MyStatType;
 import com.artemis.the.gr8.databasemanager.models.MyStatistic;
 import com.artemis.the.gr8.databasemanager.models.MySubStatistic;
 import com.artemis.the.gr8.playerstats.core.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
+import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
 import org.bukkit.Statistic;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -37,10 +39,23 @@ public class Database {
 
     private void setUp() {
         //TODO detect if empty
+        updateStatisticEnums();
+        updatePlayers();
+    }
+
+    private void updateStatisticEnums() {
         long startTime = System.currentTimeMillis();
         CompletableFuture
                 .runAsync(() -> databaseManager.updateStatistics(getStats(), getSubStats()))
-                .thenRun(() -> MyLogger.logLowLevelTask("Database setup finished", startTime));
+                .thenRun(() -> MyLogger.logLowLevelTask("Statistics loaded into database", startTime));
+    }
+
+    private void updatePlayers() {
+        long startTime = System.currentTimeMillis();
+
+        CompletableFuture
+                .runAsync(() -> databaseManager.updatePlayers(getPlayers()))
+                .thenRun(() -> MyLogger.logLowLevelTask("Players loaded into database", startTime));
     }
 
     private @NotNull List<MyStatistic> getStats() {
@@ -80,4 +95,21 @@ public class Database {
         return subStats;
     }
 
+    private @NotNull List<MyPlayer> getPlayers() {
+        OfflinePlayerHandler offlinePlayerHandler = OfflinePlayerHandler.getInstance();
+        List <MyPlayer> players = new ArrayList<>();
+
+        offlinePlayerHandler.getIncludedOfflinePlayerNames().forEach(playerName ->
+                players.add(new MyPlayer(
+                        playerName,
+                        offlinePlayerHandler.getIncludedOfflinePlayer(playerName).getUniqueId(),
+                        false)));
+        offlinePlayerHandler.getExcludedPlayerNames().forEach(playerName ->
+                players.add(new MyPlayer(
+                        playerName,
+                        offlinePlayerHandler.getExcludedOfflinePlayer(playerName).getUniqueId(),
+                        true)));
+
+        return players;
+    }
 }
