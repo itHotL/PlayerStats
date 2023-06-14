@@ -2,7 +2,7 @@ package com.artemis.the.gr8.playerstats.core.statistic;
 
 import com.artemis.the.gr8.playerstats.api.StatRequest;
 import com.artemis.the.gr8.playerstats.api.StatResult;
-import com.artemis.the.gr8.playerstats.core.database.Database;
+import com.artemis.the.gr8.playerstats.core.database.DatabaseHandler;
 import com.artemis.the.gr8.playerstats.core.msg.OutputManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -11,9 +11,9 @@ import java.util.LinkedHashMap;
 public class DatabaseProcessor extends RequestProcessor {
 
     private final OutputManager outputManager;
-    private final Database database;
+    private final DatabaseHandler database;
 
-    public DatabaseProcessor(OutputManager outputManager, Database database) {
+    public DatabaseProcessor(OutputManager outputManager, DatabaseHandler database) {
         this.outputManager = outputManager;
         this.database = database;
     }

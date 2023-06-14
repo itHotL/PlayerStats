@@ -149,7 +149,7 @@ public final class LanguageKeyHandler extends FileHandler {
     public String convertLanguageKeyToDisplayName(String key) {
         if (key == null) return null;
         if (isStatKey(key)) {
-            return getStatKeyTranslation(key);
+            return getStatKeyTranslationFromFile(key);
         }
         else if (key.equalsIgnoreCase(getKeyForBlockUnit())) {
             return Unit.BLOCK.getLabel();
@@ -170,7 +170,7 @@ public final class LanguageKeyHandler extends FileHandler {
                 isCustomKeyForEntityKilledByArg(key));
     }
 
-    private String getStatKeyTranslation(String statKey) {
+    private String getStatKeyTranslationFromFile(String statKey) {
         String realKey = convertToNormalStatKey(statKey);
         if (realKey == null) {
             return "";
