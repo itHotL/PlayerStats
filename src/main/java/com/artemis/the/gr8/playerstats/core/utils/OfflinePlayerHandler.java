@@ -18,7 +18,7 @@ import java.util.function.Predicate;
  * calculations, and can retrieve the corresponding OfflinePlayer
  * object for a given player-name.
  */
-public final class OfflinePlayerHandler extends FileHandler {
+public final class OfflinePlayerHandler extends YamlFileHandler {
 
     private static volatile OfflinePlayerHandler instance;
     private final ConfigHandler config;

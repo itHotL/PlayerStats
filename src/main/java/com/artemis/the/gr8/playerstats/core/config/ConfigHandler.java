@@ -2,7 +2,7 @@ package com.artemis.the.gr8.playerstats.core.config;
 
 import com.artemis.the.gr8.playerstats.api.enums.Target;
 import com.artemis.the.gr8.playerstats.api.enums.Unit;
-import com.artemis.the.gr8.playerstats.core.utils.FileHandler;
+import com.artemis.the.gr8.playerstats.core.utils.YamlFileHandler;
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 /** Handles all PlayerStats' config-settings. */
-public final class ConfigHandler extends FileHandler {
+public final class ConfigHandler extends YamlFileHandler {
 
     private static volatile ConfigHandler instance;
     private final int configVersion;
