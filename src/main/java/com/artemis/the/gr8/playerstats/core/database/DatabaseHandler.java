@@ -8,6 +8,7 @@ import com.artemis.the.gr8.databasemanager.models.MySubStatistic;
 import com.artemis.the.gr8.playerstats.core.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
@@ -56,6 +57,14 @@ public class DatabaseHandler {
         //TODO detect if empty
         updatePlayers();
         updateStatisticEnums();
+        updateFirstPlayerInStatsFolder();
+    }
+
+    private void updatePlayers() {
+        long startTime = System.currentTimeMillis();
+        CompletableFuture
+                .runAsync(() -> databaseManager.updatePlayers(getPlayers()))
+                .thenRun(() -> MyLogger.logLowLevelTask("Players loaded into database", startTime));
     }
 
     private void updateStatisticEnums() {
@@ -65,11 +74,14 @@ public class DatabaseHandler {
                 .thenRun(() -> MyLogger.logLowLevelTask("Statistics loaded into database", startTime));
     }
 
-    private void updatePlayers() {
-        long startTime = System.currentTimeMillis();
-        CompletableFuture
-                .runAsync(() -> databaseManager.updatePlayers(getPlayers()))
-                .thenRun(() -> MyLogger.logLowLevelTask("Players loaded into database", startTime));
+    private void updateFirstPlayerInStatsFolder() {
+        File statsFolder = new File(Bukkit.getWorld("world").getWorldFolder() + File.separator + "stats");
+        File[] statFiles = statsFolder.listFiles();
+        if (statFiles != null) {
+            MyLogger.logLowLevelMsg("Found " + statFiles.length + " stat files, first is: " + statFiles[0]);
+        } else {
+            MyLogger.logLowLevelMsg("Failed to find any stat files");
+        }
     }
 
     public void updateStatsForArtemis() {
