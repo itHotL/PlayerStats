@@ -93,7 +93,7 @@ To import the PlayerStats API with Maven, add the following dependency and repos
     <dependency>
         <groupId>io.github.ithotl</groupId>
         <artifactId>PlayerStats</artifactId>
-        <version>1.7.2-SNAPSHOT</version>
+        <version>2.0-SNAPSHOT</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
