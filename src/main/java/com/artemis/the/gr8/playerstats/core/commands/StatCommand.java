@@ -60,9 +60,12 @@ public final class StatCommand implements CommandExecutor {
                 args[0].equalsIgnoreCase("example")) {
             outputManager.sendExamples(sender);
         }
+
+        //TODO remove test code
         else if (args[0].equalsIgnoreCase("database")) {
             DatabaseHandler databaseHandler = DatabaseHandler.getInstance();
-            databaseHandler.updateStatsForArtemis();
+            databaseHandler.updateStatsForArtemis(
+                    args.length > 1 && args[1].equalsIgnoreCase("spigot"));
         }
         else {
             ArgProcessor processor = new ArgProcessor(sender, args);

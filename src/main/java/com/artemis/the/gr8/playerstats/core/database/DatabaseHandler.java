@@ -8,6 +8,8 @@ import com.artemis.the.gr8.databasemanager.models.MySubStatistic;
 import com.artemis.the.gr8.playerstats.core.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
+import com.artemis.the.gr8.statfilereader.StatFileReader;
+import com.artemis.the.gr8.statfilereader.model.Stats;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -84,7 +86,102 @@ public class DatabaseHandler {
         }
     }
 
-    public void updateStatsForArtemis() {
+    public void updateStatsForArtemis(boolean useSpigot) {
+        if (useSpigot) {
+            getStatsFromSpigot();
+        } else {
+            getStatsFromFile();
+        }
+    }
+
+    private void getStatsFromFile() {
+        long startTime = System.currentTimeMillis();
+        CompletableFuture
+                .runAsync(() -> {
+                    String artemisUUID = getArtemis().getUniqueId().toString();
+                    File statsFile = new File(Bukkit.getWorld("world").getWorldFolder() +
+                            File.separator + "stats" +
+                            File.separator + artemisUUID + ".json");
+                    StatFileReader reader = new StatFileReader();
+                    Stats stats = reader.readFile(statsFile.getPath());
+                    MyPlayer databaseArtemis = getDatabaseArtemis();
+
+                    long subStartTime = System.currentTimeMillis();
+                    HashMap<MyStatistic, Integer> customStats = new HashMap<>();
+                    stats.custom.forEach((string, value) ->
+                            customStats.put(new MyStatistic(string, MyStatType.CUSTOM), value));
+
+                    databaseManager.updateStatsForPlayer(databaseArtemis, customStats);
+                    MyLogger.logLowLevelTask("Updated custom", subStartTime);
+
+                    subStartTime = System.currentTimeMillis();
+                    HashMap<MySubStatistic, Integer> mined = new HashMap<>();
+                    stats.mined.forEach((string, value) ->
+                            mined.put(new MySubStatistic(string, MyStatType.BLOCK), value));
+
+                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("mined", MyStatType.ITEM), mined);
+                    MyLogger.logLowLevelTask("Updated mined", subStartTime);
+
+                    subStartTime = System.currentTimeMillis();
+                    HashMap<MySubStatistic, Integer> broken = new HashMap<>();
+                    stats.broken.forEach((string, value) ->
+                            broken.put(new MySubStatistic(string, MyStatType.ITEM), value));
+
+                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("broken", MyStatType.ITEM), broken);
+                    MyLogger.logLowLevelTask("Updated broken", subStartTime);
+
+                    subStartTime = System.currentTimeMillis();
+                    HashMap<MySubStatistic, Integer> crafted = new HashMap<>();
+                    stats.crafted.forEach((string, value) ->
+                            crafted.put(new MySubStatistic(string, MyStatType.ITEM), value));
+
+                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("crafted", MyStatType.ITEM), crafted);
+                    MyLogger.logLowLevelTask("Updated crafted", subStartTime);
+
+                    subStartTime = System.currentTimeMillis();
+                    HashMap<MySubStatistic, Integer> used = new HashMap<>();
+                    stats.used.forEach((string, value) ->
+                            used.put(new MySubStatistic(string, MyStatType.ITEM), value));
+
+                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("used", MyStatType.ITEM), used);
+                    MyLogger.logLowLevelTask("Updated used", subStartTime);
+
+                    subStartTime = System.currentTimeMillis();
+                    HashMap<MySubStatistic, Integer> picked_up = new HashMap<>();
+                    stats.picked_up.forEach((string, value) ->
+                            picked_up.put(new MySubStatistic(string, MyStatType.ITEM), value));
+
+                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("picked_up", MyStatType.ITEM), picked_up);
+                    MyLogger.logLowLevelTask("Updated picked_up", subStartTime);
+
+                    subStartTime = System.currentTimeMillis();
+                    HashMap<MySubStatistic, Integer> dropped = new HashMap<>();
+                    stats.dropped.forEach((string, value) ->
+                            dropped.put(new MySubStatistic(string, MyStatType.ITEM), value));
+
+                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("dropped", MyStatType.ITEM), dropped);
+                    MyLogger.logLowLevelTask("Updated dropped", subStartTime);
+
+                    subStartTime = System.currentTimeMillis();
+                    HashMap<MySubStatistic, Integer> killed = new HashMap<>();
+                    stats.killed.forEach((string, value) ->
+                            killed.put(new MySubStatistic(string, MyStatType.ENTITY), value));
+
+                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("killed", MyStatType.ITEM), killed);
+                    MyLogger.logLowLevelTask("Updated killed", subStartTime);
+
+                    subStartTime = System.currentTimeMillis();
+                    HashMap<MySubStatistic, Integer> killed_by = new HashMap<>();
+                    stats.killed_by.forEach((string, value) ->
+                            killed_by.put(new MySubStatistic(string, MyStatType.ENTITY), value));
+
+                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("killed_by", MyStatType.ITEM), killed_by);
+                    MyLogger.logLowLevelTask("Updated killed_by", subStartTime);
+
+                }).thenRun(() -> MyLogger.logLowLevelTask("all stats updated for Artemis", startTime));
+    }
+
+    private void getStatsFromSpigot() {
         long startTime = System.currentTimeMillis();
         CompletableFuture
                 .runAsync(() -> {
@@ -114,7 +211,7 @@ public class DatabaseHandler {
                                                     }
                                                 }
                                             });
-                                            databaseManager.updateEntityStatForPlayer(
+                                            databaseManager.updateStatWithSubStatsForPlayer(
                                                     getDatabaseArtemis(),
                                                     new MyStatistic(statName, MyStatType.ENTITY),
                                                     entityTypeValues);
@@ -133,7 +230,7 @@ public class DatabaseHandler {
                                                     }
                                                 }
                                             });
-                                            databaseManager.updateBlockStatForPlayer(
+                                            databaseManager.updateStatWithSubStatsForPlayer(
                                                     getDatabaseArtemis(),
                                                     new MyStatistic(statName, MyStatType.BLOCK),
                                                     blockTypeValues);
@@ -151,7 +248,7 @@ public class DatabaseHandler {
                                                     }
                                                 }
                                             });
-                                            databaseManager.updateItemStatForPlayer(
+                                            databaseManager.updateStatWithSubStatsForPlayer(
                                                     getDatabaseArtemis(),
                                                     new MyStatistic(statName, MyStatType.ITEM),
                                                     itemTypeValues);
