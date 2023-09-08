@@ -19,10 +19,10 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DatabaseHandler {
 
@@ -58,7 +58,7 @@ public class DatabaseHandler {
     private void setUp() {
         //TODO detect if empty
         updatePlayers();
-        updateStatisticEnums();
+//        updateStatisticEnums();
         updateFirstPlayerInStatsFolder();
     }
 
@@ -90,95 +90,108 @@ public class DatabaseHandler {
         if (useSpigot) {
             getStatsFromSpigot();
         } else {
-            getStatsFromFile();
+            String artemisUUID = getArtemis().getUniqueId().toString();
+            File statsFile = new File(Bukkit.getWorld("world").getWorldFolder() +
+                    File.separator + "stats" +
+                    File.separator + artemisUUID + ".json");
+            StatFileReader reader = new StatFileReader();
+            getStatsFromFile(reader.readFile(statsFile.getPath()), getDatabaseArtemis());
         }
     }
 
-    private void getStatsFromFile() {
+    public void updateStatsForOther(boolean useSpigot) {
+        File statsFolder = new File(Bukkit.getWorld("world").getWorldFolder() + File.separator + "stats");
+        File[] statFiles = statsFolder.listFiles();
+        if (statFiles != null && statFiles.length > 1) {
+            File otherStatFile = Arrays.stream(statFiles)
+                    .filter(file -> !file.getPath().contains(getArtemis().getUniqueId().toString()))
+                    .toList()
+                    .get(0);
+            StatFileReader reader = new StatFileReader();
+            String filePath = otherStatFile.getPath();
+            getStatsFromFile(reader.readFile(filePath), getDatabasePlayer(filePath));
+        }
+    }
+
+    private void getStatsFromFile(Stats fileContents, MyPlayer player) {
         long startTime = System.currentTimeMillis();
         CompletableFuture
                 .runAsync(() -> {
-                    String artemisUUID = getArtemis().getUniqueId().toString();
-                    File statsFile = new File(Bukkit.getWorld("world").getWorldFolder() +
-                            File.separator + "stats" +
-                            File.separator + artemisUUID + ".json");
-                    StatFileReader reader = new StatFileReader();
-                    Stats stats = reader.readFile(statsFile.getPath());
-                    MyPlayer databaseArtemis = getDatabaseArtemis();
-
                     long subStartTime = System.currentTimeMillis();
                     HashMap<MyStatistic, Integer> customStats = new HashMap<>();
-                    stats.custom.forEach((string, value) ->
+                    fileContents.custom.forEach((string, value) ->
                             customStats.put(new MyStatistic(string, MyStatType.CUSTOM), value));
 
-                    databaseManager.updateStatsForPlayer(databaseArtemis, customStats);
+                    databaseManager.updateStatsForPlayer(player, customStats);
                     MyLogger.logLowLevelTask("Updated custom", subStartTime);
 
                     subStartTime = System.currentTimeMillis();
                     HashMap<MySubStatistic, Integer> mined = new HashMap<>();
-                    stats.mined.forEach((string, value) ->
+                    fileContents.mined.forEach((string, value) ->
                             mined.put(new MySubStatistic(string, MyStatType.BLOCK), value));
 
-                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("mined", MyStatType.ITEM), mined);
+                    databaseManager.updateStatWithSubStatsForPlayer(player, new MyStatistic("mined", MyStatType.BLOCK), mined);
                     MyLogger.logLowLevelTask("Updated mined", subStartTime);
 
                     subStartTime = System.currentTimeMillis();
                     HashMap<MySubStatistic, Integer> broken = new HashMap<>();
-                    stats.broken.forEach((string, value) ->
+                    fileContents.broken.forEach((string, value) ->
                             broken.put(new MySubStatistic(string, MyStatType.ITEM), value));
 
-                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("broken", MyStatType.ITEM), broken);
+                    databaseManager.updateStatWithSubStatsForPlayer(player, new MyStatistic("broken", MyStatType.ITEM), broken);
                     MyLogger.logLowLevelTask("Updated broken", subStartTime);
 
                     subStartTime = System.currentTimeMillis();
                     HashMap<MySubStatistic, Integer> crafted = new HashMap<>();
-                    stats.crafted.forEach((string, value) ->
+                    fileContents.crafted.forEach((string, value) ->
                             crafted.put(new MySubStatistic(string, MyStatType.ITEM), value));
 
-                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("crafted", MyStatType.ITEM), crafted);
+                    databaseManager.updateStatWithSubStatsForPlayer(player, new MyStatistic("crafted", MyStatType.ITEM), crafted);
                     MyLogger.logLowLevelTask("Updated crafted", subStartTime);
 
                     subStartTime = System.currentTimeMillis();
                     HashMap<MySubStatistic, Integer> used = new HashMap<>();
-                    stats.used.forEach((string, value) ->
+                    fileContents.used.forEach((string, value) ->
                             used.put(new MySubStatistic(string, MyStatType.ITEM), value));
 
-                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("used", MyStatType.ITEM), used);
+                    databaseManager.updateStatWithSubStatsForPlayer(player, new MyStatistic("used", MyStatType.ITEM), used);
                     MyLogger.logLowLevelTask("Updated used", subStartTime);
 
                     subStartTime = System.currentTimeMillis();
                     HashMap<MySubStatistic, Integer> picked_up = new HashMap<>();
-                    stats.picked_up.forEach((string, value) ->
+                    fileContents.picked_up.forEach((string, value) ->
                             picked_up.put(new MySubStatistic(string, MyStatType.ITEM), value));
 
-                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("picked_up", MyStatType.ITEM), picked_up);
+                    databaseManager.updateStatWithSubStatsForPlayer(player, new MyStatistic("picked_up", MyStatType.ITEM), picked_up);
                     MyLogger.logLowLevelTask("Updated picked_up", subStartTime);
 
                     subStartTime = System.currentTimeMillis();
                     HashMap<MySubStatistic, Integer> dropped = new HashMap<>();
-                    stats.dropped.forEach((string, value) ->
+                    fileContents.dropped.forEach((string, value) ->
                             dropped.put(new MySubStatistic(string, MyStatType.ITEM), value));
 
-                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("dropped", MyStatType.ITEM), dropped);
+                    databaseManager.updateStatWithSubStatsForPlayer(player, new MyStatistic("dropped", MyStatType.ITEM), dropped);
                     MyLogger.logLowLevelTask("Updated dropped", subStartTime);
 
                     subStartTime = System.currentTimeMillis();
                     HashMap<MySubStatistic, Integer> killed = new HashMap<>();
-                    stats.killed.forEach((string, value) ->
+                    fileContents.killed.forEach((string, value) ->
                             killed.put(new MySubStatistic(string, MyStatType.ENTITY), value));
 
-                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("killed", MyStatType.ITEM), killed);
+                    databaseManager.updateStatWithSubStatsForPlayer(player, new MyStatistic("killed", MyStatType.ENTITY), killed);
                     MyLogger.logLowLevelTask("Updated killed", subStartTime);
 
                     subStartTime = System.currentTimeMillis();
                     HashMap<MySubStatistic, Integer> killed_by = new HashMap<>();
-                    stats.killed_by.forEach((string, value) ->
+                    fileContents.killed_by.forEach((string, value) ->
                             killed_by.put(new MySubStatistic(string, MyStatType.ENTITY), value));
 
-                    databaseManager.updateStatWithSubStatsForPlayer(databaseArtemis, new MyStatistic("killed_by", MyStatType.ITEM), killed_by);
+                    databaseManager.updateStatWithSubStatsForPlayer(player, new MyStatistic("killed_by", MyStatType.ENTITY), killed_by);
                     MyLogger.logLowLevelTask("Updated killed_by", subStartTime);
 
-                }).thenRun(() -> MyLogger.logLowLevelTask("all stats updated for Artemis", startTime));
+                    MyLogger.logLowLevelTask("all stats updated for " + player.playerName(), startTime);
+                })
+                .whenComplete((result, error) -> error.printStackTrace());
     }
 
     private void getStatsFromSpigot() {
@@ -327,5 +340,21 @@ public class DatabaseHandler {
                 "Artemis_the_gr8",
                 getArtemis().getUniqueId(),
                 offlinePlayerHandler.isExcludedPlayer(getArtemis().getUniqueId()));
+    }
+
+    private MyPlayer getDatabasePlayer(String filePath) {
+        Pattern uuidPattern = Pattern.compile("(?<=\\\\)[\\d\\w-]+(?=\\.json)");
+        Matcher matcher = uuidPattern.matcher(filePath);
+        if (matcher.find()) {
+            String uuid = matcher.group();
+            UUID playerUUID = UUID.fromString(uuid);
+            OfflinePlayer player = Bukkit.getOfflinePlayer(playerUUID);
+            return new MyPlayer(
+                    player.getName(),
+                    playerUUID,
+                    offlinePlayerHandler.isExcludedPlayer(playerUUID)
+            );
+        }
+        return null;
     }
 }
