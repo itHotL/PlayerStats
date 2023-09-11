@@ -118,6 +118,12 @@
                 <exclude>META-INF/**</exclude>
               </excludes>
             </filter>
+            <filter>
+              <artifact>com.google.code.gson:gson</artifact>
+              <excludes>
+                <exclude>META-INF/**</exclude>
+              </excludes>
+            </filter>
           </filters>
         </configuration>
       </plugin>
