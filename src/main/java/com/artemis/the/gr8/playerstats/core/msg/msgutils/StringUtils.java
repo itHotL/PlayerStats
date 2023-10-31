@@ -28,6 +28,7 @@ public final class StringUtils {
      */
     public static String prettify(String input) {
         if (input == null) return null;
+        //TODO remove excessive logging
         MyLogger.logHighLevelMsg("Prettifying [" + input + "]");
 
         StringBuilder capitals = new StringBuilder(input.toLowerCase(Locale.ENGLISH));
