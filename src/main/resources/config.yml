@@ -14,7 +14,7 @@ config-version: 8
 # 3 = high (log all tasks and time taken)
 debug-level: 1
 
-# By default, PlayerStats will use an SQLite database file, which PlayerStats sets up itself
+# If enabled, the database PlayerStats will use is an SQLite file, which PlayerStats sets up itself
 use-database: true
 
 # If you specify a mySQL URL, username and password here, PlayerStats will attempt to use your
