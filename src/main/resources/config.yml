@@ -14,15 +14,6 @@ config-version: 8
 # 3 = high (log all tasks and time taken)
 debug-level: 1
 
-# If enabled, the database PlayerStats will use is an SQLite file, which PlayerStats sets up itself
-use-database: true
-
-# If you specify a mySQL URL, username and password here, PlayerStats will attempt to use your
-# mySQL server. If connection fails, the SQLite file will be used instead (if use-database is enabled)
-mySQL-connection-URL: ''
-mySQL-username: ''
-mySQL-password: ''
-
 # Whether players have to wait for their lookup to finish before they can request another statistic
 # Warning: disabling this could put stress on your server if players spam the stat-command!
 only-allow-one-lookup-at-a-time-per-player: true

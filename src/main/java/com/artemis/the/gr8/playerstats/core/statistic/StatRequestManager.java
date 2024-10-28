@@ -5,8 +5,6 @@ import com.artemis.the.gr8.playerstats.api.StatManager;
 import com.artemis.the.gr8.playerstats.api.StatRequest;
 import com.artemis.the.gr8.playerstats.api.StatResult;
 import com.artemis.the.gr8.playerstats.core.Main;
-import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
-import com.artemis.the.gr8.playerstats.core.database.DatabaseHandler;
 import com.artemis.the.gr8.playerstats.core.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
 import com.artemis.the.gr8.playerstats.core.utils.Reloadable;
@@ -37,17 +35,6 @@ public final class StatRequestManager implements StatManager, Reloadable {
 
     private @NotNull RequestProcessor getProcessor() {
         OutputManager outputManager = OutputManager.getInstance();
-        ConfigHandler config = ConfigHandler.getInstance();
-        if (config.useDatabase()) {
-            DatabaseHandler database;
-            String[] credentials = config.getMySQLCredentials();
-            if (credentials.length == 3 & Arrays.stream(credentials).noneMatch(String::isEmpty)) {
-                database = DatabaseHandler.getMySQLDatabase(credentials[0], credentials[1], credentials[2]);
-            } else {
-                database = DatabaseHandler.getSQLiteDatabase(Main.getPluginInstance().getDataFolder());
-            }
-            return new DatabaseProcessor(outputManager, database);
-        }
         return new BukkitProcessor(outputManager);
     }
 

@@ -1,7 +1,6 @@
 package com.artemis.the.gr8.playerstats.core.commands;
 
 import com.artemis.the.gr8.playerstats.api.StatRequest;
-import com.artemis.the.gr8.playerstats.core.database.DatabaseHandler;
 import com.artemis.the.gr8.playerstats.core.multithreading.ThreadManager;
 import com.artemis.the.gr8.playerstats.api.RequestGenerator;
 import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
@@ -59,22 +58,6 @@ public final class StatCommand implements CommandExecutor {
         else if (args[0].equalsIgnoreCase("examples") ||
                 args[0].equalsIgnoreCase("example")) {
             outputManager.sendExamples(sender);
-        }
-
-        //TODO remove test code
-        else if (args[0].equalsIgnoreCase("database")) {
-            DatabaseHandler databaseHandler = DatabaseHandler.getInstance();
-
-            if (args.length <= 1) {
-                databaseHandler.updateStatsForArtemis(false);
-            } else {
-                if (args[1].equalsIgnoreCase("spigot")) {
-                    databaseHandler.updateStatsForArtemis(true);
-                } else if (args[1].equalsIgnoreCase("other")) {
-                    databaseHandler.updateStatsForOther(false);
-                }
-            }
-
         }
         else {
             ArgProcessor processor = new ArgProcessor(sender, args);

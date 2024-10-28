@@ -85,23 +85,6 @@ public final class ConfigHandler extends YamlFileHandler {
     }
 
     /**
-     * @return whether PlayerStats should use a database (default: true)
-     */
-    public boolean useDatabase() {
-        return config.getBoolean("use-database", true);
-    }
-
-    /**
-     * @return an Array with the config values for the MySQL connection URL,
-     * username and password. Any of these might be null
-     */
-    public String[] getMySQLCredentials() {
-        return new String[]{config.getString("mySQL-connection-URL"),
-                            config.getString("mySQL-username"),
-                            config.getString("mySQL-password")};
-    }
-
-    /**
      * Whether command-senders should be limited to one stat-request at a time.
      * @return the config setting (default: true)
      */

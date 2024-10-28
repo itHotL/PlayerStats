@@ -29,7 +29,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
+        <version>3.13.0</version>
         <configuration>
           <source>16</source>
           <target>16</target>
@@ -70,14 +70,6 @@
               <pattern>org.bstats</pattern>
               <shadedPattern>com.artemis.the.gr8.playerstats.lib.bstats</shadedPattern>
             </relocation>
-            <relocation>
-              <pattern>com.artemis.the.gr8.databasemanager</pattern>
-              <shadedPattern>com.artemis.the.gr8.playerstats.lib.databasemanager</shadedPattern>
-            </relocation>
-            <relocation>
-              <pattern>com.artemis.the.gr8.statfilereader</pattern>
-              <shadedPattern>com.artemis.the.gr8.playerstats.lib.statfilereader</shadedPattern>
-            </relocation>
           </relocations>
           <filters>
             <filter>
@@ -102,24 +94,6 @@
             </filter>
             <filter>
               <artifact>org.bstats:*</artifact>
-              <excludes>
-                <exclude>META-INF/**</exclude>
-              </excludes>
-            </filter>
-            <filter>
-              <artifact>com.artemis.the.gr8:DatabaseManager:*</artifact>
-              <excludes>
-                <exclude>META-INF/**</exclude>
-              </excludes>
-            </filter>
-            <filter>
-              <artifact>com.artemis.the.gr8:StatFileReader:*</artifact>
-              <excludes>
-                <exclude>META-INF/**</exclude>
-              </excludes>
-            </filter>
-            <filter>
-              <artifact>com.google.code.gson:gson</artifact>
               <excludes>
                 <exclude>META-INF/**</exclude>
               </excludes>
@@ -229,7 +203,7 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.21-R0.1-SNAPSHOT</version>
+      <version>1.21.1-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
