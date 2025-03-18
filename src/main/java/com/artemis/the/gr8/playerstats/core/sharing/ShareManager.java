@@ -1,7 +1,9 @@
 package com.artemis.the.gr8.playerstats.core.sharing;
 
+import com.artemis.the.gr8.playerstats.core.Main;
 import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
+import com.artemis.the.gr8.playerstats.core.utils.Reloadable;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -23,7 +25,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
  * of past stat-lookups, so the results can be retrieved
  * and shared when a Player clicks the share-button.
  */
-public final class ShareManager {
+public final class ShareManager implements Reloadable {
 
     private static volatile ShareManager instance;
     private static boolean isEnabled;
@@ -35,7 +37,8 @@ public final class ShareManager {
     private ArrayBlockingQueue<Integer> sharedResults;
 
     private ShareManager() {
-       updateSettings();
+       reload();
+       Main.registerReloadable(this);
     }
 
     public static ShareManager getInstance() {
@@ -56,7 +59,7 @@ public final class ShareManager {
         return isEnabled;
     }
 
-    public void updateSettings() {
+    public void reload() {
         ConfigHandler config = ConfigHandler.getInstance();
         isEnabled = config.allowStatSharing() && config.useHoverText();
         waitingTime = config.getStatShareWaitingTime();

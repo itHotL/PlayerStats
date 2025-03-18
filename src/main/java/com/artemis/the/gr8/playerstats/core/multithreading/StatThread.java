@@ -1,7 +1,7 @@
 package com.artemis.the.gr8.playerstats.core.multithreading;
 
 import com.artemis.the.gr8.playerstats.core.msg.OutputManager;
-import com.artemis.the.gr8.playerstats.core.statrequest.RequestManager;
+import com.artemis.the.gr8.playerstats.core.statistic.StatRequestManager;
 import com.artemis.the.gr8.playerstats.api.StatRequest;
 import com.artemis.the.gr8.playerstats.api.StatResult;
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
@@ -55,7 +55,7 @@ final class StatThread extends Thread {
         }
 
         try {
-            StatResult<?> result = RequestManager.execute(statRequest);
+            StatResult<?> result = StatRequestManager.execute(statRequest);
             outputManager.sendToCommandSender(statRequester, result.formattedComponent());
         }
         catch (ConcurrentModificationException e) {

@@ -15,8 +15,8 @@ public final class ShareCommand implements CommandExecutor {
     private static OutputManager outputManager;
     private static ShareManager shareManager;
 
-    public ShareCommand(OutputManager outputManager) {
-        ShareCommand.outputManager = outputManager;
+    public ShareCommand() {
+        outputManager = OutputManager.getInstance();
         shareManager = ShareManager.getInstance();
     }
 

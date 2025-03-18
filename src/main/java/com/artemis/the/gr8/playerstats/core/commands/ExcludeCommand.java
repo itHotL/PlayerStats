@@ -15,8 +15,8 @@ public final class ExcludeCommand implements CommandExecutor {
     private static OutputManager outputManager;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
-    public ExcludeCommand(OutputManager outputManager) {
-        ExcludeCommand.outputManager = outputManager;
+    public ExcludeCommand() {
+        outputManager = OutputManager.getInstance();
         this.offlinePlayerHandler = OfflinePlayerHandler.getInstance();
     }
 

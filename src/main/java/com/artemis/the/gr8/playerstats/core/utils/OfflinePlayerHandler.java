@@ -1,5 +1,6 @@
 package com.artemis.the.gr8.playerstats.core.utils;
 
+import com.artemis.the.gr8.playerstats.core.Main;
 import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.core.multithreading.ThreadManager;
 import org.bukkit.Bukkit;
@@ -8,9 +9,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.*;
 import java.util.function.Predicate;
 
 /**
@@ -19,7 +18,7 @@ import java.util.function.Predicate;
  * calculations, and can retrieve the corresponding OfflinePlayer
  * object for a given player-name.
  */
-public final class OfflinePlayerHandler extends FileHandler {
+public final class OfflinePlayerHandler extends YamlFileHandler {
 
     private static volatile OfflinePlayerHandler instance;
     private final ConfigHandler config;
@@ -31,6 +30,7 @@ public final class OfflinePlayerHandler extends FileHandler {
         config = ConfigHandler.getInstance();
 
         loadOfflinePlayers();
+        Main.registerReloadable(this);
     }
 
     public static OfflinePlayerHandler getInstance() {
@@ -151,14 +151,16 @@ public final class OfflinePlayerHandler extends FileHandler {
     }
 
     private void loadOfflinePlayers() {
-        Executors.newSingleThreadExecutor().execute(() -> {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
             loadExcludedPlayerNames();
             loadIncludedOfflinePlayers();
         });
+        executor.shutdown();
     }
 
     private void loadIncludedOfflinePlayers() {
-        long time = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
         OfflinePlayer[] offlinePlayers;
         if (config.whitelistOnly()) {
@@ -175,7 +177,7 @@ public final class OfflinePlayerHandler extends FileHandler {
         ForkJoinPool.commonPool().invoke(ThreadManager.getPlayerLoadAction(offlinePlayers, includedPlayerUUIDs));
 
         MyLogger.actionFinished();
-        MyLogger.logLowLevelTask(("Loaded " + includedPlayerUUIDs.size() + " offline players"), time);
+        MyLogger.logLowLevelTask(("Loaded " + includedPlayerUUIDs.size() + " offline players"), startTime);
     }
 
     private void loadExcludedPlayerNames() {

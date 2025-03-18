@@ -7,9 +7,9 @@ import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.core.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.api.enums.Target;
 import com.artemis.the.gr8.playerstats.core.msg.OutputManager;
-import com.artemis.the.gr8.playerstats.core.statrequest.PlayerStatRequest;
-import com.artemis.the.gr8.playerstats.core.statrequest.ServerStatRequest;
-import com.artemis.the.gr8.playerstats.core.statrequest.TopStatRequest;
+import com.artemis.the.gr8.playerstats.core.statistic.PlayerStatRequest;
+import com.artemis.the.gr8.playerstats.core.statistic.ServerStatRequest;
+import com.artemis.the.gr8.playerstats.core.statistic.TopStatRequest;
 import com.artemis.the.gr8.playerstats.core.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
 import org.bukkit.Material;
@@ -39,9 +39,9 @@ public final class StatCommand implements CommandExecutor {
     private final EnumHandler enumHandler;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
-    public StatCommand(OutputManager outputManager, ThreadManager threadManager) {
+    public StatCommand(ThreadManager threadManager) {
         StatCommand.threadManager = threadManager;
-        StatCommand.outputManager = outputManager;
+        outputManager = OutputManager.getInstance();
 
         config = ConfigHandler.getInstance();
         enumHandler = EnumHandler.getInstance();

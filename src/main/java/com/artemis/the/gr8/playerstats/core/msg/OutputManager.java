@@ -1,11 +1,14 @@
 package com.artemis.the.gr8.playerstats.core.msg;
 
 import com.artemis.the.gr8.playerstats.api.StatTextFormatter;
+import com.artemis.the.gr8.playerstats.core.Main;
 import com.artemis.the.gr8.playerstats.core.config.ConfigHandler;
 import com.artemis.the.gr8.playerstats.core.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.core.msg.components.*;
 import com.artemis.the.gr8.playerstats.core.msg.msgutils.FormattingFunction;
 import com.artemis.the.gr8.playerstats.api.StatRequest;
+import com.artemis.the.gr8.playerstats.core.utils.Closable;
+import com.artemis.the.gr8.playerstats.core.utils.Reloadable;
 import net.kyori.adventure.platform.bukkit.BukkitAudiences;
 import net.kyori.adventure.text.TextComponent;
 import org.bukkit.Bukkit;
@@ -29,8 +32,9 @@ import static com.artemis.the.gr8.playerstats.core.enums.StandardMessage.*;
  * for Players (mainly to deal with the lack of hover-text,
  * and for Bukkit consoles to make up for the lack of hex-colors).
  */
-public final class OutputManager {
+public final class OutputManager implements Reloadable, Closable {
 
+    private static volatile OutputManager instance;
     private static BukkitAudiences adventure;
     private static EnumMap<StandardMessage, Function<MessageBuilder, TextComponent>> standardMessages;
 
@@ -38,16 +42,42 @@ public final class OutputManager {
     private MessageBuilder messageBuilder;
     private MessageBuilder consoleMessageBuilder;
 
-    public OutputManager(BukkitAudiences adventure) {
-        OutputManager.adventure = adventure;
+    private OutputManager() {
+        adventure = BukkitAudiences.create(Main.getPluginInstance());
         config = ConfigHandler.getInstance();
 
         getMessageBuilders();
         prepareFunctions();
+
+        Main.registerReloadable(this);
+        Main.registerClosable(this);
     }
 
-    public void updateSettings() {
+    public static OutputManager getInstance() {
+        OutputManager localVar = instance;
+        if (localVar != null) {
+            return localVar;
+        }
+
+        synchronized (OutputManager.class) {
+            if (instance == null) {
+                instance = new OutputManager();
+            }
+            return instance;
+        }
+    }
+
+    @Override
+    public void reload() {
         getMessageBuilders();
+    }
+
+    @Override
+    public void close() {
+        if (adventure != null) {
+            adventure.close();
+            adventure = null;
+        }
     }
 
     public StatTextFormatter getMainMessageBuilder() {

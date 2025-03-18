@@ -2,16 +2,13 @@ package com.artemis.the.gr8.playerstats.core.commands;
 
 import com.artemis.the.gr8.playerstats.core.utils.EnumHandler;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
-import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -23,8 +20,6 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
 
     private List<String> statCommandTargets;
     private List<String> excludeCommandOptions;
-    private List<String> itemsThatCanBreak;
-    private List<String> entitiesThatCanDie;
 
     public TabCompleter() {
         offlinePlayerHandler = OfflinePlayerHandler.getInstance();
@@ -124,13 +119,13 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
             }
             case ITEM -> {
                 if (stat == Statistic.BREAK_ITEM) {
-                    return itemsThatCanBreak;
+                    return enumHandler.getAllItemsThatCanBreak();
                 } else {
                     return enumHandler.getAllItemNames();
                 }
             }
             case ENTITY -> {
-                return entitiesThatCanDie;
+                return enumHandler.getAllEntitiesThatCanDie();
             }
             default -> {
                 return statCommandTargets;
@@ -141,22 +136,5 @@ public final class TabCompleter implements org.bukkit.command.TabCompleter {
     private void prepareLists() {
         statCommandTargets = List.of("top", "player", "server", "me");
         excludeCommandOptions = List.of("add", "list", "remove", "info");
-
-        //breaking an item means running its durability negative
-        itemsThatCanBreak = Arrays.stream(Material.values())
-                .parallel()
-                .filter(Material::isItem)
-                .filter(item -> item.getMaxDurability() != 0)
-                .map(Material::toString)
-                .map(string -> string.toLowerCase(Locale.ENGLISH))
-                .collect(Collectors.toList());
-
-        //the only statistics dealing with entities are killed_entity and entity_killed_by
-        entitiesThatCanDie = Arrays.stream(EntityType.values())
-                .parallel()
-                .filter(EntityType::isAlive)
-                .map(EntityType::toString)
-                .map(string -> string.toLowerCase(Locale.ENGLISH))
-                .collect(Collectors.toList());
     }
 }

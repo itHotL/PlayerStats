@@ -1,7 +1,8 @@
 package com.artemis.the.gr8.playerstats.core.msg.msgutils;
 
+import com.artemis.the.gr8.playerstats.core.Main;
 import com.artemis.the.gr8.playerstats.core.utils.EnumHandler;
-import com.artemis.the.gr8.playerstats.core.utils.FileHandler;
+import com.artemis.the.gr8.playerstats.core.utils.YamlFileHandler;
 import com.artemis.the.gr8.playerstats.api.enums.Unit;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -21,7 +22,7 @@ import java.util.regex.Pattern;
  * A utility class that provides language keys to be
  * put in a TranslatableComponent.
  */
-public final class LanguageKeyHandler extends FileHandler {
+public final class LanguageKeyHandler extends YamlFileHandler {
 
     private static volatile LanguageKeyHandler instance;
     private static HashMap<Statistic, String> statisticKeys;
@@ -31,6 +32,7 @@ public final class LanguageKeyHandler extends FileHandler {
         super("language.yml");
         statisticKeys = generateStatisticKeys();
         subStatKey = Pattern.compile("(item|entity|block)\\.minecraft\\.");
+        Main.registerReloadable(this);
     }
 
     public static LanguageKeyHandler getInstance() {
@@ -147,7 +149,7 @@ public final class LanguageKeyHandler extends FileHandler {
     public String convertLanguageKeyToDisplayName(String key) {
         if (key == null) return null;
         if (isStatKey(key)) {
-            return getStatKeyTranslation(key);
+            return getStatKeyTranslationFromFile(key);
         }
         else if (key.equalsIgnoreCase(getKeyForBlockUnit())) {
             return Unit.BLOCK.getLabel();
@@ -168,7 +170,7 @@ public final class LanguageKeyHandler extends FileHandler {
                 isCustomKeyForEntityKilledByArg(key));
     }
 
-    private String getStatKeyTranslation(String statKey) {
+    private String getStatKeyTranslationFromFile(String statKey) {
         String realKey = convertToNormalStatKey(statKey);
         if (realKey == null) {
             return "";
