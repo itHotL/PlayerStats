@@ -1,6 +1,6 @@
 main: com.artemis.the.gr8.playerstats.core.Main
 name: PlayerStats
-version: 2.3
+version: 2.4
 api-version: 1.13
 description: adds commands to view player statistics in chat
 author: Artemis_the_gr8
