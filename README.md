@@ -5,7 +5,7 @@
 
 ## About
 PlayerStats is a Minecraft server plugin that adds a command to view player statistics in 
-top-10 format or individually. Currently tested on all versions between **1.16.5** and **1.21.1** on platforms:
+top-10 format or individually. Currently tested on all versions between **1.16.5** and **1.21.5** on platforms:
 - Bukkit
 - Spigot
 - Paper
