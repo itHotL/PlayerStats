@@ -4,6 +4,7 @@ version: 2.5
 api-version: 1.13
 description: adds commands to view player statistics in chat
 author: Artemis_the_gr8
+folia-supported: true
 softdepend:
   - PlaceholderAPI
 commands:

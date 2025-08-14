@@ -23,7 +23,6 @@ import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
@@ -151,28 +150,29 @@ public final class Main extends JavaPlugin implements PlayerStats {
      * Setup bstats
      */
     private void setupMetrics() {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                final Metrics metrics = new Metrics(pluginInstance, 15923);
-                final boolean placeholderExpansionActive;
-                if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
-                    PlaceholderExpansion expansion = PlaceholderAPIPlugin
-                            .getInstance()
-                            .getLocalExpansionManager()
-                            .getExpansion("playerstats");
-                    placeholderExpansionActive = expansion != null;
-                } else {
-                    placeholderExpansionActive = false;
-                }
-                metrics.addCustomChart(new SimplePie("using_placeholder_expansion", () -> placeholderExpansionActive ? "yes" : "no"));
+        Bukkit.getGlobalRegionScheduler().runDelayed(pluginInstance, task -> {
+            final Metrics metrics = new Metrics(pluginInstance, 15923);
+
+            boolean placeholderExpansionActive;
+            if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+                PlaceholderExpansion expansion = PlaceholderAPIPlugin.getInstance()
+                        .getLocalExpansionManager()
+                        .getExpansion("playerstats");
+                placeholderExpansionActive = (expansion != null);
+            } else {
+                placeholderExpansionActive = false;
             }
-        }.runTaskLaterAsynchronously(this, 200);
+
+            metrics.addCustomChart(new SimplePie(
+                    "using_placeholder_expansion",
+                    () -> placeholderExpansionActive ? "yes" : "no"
+            ));
+        }, 200L);
     }
 
     @Override
     public @NotNull String getVersion() {
-        return String.valueOf(this.getDescription().getVersion().charAt(0));
+        return String.valueOf(this.getPluginMeta().getVersion().charAt(0));
     }
 
     @Override
