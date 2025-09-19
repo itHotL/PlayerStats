@@ -5,12 +5,13 @@ import com.artemis.the.gr8.playerstats.api.StatResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedHashMap;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class RequestProcessor {
 
-    abstract @NotNull StatResult<Integer> processPlayerRequest(StatRequest<?> playerStatRequest);
+    abstract @NotNull CompletableFuture<StatResult<Integer>> processPlayerRequest(StatRequest<?> playerStatRequest);
 
-    abstract @NotNull StatResult<Long> processServerRequest(StatRequest<?> serverStatRequest);
+    abstract @NotNull CompletableFuture<StatResult<Long>> processServerRequest(StatRequest<?> serverStatRequest);
 
-    abstract @NotNull StatResult<LinkedHashMap<String, Integer>> processTopRequest(StatRequest<?> topStatRequest);
+    abstract @NotNull CompletableFuture<StatResult<LinkedHashMap<String, Integer>>> processTopRequest(StatRequest<?> topStatRequest);
 }

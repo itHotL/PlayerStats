@@ -55,10 +55,11 @@ final class StatThread extends Thread {
         }
 
         try {
-            StatResult<?> result = StatRequestManager.execute(statRequest);
-            outputManager.sendToCommandSender(statRequester, result.formattedComponent());
-        }
-        catch (ConcurrentModificationException e) {
+            StatRequestManager.execute(statRequest).thenAccept(result -> {
+                StatResult<?> statResult = (StatResult<?>) result; // I really shouldn't do this.
+                outputManager.sendToCommandSender(statRequester, statResult.formattedComponent());
+            });
+        } catch (ConcurrentModificationException e) {
             if (!statRequest.getSettings().isConsoleSender()) {
                 outputManager.sendFeedbackMsg(statRequester, StandardMessage.UNKNOWN_ERROR);
             }

@@ -1,6 +1,7 @@
 package com.artemis.the.gr8.playerstats.api;
 
 import java.util.LinkedHashMap;
+import java.util.concurrent.CompletableFuture;
 
 public interface StatManager {
 
@@ -31,7 +32,7 @@ public interface StatManager {
      * @see PlayerStats
      * @see StatResult
      */
-    StatResult<Integer> executePlayerStatRequest(StatRequest<Integer> request);
+    CompletableFuture<StatResult<Integer>> executePlayerStatRequest(StatRequest<Integer> request);
 
     /** Gets a RequestGenerator that can be used to create a ServerStatRequest.
      * This RequestGenerator will make sure all default settings
@@ -49,7 +50,7 @@ public interface StatManager {
      * @see PlayerStats
      * @see StatResult
      */
-    StatResult<Long> executeServerStatRequest(StatRequest<Long> request);
+    CompletableFuture<StatResult<Long>> executeServerStatRequest(StatRequest<Long> request);
 
     /** Gets a RequestGenerator that can be used to create a TopStatRequest
      * for a top-list of the specified size. This RequestGenerator will
@@ -76,5 +77,5 @@ public interface StatManager {
      * @see PlayerStats
      * @see StatResult
      */
-    StatResult<LinkedHashMap<String, Integer>> executeTopRequest(StatRequest<LinkedHashMap<String, Integer>> request);
+    CompletableFuture<StatResult<LinkedHashMap<String, Integer>>> executeTopRequest(StatRequest<LinkedHashMap<String, Integer>> request);
 }

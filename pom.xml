@@ -60,6 +60,11 @@
             <id>placeholderapi</id> <!-- Placeholder API -->
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
+
+        <repository>
+            <id>william278.net</id> <!-- HuskSync -->
+            <url>https://repo.william278.net/releases</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -141,6 +146,13 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>24.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.william278.husksync</groupId>
+            <artifactId>husksync-bukkit</artifactId>
+            <version>3.8.7+1.21.8</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

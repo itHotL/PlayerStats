@@ -6,12 +6,15 @@ import com.artemis.the.gr8.playerstats.api.StatRequest;
 import com.artemis.the.gr8.playerstats.api.StatResult;
 import com.artemis.the.gr8.playerstats.core.Main;
 import com.artemis.the.gr8.playerstats.core.msg.OutputManager;
+import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
 import com.artemis.the.gr8.playerstats.core.utils.Reloadable;
+import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Turns user input into a {@link StatRequest} that can be
@@ -35,10 +38,20 @@ public final class StatRequestManager implements StatManager, Reloadable {
 
     private @NotNull RequestProcessor getProcessor() {
         OutputManager outputManager = OutputManager.getInstance();
+
+        boolean huskSyncAvailable = Bukkit.getPluginManager().getPlugin("HuskSync") != null;
+
+        if (huskSyncAvailable) {
+            MyLogger.logLowLevelMsg("HuskSync detected, using HuskSync for player data retrieval.");
+            return new HuskSyncProcessor(outputManager);
+        }
+
+        MyLogger.logLowLevelMsg("Using Bukkit API for player data retrieval.");
         return new BukkitProcessor(outputManager);
     }
 
-    public static StatResult<?> execute(@NotNull StatRequest<?> request) {
+    // TODO: This is not a good type declaration. Change it later.
+    public static @NotNull CompletableFuture<?> execute(@NotNull StatRequest<?> request) {
         return switch (request.getSettings().getTarget()) {
             case PLAYER -> processor.processPlayerRequest(request);
             case SERVER -> processor.processServerRequest(request);
@@ -58,7 +71,7 @@ public final class StatRequestManager implements StatManager, Reloadable {
     }
 
     @Override
-    public @NotNull StatResult<Integer> executePlayerStatRequest(@NotNull StatRequest<Integer> request) {
+    public @NotNull CompletableFuture<StatResult<Integer>> executePlayerStatRequest(@NotNull StatRequest<Integer> request) {
         return processor.processPlayerRequest(request);
     }
 
@@ -69,7 +82,7 @@ public final class StatRequestManager implements StatManager, Reloadable {
     }
 
     @Override
-    public @NotNull StatResult<Long> executeServerStatRequest(@NotNull StatRequest<Long> request) {
+    public @NotNull CompletableFuture<StatResult<Long>> executeServerStatRequest(@NotNull StatRequest<Long> request) {
         return processor.processServerRequest(request);
     }
 
@@ -86,7 +99,7 @@ public final class StatRequestManager implements StatManager, Reloadable {
     }
 
     @Override
-    public @NotNull StatResult<LinkedHashMap<String, Integer>> executeTopRequest(@NotNull StatRequest<LinkedHashMap<String, Integer>> request) {
+    public @NotNull CompletableFuture<StatResult<LinkedHashMap<String, Integer>>> executeTopRequest(@NotNull StatRequest<LinkedHashMap<String, Integer>> request) {
         return processor.processTopRequest(request);
     }
 }
