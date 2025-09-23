@@ -7,6 +7,7 @@ description: adds commands to view player statistics in chat
 author: Artemis_the_gr8
 softdepend:
   - PlaceholderAPI
+  - HuskSync
 commands:
   statistic:
     aliases:

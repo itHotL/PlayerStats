@@ -10,10 +10,15 @@ import com.artemis.the.gr8.playerstats.core.sharing.ShareManager;
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.core.utils.OfflinePlayerHandler;
 import net.kyori.adventure.text.TextComponent;
+import net.william278.husksync.api.HuskSyncAPI;
+import net.william278.husksync.data.Data;
+import net.william278.husksync.data.DataSnapshot;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -21,30 +26,39 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 
-final class BukkitProcessor extends RequestProcessor {
+final class HuskSyncProcessor extends RequestProcessor {
 
     private final OutputManager outputManager;
     private final ConfigHandler config;
     private final ShareManager shareManager;
     private final OfflinePlayerHandler offlinePlayerHandler;
 
-    public BukkitProcessor(OutputManager outputManager) {
+    private final HuskSyncAPI huskSyncAPI;
+
+    public HuskSyncProcessor(OutputManager outputManager) {
         this.outputManager = outputManager;
 
         config = ConfigHandler.getInstance();
         shareManager = ShareManager.getInstance();
         offlinePlayerHandler = OfflinePlayerHandler.getInstance();
+        huskSyncAPI = HuskSyncAPI.getInstance();
     }
 
     @Override
     public @NotNull CompletableFuture<StatResult<Integer>> processPlayerRequest(StatRequest<?> playerStatRequest) {
         StatRequest.Settings requestSettings = playerStatRequest.getSettings();
-        int stat = getPlayerStat(requestSettings);
-        FormattingFunction formattingFunction = outputManager.formatPlayerStat(requestSettings, stat);
-        TextComponent formattedResult = processFunction(requestSettings.getCommandSender(), formattingFunction);
-        String resultAsString = outputManager.textComponentToString(formattedResult);
 
-        return CompletableFuture.completedFuture(new StatResult<>(stat, formattedResult, resultAsString));
+        CompletableFuture<StatResult<Integer>> future = new CompletableFuture<>();
+
+        getPlayerStatHs(requestSettings).thenAccept(stat -> {
+            FormattingFunction formattingFunction = outputManager.formatPlayerStat(requestSettings, stat);
+            TextComponent formattedResult = processFunction(requestSettings.getCommandSender(), formattingFunction);
+            String resultAsString = outputManager.textComponentToString(formattedResult);
+
+            future.complete(new StatResult<>(stat, formattedResult, resultAsString));
+        });
+
+        return future;
     }
 
     @Override
@@ -69,7 +83,7 @@ final class BukkitProcessor extends RequestProcessor {
         return CompletableFuture.completedFuture(new StatResult<>(stats, formattedResult, resultAsString));
     }
 
-    private int getPlayerStat(@NotNull StatRequest.Settings requestSettings) {
+    private CompletableFuture<Integer> getPlayerStatHs(@NotNull StatRequest.Settings requestSettings) {
         OfflinePlayer player;
         if (offlinePlayerHandler.isExcludedPlayer(requestSettings.getPlayerName()) &&
                 config.allowPlayerLookupsForExcludedPlayers()) {
@@ -77,12 +91,60 @@ final class BukkitProcessor extends RequestProcessor {
         } else {
             player = offlinePlayerHandler.getIncludedOfflinePlayer(requestSettings.getPlayerName());
         }
+
+        UUID uuid = player.getUniqueId();
+
+        CompletableFuture<Integer> completableFuture = new CompletableFuture<>();
+
+        huskSyncAPI.getUser(uuid).thenAccept(optionalUser -> {
+            if (optionalUser.isEmpty()) {
+                completableFuture.complete(-1);
+                return;
+            }
+
+            huskSyncAPI.getCurrentData(optionalUser.get()).thenAccept(optionalSnapshot -> {
+                if (optionalSnapshot.isEmpty()) {
+                    completableFuture.complete(-1);
+                    return;
+                }
+
+                DataSnapshot.Unpacked snapshot = optionalSnapshot.get();
+                Optional<Data.Statistics> optionalStatistics = snapshot.getStatistics();
+                if (optionalStatistics.isEmpty()) {
+                    completableFuture.complete(-1);
+                    return;
+                }
+
+                Data.Statistics statistics = optionalStatistics.get();
+                completableFuture.complete(huskStatProcessor(statistics, requestSettings));
+            });
+
+        });
+
+        return completableFuture;
+    }
+
+
+    private int huskStatProcessor(Data.Statistics huskStats, StatRequest.Settings requestSettings) {
+        NamespacedKey nsKey = requestSettings.getStatistic().getKey();
+        String key = nsKey.getKey();
+
+        MyLogger.logLowLevelMsg("Requested main-stat: " + key);
+        MyLogger.logLowLevelMsg("Statistic type: " + requestSettings.getStatistic().getType().name());
+
         return switch (requestSettings.getStatistic().getType()) {
-            case UNTYPED -> player.getStatistic(requestSettings.getStatistic());
-            case ENTITY -> player.getStatistic(requestSettings.getStatistic(), requestSettings.getEntity());
-            case BLOCK -> player.getStatistic(requestSettings.getStatistic(), requestSettings.getBlock());
-            case ITEM -> player.getStatistic(requestSettings.getStatistic(), requestSettings.getItem());
+            case UNTYPED -> huskStats.getGenericStatistics().get(key);
+            case ENTITY ->
+                    getStatisticsSafetyValue(huskStats.getEntityStatistics().get(key), requestSettings.getEntity().getName());
+            case BLOCK ->
+                    getStatisticsSafetyValue(huskStats.getBlockStatistics().get(key), requestSettings.getBlock().name().toLowerCase(Locale.ROOT));
+            case ITEM ->
+                    getStatisticsSafetyValue(huskStats.getItemStatistics().get(key), requestSettings.getItem().name().toLowerCase(Locale.ROOT));
         };
+    }
+
+    private int getStatisticsSafetyValue(Map<String, Integer> statistics, String nameKey) {
+        return statistics.getOrDefault(nameKey, 0);
     }
 
     private long getServerStat(StatRequest.Settings requestSettings) {
