@@ -175,7 +175,17 @@ public final class LanguageKeyHandler extends YamlFileHandler {
         if (realKey == null) {
             return "";
         }
-        return super.getFileConfiguration().getString(realKey);
+        String translation = super.getFileConfiguration().getString(realKey);
+        if (translation == null || translation.isEmpty()) {
+            String rawName = realKey;
+            if (rawName.startsWith("stat.minecraft.")) {
+                rawName = rawName.substring("stat.minecraft.".length());
+            } else if (rawName.startsWith("stat_type.minecraft.")) {
+                rawName = rawName.substring("stat_type.minecraft.".length());
+            }
+            return StringUtils.prettify(rawName);
+        }
+        return translation;
     }
 
     private static @Nullable String convertToNormalStatKey(String statKey) {
