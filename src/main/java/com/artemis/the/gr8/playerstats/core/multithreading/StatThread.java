@@ -1,11 +1,13 @@
 package com.artemis.the.gr8.playerstats.core.multithreading;
 
+import com.artemis.the.gr8.playerstats.api.events.StatCalculatedEvent;
 import com.artemis.the.gr8.playerstats.core.msg.OutputManager;
 import com.artemis.the.gr8.playerstats.core.statistic.StatRequestManager;
 import com.artemis.the.gr8.playerstats.api.StatRequest;
 import com.artemis.the.gr8.playerstats.api.StatResult;
 import com.artemis.the.gr8.playerstats.core.utils.MyLogger;
 import com.artemis.the.gr8.playerstats.core.enums.StandardMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,9 +58,13 @@ final class StatThread extends Thread {
 
         try {
             StatResult<?> result = StatRequestManager.execute(statRequest);
+
+            // Fire the event to expose the data, for things like DiscordSRV - DerexXD
+            StatCalculatedEvent event = new StatCalculatedEvent(statRequester, statRequest, result);
+            Bukkit.getPluginManager().callEvent(event);
+
             outputManager.sendToCommandSender(statRequester, result.formattedComponent());
-        }
-        catch (ConcurrentModificationException e) {
+        } catch (ConcurrentModificationException e) {
             if (!statRequest.getSettings().isConsoleSender()) {
                 outputManager.sendFeedbackMsg(statRequester, StandardMessage.UNKNOWN_ERROR);
             }

@@ -1,5 +1,6 @@
 package com.artemis.the.gr8.playerstats.core.commands;
 
+import com.artemis.the.gr8.playerstats.api.events.StatSharedEvent;
 import com.artemis.the.gr8.playerstats.core.sharing.ShareManager;
 import com.artemis.the.gr8.playerstats.core.enums.StandardMessage;
 import com.artemis.the.gr8.playerstats.core.msg.OutputManager;
@@ -45,7 +46,15 @@ public final class ShareCommand implements CommandExecutor {
                     outputManager.sendFeedbackMsg(sender, StandardMessage.STAT_RESULTS_TOO_OLD);
                 } else {
                     commandCounter.upShareCommandCount();
-                    outputManager.sendToAllPlayers(result.formattedValue());
+
+                    // Fire the share event to expose the data, for things like DiscordSRV - DerexXD
+                    StatSharedEvent event = new StatSharedEvent(sender, result.formattedValue(), shareCode);
+                    org.bukkit.Bukkit.getPluginManager().callEvent(event);
+
+                    // Only broadcast to all players if the event wasn't cancelled
+                    if (!event.isCancelled()) {
+                        outputManager.sendToAllPlayers(result.formattedValue());
+                    }
                 }
             }
         }

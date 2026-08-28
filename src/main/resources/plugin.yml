@@ -1,6 +1,6 @@
 main: com.artemis.the.gr8.playerstats.core.Main
 name: PlayerStats
-version: 2.6
+version: ${project.version}
 api-version: 1.13
 folia-supported: true
 description: adds commands to view player statistics in chat
